@@ -6,6 +6,13 @@ import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
 
+/**
+ * This is the most generit class of MUDROD,
+ * 
+ * conig: configuration read from config.xml
+ * es: Elasticsearch instance
+ * 
+ */
 public abstract class MudrodAbstract {
 	protected Map<String, String> config = new HashMap<String, String>();
 	protected ESDriver es = null;
