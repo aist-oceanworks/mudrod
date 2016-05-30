@@ -1,4 +1,4 @@
-package esiptestbed.mudrod.weblog;
+package esiptestbed.mudrod.weblog.pre;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,12 +23,12 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Bucket;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
-import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
+import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
 
 
-public class CrawlerDetection extends MudrodAbstract{
+public class CrawlerDetection extends DiscoveryStepAbstract{
 	public CrawlerDetection(Map<String, String> config, ESDriver es) {
 		super(config, es);
 		// TODO Auto-generated constructor stub
@@ -51,7 +51,23 @@ public class CrawlerDetection extends MudrodAbstract{
 	public static final String cURL ="curl/";
 
 	
-	
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		System.out.println("*****************Crawler detection starts******************");
+		startTime=System.currentTimeMillis();
+		try {
+			CheckByRate();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Crawler detection ends******************Took " + (endTime-startTime)/1000+"s");
+	}
 
 	public boolean CheckKnownCrawler(String agent){
 		if(agent.equals(GoogleBot)||agent.equals(GoogleBot21)||agent.equals(BingBot)||agent.equals(YahooBot)||agent.equals(RogerBot)||

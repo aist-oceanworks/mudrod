@@ -1,4 +1,4 @@
-package esiptestbed.mudrod.weblog;
+package esiptestbed.mudrod.weblog.pre;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -28,18 +28,30 @@ import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import org.elasticsearch.search.sort.SortOrder;
 
-import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
+import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.weblog.structure.Session;
 
 
-public class SessionGenerator extends MudrodAbstract{
+public class SessionGenerator extends DiscoveryStepAbstract{
 
     public SessionGenerator(Map<String, String> config, ESDriver es) {
 		super(config, es);
 		// TODO Auto-generated constructor stub
 	}
     
+
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		System.out.println("*****************Session generating starts******************");
+		startTime=System.currentTimeMillis();
+        generateSession();
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Session generating ends******************Took " + (endTime-startTime)/1000+"s");
+	}
+
+	
     public void generateSession(){
     	try {
     		es.createBulkProcesser();

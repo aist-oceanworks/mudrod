@@ -12,6 +12,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
+import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 
@@ -24,7 +25,6 @@ public class MudrodEngine {
 	{
 		loadConfig();
 		es = new ESDriver(config.get("clusterName"));
-		System.out.println("fdsfa");
 	}
 	
 	public Map<String, String> getConfig(){
@@ -33,7 +33,6 @@ public class MudrodEngine {
 	
 	public void loadConfig(){
 		String filePathName = "./src/main/java/esiptestbed/mudrod/main/config.xml";
-		//TODO: load the configuration from the xml file, and populate the configs arraylist
 		SAXBuilder saxBuilder = new SAXBuilder();
 		File file=new File(filePathName);
 
@@ -62,7 +61,8 @@ public class MudrodEngine {
 	}
 	
 	public void start(){
-		DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es);
+		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es);
+		DiscoveryEngineAbstract de = new OntologyDiscoveryEngine(config, es);
 		de.preprocess();
 		de.process();
 		de.output();

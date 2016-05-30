@@ -1,4 +1,4 @@
-package esiptestbed.mudrod.weblog;
+package esiptestbed.mudrod.weblog.pre;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -28,18 +28,40 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 
+import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.weblog.structure.Coordinates;
 import esiptestbed.mudrod.weblog.structure.GeoIp;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
-public class SessionStatistic extends MudrodAbstract{
+public class SessionStatistic extends DiscoveryStepAbstract{
 	public SessionStatistic(Map<String, String> config, ESDriver es) {
 		super(config, es);
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		System.out.println("*****************Session summarizing starts******************");
+		startTime=System.currentTimeMillis();
+		try {
+			processSession();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Session summarizing ends******************Took " + (endTime-startTime)/1000+"s");
+	}
+	
 	public void processSession() throws IOException, InterruptedException, ExecutionException {
 		es.createBulkProcesser();
 		String inputType = this.Cleanup_type;
@@ -227,4 +249,6 @@ public class SessionStatistic extends MudrodAbstract{
 		}
 		return null;
 	}
+
+
 }

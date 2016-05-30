@@ -1,4 +1,4 @@
-package esiptestbed.mudrod.weblog;
+package esiptestbed.mudrod.weblog.pre;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -15,14 +15,24 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 
-import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
+import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
 
-public class ImportLogFile extends MudrodAbstract{
+public class ImportLogFile extends DiscoveryStepAbstract{
 	public ImportLogFile(Map<String, String> config, ESDriver es) {
 		super(config, es);
 		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public void execute() {
+		// TODO Auto-generated method stub
+		System.out.println("*****************Step 1: Import starts******************");
+		startTime=System.currentTimeMillis();
+		readFile();
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Import ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
@@ -200,5 +210,7 @@ public class ImportLogFile extends MudrodAbstract{
 			}
 		}		
 	}
+
+
 
 }

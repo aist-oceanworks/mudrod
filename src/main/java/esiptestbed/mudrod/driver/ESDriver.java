@@ -54,13 +54,14 @@ public class ESDriver {
     	            public void afterBulk(long executionId,
     	                                  BulkRequest request,
     	                                  Throwable failure) {
-    	            	//System.out.println("Fail!");
+    	            	System.out.println("Bulk Fail!");
     	            	throw new RuntimeException("Caught exception in bulk: " + request + ", failure: " + failure, failure);
     	            } 
     	        }
     	        )
     	        .setBulkActions(1000) 
     	        .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
+    	        .setFlushInterval(TimeValue.timeValueSeconds(5))    //let's test this
     	        .setConcurrentRequests(1) 
     	        .build();
     }
