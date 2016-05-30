@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Config>
+
+<para name="httplogpath">C:/Users/Yongyao/Desktop/access_log.podaac.201502</para>
+<para name="ftplogpath">C:/aist/ftp/podaac-ftp.log.201502</para>
+<para name="metadataurl">null</para>
+<para name="ontologydir">null</para>
+
+<para name="clusterName">elasticsearch</para>
+<para name="indexName">mudrod</para>
+
+<para name="HTTP_type">rawhttp02</para>
+<para name="FTP_type">rawftp02</para>
+<para name="Cleanup_type">cleanupLog02</para>
+<para name="SessionStats">sessionstats02</para>
+
+<para name="sendingrate">30</para>   <!-- threshold for crawler detection, unit request/second -->
+<para name="timegap">600</para>   <!-- threshold for session generator, unit second-->
+<para name="searchf">100</para>   <!-- threshold for removing suspicious sessions, unit second-->
+<para name="viewf">200</para>   <!-- threshold for session generator, unit second-->
+<para name="downloadf">100</para>   <!-- threshold for session generator, unit second-->
+
+<para name="SessionPort">443</para>
+
+</Config>
