@@ -11,6 +11,8 @@ public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public abstract void execute();
+	public abstract Object execute();
+	
+	public abstract Object execute(Object o);
 
 }

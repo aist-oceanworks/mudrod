@@ -56,7 +56,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 	    }
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		es.createBulkProcesser();		
 		
@@ -103,6 +103,13 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 				}
 			}
 		}
+		return null;
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

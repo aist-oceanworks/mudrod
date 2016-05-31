@@ -52,7 +52,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract{
 
 	
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Crawler detection starts******************");
 		startTime=System.currentTimeMillis();
@@ -67,6 +67,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract{
 		}
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Crawler detection ends******************Took " + (endTime-startTime)/1000+"s");
+		return Cleanup_type;
 	}
 
 	public boolean CheckKnownCrawler(String agent){
@@ -177,6 +178,12 @@ public class CrawlerDetection extends DiscoveryStepAbstract{
 		es.destroyBulkProcessor();
 		
 		System.out.println("User count: "+ Integer.toString(user_count));
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

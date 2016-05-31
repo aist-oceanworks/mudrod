@@ -15,7 +15,7 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
 	}
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Clean raw log starts******************");
 		startTime=System.currentTimeMillis();
@@ -23,6 +23,13 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
 		es.deleteAllByQuery(config.get("indexName"), FTP_type, QueryBuilders.matchAllQuery());
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Clean raw log ends******************Took " + (endTime-startTime)/1000+"s");
+		return null;
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

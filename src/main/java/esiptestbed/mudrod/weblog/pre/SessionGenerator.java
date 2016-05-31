@@ -42,13 +42,14 @@ public class SessionGenerator extends DiscoveryStepAbstract{
     
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Session generating starts******************");
 		startTime=System.currentTimeMillis();
         generateSession();
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Session generating ends******************Took " + (endTime-startTime)/1000+"s");
+		return null;
 	}
 
 	
@@ -347,6 +348,13 @@ public class SessionGenerator extends DiscoveryStepAbstract{
 		UpdateRequest ur = new UpdateRequest(index, type, id)
 				.doc(jsonBuilder().startObject().field(field1, value1).endObject());
 		es.bulkProcessor.add(ur);
+	}
+
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

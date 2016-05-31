@@ -42,7 +42,7 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 	}
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Session summarizing starts******************");
 		startTime=System.currentTimeMillis();
@@ -60,6 +60,7 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 		}
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Session summarizing ends******************Took " + (endTime-startTime)/1000+"s");
+		return null;
 	}
 	
 	public void processSession() throws IOException, InterruptedException, ExecutionException {
@@ -247,6 +248,12 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 		if (m.find()) {
 			return m.group(1);
 		}
+		return null;
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

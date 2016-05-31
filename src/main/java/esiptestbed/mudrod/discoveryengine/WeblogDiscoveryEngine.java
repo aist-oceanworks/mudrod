@@ -4,6 +4,7 @@ import java.util.Map;
 
 
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.metadata.pre.Example;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
 import esiptestbed.mudrod.weblog.pre.RemoveRawLog;

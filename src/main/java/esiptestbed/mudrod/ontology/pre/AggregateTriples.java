@@ -28,7 +28,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 	}
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		File file = new File(this.config.get("ontologyOutputFile"));
 		if (!file.exists()) {
@@ -73,6 +73,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 	public Document document;
@@ -178,6 +179,12 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 		String[] str_array = str.split("(?=[A-Z])");
 		str = Arrays.toString(str_array);
 		return str.substring(1, str.length()-1).replace(",", "");
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

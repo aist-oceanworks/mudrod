@@ -26,13 +26,14 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 	}
 	
 	@Override
-	public void execute() {
+	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Step 1: Import starts******************");
 		startTime=System.currentTimeMillis();
 		readFile();
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Import ends******************Took " + (endTime-startTime)/1000+"s");
+		return null;
 	}
 
 	String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
@@ -209,6 +210,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
 			}
 		}		
+	}
+
+	@Override
+	public Object execute(Object o) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

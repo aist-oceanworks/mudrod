@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Config>
+<para name="loglevel">1</para> <!-- 1: engine, 2: step, 3: substep -->
+
 
 <para name="httplogpath">C:/Users/Yongyao/Desktop/access_log.podaac.201502</para>
 <para name="ftplogpath">C:/aist/ftp/podaac-ftp.log.201502</para>
