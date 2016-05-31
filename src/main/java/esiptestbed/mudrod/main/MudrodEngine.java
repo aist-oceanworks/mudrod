@@ -56,7 +56,6 @@ public class MudrodEngine {
 		for (Map.Entry<String, String> entry : config.entrySet()) {
 		    System.out.println(entry.getKey()+" : "+entry.getValue());
 		}
-
 	}
 	
 	public void start(){
@@ -77,5 +76,4 @@ public class MudrodEngine {
         test.start();
         test.end();
 	}
-
 }
