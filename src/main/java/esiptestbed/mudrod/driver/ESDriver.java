@@ -137,7 +137,7 @@ public class ESDriver {
 		}
 		destroyBulkProcessor();
 	}
-    
+   
     public void close(){
     	node.close();   
     }
@@ -145,8 +145,6 @@ public class ESDriver {
     public void refreshIndex(){
 		node.client().admin().indices().prepareRefresh().execute().actionGet();
 	}
-    
-
     		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

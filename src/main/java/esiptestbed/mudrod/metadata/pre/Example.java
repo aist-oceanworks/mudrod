@@ -14,7 +14,6 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 
 public class Example extends DiscoveryStepAbstract {
-
 	public Example(Map<String, String> config, ESDriver es) {
 		super(config, es);
 		// TODO Auto-generated constructor stub
