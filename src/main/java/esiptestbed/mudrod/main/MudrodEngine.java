@@ -13,7 +13,6 @@ import org.jdom2.input.SAXBuilder;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
 import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
-import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 
 
