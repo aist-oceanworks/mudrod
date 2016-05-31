@@ -1,5 +1,6 @@
-# MUDROD (Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access)
+# MUDROD
 
+MUDROD (Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access) 
 Funded by NASA AIST (NNX15AM85G) 
 
 Team members:
