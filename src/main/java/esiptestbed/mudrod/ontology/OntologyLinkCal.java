@@ -29,7 +29,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 			try {
 				Mapping = jsonBuilder()
 						.startObject()
-							.startObject("SWEET")
+							.startObject(config.get("ontologyLinkageType"))
 								.startObject("properties")
 									.startObject("concept_A")
 										.field("type", "string")
@@ -46,7 +46,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 				
 				es.client.admin().indices()
 				  .preparePutMapping(config.get("indexName"))
-		          .setType("SWEET")
+		          .setType(config.get("ontologyLinkageType"))
 		          .setSource(Mapping)
 		          .execute().actionGet();
 			} catch (IOException e) {
