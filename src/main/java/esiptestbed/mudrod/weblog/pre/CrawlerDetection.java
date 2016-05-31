@@ -67,7 +67,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract{
 		}
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Crawler detection ends******************Took " + (endTime-startTime)/1000+"s");
-		return Cleanup_type;
+		return null;
 	}
 
 	public boolean CheckKnownCrawler(String agent){
