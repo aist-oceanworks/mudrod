@@ -39,10 +39,6 @@ public class MudrodEngine {
     es = new ESDriver(config.get("clusterName"));
   }
 
-  public Map<String, String> getConfig(){
-    return config;
-  }
-
   public void loadConfig() {
     SAXBuilder saxBuilder = new SAXBuilder();
     InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
