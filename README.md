@@ -4,9 +4,8 @@ MUDROD (Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Im
 
 Team members:
 
-Chaowei (Phil) Yang, Yongyao Jiang, Yun Li_George Mason University
-
-Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis John Mcgibbney_Jet Propulsion Laboratory, NASA
+Chaowei (Phil) Yang, Yongyao Jiang, Yun Li<br/>George Mason University<br/>
+Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis John Mcgibbney<br/>Jet Propulsion Laboratory, NASA
 
 ##License
 This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
