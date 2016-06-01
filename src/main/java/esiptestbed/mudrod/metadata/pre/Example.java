@@ -40,7 +40,8 @@ public class Example extends DiscoveryStepAbstract {
     startTime=System.currentTimeMillis();
     es.createBulkProcesser();
     /* Do something */
-
+    
+    //added on github
     es.destroyBulkProcessor();
     endTime=System.currentTimeMillis();
     System.out.println("*****************Example ends******************Took " + (endTime-startTime)/1000+"s");
