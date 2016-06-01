@@ -7,5 +7,9 @@ Team members:
 
 Chaowei (Phil) Yang, Yongyao Jiang, Yun Li, George Mason University
 
-Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis Mcgibbney, Jet Propulsion Laboratory, NASA
+Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis John Mcgibbney, Jet Propulsion Laboratory, NASA
+
+##License
+This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
+copy of which is shipped with this project.
 
