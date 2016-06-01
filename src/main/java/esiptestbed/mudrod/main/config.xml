@@ -13,7 +13,7 @@
 <para name="ontologyOutputFile">./src/main/java/esiptestbed/tmp/Ocean_triples.csv</para>
 
 <para name="clusterName">elasticsearch</para>
-<para name="indexName">mudrod</para>
+<para name="indexName">podaacsession</para>
 
 <para name="HTTP_type">rawhttp</para>
 <para name="FTP_type">rawftp</para>
@@ -29,5 +29,11 @@
 <para name="SessionPort">443</para> 
 
 <para name="ontologyLinkageType">SWEET</para> 
+<para name="metadataType">metadataSource</para> 
+<para name="commentType">comment</para> 
+<para name="clickstreamSVDDimension">50</para> 
+<para name="metadataSVDDimension">50</para> 
+<para name="userClickSimilarity">userClicking</para> 
+<para name="metadataSimilarity">GCMDMetadata</para> 
 
 </Config>

@@ -14,11 +14,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
-	public OntologyLinkCal(Map<String, String> config, ESDriver es) {
-		super(config, es);
+	public OntologyLinkCal(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 		es.deleteAllByQuery(config.get("indexName"), config.get("ontologyLinkageType"), QueryBuilders.matchAllQuery());
 		addSWEETMapping();

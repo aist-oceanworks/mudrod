@@ -31,13 +31,14 @@ import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.Coordinates;
 import esiptestbed.mudrod.weblog.structure.GeoIp;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
 public class SessionStatistic extends DiscoveryStepAbstract{
-	public SessionStatistic(Map<String, String> config, ESDriver es) {
-		super(config, es);
+	public SessionStatistic(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -134,7 +135,7 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 						if (request.contains(datasetlist)) {
 							searchDataListRequest_count++;
 
-							RequestUrl requestURL = new RequestUrl(this.config,this.es);
+							RequestUrl requestURL = new RequestUrl(this.config,this.es, null);
 							String info = requestURL.GetSearchInfo(request) + ",";
 
 							if(!info.equals(",")){

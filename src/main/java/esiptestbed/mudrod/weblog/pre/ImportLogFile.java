@@ -17,11 +17,13 @@ import org.elasticsearch.action.index.IndexRequest;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 
 
 public class ImportLogFile extends DiscoveryStepAbstract{
-	public ImportLogFile(Map<String, String> config, ESDriver es) {
-		super(config, es);
+
+	public ImportLogFile(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -180,7 +182,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
 		String request = matcher.group(5).toLowerCase();
 		String agent = matcher.group(9);
-		CrawlerDetection crawlerDe = new CrawlerDetection(this.config, this.es);
+		CrawlerDetection crawlerDe = new CrawlerDetection(this.config, this.es, this.spark);
 		if(crawlerDe.CheckKnownCrawler(agent))
 		{
 

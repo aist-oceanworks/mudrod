@@ -1,10 +1,12 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
  * This is the most generit class of MUDROD,
@@ -13,9 +15,10 @@ import esiptestbed.mudrod.driver.ESDriver;
  * es: Elasticsearch instance
  * 
  */
-public abstract class MudrodAbstract {
+public abstract class MudrodAbstract implements Serializable {
 	protected Map<String, String> config = new HashMap<String, String>();
 	protected ESDriver es = null;
+	protected SparkDriver spark = null;
 	protected long startTime, endTime;
 	public String HTTP_type = null;
 	public String FTP_type = null;
@@ -26,9 +29,14 @@ public abstract class MudrodAbstract {
 	
 	private int print_level = 0;
 	
-	public MudrodAbstract(Map<String, String> config, ESDriver es){
+	public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
 		this.config = config;
 		this.es = es;
+		this.spark = spark;
+		this.initMudrod();
+	}
+	
+	protected void initMudrod(){
 		try {
 			es.putMapping(config.get("indexName"), settings_json, mapping_json);
 		} catch (IOException e) {

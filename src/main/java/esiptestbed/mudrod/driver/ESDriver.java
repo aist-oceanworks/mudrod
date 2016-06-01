@@ -3,6 +3,7 @@ package esiptestbed.mudrod.driver;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -20,11 +21,16 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
 
 
-public class ESDriver {
+public class ESDriver implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public Client client = null;
 	public Node node = null;
 	public BulkProcessor bulkProcessor = null;
@@ -136,6 +142,10 @@ public class ESDriver {
 
 		}
 		destroyBulkProcessor();
+	}
+	
+	public void deleteType(String index, String type){
+		this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
 	}
    
     public void close(){

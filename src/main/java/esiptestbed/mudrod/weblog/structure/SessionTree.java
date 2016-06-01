@@ -12,57 +12,53 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
-
-public class SessionTree extends MudrodAbstract{
+public class SessionTree extends MudrodAbstract {
 	public int size = 0;
-	protected TreeNode root = null;
+	protected SessionNode root = null;
 	public boolean binsert = false;
-	public TreeNode tmpnode;
-	public TreeNode latestDatasetnode;
+	public SessionNode tmpnode;
+	public SessionNode latestDatasetnode;
+	private String sessionID;
+	private String cleanupType;
 
-	public SessionTree(Map<String, String> config, ESDriver es,TreeNode rootData) {
-		super(config, es);
-		root = new TreeNode("root", "root", "", "", 0);
+	public SessionTree(Map<String, String> config, ESDriver es, SessionNode rootData, String sessionID, String cleanupType) {
+		super(config, es, null);
+		root = new SessionNode("root", "root", "", "", 0);
 		tmpnode = root;
+		this.sessionID = sessionID;
+		this.cleanupType = cleanupType;
 	}
 
-	public SessionTree(Map<String, String> config, ESDriver es) {
-		super(config, es);
-		root = new TreeNode("root", "root", "", "", 0);
+	public SessionTree(Map<String, String> config, ESDriver es, String sessionID, String cleanupType) {
+		super(config, es, null);
+		root = new SessionNode("root", "root", "", "", 0);
 		root.setParent(root);
 		tmpnode = root;
+		this.sessionID = sessionID;
+		this.cleanupType = cleanupType;
 	}
-
-	public int size() {
-		return size;
-	}
-
-	public TreeNode insert(TreeNode node) {
+	
+	public SessionNode insert(SessionNode node) {
 		// begin with datasetlist
 		if (node.getKey().equals("datasetlist")) {
 			this.binsert = true;
 		}
-
 		if (!this.binsert) {
 			return null;
 		}
-
 		// remove unrelated node
 		if (!node.getKey().equals("datasetlist") && !node.getKey().equals("dataset") && !node.getKey().equals("ftp")) {
 			return null;
 		}
-
 		// remove dumplicated click
 		if (node.getRequest().equals(tmpnode.getRequest())) {
 			return null;
 		}
-
 		// search insert node
-		TreeNode parentnode = this.searchParentNode(node);
+		SessionNode parentnode = this.searchParentNode(node);
 		if (parentnode == null) {
 			return null;
 		}
-
 		node.setParent(parentnode);
 		parentnode.addChildren(node);
 
@@ -76,7 +72,111 @@ public class SessionTree extends MudrodAbstract{
 		return node;
 	}
 
-	public TreeNode searchParentNode(TreeNode node) {
+	public void printTree(SessionNode node) {
+		System.out.print("node:" + node.getRequest() + "\n");
+		if (node.children.size() != 0) {
+			for (int i = 0; i < node.children.size(); i++) {
+				printTree(node.children.get(i));
+			}
+		}
+	}
+
+	public JsonObject TreeToJson(SessionNode node) {
+		Gson gson = new Gson();
+		JsonObject json = new JsonObject();
+
+		json.addProperty("seq", node.getSeq());
+		if (node.getKey().equals("datasetlist")) {
+			json.addProperty("icon", "searching.png");
+
+			json.addProperty("name", node.getRequest());
+
+		} else if (node.getKey().equals("dataset")) {
+			json.addProperty("icon", "viewing.png");
+			json.addProperty("name", node.getDatasetId());
+			// json.addProperty("tips", node.getDatasetId());
+
+		} else if (node.getKey().equals("ftp")) {
+			json.addProperty("icon", "downloading.png");
+			json.addProperty("name", node.getRequest());
+			// json.addProperty("tips", node.getRequest());
+
+		} else if (node.getKey().equals("root")) {
+			json.addProperty("name", "");
+			json.addProperty("icon", "users.png");
+			// json.addProperty("tips","user");
+		}
+
+		if (node.children.size() != 0) {
+			List<JsonObject> json_children = new ArrayList<JsonObject>();
+			for (int i = 0; i < node.children.size(); i++) {
+				JsonObject json_child = TreeToJson(node.children.get(i));
+				json_children.add(json_child);
+			}
+			JsonElement jsonElement = gson.toJsonTree(json_children);
+			json.add("children", jsonElement);
+		}
+
+		return json;
+	}
+	
+	public List<ClickStream> getClickStreamList() throws UnsupportedEncodingException {
+
+		List<ClickStream> clickthroughs = new ArrayList<ClickStream>();
+		List<SessionNode> viewnodes = this.getViewNodes(this.root);
+		for (int i = 0; i < viewnodes.size(); i++) {
+
+			SessionNode viewnode = viewnodes.get(i);
+			SessionNode parent = viewnode.getParent();
+			List<SessionNode> children = viewnode.getChildren();
+
+			if (!parent.getKey().equals("datasetlist")) {
+				continue;
+			}
+
+			RequestUrl requestURL = new RequestUrl(this.config, this.es, null);
+			String viewquery = requestURL.GetSearchInfo(viewnode.getRequest());
+
+			String dataset = viewnode.getDatasetId();
+			boolean download = false;
+			for (int j = 0; j < children.size(); j++) {
+				SessionNode child = children.get(j);
+				if (child.getKey().equals("ftp")) {
+					download = true;
+					break;
+				}
+			}
+
+			if (viewquery !=null && !viewquery.equals("")) {
+				String[] queries = viewquery.trim().split(",");
+				if(queries.length >0){
+					for(int k=0; k<queries.length; k++){
+						ClickStream data = new ClickStream(queries[k], dataset, download);
+						data.setSessionId(this.sessionID);
+						data.setType(this.cleanupType);
+						clickthroughs.add(data);
+					}
+				}
+			}
+		}
+
+		return clickthroughs;
+	}
+	
+	private SessionNode insert(String key, String value) {
+		SessionNode entry = new SessionNode();
+		entry.key = key;
+		entry.value = value;
+		if (root == null) {
+			root = entry;
+		} else {
+			insertHelper(entry, root);
+		}
+		size++;
+		return entry;
+	}
+
+	private SessionNode searchParentNode(SessionNode node) {
 
 		String tmpnodeKey = tmpnode.getKey();
 		String nodeKey = node.getKey();
@@ -85,7 +185,7 @@ public class SessionTree extends MudrodAbstract{
 			if (node.getReferer().equals("-")) {
 				return root;
 			} else {
-				TreeNode tmp = this.findLatestRefer(tmpnode, node.getReferer());
+				SessionNode tmp = this.findLatestRefer(tmpnode, node.getReferer());
 				if (tmp == null) {
 					return root;
 				} else {
@@ -105,10 +205,7 @@ public class SessionTree extends MudrodAbstract{
 		return tmpnode;
 	}
 
-	public TreeNode findLatestRefer(TreeNode start, String refer) {
-		/*
-		 * if (refer.equals(start.getRequest())) { return start; }
-		 */
+	private SessionNode findLatestRefer(SessionNode start, String refer) {
 		while (true) {
 			if (start.getKey().equals("root")) {
 				return null;
@@ -118,7 +215,7 @@ public class SessionTree extends MudrodAbstract{
 				return start;
 			}
 
-			TreeNode tmp = this.iterChild(start, refer);
+			SessionNode tmp = this.iterChild(start, refer);
 			if (tmp == null) {
 				continue;
 			} else {
@@ -127,9 +224,9 @@ public class SessionTree extends MudrodAbstract{
 		}
 	}
 
-	public TreeNode iterChild(TreeNode start, String refer) {
-		List<TreeNode> children = start.getChildren();
-		TreeNode tmp = null;
+	private SessionNode iterChild(SessionNode start, String refer) {
+		List<SessionNode> children = start.getChildren();
+		SessionNode tmp = null;
 		for (int i = children.size() - 1; i >= 0; i--) {
 			tmp = children.get(i);
 			if (tmp.getChildren().size() == 0) {
@@ -146,20 +243,7 @@ public class SessionTree extends MudrodAbstract{
 		return null;
 	}
 
-	public TreeNode insert(String key, String value) {
-		TreeNode entry = new TreeNode();
-		entry.key = key;
-		entry.value = value;
-		if (root == null) {
-			root = entry;
-		} else {
-			insertHelper(entry, root);
-		}
-		size++;
-		return entry;
-	}
-
-	private boolean check(List<TreeNode> children, String str) {
+	private boolean check(List<SessionNode> children, String str) {
 		for (int i = 0; i < children.size(); i++) {
 			if (children.get(i).key.equals(str)) {
 				return true;
@@ -168,7 +252,7 @@ public class SessionTree extends MudrodAbstract{
 		return false;
 	}
 
-	private boolean insertHelperChildren(TreeNode entry, List<TreeNode> children) {
+	private boolean insertHelperChildren(SessionNode entry, List<SessionNode> children) {
 		for (int i = 0; i < children.size(); i++) {
 			boolean result = insertHelper(entry, children.get(i));
 			if (result == true) {
@@ -179,7 +263,7 @@ public class SessionTree extends MudrodAbstract{
 
 	}
 
-	private boolean insertHelper(TreeNode entry, TreeNode node) {
+	private boolean insertHelper(SessionNode entry, SessionNode node) {
 		if (entry.key.equals("datasetlist") || entry.key.equals("dataset")) {
 			if (node.key.equals("datasetlist")) {
 				if (node.children.size() == 0) {
@@ -219,269 +303,20 @@ public class SessionTree extends MudrodAbstract{
 		return false;
 	}
 
-	public void printTree(TreeNode node) {
-		System.out.print("node:" + node.getRequest() + "\n");
-		if (node.children.size() != 0) {
-			for (int i = 0; i < node.children.size(); i++) {
-				printTree(node.children.get(i));
-			}
-		}
-	}
+	private List<SessionNode> getViewNodes(SessionNode node) {
 
-	public JsonObject TreeToJson(TreeNode node) {
-		Gson gson = new Gson();
-		JsonObject json = new JsonObject();
-
-		json.addProperty("seq", node.getSeq());
-		if (node.getKey().equals("datasetlist")) {
-			json.addProperty("icon", "searching.png");
-
-			
-			json.addProperty("name", node.getRequest());
-
-		} else if (node.getKey().equals("dataset")) {
-			json.addProperty("icon", "viewing.png");
-			json.addProperty("name", node.getDatasetId());
-			// json.addProperty("tips", node.getDatasetId());
-
-		} else if (node.getKey().equals("ftp")) {
-			json.addProperty("icon", "downloading.png");
-			json.addProperty("name", node.getRequest());
-			// json.addProperty("tips", node.getRequest());
-
-		} else if (node.getKey().equals("root")) {
-			json.addProperty("name", "");
-			json.addProperty("icon", "users.png");
-			// json.addProperty("tips","user");
-		}
-
-		if (node.children.size() != 0) {
-			List<JsonObject> json_children = new ArrayList<JsonObject>();
-			for (int i = 0; i < node.children.size(); i++) {
-				JsonObject json_child = TreeToJson(node.children.get(i));
-				json_children.add(json_child);
-			}
-			JsonElement jsonElement = gson.toJsonTree(json_children);
-			json.add("children", jsonElement);
-		}
-
-		return json;
-	}
-
-	public List<ClickThroughData> genClickThroughData(List<TreeNode> viewnodes) throws UnsupportedEncodingException {
-
-		List<ClickThroughData> clickthroughs = new ArrayList<ClickThroughData>();
-
-		for (int i = 0; i < viewnodes.size(); i++) {
-
-			TreeNode viewnode = viewnodes.get(i);
-			TreeNode parent = viewnode.getParent();
-			List<TreeNode> children = viewnode.getChildren();
-
-			if (!parent.getKey().equals("datasetlist")) {
-				continue;
-			}
-
-			RequestUrl requestURL = new RequestUrl(this.config, this.es);
-			String viewquery = requestURL.GetSearchInfo(viewnode.getRequest());
-
-			String dataset = viewnode.getDatasetId();
-			boolean download = false;
-			for (int j = 0; j < children.size(); j++) {
-				TreeNode child = children.get(j);
-				if (child.getKey().equals("ftp")) {
-					download = true;
-					break;
-				}
-			}
-
-			//lemmanization -- add by yun
-			if (!viewquery.equals("")) {
-
-				ClickThroughData data = new ClickThroughData(viewquery, dataset, download);
-				clickthroughs.add(data);
-			}
-		}
-
-		return clickthroughs;
-	}
-
-	public List<KeywordPairData> genKeywordPairData(List<TreeNode> downloadnodes) throws UnsupportedEncodingException {
-
-		List<KeywordPairData> keywordPairs = new ArrayList<KeywordPairData>();
-
-		List<TreeNode> viewNodes = new ArrayList<TreeNode>();
-		List<TreeNode> searchNodes = new ArrayList<TreeNode>();
-
-		for (int i = 0; i < downloadnodes.size(); i++) {
-
-			TreeNode downloadNode = downloadnodes.get(i);
-			TreeNode parent = downloadNode.getParent();
-			if (viewNodes.contains(parent)) {
-				continue;
-			}
-			viewNodes.add(parent);
-
-			while (true) {
-				if (parent.getKey().equals("datasetlist")) {
-					searchNodes.add(parent);
-				}
-				parent = parent.getParent();
-
-				if (parent.getKey().equals("root")) {
-					break;
-				}
-			}
-
-			// System.out.print("searchNodes:"+ searchNodes.size()+"\n");
-			RequestUrl requestURL = new RequestUrl(this.config, this.es);
-			if (searchNodes.size() > 1) {
-
-				for (int k = 0; k < searchNodes.size(); k++) {
-					int size = searchNodes.size();
-					TreeNode lastSearch = searchNodes.get(k);
-					String lastquery = requestURL.GetSearchInfo(lastSearch.getRequest());
-					lastquery = lastquery.replace(",", "|");
-					for (int j = k; j < size; j++) {
-						String curquery = requestURL.GetSearchInfo(searchNodes.get(j).getRequest());
-						curquery = curquery.replace(",", "|");
-						if (!curquery.equals(lastquery)) {
-							KeywordPairData data = new KeywordPairData(curquery, lastquery, 1.0 / (k + 1));
-							keywordPairs.add(data);
-						}
-					}
-				}
-			}
-		}
-
-		return keywordPairs;
-	}
-	
-
-	
-	public List<KeywordPairData> genQueryFilterPairs(List<TreeNode> viewnodes) throws UnsupportedEncodingException {
-		List<KeywordPairData> keywordPairs = new ArrayList<KeywordPairData>();
-		for (int i = 0; i < viewnodes.size(); i++) {
-
-			TreeNode viewNode = viewnodes.get(i);
-			TreeNode lastSearchNode = viewNode.getParent();
-			while (true) {
-				if (lastSearchNode.getKey().equals("datasetlist")) {
-					break;
-				}
-				lastSearchNode = lastSearchNode.getParent();
-			}
-
-			String lastquery = RequestUrl.GetSearchWord(lastSearchNode.getRequest());
-			Map<String, String> lastfitler = RequestUrl.GetFilterInfo(lastSearchNode.getRequest());
-
-			if (lastfitler.keySet().size() == 0) {
-				continue;
-			}
-			KeywordPairData data = null;
-			if (!lastquery.equals("")) {
-				for (String s : lastfitler.keySet()) {
-					if (!lastquery.equals(lastfitler.get(s)) && !lastfitler.get(s).equals("")) {
-						data = new KeywordPairData(lastquery, s + ":" + lastfitler.get(s), 1.0, 0,
-								lastSearchNode.getRequest(), lastSearchNode.getRequest(), viewNode.getRequest());
-						keywordPairs.add(data);
-					}
-				}
-
-				String filterStr = "";
-				for (String s : lastfitler.keySet()) {
-					if(!lastfitler.get(s).equals("")){
-						filterStr += s + ":" + lastfitler.get(s) + ",";
-					}
-				}
-				data = new KeywordPairData(lastquery, filterStr, 1.0, 1, lastSearchNode.getRequest(),
-						lastSearchNode.getRequest(), viewNode.getRequest());
-				keywordPairs.add(data);
-			}
-
-			for (String lastkey : lastfitler.keySet()) {
-				if(lastfitler.get(lastkey).equals("")){
-					continue;
-				}
-
-				if (lastkey.equals("processinglevel") || lastkey.equals("gridspatialresolution")
-						|| lastkey.equals("temporalresolution") || lastkey.equals("timespan")
-						|| lastkey.equals("temporalsearch") || lastkey.equals("satellitespatialresolution")) {
-					continue;
-				}
-
-				for (String key : lastfitler.keySet()) {
-					if (!key.equals(lastkey) && !lastfitler.get(key).equals("")) {
-						data = new KeywordPairData(lastfitler.get(lastkey), key + ":" + lastfitler.get(key), 1.0, 0,
-								lastSearchNode.getRequest(), lastSearchNode.getRequest(), viewNode.getRequest());
-						keywordPairs.add(data);
-					}
-				}
-
-				String filterStr = "";
-				for (String key : lastfitler.keySet()) {
-					if (!key.equals(lastkey)) {
-						if(!lastfitler.get(key).equals("")){
-						filterStr += key + ":" + lastfitler.get(key) + ",";
-						}
-					}
-				}
-				data = new KeywordPairData(lastfitler.get(lastkey), filterStr, 1.0, 1, lastSearchNode.getRequest(),
-						lastSearchNode.getRequest(), viewNode.getRequest());
-				keywordPairs.add(data);
-			}
-		}
-
-		return keywordPairs;
-	}
-
-	public List<TreeNode> getViewNodes(TreeNode node) {
-
-		List<TreeNode> viewnodes = new ArrayList<TreeNode>();
+		List<SessionNode> viewnodes = new ArrayList<SessionNode>();
 		if (node.getKey().equals("dataset")) {
 			viewnodes.add(node);
 		}
 
 		if (node.children.size() != 0) {
 			for (int i = 0; i < node.children.size(); i++) {
-				TreeNode childNode = node.children.get(i);
+				SessionNode childNode = node.children.get(i);
 				viewnodes.addAll(getViewNodes(childNode));
 			}
 		}
 
 		return viewnodes;
-	}
-
-	public List<TreeNode> getTreeLeaves(TreeNode node) {
-
-		List<TreeNode> leaves = new ArrayList<TreeNode>();
-		if (node.children.size() != 0) {
-			for (int i = 0; i < node.children.size(); i++) {
-				TreeNode childNode = node.children.get(i);
-				leaves.addAll(getTreeLeaves(childNode));
-			}
-		} else {
-			leaves.add(node);
-		}
-
-		return leaves;
-	}
-
-	public List<TreeNode> getDownLoadNodes(TreeNode node) {
-
-		List<TreeNode> leaves = new ArrayList<TreeNode>();
-		if (node.children.size() != 0) {
-			for (int i = 0; i < node.children.size(); i++) {
-				TreeNode childNode = node.children.get(i);
-				leaves.addAll(getDownLoadNodes(childNode));
-			}
-		} else {
-
-			if (node.getKey().equals("ftp")) {
-				leaves.add(node);
-			}
-		}
-
-		return leaves;
 	}
 }

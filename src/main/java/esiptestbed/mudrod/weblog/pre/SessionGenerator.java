@@ -30,13 +30,14 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.Session;
 
 
 public class SessionGenerator extends DiscoveryStepAbstract{
 
-    public SessionGenerator(Map<String, String> config, ESDriver es) {
-		super(config, es);
+    public SessionGenerator(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
     

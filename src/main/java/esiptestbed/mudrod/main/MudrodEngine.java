@@ -12,18 +12,21 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
+import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
+import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
-
+import esiptestbed.mudrod.driver.SparkDriver;
 
 public class MudrodEngine {
 	private Map<String, String> config = new HashMap<String, String>();
 	private ESDriver es = null;
-	
+	private SparkDriver spark = null;
 	public MudrodEngine()
 	{
 		loadConfig();
 		es = new ESDriver(config.get("clusterName"));
+		spark = new SparkDriver();
 	}
 	
 	public Map<String, String> getConfig(){
@@ -60,10 +63,11 @@ public class MudrodEngine {
 	
 	public void start(){
 		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es);
-		DiscoveryEngineAbstract de = new OntologyDiscoveryEngine(config, es);
-		de.preprocess();
+		//DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
+		DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
+		//de.preprocess();
 		de.process();
-		de.output();
+		//de.output();
 	}
 	
 	public void end(){
