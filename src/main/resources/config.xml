@@ -28,7 +28,7 @@
   </para>
 
   <para name="clusterName">elasticsearch</para>
-  <para name="indexName">podaacsession</para>
+  <para name="indexName">mudrod</para>
 
   <para name="HTTP_type">rawhttp</para>
   <para name="FTP_type">rawftp</para>
