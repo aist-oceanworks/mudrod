@@ -17,17 +17,10 @@ import java.util.List;
 import java.util.Map;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
-import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
-import esiptestbed.mudrod.utils.LinkageTriple;
-import esiptestbed.mudrod.utils.MatrixUtil;
-import esiptestbed.mudrod.utils.RDDUtil;
 import esiptestbed.mudrod.utils.SVDUtil;
-import esiptestbed.mudrod.utils.SimilarityUtil;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
 import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
@@ -46,7 +39,7 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 			
 			SessionExtractor extractor = new SessionExtractor();
 			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStremFromES(this.config, this.es, this.spark);
-			JavaPairRDD<String, List<String>> metadataQueryRDD = extractor.bulidMetadataQueryRDD(clickstreamRDD);
+			JavaPairRDD<String, List<String>> metadataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD);
 			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));
 			
 			svdUtil.buildSVDMatrix(metadataQueryRDD,svdDimension);

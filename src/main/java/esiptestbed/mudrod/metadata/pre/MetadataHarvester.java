@@ -20,25 +20,28 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.DIFMetadata;
 
-public class MetadataHarvest extends DiscoveryStepAbstract {
+public class MetadataHarvester extends DiscoveryStepAbstract {
 
-	public MetadataHarvest(Map<String, String> config, ESDriver es, SparkDriver spark) {
+	public MetadataHarvester(Map<String, String> config, ESDriver es,
+			SparkDriver spark) {
 		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
+
 
 	@Override
 	public Object execute() {

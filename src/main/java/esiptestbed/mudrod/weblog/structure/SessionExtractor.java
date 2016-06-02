@@ -80,7 +80,7 @@ public class SessionExtractor implements Serializable {
 			return clickstreamRDD;
 		}
 
-		public JavaPairRDD<String, List<String>> bulidMetadataQueryRDD(JavaRDD<ClickStream> clickstreamRDD) {
+		public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD) {
 			JavaPairRDD<String, List<String>> metaDataQueryRDD = clickstreamRDD
 					.mapToPair(new PairFunction<ClickStream, String, List<String>>() {
 						public Tuple2<String, List<String>> call(ClickStream click) throws Exception {

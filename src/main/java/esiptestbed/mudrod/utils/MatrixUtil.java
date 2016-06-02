@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -49,32 +48,30 @@ public class MatrixUtil {
 		SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix.computeSVD(dimension, true, 1.0E-9d);
 		RowMatrix U = svd.U();
 		Vector s = svd.s();
-		Matrix V = svd.V();
 
 		RowMatrix svdMatrix = U.multiply(Matrices.diag(s));
 		return svdMatrix;
 	}
-	
+
 	public static RowMatrix buildSVDMatrix(JavaRDD<Vector> vecRDD, int dimension) throws IOException {
 		RowMatrix tfidfMatrix = new RowMatrix(vecRDD.rdd());
 		SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix.computeSVD(dimension, true, 1.0E-9d);
 		RowMatrix U = svd.U();
 		Vector s = svd.s();
-		Matrix V = svd.V();
 
 		RowMatrix svdMatrix = U.multiply(Matrices.diag(s));
 		return svdMatrix;
 	}
-	
+
 	public static RowMatrix createTFIDFMatrix(RowMatrix wordDocMatrix, JavaSparkContext sc){
 		JavaRDD<Vector> newcountRDD = wordDocMatrix.rows().toJavaRDD();
 		IDFModel idfModel = new IDF().fit(newcountRDD);
 		JavaRDD<Vector> idf = idfModel.transform(newcountRDD);
 		RowMatrix tfidfMat = new RowMatrix(idf.rdd());
-		
+
 		return tfidfMat;
 	}
-	
+
 	public static RowMatrix createWordDocMatrix(JavaPairRDD<String, List<String>> uniqueDocRDD, JavaSparkContext sc) throws IOException {
 		// Index documents with unique IDs
 		JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values().zipWithIndex();
@@ -110,29 +107,29 @@ public class MatrixUtil {
 		//trans to vector
 		final int corporsize = (int) uniqueDocRDD.keys().count();
 		JavaPairRDD<String, Vector> word_vectorRDD =
-		word_docnum_RDD.reduceByKey(new Function2<Tuple2<List<Long>,List<Double>>, Tuple2<List<Long>,List<Double>>,Tuple2<List<Long>,List<Double>>>() {
-			public Tuple2<List<Long>, List<Double>> call(Tuple2<List<Long>, List<Double>> arg0,
-					Tuple2<List<Long>, List<Double>> arg1) throws Exception {
-				arg0._1.addAll(arg1._1);
-				arg0._2.addAll(arg1._2);
-				return new Tuple2<List<Long>, List<Double>>(arg0._1, arg0._2);
-			}
-		}).mapToPair(new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
-			public Tuple2<String, Vector> call(Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
-					throws Exception {
-				// TODO Auto-generated method stub
-				int docsize = arg0._2._1.size();
-				int[] intArray = new int[docsize];
-				double[] doubleArray = new double[docsize];
-				for(int i=0; i<docsize;i++){
-					intArray[i] = arg0._2._1.get(i).intValue();
-					doubleArray[i] = arg0._2._2.get(i).intValue();
-				}
-				Vector sv = Vectors.sparse(corporsize, intArray,doubleArray);
-				return new Tuple2<String, Vector>(arg0._1, sv);
-			}
-		});
-		
+				word_docnum_RDD.reduceByKey(new Function2<Tuple2<List<Long>,List<Double>>, Tuple2<List<Long>,List<Double>>,Tuple2<List<Long>,List<Double>>>() {
+					public Tuple2<List<Long>, List<Double>> call(Tuple2<List<Long>, List<Double>> arg0,
+							Tuple2<List<Long>, List<Double>> arg1) throws Exception {
+						arg0._1.addAll(arg1._1);
+						arg0._2.addAll(arg1._2);
+						return new Tuple2<List<Long>, List<Double>>(arg0._1, arg0._2);
+					}
+				}).mapToPair(new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
+					public Tuple2<String, Vector> call(Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
+							throws Exception {
+						// TODO Auto-generated method stub
+						int docsize = arg0._2._1.size();
+						int[] intArray = new int[docsize];
+						double[] doubleArray = new double[docsize];
+						for(int i=0; i<docsize;i++){
+							intArray[i] = arg0._2._1.get(i).intValue();
+							doubleArray[i] = arg0._2._2.get(i).intValue();
+						}
+						Vector sv = Vectors.sparse(corporsize, intArray,doubleArray);
+						return new Tuple2<String, Vector>(arg0._1, sv);
+					}
+				});
+
 		RowMatrix wordDocMatrix = new RowMatrix(word_vectorRDD.values().rdd());
 		return wordDocMatrix;
 	}
@@ -148,22 +145,22 @@ public class MatrixUtil {
 				return false;
 			}
 		});
-		
+
 		JavaPairRDD<String, Vector> vecRDD = importIdRDD.mapToPair(new PairFunction<Tuple2<String, Long>, String, Vector>() {
 			public Tuple2<String, Vector> call(Tuple2<String, Long> t) throws Exception {
-				 String[] fields = t._1.split(",");
-				 String word = fields[0];
-				 int fieldsize = fields.length;
-				 String[] numfields = Arrays.copyOfRange(fields, 1, fieldsize-1);
-				 double[] nums = Stream.of(numfields).mapToDouble(Double::parseDouble).toArray();
-				 Vector vec = Vectors.dense(nums);
-				 return new Tuple2<String,Vector>(word, vec);
+				String[] fields = t._1.split(",");
+				String word = fields[0];
+				int fieldsize = fields.length;
+				String[] numfields = Arrays.copyOfRange(fields, 1, fieldsize-1);
+				double[] nums = Stream.of(numfields).mapToDouble(Double::parseDouble).toArray();
+				Vector vec = Vectors.dense(nums);
+				return new Tuple2<String,Vector>(word, vec);
 			}
 		});
-		
+
 		return vecRDD;
 	}
-	
+
 	public static IndexedRowMatrix buildIndexRowMatrix(JavaRDD<Vector> vecs){
 		JavaRDD<IndexedRow> indexrows = vecs.zipWithIndex().map(new Function<Tuple2<Vector, Long>, IndexedRow>() {
 			public IndexedRow call(Tuple2<Vector, Long> doc_id) {
@@ -173,20 +170,14 @@ public class MatrixUtil {
 		IndexedRowMatrix indexedMatrix = new IndexedRowMatrix(indexrows.rdd());
 		return indexedMatrix;
 	}
-	
+
 	public static RowMatrix transposeMatrix(IndexedRowMatrix indexedMatrix){
 		RowMatrix transposeMatrix =indexedMatrix.toCoordinateMatrix().transpose().toRowMatrix();
 		return transposeMatrix;
 	}
-	
+
 	public static void exportMatrix(RowMatrix simMatrix, JavaPairRDD<String, List<String>> uniqueDocRDD,
 			List<String> allwords, String fileName) throws IOException {
-
-		JavaRDD<String> termRDD = uniqueDocRDD.values().flatMap(new FlatMapFunction<List<String>, String>() {
-			public Iterable<String> call(List<String> list) {
-				return list;
-			}
-		}).distinct();
 
 		List<String> docs = uniqueDocRDD.keys().collect();
 
@@ -217,7 +208,6 @@ public class MatrixUtil {
 		bw.write(secondtitle + "\n");
 
 		for (int i = 0; i < simRows; i++) {
-			Vector row = rows.get(i);
 			double[] rowvlaue = rows.get(i).toArray();
 			String srow = allwords.get(i) + ",";
 			for (int j = 0; j < simCols; j++) {
