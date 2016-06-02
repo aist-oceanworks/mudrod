@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.weblog;
 
 import java.util.List;
@@ -29,20 +42,6 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			/*SessionExtractor extractor = new SessionExtractor();
-			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStremFromES(this.config, this.es, this.spark);
-			JavaPairRDD<String, List<String>> metadataQueryRDD = extractor.bulidMetadataQueryRDD(clickstreamRDD);
-			RowMatrix queryMetadataMatrix = MatrixUtil.createWordDocMatrix(metadataQueryRDD, spark.sc);
-			System.out.println(queryMetadataMatrix.rows());
-			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(queryMetadataMatrix, spark.sc);
-			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));
-			RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
-			CoordinateMatrix simMatirx = SimilarityUtil.CalSimilarityFromMatrix(svdMatrix);
-
-			JavaRDD<String> queryRDD = RDDUtil.getAllWordsInDoc(metadataQueryRDD);
-			List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(queryRDD, simMatirx);
-			LinkageTriple.insertTriples(es, triples, config.get("indexName"), config.get("userClickSimilarity"));*/
-			
 			SVDUtil svdUtil = new SVDUtil(config, es, spark);
 			
 			SessionExtractor extractor = new SessionExtractor();
@@ -67,6 +66,4 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
 }

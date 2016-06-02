@@ -1,18 +1,27 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.discoveryengine;
 
 import java.util.Map;
-
-
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.metadata.MetadataSVDAnalyzer;
 import esiptestbed.mudrod.weblog.ClickStreamSVDAnalyzer;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
 import esiptestbed.mudrod.weblog.pre.RemoveRawLog;
 import esiptestbed.mudrod.weblog.pre.SessionGenerator;
 import esiptestbed.mudrod.weblog.pre.SessionStatistic;
-
 
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {		
 	public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
@@ -51,7 +60,6 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		print("*****************click behaviour processing starts******************", 3);
-
 		DiscoveryStepAbstract svd = new ClickStreamSVDAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
 		

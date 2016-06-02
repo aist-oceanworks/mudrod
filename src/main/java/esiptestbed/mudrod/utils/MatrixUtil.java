@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.utils;
 
 import java.io.BufferedWriter;
@@ -67,7 +80,6 @@ public class MatrixUtil {
 		JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values().zipWithIndex();
 		//cal word-doc numbers
 		JavaPairRDD<Tuple2<String,Long>, Double> worddoc_num_RDD = corpus.flatMapToPair(new PairFlatMapFunction<Tuple2<List<String>,Long>, Tuple2<String,Long>, Double>() {
-			@Override
 			public Iterable<Tuple2<Tuple2<String,Long>, Double>> call(Tuple2<List<String>,Long> docwords) throws Exception {
 				List<Tuple2<Tuple2<String,Long>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String,Long>, Double>>();
 				List<String> words = docwords._1;
@@ -85,7 +97,6 @@ public class MatrixUtil {
 		});
 		//cal word doc-numbers
 		JavaPairRDD<String, Tuple2<List<Long>,List<Double>>> word_docnum_RDD = worddoc_num_RDD.mapToPair(new PairFunction<Tuple2<Tuple2<String,Long>, Double>, String, Tuple2<List<Long>,List<Double>>>() {
-			@Override
 			public Tuple2<String, Tuple2<List<Long>, List<Double>>> call(Tuple2<Tuple2<String, Long>, Double> worddoc_num)
 					throws Exception {
 				List<Long> docs= new ArrayList<Long>();
@@ -97,7 +108,7 @@ public class MatrixUtil {
 			}
 		});
 		//trans to vector
-		int corporsize = (int) uniqueDocRDD.keys().count();
+		final int corporsize = (int) uniqueDocRDD.keys().count();
 		JavaPairRDD<String, Vector> word_vectorRDD =
 		word_docnum_RDD.reduceByKey(new Function2<Tuple2<List<Long>,List<Double>>, Tuple2<List<Long>,List<Double>>,Tuple2<List<Long>,List<Double>>>() {
 			public Tuple2<List<Long>, List<Double>> call(Tuple2<List<Long>, List<Double>> arg0,
@@ -107,7 +118,6 @@ public class MatrixUtil {
 				return new Tuple2<List<Long>, List<Double>>(arg0._1, arg0._2);
 			}
 		}).mapToPair(new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
-			@Override
 			public Tuple2<String, Vector> call(Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
 					throws Exception {
 				// TODO Auto-generated method stub
@@ -140,7 +150,6 @@ public class MatrixUtil {
 		});
 		
 		JavaPairRDD<String, Vector> vecRDD = importIdRDD.mapToPair(new PairFunction<Tuple2<String, Long>, String, Vector>() {
-			@Override
 			public Tuple2<String, Vector> call(Tuple2<String, Long> t) throws Exception {
 				 String[] fields = t._1.split(",");
 				 String word = fields[0];
