@@ -18,6 +18,7 @@ import java.util.Map;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
  * Say sth
@@ -28,8 +29,8 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 
 public class Example extends DiscoveryStepAbstract {
-  public Example(Map<String, String> config, ESDriver es) {
-    super(config, es);
+  public Example(Map<String, String> config, ESDriver es, SparkDriver spark) {
+    super(config, es, spark);
     // TODO Auto-generated constructor stub
   }
 
