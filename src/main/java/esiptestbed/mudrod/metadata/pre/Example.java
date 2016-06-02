@@ -42,12 +42,7 @@ public class Example extends DiscoveryStepAbstract {
     es.createBulkProcesser();
     /* Do something */
 
-    //test    
-    //added on github
 
-    //test again
-
-    //test on github
 
 
     es.destroyBulkProcessor();
