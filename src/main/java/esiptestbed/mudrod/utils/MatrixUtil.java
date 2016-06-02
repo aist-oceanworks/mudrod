@@ -134,12 +134,12 @@ public class MatrixUtil {
 		return wordDocMatrix;
 	}
 
-	public static JavaPairRDD<String, Vector> loadVectorFromCSV(SparkDriver spark, String csvFileName){
+	public static JavaPairRDD<String, Vector> loadVectorFromCSV(SparkDriver spark, String csvFileName, int skipNum){
 		// skip the first two lines(header), important!
 		JavaRDD<String> importRDD = spark.sc.textFile(csvFileName);
 		JavaPairRDD<String, Long> importIdRDD = importRDD.zipWithIndex().filter(new Function<Tuple2<String,Long>, Boolean>() {
 			public Boolean call(Tuple2<String, Long> v1) throws Exception {
-				if(v1._2>1){
+				if(v1._2> (skipNum - 1)){
 					return true;
 				}
 				return false;

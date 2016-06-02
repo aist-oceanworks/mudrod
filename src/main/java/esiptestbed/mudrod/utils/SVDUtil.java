@@ -40,8 +40,8 @@ public class SVDUtil extends MudrodAbstract{
 		
 		RowMatrix svdMatrix = null;
 		try {
-			RowMatrix queryMetadataMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
-			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(queryMetadataMatrix, spark.sc);
+			RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
+			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
 			svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -55,7 +55,7 @@ public class SVDUtil extends MudrodAbstract{
 	
 	public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension){
 		RowMatrix svdMatrix = null;
-		JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark,tfidfCSVfile);
+		JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark, tfidfCSVfile, 2);
 		JavaRDD<Vector> vectorRDD = tfidfRDD.values();
 		
 		try {

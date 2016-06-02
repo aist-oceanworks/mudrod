@@ -42,7 +42,7 @@ public class SimilarityUtil {
 	}
 	
 	public static CoordinateMatrix CalSimilarityFromCSV(SparkDriver spark, String csvfile){
-		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,csvfile);
+		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvfile, 2);
 		CoordinateMatrix simMatrix = SimilarityUtil.calSimilarityFromVector(importRDD.values());
 		return simMatrix;
 	}
