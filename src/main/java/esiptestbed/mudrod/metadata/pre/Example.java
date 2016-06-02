@@ -43,7 +43,11 @@ public class Example extends DiscoveryStepAbstract {
 
     //test    
     //added on github
+
     //test again
+
+    //test on github
+
 
     es.destroyBulkProcessor();
     endTime=System.currentTimeMillis();
