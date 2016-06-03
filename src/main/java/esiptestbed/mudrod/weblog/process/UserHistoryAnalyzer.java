@@ -16,7 +16,6 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.SimilarityUtil;
 
 public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
-
 	public UserHistoryAnalyzer(Map<String, String> config, ESDriver es,
 			SparkDriver spark) {
 		super(config, es, spark);

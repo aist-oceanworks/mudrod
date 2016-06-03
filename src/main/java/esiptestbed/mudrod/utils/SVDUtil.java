@@ -51,7 +51,6 @@ public class SVDUtil extends MudrodAbstract{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		return svdMatrix;
 	}
 	
