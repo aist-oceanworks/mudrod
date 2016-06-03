@@ -14,14 +14,17 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.util.Map;
+
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.weblog.ClickStreamSVDAnalyzer;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
+import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
 import esiptestbed.mudrod.weblog.pre.RemoveRawLog;
 import esiptestbed.mudrod.weblog.pre.SessionGenerator;
 import esiptestbed.mudrod.weblog.pre.SessionStatistic;
+import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
+
 
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {		
 	public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
@@ -48,6 +51,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		
 		DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
 		rr.execute();
+		
+		DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+		hg.execute();
 				
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
@@ -60,7 +66,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
 		print("*****************click behaviour processing starts******************", 3);
-		DiscoveryStepAbstract svd = new ClickStreamSVDAnalyzer(this.config, this.es, this.spark);
+		DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
 		
 		endTime=System.currentTimeMillis();

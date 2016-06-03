@@ -31,21 +31,21 @@ public class SimilarityUtil {
 	
 	public static CoordinateMatrix CalSimilarityFromMatrix(RowMatrix svdMatrix){
 		JavaRDD<Vector> vecs = svdMatrix.rows().toJavaRDD();
-		return SimilarityUtil.calSimilarityFromVector(vecs);
+		return SimilarityUtil.CalSimilarityFromVector(vecs);
 	}
 	
-	public static CoordinateMatrix calSimilarityFromVector(JavaRDD<Vector> vecs){
+	public static CoordinateMatrix CalSimilarityFromVector(JavaRDD<Vector> vecs){
 		IndexedRowMatrix indexedMatrix = MatrixUtil.buildIndexRowMatrix(vecs);
 		RowMatrix transposeMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
 		CoordinateMatrix simMatirx = transposeMatrix.columnSimilarities();
 		return simMatirx;
 	}
 	
-	public static CoordinateMatrix CalSimilarityFromCSV(SparkDriver spark, String csvfile){
+/*	public static CoordinateMatrix CalSimilarityFromCSV(SparkDriver spark, String csvfile){
 		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvfile, 2);
-		CoordinateMatrix simMatrix = SimilarityUtil.calSimilarityFromVector(importRDD.values());
+		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromVector(importRDD.values());
 		return simMatrix;
-	}
+	}*/
 
 	public static List<LinkageTriple> MatrixtoTriples(JavaRDD<String> keys, CoordinateMatrix simMatirx){
 		if(simMatirx.numCols() != keys.count()){

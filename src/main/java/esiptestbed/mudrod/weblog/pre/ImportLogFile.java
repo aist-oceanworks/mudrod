@@ -43,7 +43,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
-		System.out.println("*****************Step 1: Import starts******************");
+		System.out.println("*****************Import starts******************");
 		startTime=System.currentTimeMillis();
 		readFile();
 		endTime=System.currentTimeMillis();

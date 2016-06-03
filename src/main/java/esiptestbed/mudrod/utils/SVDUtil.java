@@ -69,13 +69,14 @@ public class SVDUtil extends MudrodAbstract{
 		}
 		
 		this.wordRDD = tfidfRDD.keys();
+		
 		return svdMatrix;
 	}
 	
-	public RowMatrix buildSVDMatrix(Map<String, List<String>> docwords){
+/*	public RowMatrix buildSVDMatrix(Map<String, List<String>> docwords){
 
 		return null;
-	}
+	}*/
 
 	public void CalSimilarity(){
 		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromMatrix(svdMatrix);

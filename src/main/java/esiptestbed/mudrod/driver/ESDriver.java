@@ -17,11 +17,14 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -29,6 +32,9 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
@@ -161,6 +167,30 @@ public class ESDriver implements Serializable {
 		this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
 	}
    
+    public ArrayList<String> getTypeListWithPrefix(String index, String type_prefix)
+    {
+    	ArrayList<String> type_list = new ArrayList<String>();
+		GetMappingsResponse res;
+		try {
+			res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
+			ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
+		    for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
+		    	//System.out.println(c.key+" = "+c.value.source());
+		        if(c.key.startsWith(type_prefix))
+		        {
+		        	type_list.add(c.key);
+		        }
+		    }
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return type_list;	    
+    }
+
     public void close(){
     	node.close();   
     }
@@ -171,7 +201,8 @@ public class ESDriver implements Serializable {
     		
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		ESDriver es = new ESDriver("cody");
+        es.getTypeListWithPrefix("podaacsession", "sessionstats");
 	}
 
 }

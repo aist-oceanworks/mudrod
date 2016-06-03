@@ -11,46 +11,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.weblog;
+package esiptestbed.mudrod.weblog.process;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
+
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.utils.SVDUtil;
-import esiptestbed.mudrod.weblog.structure.ClickStream;
-import esiptestbed.mudrod.weblog.structure.SessionExtractor;
+import esiptestbed.mudrod.utils.LinkageTriple;
+import esiptestbed.mudrod.utils.MatrixUtil;
+import esiptestbed.mudrod.utils.SimilarityUtil;
 
-public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
+public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 
-	public ClickStreamSVDAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
+	public UserHistoryAnalyzer(Map<String, String> config, ESDriver es,
+			SparkDriver spark) {
 		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public Object execute() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub	
+		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, config.get("userHistoryOutputfile"), 2);
+		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromVector(importRDD.values());
+		List<LinkageTriple> triples= SimilarityUtil.MatrixtoTriples(importRDD.keys(), simMatrix);
 		try {
-			SVDUtil svdUtil = new SVDUtil(config, es, spark);
-			
-			SessionExtractor extractor = new SessionExtractor();
-			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.config, this.es, this.spark);
-			int weight = Integer.parseInt(config.get("downloadWeight"));
-			JavaPairRDD<String, List<String>> dataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
-			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));		
-			svdUtil.buildSVDMatrix(dataQueryRDD, svdDimension);
-			svdUtil.CalSimilarity();
-			svdUtil.insertLinkageToES(config.get("indexName"), config.get("userClickSimilarity"));
-			
-		} catch (Exception e) {
+			LinkageTriple.insertTriples(es, triples, config.get("indexName"), config.get("userHistoryLinkageType"));
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		return null;
 	}
 
@@ -59,4 +57,5 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 }

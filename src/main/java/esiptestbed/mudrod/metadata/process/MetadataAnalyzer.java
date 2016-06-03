@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.metadata;
+package esiptestbed.mudrod.metadata.process;
 
 import java.io.Serializable;
 import java.util.List;
@@ -26,14 +26,10 @@ import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
 import esiptestbed.mudrod.utils.SVDUtil;
 
 
-public class MetadataSVDAnalyzer extends DiscoveryStepAbstract implements Serializable {
-	public MetadataSVDAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
+public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializable {
+	public MetadataAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
 		super(config, es, spark);
 		// TODO Auto-generated constructor stub
-	}
-	
-	public MetadataSVDAnalyzer() {
-		super(null, null, null);
 	}
 
 	@Override

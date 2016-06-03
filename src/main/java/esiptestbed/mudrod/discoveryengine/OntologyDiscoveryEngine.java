@@ -17,8 +17,8 @@ import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.ontology.OntologyLinkCal;
 import esiptestbed.mudrod.ontology.pre.AggregateTriples;
+import esiptestbed.mudrod.ontology.process.OntologyLinkCal;
 
 
 public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {

@@ -18,7 +18,7 @@ import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.metadata.MetadataSVDAnalyzer;
+import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 
 public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {	
 	
@@ -36,7 +36,7 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
 		// TODO Auto-generated method stub
 		print("*****************metadata processing starts******************", 3);
 
-		DiscoveryStepAbstract svd = new MetadataSVDAnalyzer(this.config, this.es, this.spark);
+		DiscoveryStepAbstract svd = new MetadataAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
 		
 		endTime=System.currentTimeMillis();
