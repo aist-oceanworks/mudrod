@@ -57,6 +57,13 @@ public class ClickStream implements Serializable{
 		return this.viewDataset;
 	}
 	
+	public Boolean isDownload(){
+		if(this.downloadDataset.equals("")){
+			return false;
+		}
+		return true;
+	}
+	
 	public void setSessionId(String sessionID){
 		this.sessionID = sessionID;
 	}

@@ -68,7 +68,7 @@ public class SessionExtractor implements Serializable {
 			return result;
 		}
 
-		// load data from txt file
+		//This function is reserved and not being used for now
 		public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile, JavaSparkContext sc) {
 			JavaRDD<ClickStream> clickstreamRDD = sc.textFile(clickthroughFile)
 					.flatMap(new FlatMapFunction<String, ClickStream>() {
@@ -80,12 +80,21 @@ public class SessionExtractor implements Serializable {
 			return clickstreamRDD;
 		}
 
-		public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD) {
+		public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD, int downloadWeight) {
 			JavaPairRDD<String, List<String>> dataQueryRDD = clickstreamRDD
 					.mapToPair(new PairFunction<ClickStream, String, List<String>>() {
 						public Tuple2<String, List<String>> call(ClickStream click) throws Exception {
 							List<String> query = new ArrayList<String>();
-							query.add(click.getKeyWords());
+							//important! download behavior is given higher weights than viewing behavior
+							boolean download = click.isDownload();
+							int weight = 1;
+							if(download){
+								weight = downloadWeight;
+							}
+							for(int i=0; i<weight; i++){
+								query.add(click.getKeyWords());
+							}
+							
 							return new Tuple2<String, List<String>>(click.getViewDataset(), query);
 						}
 					}).reduceByKey(new Function2<List<String>, List<String>, List<String>>() {

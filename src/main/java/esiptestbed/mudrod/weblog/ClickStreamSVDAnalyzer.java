@@ -39,8 +39,8 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 			
 			SessionExtractor extractor = new SessionExtractor();
 			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.config, this.es, this.spark);
-			
-			JavaPairRDD<String, List<String>> dataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD);
+			int weight = Integer.parseInt(config.get("downloadWeight"));
+			JavaPairRDD<String, List<String>> dataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
 			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));		
 			svdUtil.buildSVDMatrix(dataQueryRDD, svdDimension);
 			svdUtil.CalSimilarity();

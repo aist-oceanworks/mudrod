@@ -176,15 +176,10 @@ public class MatrixUtil {
 		return transposeMatrix;
 	}
 
-	public static void exportMatrix(RowMatrix simMatrix, JavaPairRDD<String, List<String>> uniqueDocRDD,
-			List<String> allwords, String fileName) throws IOException {
-
-		List<String> docs = uniqueDocRDD.keys().collect();
-
-		// test code
-		int simRows = (int) simMatrix.numRows();
-		int simCols = (int) simMatrix.numCols();
-		List<Vector> rows = (List<Vector>) simMatrix.rows().toJavaRDD().collect();
+	public static void exportSVDMatrixToCSV(RowMatrix matrix, List<String> rowKeys, List<String> colKeys,String fileName) throws IOException {
+		int rownum = (int) matrix.numRows();
+		int colnum  = (int) matrix.numCols();
+		List<Vector> rows = (List<Vector>) matrix.rows().toJavaRDD().collect();
 
 		File file = new File(fileName);
 		if (!file.exists()) {
@@ -194,27 +189,27 @@ public class MatrixUtil {
 		FileWriter fw = new FileWriter(file.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
 		String coltitle = " Num" + ",";
-		for (int j = 0; j < simCols; j++) {
-			coltitle += docs.get(j) + ",";
+		for (int j = 0; j < colnum; j++) {
+			coltitle += colKeys.get(j) + ",";
 		}
 		coltitle = coltitle.substring(0, coltitle.length() - 1);
 		bw.write(coltitle + "\n");
 
 		String secondtitle = " Num" + ",";
-		for (int j = 0; j < simCols; j++) {
+		for (int j = 0; j < colnum; j++) {
 			secondtitle += "f" + j + ",";
 		}
 		secondtitle = secondtitle.substring(0, secondtitle.length() - 1);
 		bw.write(secondtitle + "\n");
 
-		for (int i = 0; i < simRows; i++) {
+		for (int i = 0; i < rownum; i++) {
 			double[] rowvlaue = rows.get(i).toArray();
-			String srow = allwords.get(i) + ",";
-			for (int j = 0; j < simCols; j++) {
-				srow += rowvlaue[j] + ",";
+			String row = rowKeys.get(i) + ",";
+			for (int j = 0; j < colnum; j++) {
+				row += rowvlaue[j] + ",";
 			}
-			srow = srow.substring(0, srow.length() - 1);
-			bw.write(srow + "\n");
+			row = row.substring(0, row.length() - 1);
+			bw.write(row + "\n");
 		}
 
 		bw.close();

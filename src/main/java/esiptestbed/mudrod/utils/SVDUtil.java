@@ -43,13 +43,15 @@ public class SVDUtil extends MudrodAbstract{
 			RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
 			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
 			svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
+			this.svdMatrix = svdMatrix;
+			this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
+			//exportSVDMatrixToCSV example
+			//MatrixUtil.exportSVDMatrixToCSV(wordDocMatrix, wordRDD.collect(), docwordRDD.keys().collect(), "D:/wordDocMatrix.csv");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		this.svdMatrix = svdMatrix;
-		this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
+		
 		return svdMatrix;
 	}
 	
@@ -89,4 +91,5 @@ public class SVDUtil extends MudrodAbstract{
 			e.printStackTrace();
 		}
 	}
+	
 }
