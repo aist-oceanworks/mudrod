@@ -38,7 +38,7 @@ public class ClickStreamSVDAnalyzer extends DiscoveryStepAbstract {
 			SVDUtil svdUtil = new SVDUtil(config, es, spark);
 			
 			SessionExtractor extractor = new SessionExtractor();
-			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStremFromES(this.config, this.es, this.spark);
+			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.config, this.es, this.spark);
 			
 			JavaPairRDD<String, List<String>> dataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD);
 			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));		

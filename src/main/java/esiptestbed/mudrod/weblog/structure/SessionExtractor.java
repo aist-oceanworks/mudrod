@@ -45,7 +45,7 @@ public class SessionExtractor implements Serializable {
 	}
 
 	// load data from es
-		public JavaRDD<ClickStream> extractClickStremFromES(Map<String, String> config, ESDriver es, SparkDriver spark) throws Exception {
+		public JavaRDD<ClickStream> extractClickStreamFromES(Map<String, String> config, ESDriver es, SparkDriver spark) throws Exception {
 			List<ClickStream> QueryList = this.getClickStreamList(config,es);
 			JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(QueryList);
 			return clickstreamRDD;
@@ -81,7 +81,7 @@ public class SessionExtractor implements Serializable {
 		}
 
 		public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD) {
-			JavaPairRDD<String, List<String>> metaDataQueryRDD = clickstreamRDD
+			JavaPairRDD<String, List<String>> dataQueryRDD = clickstreamRDD
 					.mapToPair(new PairFunction<ClickStream, String, List<String>>() {
 						public Tuple2<String, List<String>> call(ClickStream click) throws Exception {
 							List<String> query = new ArrayList<String>();
@@ -98,7 +98,7 @@ public class SessionExtractor implements Serializable {
 						}
 					});
 
-			return metaDataQueryRDD;
+			return dataQueryRDD;
 		}
 		
 		protected List<String> getSessions(Map<String, String> config, ESDriver es, String month) throws Exception {
