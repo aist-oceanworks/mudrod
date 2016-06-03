@@ -50,5 +50,7 @@
   <para name="metadataSVDDimension">50</para> 
   <para name="userClickSimilarity">userClicking</para> 
   <para name="metadataSimilarity">GCMDMetadata</para> 
-
+  <para name="metadataSimilarity">GCMDMetadata</para> 
+  
+  <para name="downloadWeight">5</para> 
 </Config>
