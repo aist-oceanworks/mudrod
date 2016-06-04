@@ -7,7 +7,9 @@ Team members:
 Chaowei (Phil) Yang, Yongyao Jiang, Yun Li<br/>George Mason University<br/>
 Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis John Mcgibbney<br/>Jet Propulsion Laboratory, NASA
 
-Software requirements: Elasticsearch v1.7, Kibana v4, and Java 8.
+Software requirements: 
+
+Elasticsearch v1.7, Kibana v4, and Java 8.
 
 ##License
 This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
