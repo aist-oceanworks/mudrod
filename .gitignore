@@ -64,3 +64,4 @@ target
 dist
 lib
 dependency-reduced-pom.xml
+/bin/

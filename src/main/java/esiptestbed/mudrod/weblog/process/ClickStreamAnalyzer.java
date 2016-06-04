@@ -44,7 +44,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));		
 			svdUtil.buildSVDMatrix(dataQueryRDD, svdDimension);
 			svdUtil.CalSimilarity();
-			svdUtil.insertLinkageToES(config.get("indexName"), config.get("userClickSimilarity"));
+			svdUtil.insertLinkageToES(config.get("indexName"), config.get("clickStreamLinkageType"));
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -13,10 +13,8 @@
  */
 package esiptestbed.mudrod.main;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,10 +76,10 @@ public class MudrodEngine {
 	
 	public void start(){
 		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es);
-		//DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
-		DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
-		//de.preprocess();
-		de.process();
+		DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
+		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
+		de.preprocess();
+		//de.process();
 		//de.output();
 	}
 	

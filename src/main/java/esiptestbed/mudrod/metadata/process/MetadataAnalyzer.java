@@ -50,7 +50,7 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 			
 			svdUtil.buildSVDMatrix(metadataTermsRDD,svdDimension);
 			svdUtil.CalSimilarity();
-			svdUtil.insertLinkageToES(config.get("indexName"),config.get("metadataSimilarity"));
+			svdUtil.insertLinkageToES(config.get("indexName"),config.get("metadataLinkageType"));
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

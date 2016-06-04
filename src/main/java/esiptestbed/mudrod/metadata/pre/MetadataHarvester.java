@@ -34,7 +34,7 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.DIFMetadata;
 
-public class MetadataHarvester extends DiscoveryStepAbstract {
+public class MetadataHarvester extends DiscoveryStepAbstract { // not used anymore
 
 	public MetadataHarvester(Map<String, String> config, ESDriver es,
 			SparkDriver spark) {

@@ -18,6 +18,7 @@ import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.metadata.pre.ApiHarvester;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 
 public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {	
@@ -29,15 +30,18 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
 	
 	public void preprocess() {
 		// TODO Auto-generated method stub
-
+		System.out.println("*****************Metadata preprocessing starts******************");
+		DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es, this.spark);
+		harvester.execute();
+		System.out.println("*****************Metadata preprocessing starts******************");
 	}
 
 	public void process() {
 		// TODO Auto-generated method stub
 		print("*****************metadata processing starts******************", 3);
 
-		DiscoveryStepAbstract svd = new MetadataAnalyzer(this.config, this.es, this.spark);
-		svd.execute();
+		/*DiscoveryStepAbstract svd = new ApiHarvester(this.config, this.es, this.spark);
+		svd.execute();*/
 		
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************metadata processing ends******************Took " + (endTime-startTime)/1000+"s");
