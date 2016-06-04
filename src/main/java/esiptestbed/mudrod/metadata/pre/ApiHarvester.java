@@ -39,9 +39,13 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		System.out.println("*****************Metadata harvesting starts******************");
+		startTime=System.currentTimeMillis();
 		es.createBulkProcesser();
 		getMetadata();
 		es.destroyBulkProcessor();
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Metadata harvesting ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
 	

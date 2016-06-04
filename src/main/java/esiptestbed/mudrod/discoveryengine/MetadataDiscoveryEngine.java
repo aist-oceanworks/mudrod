@@ -38,13 +38,13 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
 
 	public void process() {
 		// TODO Auto-generated method stub
-		print("*****************metadata processing starts******************", 3);
+		System.out.println("*****************Metadata processing starts******************");
 
 		/*DiscoveryStepAbstract svd = new ApiHarvester(this.config, this.es, this.spark);
 		svd.execute();*/
 		
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************metadata processing ends******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Metadata processing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	public void output() {

@@ -34,7 +34,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 	@Override
 	public void preprocess() {
 		// TODO Auto-generated method stub	
-		System.out.println("*****************Preprocessing starts******************");
+		System.out.println("*****************Web log preprocessing starts******************");
 		startTime=System.currentTimeMillis();
 		
 		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
@@ -56,7 +56,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		hg.execute();
 				
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************Preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
 
 	}
 	
@@ -64,13 +64,14 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 	@Override
 	public void process() {
 		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-		print("*****************click behaviour processing starts******************", 3);
+		System.out.println("*****************Web log processing starts******************");
+
+
 		DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
 		
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************click behaviour ends******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Web log processing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	@Override

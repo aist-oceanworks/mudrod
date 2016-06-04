@@ -30,26 +30,26 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
 
 	public void preprocess() {
 		// TODO Auto-generated method stub
-		System.out.println("*****************Preprocess starts******************");
+		System.out.println("*****************Ontology preprocessing starts******************");
 		startTime=System.currentTimeMillis();
 		
 		DiscoveryStepAbstract at = new AggregateTriples(this.config, this.es,this.spark);
 		at.execute();
 		
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************Preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Ontology preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	public void process() {
 		// TODO Auto-generated method stub
-		System.out.println("*****************Processing starts******************");
+		System.out.println("*****************Ontology processing starts******************");
 		startTime=System.currentTimeMillis();
 		
 		DiscoveryStepAbstract ol = new OntologyLinkCal(this.config, this.es, this.spark);
 		ol.execute();
 		
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************Processing starts******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Ontology processing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	public void output() {
