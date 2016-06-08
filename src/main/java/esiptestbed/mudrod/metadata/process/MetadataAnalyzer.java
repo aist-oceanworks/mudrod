@@ -23,6 +23,8 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
+import esiptestbed.mudrod.semantics.SVDAnalyzer;
+import esiptestbed.mudrod.utils.LinkageTriple;
 import esiptestbed.mudrod.utils.SVDUtil;
 
 
@@ -42,15 +44,16 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			SVDUtil svdUtil = new SVDUtil(config, es, spark);
 			
-			MetadataExtractor extractor = new MetadataExtractor();
-			JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc, config.get("indexName"),config.get("metadataType"));
+			SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
 			int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
+			String metadata_matrix_file = config.get("metadataMatrix");
+			String svd_matrix_fileName = config.get("metadataSVDMatrix_tmp");
 			
-			svdUtil.buildSVDMatrix(metadataTermsRDD,svdDimension);
-			svdUtil.CalSimilarity();
-			svdUtil.insertLinkageToES(config.get("indexName"),config.get("metadataLinkageType"));
+			analyzer.GetSVDMatrix(metadata_matrix_file, svdDimension, svd_matrix_fileName);
+			List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(svd_matrix_fileName);
+			
+			analyzer.SaveToES(triples, config.get("indexName"),config.get("metadataLinkageType"));
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

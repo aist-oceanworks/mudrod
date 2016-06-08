@@ -13,11 +13,22 @@
  */
 package esiptestbed.mudrod.weblog.pre;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
+import esiptestbed.mudrod.utils.MatrixUtil;
+import esiptestbed.mudrod.utils.RDDUtil;
+import esiptestbed.mudrod.weblog.structure.ClickStream;
+import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
 public class ClickStreamGenerator extends DiscoveryStepAbstract {
 
@@ -30,6 +41,22 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		String clickstrem_matrix_file = config.get("clickstreamMatrix");
+		try {
+			SessionExtractor extractor = new SessionExtractor();
+			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.config, this.es, this.spark);
+			int weight = Integer.parseInt(config.get("downloadWeight"));
+			JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
+			RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metaddataQueryRDD, spark.sc);
+			
+			List<String> rowKeys = RDDUtil.getAllWordsInDoc(metaddataQueryRDD).collect();
+			List<String> colKeys = metaddataQueryRDD.keys().collect();
+			MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, colKeys, clickstrem_matrix_file);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
 		return null;
 	}
 

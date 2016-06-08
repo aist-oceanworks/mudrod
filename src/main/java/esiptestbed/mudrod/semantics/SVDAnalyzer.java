@@ -48,7 +48,7 @@ public class SVDAnalyzer extends SemanticAnalyzer {
 			for(int i=0; i<svdDimention; i++){
 				colKeys.add("dimension" + i);
 			}
-			MatrixUtil.exportSVDMatrixToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
+			MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -176,7 +176,7 @@ public class MatrixUtil {
 		return transposeMatrix;
 	}
 
-	public static void exportSVDMatrixToCSV(RowMatrix matrix, List<String> rowKeys, List<String> colKeys, String fileName) throws IOException {
+	public static void exportToCSV(RowMatrix matrix, List<String> rowKeys, List<String> colKeys, String fileName) throws IOException {
 		int rownum = (int) matrix.numRows();
 		int colnum  = (int) matrix.numCols();
 		List<Vector> rows = (List<Vector>) matrix.rows().toJavaRDD().collect();
