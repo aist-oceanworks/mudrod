@@ -11,6 +11,7 @@ import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.SimilarityUtil;
@@ -25,15 +26,9 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub	
-		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, config.get("userHistoryOutputfile"), 2);
-		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromVector(importRDD.values());
-		List<LinkageTriple> triples= SimilarityUtil.MatrixtoTriples(importRDD.keys(), simMatrix);
-		try {
-			LinkageTriple.insertTriples(es, triples, config.get("indexName"), config.get("userHistoryLinkageType"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		SemanticAnalyzer sa = new SemanticAnalyzer(config, es, spark);
+		List<LinkageTriple> triple_List = sa.CalTermSimfromMatrix(config.get("userHistoryMatrix"));
+		sa.SaveToES(triple_List, config.get("indexName"), config.get("userHistoryLinkageType"));
 		
 		return null;
 	}

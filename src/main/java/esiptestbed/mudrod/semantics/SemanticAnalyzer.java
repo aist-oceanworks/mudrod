@@ -27,10 +27,9 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.LinkageTriple;
 import esiptestbed.mudrod.utils.MatrixUtil;
-import esiptestbed.mudrod.utils.RDDUtil;
 import esiptestbed.mudrod.utils.SimilarityUtil;
 
-public class SemanticAnalyzer extends MudrodAbstract { //remove MUDRODabstract if it does not work
+public class SemanticAnalyzer extends MudrodAbstract {
 
 	public SemanticAnalyzer(Map<String, String> config, ESDriver es,
 			SparkDriver spark) {

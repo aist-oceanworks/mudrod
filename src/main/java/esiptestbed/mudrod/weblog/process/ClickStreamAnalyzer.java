@@ -15,14 +15,12 @@ package esiptestbed.mudrod.weblog.process;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
+
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.utils.SVDUtil;
-import esiptestbed.mudrod.weblog.structure.ClickStream;
-import esiptestbed.mudrod.weblog.structure.SessionExtractor;
+import esiptestbed.mudrod.semantics.SVDAnalyzer;
+import esiptestbed.mudrod.utils.LinkageTriple;
 
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
@@ -35,17 +33,10 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			SVDUtil svdUtil = new SVDUtil(config, es, spark);
-			
-			SessionExtractor extractor = new SessionExtractor();
-			JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.config, this.es, this.spark);
-			int weight = Integer.parseInt(config.get("downloadWeight"));
-			JavaPairRDD<String, List<String>> dataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
-			int svdDimension = Integer.parseInt(config.get("clickstreamSVDDimension"));		
-			svdUtil.buildSVDMatrix(dataQueryRDD, svdDimension);
-			svdUtil.CalSimilarity();
-			svdUtil.insertLinkageToES(config.get("indexName"), config.get("clickStreamLinkageType"));
-			
+			SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
+			svd.GetSVDMatrix(config.get("clickstreamMatrix"), Integer.parseInt(config.get("clickstreamSVDDimension")), config.get("clickstreamSVDMatrix_tmp"));
+			List<LinkageTriple> triple_List = svd.CalTermSimfromMatrix(config.get("clickstreamMatrix"));
+		    svd.SaveToES(triple_List, config.get("indexName"), config.get("clickStreamLinkageType"));			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

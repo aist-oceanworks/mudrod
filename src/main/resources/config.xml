@@ -12,14 +12,24 @@
 	<para name="httplogpath">C:/Users/Yongyao/Desktop/access_log.podaac.201502
 	</para>
 	<para name="ftplogpath">C:/aist/ftp/podaac-ftp.log.201502</para>
-	<para name="userHistoryOutputfile">./src/main/java/esiptestbed/tmp/UserHistory.csv</para>
+	
 
 	<para name="metadataurl">null</para>
 
 	<para name="ontologyInputDir">C:/Users/Yongyao/Desktop/Research and
 		work/Mudrod_JPL/SWEET_ocean/
 	</para>   <!-- owl files directory -->
-	<para name="ontologyOutputFile">./src/main/java/esiptestbed/tmp/Ocean_triples.csv
+	<para name="ontologyFile">./src/main/java/esiptestbed/tmp/Ocean_triples.csv
+	</para>
+	<para name="userHistoryMatrix">./src/main/java/esiptestbed/tmp/UserHistoryMatrix.csv</para>
+	<para name="clickstreamMatrix">./src/main/java/esiptestbed/tmp/ClickstreamMatrix.csv
+	</para>
+	<para name="metadataMatrix">./src/main/java/esiptestbed/tmp/MetadataMatrix.csv
+	</para>
+	
+	<para name="clickstreamSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/clickstreamSVDMatrix_tmp.csv
+	</para>
+	<para name="metadataSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/metadataSVDMatrix_tmp.csv
 	</para>
 
 	<para name="clusterName">elasticsearch</para>
@@ -43,7 +53,7 @@
 
 	<para name="clickstreamSVDDimension">50</para>
 	<para name="metadataSVDDimension">50</para>
-	<para name="downloadWeight">5</para>
+	<para name="downloadWeight">3</para>
 
 	<para name="mini_userHistory">5</para>   <!-- filter out less active users & queries -->
 	
