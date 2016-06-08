@@ -13,13 +13,22 @@
  */
 package esiptestbed.mudrod.semantics;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.mllib.linalg.Vector;
+import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.LinkageTriple;
+import esiptestbed.mudrod.utils.MatrixUtil;
+import esiptestbed.mudrod.utils.RDDUtil;
+import esiptestbed.mudrod.utils.SimilarityUtil;
 
 public class SemanticAnalyzer extends MudrodAbstract { //remove MUDRODabstract if it does not work
 
@@ -30,19 +39,20 @@ public class SemanticAnalyzer extends MudrodAbstract { //remove MUDRODabstract i
 	}
 
 	public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName){
-		return null;
 		
-	}
-	
-	public void SaveToES(List<LinkageTriple> triple_List){
-		
-	}
-	
-	public String GetSVDMatrix(String CSV_fileName, int svdDimention){
-		String svd_matrix_fileName = "";
-		
-		
-		return svd_matrix_fileName;
-	}
+		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, 2);
+		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromVector(importRDD.values());
+		JavaRDD<String> rowKeyRDD = importRDD.keys();
+		List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
 
+		return triples;
+	}
+	
+	public void SaveToES(List<LinkageTriple> triple_List, String index, String type){
+		try {
+			LinkageTriple.insertTriples(es, triple_List, index, type);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
