@@ -18,6 +18,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -135,6 +136,19 @@ public class ESDriver implements Serializable {
 		return analyzed_str;
 	}
     
+    public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
+    	if(list == null){
+    		return list;
+    	}
+    	int size = list.size();
+    	List<String> customlist = new ArrayList<String>();
+    	for(int i=0; i<size; i++){
+    		customlist.add(this.customAnalyzing(indexName, list.get(i)));
+    	}
+    	
+    	return customlist;
+	}
+
 	public void deleteAllByQuery(String index, String type, QueryBuilder query) {
 		createBulkProcesser();
 		SearchResponse scrollResp = client.prepareSearch(index)

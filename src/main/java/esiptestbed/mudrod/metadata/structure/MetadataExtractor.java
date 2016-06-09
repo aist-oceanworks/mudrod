@@ -44,7 +44,7 @@ public class MetadataExtractor implements Serializable {
 	
 	public JavaPairRDD<String, List<String>> loadMetadata(ESDriver es,JavaSparkContext sc, String index, String type) throws Exception{
 	    List<PODAACMetadata> metadatas = this.loadMetadataFromES(es, index, type);
-	    JavaPairRDD<String, List<String>> metadataTermsRDD = this.buildMetadataRDD(sc,metadatas);
+	    JavaPairRDD<String, List<String>> metadataTermsRDD = this.buildMetadataRDD(es, sc, index, metadatas);
 		return metadataTermsRDD;
 	}
 	
@@ -64,7 +64,7 @@ public class MetadataExtractor implements Serializable {
 				List<String> keyword = (List<String>) result.get("Dataset-Metadata");
 				List<String> variable = (List<String>) result.get("DatasetParameter-Variable");
 				List<String>  longname = (List<String> ) result.get("DatasetProject-Project-LongName");
-				PODAACMetadata metadata = new PODAACMetadata(shortname, longname, topic, term, variable, keyword);
+				PODAACMetadata metadata = new PODAACMetadata(shortname, longname, es.customAnalyzing(index, topic), es.customAnalyzing(index, term), es.customAnalyzing(index, variable), es.customAnalyzing(index, keyword));
 				metadatas.add(metadata);
 			}
 			scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))
@@ -77,7 +77,7 @@ public class MetadataExtractor implements Serializable {
 		return metadatas;
 	}
 
-	protected JavaPairRDD<String, List<String>> buildMetadataRDD(JavaSparkContext sc, List<PODAACMetadata> metadatas){
+	protected JavaPairRDD<String, List<String>> buildMetadataRDD(ESDriver es,JavaSparkContext sc, String index, List<PODAACMetadata> metadatas){
 		JavaRDD<PODAACMetadata> metadataRDD = sc.parallelize(metadatas);
 		JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD.mapToPair(new PairFunction<PODAACMetadata, String, List<String>>() {
 			public Tuple2<String, List<String>> call(PODAACMetadata metadata) throws Exception {
