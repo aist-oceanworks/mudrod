@@ -40,6 +40,7 @@ public class MudrodEngine {
 		loadConfig();
 		es = new ESDriver(config.get("clusterName"));
 		spark = new SparkDriver();
+		
 	}
 	
 	public Map<String, String> getConfig(){
@@ -75,11 +76,11 @@ public class MudrodEngine {
 
 	
 	public void start(){
-		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es);
-		DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
+		DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
+		//DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
 		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
 		de.preprocess();
-		//de.process();
+		de.process();
 		//de.output();
 	}
 	

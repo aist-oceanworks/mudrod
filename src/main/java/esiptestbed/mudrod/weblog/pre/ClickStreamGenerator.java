@@ -13,7 +13,6 @@
  */
 package esiptestbed.mudrod.weblog.pre;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +40,8 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************ClickStreamGenerator starts******************");
+		startTime=System.currentTimeMillis();
+		
 		String clickstrem_matrix_file = config.get("clickstreamMatrix");
 		try {
 			SessionExtractor extractor = new SessionExtractor();
@@ -57,7 +58,8 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 			e.printStackTrace();
 		}	
 		
-		System.out.println("*****************ClickStreamGenerator ends******************");
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************ClickStreamGenerator ends******************Took" + (endTime-startTime)/1000+"s");
 		return null;
 	}
 

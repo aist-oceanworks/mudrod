@@ -17,6 +17,7 @@ import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
@@ -24,6 +25,7 @@ import esiptestbed.mudrod.weblog.pre.RemoveRawLog;
 import esiptestbed.mudrod.weblog.pre.SessionGenerator;
 import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
+import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 
 
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {		
@@ -37,7 +39,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Web log preprocessing starts******************");
 		startTime=System.currentTimeMillis();
 		
-		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+/*		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
 		im.execute();
 		
 		DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
@@ -50,10 +52,13 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		ss.execute();
 		
 		DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-		rr.execute();
+		rr.execute();*/
 		
 		DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
 		hg.execute();
+		
+		DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+		cg.execute();
 				
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
@@ -69,6 +74,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
 		DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
+		
+		DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
+		ua.execute();
 		
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Web log processing ends******************Took " + (endTime-startTime)/1000+"s");

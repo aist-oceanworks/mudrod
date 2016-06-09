@@ -44,7 +44,9 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 		// TODO Auto-generated method stub
 		System.out.println("*****************HistoryGenerator starts******************");
 		startTime=System.currentTimeMillis();
+		
 		GenerateBinaryMatrix();
+		
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************HistoryGenerator ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
@@ -52,9 +54,9 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
 	public void GenerateBinaryMatrix(){
 		try {
-			File file = new File(config.get("userHistoryOutputfile"));
+			File file = new File(config.get("userHistoryMatrix"));
 			if (!file.exists()) {
-
+                file.delete();
 				file.createNewFile();
 
 			}
@@ -84,7 +86,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
 			bw.write(String.join(",", IPList) +"\n");
 
-			bw.write("Num,");
+			/*bw.write("Num,");
 			for(int k=0; k< IPList.size(); k++){
 				if(k!=IPList.size()-1){
 					bw.write("f" + k + ",");
@@ -92,7 +94,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 					bw.write("f" + k + "\n");
 				}
 
-			}
+			}*/
 
 			//step 2: step the rest rows of csv
 			SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))                          

@@ -9,9 +9,9 @@
 <Config>
 	<para name="loglevel">1</para> <!-- 1: engine, 2: step, 3: substep -->
 
-	<para name="httplogpath">C:/Users/Yongyao/Desktop/access_log.podaac.201502
+	<para name="httplogpath">C:/AIST LOG FILES/access_log.podaac.201502
 	</para>
-	<para name="ftplogpath">C:/aist/ftp/podaac-ftp.log.201502</para>
+	<para name="ftplogpath">C:/AIST LOG FILES/podaac-ftp.log.201502</para>
 	
 
 	<para name="metadataurl">null</para>
@@ -32,8 +32,8 @@
 	<para name="metadataSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/metadataSVDMatrix_tmp.csv
 	</para>
 
-	<para name="clusterName">elasticsearch</para>
-	<para name="indexName">test</para>
+	<para name="clusterName">cody</para>
+	<para name="indexName">mudrod</para>
 
 	<para name="HTTP_type">rawhttp</para>
 	<para name="FTP_type">rawftp</para>

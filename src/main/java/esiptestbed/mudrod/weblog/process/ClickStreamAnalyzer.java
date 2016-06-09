@@ -33,6 +33,8 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************ClickStreamAnalyzer starts******************");
+		startTime=System.currentTimeMillis();
+
 		try {
 			SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
 			svd.GetSVDMatrix(config.get("clickstreamMatrix"), Integer.parseInt(config.get("clickstreamSVDDimension")), config.get("clickstreamSVDMatrix_tmp"));
@@ -42,8 +44,9 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		System.out.println("*****************ClickStreamAnalyzer ends******************");
+		
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************ClickStreamAnalyzer ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
 

@@ -183,6 +183,7 @@ public class MatrixUtil {
 
 		File file = new File(fileName);
 		if (!file.exists()) {
+			file.delete();
 			file.createNewFile();
 		}
 
@@ -195,12 +196,12 @@ public class MatrixUtil {
 		coltitle = coltitle.substring(0, coltitle.length() - 1);
 		bw.write(coltitle + "\n");
 
-		String secondtitle = " Num" + ",";
+		/*String secondtitle = " Num" + ",";
 		for (int j = 0; j < colnum; j++) {
 			secondtitle += "f" + j + ",";
 		}
 		secondtitle = secondtitle.substring(0, secondtitle.length() - 1);
-		bw.write(secondtitle + "\n");
+		bw.write(secondtitle + "\n");*/
 
 		for (int i = 0; i < rownum; i++) {
 			double[] rowvlaue = rows.get(i).toArray();

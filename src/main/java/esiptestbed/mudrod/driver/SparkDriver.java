@@ -17,6 +17,8 @@ import java.io.Serializable;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 public class SparkDriver implements Serializable {
 	public JavaSparkContext sc;
@@ -24,5 +26,7 @@ public class SparkDriver implements Serializable {
 	public SparkDriver() {
 		SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]");
 		sc = new JavaSparkContext(conf);
+		Logger.getLogger("org").setLevel(Level.OFF);
+		Logger.getLogger("akka").setLevel(Level.OFF);
 	}
 }

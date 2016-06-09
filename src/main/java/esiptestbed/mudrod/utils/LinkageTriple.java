@@ -37,8 +37,7 @@ public class LinkageTriple implements Serializable {
 		return keyA + "," + keyB + ":" + weight;
 	}
 	
-	public static void insertTriples(ESDriver es, List<LinkageTriple> triples,String index, String type) throws IOException{
-		
+	public static void insertTriples(ESDriver es, List<LinkageTriple> triples,String index, String type) throws IOException{		
 		es.deleteType(index, type);
 		
 		es.createBulkProcesser();
