@@ -67,7 +67,6 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 		    for(int i =0; i < doc_length; i++)
 		    {
 		    	JsonElement item = docs.get(i);
-		    	System.out.println(i);
 		    	IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
 
 				es.bulkProcessor.add(ir);

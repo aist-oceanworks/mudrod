@@ -59,7 +59,7 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 		}	
 		
 		endTime=System.currentTimeMillis();
-		System.out.println("*****************ClickStreamGenerator ends******************Took" + (endTime-startTime)/1000+"s");
+		System.out.println("*****************ClickStreamGenerator ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
 

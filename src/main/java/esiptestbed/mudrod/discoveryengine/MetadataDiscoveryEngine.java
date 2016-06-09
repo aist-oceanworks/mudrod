@@ -33,15 +33,20 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
 	public void preprocess() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Metadata preprocessing starts******************");
+		startTime=System.currentTimeMillis();
+		
 		DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es, this.spark);
 		harvester.execute();
-		System.out.println("*****************Metadata preprocessing starts******************");
+		
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Metadata preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
 
 	public void process() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Metadata processing starts******************");
-
+		startTime=System.currentTimeMillis();
+		
 		DiscoveryStepAbstract matrix = new MatrixGenerator(this.config, this.es, this.spark);
 		matrix.execute();
 		

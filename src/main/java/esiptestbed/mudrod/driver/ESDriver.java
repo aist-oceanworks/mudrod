@@ -118,7 +118,7 @@ public class ESDriver implements Serializable {
 	}
     
     public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException{
-		String[] str_list = str.split(",");
+		String[] str_list = str.toLowerCase().split(",");
 		for(int i = 0; i<str_list.length;i++)
 		{
 			String tmp = "";

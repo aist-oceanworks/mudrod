@@ -44,7 +44,9 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			System.out.println("*****************MetadataAnalyzer ends******************");
+			System.out.println("*****************Metadata Analyzer ends******************");
+			startTime=System.currentTimeMillis();
+			
 			SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
 			int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
 			String metadata_matrix_file = config.get("metadataMatrix");
@@ -60,7 +62,8 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 			e.printStackTrace();
 		}
 
-		System.out.println("*****************MetadataAnalyzer ends******************");
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Metadata Analyzer ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
 }

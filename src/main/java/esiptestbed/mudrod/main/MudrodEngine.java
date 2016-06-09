@@ -76,8 +76,8 @@ public class MudrodEngine {
 
 	
 	public void start(){
-		DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
-		//DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
+		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
+		DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
 		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
 		de.preprocess();
 		de.process();
