@@ -26,10 +26,13 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub	
+		System.out.println("*****************UserHistoryAnalyzer starts******************");
+
 		SemanticAnalyzer sa = new SemanticAnalyzer(config, es, spark);
 		List<LinkageTriple> triple_List = sa.CalTermSimfromMatrix(config.get("userHistoryMatrix"));
 		sa.SaveToES(triple_List, config.get("indexName"), config.get("userHistoryLinkageType"));
 		
+		System.out.println("*****************UserHistoryAnalyzer ends******************");
 		return null;
 	}
 

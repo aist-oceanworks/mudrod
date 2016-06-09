@@ -44,22 +44,23 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			
+			System.out.println("*****************MetadataAnalyzer ends******************");
 			SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
 			int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
 			String metadata_matrix_file = config.get("metadataMatrix");
 			String svd_matrix_fileName = config.get("metadataSVDMatrix_tmp");
-			
+
 			analyzer.GetSVDMatrix(metadata_matrix_file, svdDimension, svd_matrix_fileName);
 			List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(svd_matrix_fileName);
-			
+
 			analyzer.SaveToES(triples, config.get("indexName"),config.get("metadataLinkageType"));
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+		System.out.println("*****************MetadataAnalyzer ends******************");
 		return null;
 	}
 }

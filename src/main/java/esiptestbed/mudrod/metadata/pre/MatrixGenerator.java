@@ -25,6 +25,7 @@ public class MatrixGenerator extends DiscoveryStepAbstract  {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		System.out.println("*****************Metadata matrix starts******************");
 		String metadata_matrix_file = config.get("metadataMatrix");
 		try {
 			MetadataExtractor extractor = new MetadataExtractor();
@@ -40,6 +41,7 @@ public class MatrixGenerator extends DiscoveryStepAbstract  {
 			e.printStackTrace();
 		}
 		
+		System.out.println("*****************Metadata matrix ends******************");
 		return null;
 	}
 

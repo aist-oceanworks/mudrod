@@ -24,7 +24,6 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.RDDUtil;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
@@ -41,6 +40,7 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		System.out.println("*****************ClickStreamGenerator starts******************");
 		String clickstrem_matrix_file = config.get("clickstreamMatrix");
 		try {
 			SessionExtractor extractor = new SessionExtractor();
@@ -57,6 +57,7 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 			e.printStackTrace();
 		}	
 		
+		System.out.println("*****************ClickStreamGenerator ends******************");
 		return null;
 	}
 
