@@ -9,7 +9,7 @@ Edward M Armstrong, Thomas Huang, David Moroni, Chris Finch, Lewis John Mcgibbne
 
 Software requirements: 
 
-Elasticsearch v1.7, Kibana v4, Java 8, and Tomacat 8.
+Elasticsearch v1.7, Kibana v4, Java 8, and Tomcat 8.
 
 ##License
 This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
