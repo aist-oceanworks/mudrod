@@ -75,13 +75,19 @@ public class MudrodEngine {
   }
 
 	
-	public void start(){
-		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
-		DiscoveryEngineAbstract de = new MetadataDiscoveryEngine(config, es, spark);
-		//DiscoveryEngineAbstract de = new WeblogDiscoveryEngine(config, es, spark);
-		de.preprocess();
-		de.process();
-		//de.output();
+	public void start(){		
+		/*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+		wd.preprocess();
+		wd.process();*/
+		
+		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
+		od.preprocess();
+		od.process();
+		
+		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
+		md.preprocess();
+		md.process();
+
 	}
 	
 	public void end(){

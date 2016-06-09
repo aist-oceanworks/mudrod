@@ -55,11 +55,11 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 	public void GenerateBinaryMatrix(){
 		try {
 			File file = new File(config.get("userHistoryMatrix"));
-			if (!file.exists()) {
+			if (file.exists()) {
                 file.delete();
-				file.createNewFile();
-
 			}
+			
+			file.createNewFile();
 
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);

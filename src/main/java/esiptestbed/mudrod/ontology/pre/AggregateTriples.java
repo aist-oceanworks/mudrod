@@ -44,14 +44,15 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
-		File file = new File(this.config.get("ontologyOutputFile"));
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		File file = new File(this.config.get("oceanTriples"));
+		if (file.exists()) {
+			file.delete();			
+		}
+		try {
+			file.createNewFile();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
 		}
 
 		FileWriter fw;

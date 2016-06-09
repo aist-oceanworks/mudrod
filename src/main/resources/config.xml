@@ -16,10 +16,9 @@
 
 	<para name="metadataurl">null</para>
 
-	<para name="ontologyInputDir">C:/Users/Yongyao/Desktop/Research and
-		work/Mudrod_JPL/SWEET_ocean/
+	<para name="ontologyInputDir">./src/main/java/esiptestbed/tmp/SWEET_ocean/
 	</para>   <!-- owl files directory -->
-	<para name="ontologyFile">./src/main/java/esiptestbed/tmp/Ocean_triples.csv
+	<para name="oceanTriples">./src/main/java/esiptestbed/tmp/Ocean_triples.csv
 	</para>
 	<para name="userHistoryMatrix">./src/main/java/esiptestbed/tmp/UserHistoryMatrix.csv</para>
 	<para name="clickstreamMatrix">./src/main/java/esiptestbed/tmp/ClickstreamMatrix.csv

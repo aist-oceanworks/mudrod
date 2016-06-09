@@ -39,7 +39,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Web log preprocessing starts******************");
 		startTime=System.currentTimeMillis();
 		
-/*		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
 		im.execute();
 		
 		DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
@@ -52,7 +52,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 		ss.execute();
 		
 		DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-		rr.execute();*/
+		rr.execute();
 		
 		DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
 		hg.execute();

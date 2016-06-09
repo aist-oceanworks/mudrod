@@ -182,10 +182,10 @@ public class MatrixUtil {
 		List<Vector> rows = (List<Vector>) matrix.rows().toJavaRDD().collect();
 
 		File file = new File(fileName);
-		if (!file.exists()) {
-			file.delete();
-			file.createNewFile();
+		if (file.exists()) {
+			file.delete();			
 		}
+		file.createNewFile();
 
 		FileWriter fw = new FileWriter(file.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);

@@ -72,6 +72,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		es.deleteType(config.get("indexName"), config.get("ontologyLinkageType"));
 		es.createBulkProcesser();		
 		
 		BufferedReader br = null;
@@ -79,7 +80,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 		double weight = 0;
 		
 		try {
-			br = new BufferedReader(new FileReader(config.get("ontologyFile")));
+			br = new BufferedReader(new FileReader(config.get("oceanTriples")));
 			while ((line = br.readLine()) != null) {
 				String[] strList = line.toLowerCase().split(",");
 				if(strList[1].equals("subclassof"))
