@@ -29,12 +29,11 @@ public class MatrixGenerator extends DiscoveryStepAbstract  {
 		String metadata_matrix_file = config.get("metadataMatrix");
 		try {
 			MetadataExtractor extractor = new MetadataExtractor();
-			JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc, config.get("indexName"),config.get("metadataType"));
+			JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc, config.get("indexName"),config.get("raw_metadataType"));
 			RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD, spark.sc);
-			
 			List<String> rowKeys = RDDUtil.getAllWordsInDoc(metadataTermsRDD).collect();
 			List<String> colKeys = metadataTermsRDD.keys().collect();
-			MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, colKeys, metadata_matrix_file);	
+			MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, colKeys, metadata_matrix_file);
 		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

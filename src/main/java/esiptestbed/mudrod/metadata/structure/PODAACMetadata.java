@@ -25,11 +25,6 @@ import java.util.concurrent.ExecutionException;
 public class PODAACMetadata implements Serializable {
 	
 	private String shortname;
-	private String longname;
-	private String topic;
-	private String term;
-	private String variable;
-	private String keywordStr;
 	private String abstractStr;
 	private String isoTopic;
 	private String sensor;
@@ -37,6 +32,7 @@ public class PODAACMetadata implements Serializable {
 	private String project;
 	boolean hasAbstarct;
 	
+	private List<String> longnameList;
 	private List<String> keywordList;
 	private List<String> termList;
 	private List<String> topicList;
@@ -51,86 +47,14 @@ public class PODAACMetadata implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PODAACMetadata(String shortname, String longname, String topic, String term, String variable,
-			String keywordStr) throws UnsupportedEncodingException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
+	public PODAACMetadata(String shortname, List<String> longname, List<String> topics, List<String> terms, List<String> variables,
+			List<String> keywords) throws UnsupportedEncodingException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
 		this.shortname = shortname;
-		this.longname = longname;
-		this.topic = topic;
-		this.term = term;
-		this.variable = variable;
-		this.keywordStr = keywordStr;
-		this.hasAbstarct = false;
-		
-		this.keywordList = new ArrayList<String>();
-		this.termList = new ArrayList<String>();
-		this.topicList = new ArrayList<String>();
-		this.variableList = new ArrayList<String>();
-		this.abstractList = new ArrayList<String>();
-		this.isotopicList = new ArrayList<String>();
-		this.sensorList = new ArrayList<String>();
-		this.sourceList = new ArrayList<String>();
-		this.projectList = new ArrayList<String>();
-		
-		this.parseDetailInfo();
-	}
-	
-	public PODAACMetadata(String shortname, String longname, String topic, String term, String variable,
-			String keywordStr, String isotopic, String sensor, String source, String project, String abstractstr) throws UnsupportedEncodingException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-		this.shortname = shortname;
-		this.longname = longname;
-		this.topic = topic;
-		this.term = term;
-		this.variable = variable;
-		this.keywordStr = keywordStr;
-		this.abstractStr = abstractstr;
-		this.isoTopic = isotopic;
-		this.sensor = sensor;
-		this.source = source;
-		this.project = project;
-		
-		this.keywordList = new ArrayList<String>();
-		this.termList = new ArrayList<String>();
-		this.topicList = new ArrayList<String>();
-		this.variableList = new ArrayList<String>();
-		this.abstractList = new ArrayList<String>();
-		this.isotopicList = new ArrayList<String>();
-		this.sensorList = new ArrayList<String>();
-		this.sourceList = new ArrayList<String>();
-		this.projectList = new ArrayList<String>();
-		this.parseDetailInfo();
-	}
-
-	public PODAACMetadata parseDetailInfo() throws UnsupportedEncodingException, NoSuchAlgorithmException, InterruptedException, ExecutionException {
-		this.setKeywords(this.keywordStr);
-		this.setTerms(this.term);
-		this.setTopicList(this.topic);
-		this.setVaraliableList(this.variable);
-		
-		if(this.isoTopic != null && !this.isoTopic.equals("")){
-			this.setISOTopicList(this.isoTopic);
-		}
-		
-		if(this.sensor != null&& !this.sensor.equals("")){
-			this.setSensorList(this.sensor);
-		}
-		
-		if(this.source != null&&!this.source.equals("")){
-			this.setSourceList(this.source);
-		}
-		
-		if(this.project != null&&!this.project.equals("")){
-			this.setProjectList(this.project);
-		}
-		
-		if(this.abstractStr != null&&!this.abstractStr.equals("")){
-			this.setAbstractList(this.abstractStr);
-		}
-
-		return this;
-	}
-
-	public void setAbstractList(String line) throws InterruptedException, ExecutionException {
-	
+		this.longnameList = longname;
+		this.keywordList = keywords;
+		this.termList = terms;
+		this.topicList = topics;
+		this.variableList = variables;
 	}
 	
 	public void setTerms(String termstr) {
@@ -177,10 +101,6 @@ public class PODAACMetadata implements Serializable {
 		return this.shortname;
 	}
 	
-	public String getLongName() {
-		return this.longname;
-	}
-	
 	public String getKeyword(){
 		return String.join(",", this.keywordList);
 	}
@@ -223,23 +143,25 @@ public class PODAACMetadata implements Serializable {
 
 	public List<String> getAllTermList() throws InterruptedException, ExecutionException {
 		List<String> allterms = new ArrayList<String>();
-		if (this.termList.size() > 0) {
+		
+		if (this.termList != null && this.termList.size() > 0) {
 			allterms.addAll(this.termList);
 		}
 
-		if (this.keywordList.size() > 0) {
+		if (this.keywordList != null && this.keywordList.size() > 0) {
 			allterms.addAll(this.keywordList);
 		}
 		
-		if (this.topicList.size() > 0) {
+		if (this.topicList != null && this.topicList.size() > 0) {
 			allterms.addAll(this.topicList);
 		}
 
-		if (this.variableList.size() > 0) {
+		if (this.variableList != null && this.variableList.size() > 0) {
 			allterms.addAll(this.variableList);
 		}
 
-		if (this.isotopicList.size() > 0) {
+		//reserved
+		/*if (this.isotopicList.size() > 0) {
 			allterms.addAll(this.isotopicList);
 		}
 		
@@ -254,7 +176,7 @@ public class PODAACMetadata implements Serializable {
 		}
 		if (this.abstractList.size() > 0) {
 			allterms.addAll(this.abstractList);
-		}
+		}*/
 
 		return allterms;
 	}
