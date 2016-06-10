@@ -2,12 +2,14 @@ package esiptestbed.mudrod.integration;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -16,6 +18,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -42,19 +48,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 			weight = w;
 			model  = m;
 		}
-
-		public String toString(){
-			String output=model+":"+term+"("+weight+")";
-
-
-			return output;
-
-		}
 	}
 
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
+		getIngeratedList("sst", 11);
 		return null;
 	}
 
@@ -64,50 +63,90 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 		return null;
 	}
 
-	public String appyMajorRule(String input, int Num) throws InterruptedException, ExecutionException{
+	public Map<String, Double> appyMajorRule(String input){
 		termList = new ArrayList<LinkedTerm>();
 		Map<String, Double> terms_map = new HashMap<String, Double>();
+		Map<String, Double> sortedMap = new HashMap<String, Double>();
+		try {
+			Map<String, List<LinkedTerm>> map = aggregateRelatedTermsFromAllmodel(es.customAnalyzing(config.get("indexName"), input));
 
-		Map<String, List<LinkedTerm>> map = aggregateRelatedTermsFromAllmodel(es.customAnalyzing(config.get("indexName"), input));
-		for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {		
-			List<LinkedTerm> list = entry.getValue();
-			double sum_model_w = 0;
-			double sum_w_term= 0;
-			double tmp =0;
-			for (LinkedTerm element : list) {
-				sum_model_w += getModelweight(element.model);
-				sum_w_term += element.weight*getModelweight(element.model);
+			for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {		
+				List<LinkedTerm> list = entry.getValue();
+				double sum_model_w = 0;
+				double tmp =0;
+				for (LinkedTerm element : list) {
+					sum_model_w += getModelweight(element.model);
 
-				if(element.weight>tmp){
-					tmp = element.weight;
+					if(element.weight>tmp){
+						tmp = element.weight;
+					}
 				}
-			}
 
-			double final_w = tmp + ((sum_model_w - 2) * 0.05);
-			if(final_w<0){
-				final_w=0;
-			}
+				double final_w = tmp + ((sum_model_w - 2) * 0.05);
+				if(final_w < 0){
+					final_w = 0;
+				}
 
-			if(final_w>1){
-				final_w=1;
+				if(final_w > 1){
+					final_w = 1;
+				}
+				terms_map.put(entry.getKey(), Double.parseDouble(df.format(final_w)));			
 			}
-			terms_map.put(entry.getKey(), Double.parseDouble(df.format(final_w)));			
+			sortedMap = sortMapByValue(terms_map);  //terms_map will be empty after this step
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		Map<String, Double> sortedMap = sortMapByValue(terms_map);  //terms_map will be empty after this step
-
+		return sortedMap;
+	}
+	
+	public String getIngeratedList(String input, int Num){
 		String output = "";
+		Map<String, Double> sortedMap = appyMajorRule(input);
 		int count = 0;
 		for (Entry<String, Double> entry : sortedMap.entrySet()) {
 			if(count<Num)
 			{
-				output += entry.getKey() + " = " + entry.getValue() + ",";
+				output += entry.getKey() + " = " + entry.getValue() + ", ";
 			}
 			count++;
 		}
-		System.out.println("\n"+output);
+		System.out.println("\n************************Integrated results***************************");
+		System.out.println(output);
 		return output;
-
+	}
+	
+	public JsonObject getIngeratedListInJson(String input, int Num){
+		Map<String, Double> sortedMap = appyMajorRule(input);	
+		int count = 0;
+		Map<String, Double> trimmed_map = new HashMap<String, Double>();
+		for (Entry<String, Double> entry : sortedMap.entrySet()) {
+			if(count<10)
+			{
+				trimmed_map.put(entry.getKey(), entry.getValue());	
+			}
+			count++;
+		}
+		
+		return MapToJson(input, trimmed_map);
+	}
+	
+	public String getModifiedQuery(String input, int Num){
+		Map<String, Double> sortedMap = appyMajorRule(input);
+		String output = "(" + input.replace(" ", " AND ") + ")";
+		int count = 0;
+		for (Entry<String, Double> entry : sortedMap.entrySet()) {
+			String item = "(" + entry.getKey().replace(" ", " AND ") + ")";
+			if(count<Num)
+			{
+			output += " OR " + item;
+			}
+			count++;
+		}
+		return output;
 	}
 
 	public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(String input)
@@ -163,7 +202,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 				.execute()
 				.actionGet();
 
-		System.out.println("\n"+model + "-----");
+		System.out.println("\n************************"+ model + " results***************************");
 		for (SearchHit hit : usrhis.getHits().getHits()) 
 		{
 			Map<String,Object> result = hit.getSource();
@@ -189,7 +228,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 				.setSize(11)
 				.execute()
 				.actionGet();
-		System.out.println("\n"+model + "-----");
+		System.out.println("\n************************"+ model + " results***************************");
 		for (SearchHit hit : usrhis.getHits().getHits()) 
 		{
 			Map<String,Object> result = hit.getSource();
@@ -232,6 +271,43 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
 		}
 		return sortedMap;
+	}
+	
+	private JsonObject MapToJson(String word, Map<String, Double> wordweights) {
+		Gson gson = new Gson();
+		JsonObject json = new JsonObject();
+		
+		List<JsonObject> nodes = new ArrayList<JsonObject>();
+		JsonObject firstNode = new JsonObject();
+		firstNode.addProperty("name", word);
+		firstNode.addProperty("group", 1);
+		nodes.add(firstNode);
+		Set<String> words = wordweights.keySet();
+		for(String wordB : words){
+			JsonObject node = new JsonObject();
+			node.addProperty("name", wordB);
+			node.addProperty("group", 10);
+			nodes.add(node);
+		}
+		JsonElement nodesElement = gson.toJsonTree(nodes);
+		json.add("nodes", nodesElement);
+			
+		List<JsonObject> links = new ArrayList<JsonObject>();
+		
+		Collection<Double> weights = wordweights.values();
+		int num = 1;
+		for(double weight : weights){
+			JsonObject link = new JsonObject();
+			link.addProperty("source", num);
+			link.addProperty("target", 0);
+			link.addProperty("value", weight);
+			links.add(link);
+			num += 1;
+		}
+		JsonElement linksElement = gson.toJsonTree(links);
+		json.add("links", linksElement);
+
+		return json;
 	}
 
 

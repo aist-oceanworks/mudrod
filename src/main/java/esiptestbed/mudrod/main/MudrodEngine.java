@@ -30,6 +30,7 @@ import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.integration.LinkageIntegration;
 
 public class MudrodEngine {
 	private Map<String, String> config = new HashMap<String, String>();
@@ -40,64 +41,72 @@ public class MudrodEngine {
 		loadConfig();
 		es = new ESDriver(config.get("clusterName"));
 		spark = new SparkDriver();
-		
+
 	}
-	
+
 	public Map<String, String> getConfig(){
 		return config;
 	}
-	
-	public void loadConfig() {
-    SAXBuilder saxBuilder = new SAXBuilder();
-    InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
 
-    Document document;
-    try {
-      document = saxBuilder.build(configStream);
-      Element rootNode = document.getRootElement();
-      List<Element> para_list = rootNode.getChildren("para");
 
-      for (int i = 0; i < para_list.size(); i++) {
-        Element para_node = para_list.get(i);
-        config.put(para_node.getAttributeValue("name"),para_node.getTextTrim());
-      }
-    } catch (JDOMException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    for (Map.Entry<String, String> entry : config.entrySet()) {
-      System.out.println(entry.getKey()+" : "+entry.getValue());
-    }
-  }
-
-	
-	public void start(){		
-		/*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
-		wd.preprocess();
-		wd.process();*/
-		
-		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
-		od.preprocess();
-		od.process();
-		
-		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
-		md.preprocess();
-		md.process();
-
+	public ESDriver getES(){
+		return this.es;
 	}
-	
+
+
+	public void loadConfig() {
+		SAXBuilder saxBuilder = new SAXBuilder();
+		InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
+
+		Document document;
+		try {
+			document = saxBuilder.build(configStream);
+			Element rootNode = document.getRootElement();
+			List<Element> para_list = rootNode.getChildren("para");
+
+			for (int i = 0; i < para_list.size(); i++) {
+				Element para_node = para_list.get(i);
+				config.put(para_node.getAttributeValue("name"),para_node.getTextTrim());
+			}
+		} catch (JDOMException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for (Map.Entry<String, String> entry : config.entrySet()) {
+			System.out.println(entry.getKey()+" : "+entry.getValue());
+		}
+	}
+
+
+	public void start(){		
+		DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+		//wd.preprocess();
+		wd.process();
+
+		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
+		//od.preprocess();
+		od.process();
+
+		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
+		//md.preprocess();
+		md.process(); 
+
+		LinkageIntegration li = new LinkageIntegration(config, es, spark);
+		li.execute();
+	}
+
 	public void end(){
 		es.close();
 	}
-	
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-        MudrodEngine test = new MudrodEngine();
-        test.start();
-        test.end();
+		MudrodEngine test = new MudrodEngine();
+		test.start();
+		test.end();
 	}
 }

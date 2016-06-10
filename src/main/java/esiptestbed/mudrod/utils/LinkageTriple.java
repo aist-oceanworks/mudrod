@@ -17,8 +17,11 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.List;
+
 import org.elasticsearch.action.index.IndexRequest;
+
 import esiptestbed.mudrod.driver.ESDriver;
 
 public class LinkageTriple implements Serializable {
@@ -28,6 +31,8 @@ public class LinkageTriple implements Serializable {
 	public double weight;
 	public String keyA;
 	public String keyB;
+	public static DecimalFormat df = new DecimalFormat("#.00");
+	
 	
 	public LinkageTriple() {
 		// TODO Auto-generated constructor stub
@@ -46,7 +51,7 @@ public class LinkageTriple implements Serializable {
 			IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder()
 					.startObject()
 					.field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB)
-					.field("weight", triples.get(i).weight)	
+					.field("weight", Double.parseDouble(df.format(triples.get(i).weight)))	
 					.endObject());
 			es.bulkProcessor.add(ir);
 		}

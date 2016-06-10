@@ -1,6 +1,5 @@
 package esiptestbed.mudrod.metadata.pre;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
-import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.RDDUtil;
 

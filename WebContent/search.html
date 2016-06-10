@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>MUDROD</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="images/NASALogo_burned.png">
+  
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  
+  <!-- bt table -->
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.css">
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+ 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.js"></script>
+  
+  <!-- Custom styles for this template -->
+  <script src="js/util.js"></script>
+  <link href="css/dashboard.css" rel="stylesheet">
+  <style>
+  .ui-autocomplete {
+    position: absolute;
+    z-index: 1000;
+    cursor: default;
+    padding: 0;
+    margin-top: 2px;
+    list-style: none;
+    background-color: #ffffff;
+    border: 1px solid #ccc
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+            border-radius: 5px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+       -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	}
+	.ui-autocomplete > li {
+	  padding: 3px 20px;
+	}
+	.ui-autocomplete > li.ui-state-focus {
+	  background-color: #DDD;
+	}
+	.ui-helper-hidden-accessible {
+	  display: none;
+	}
+
+  </style>  
+
+</head>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	
+	
+	$("#query").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "AutoComplete",
+                    type: "POST",
+                    data: {chars: $("#query").val()},
+
+                    dataType: "json",
+
+                    success: function(data) {
+					    response(data);
+                    }
+               });              
+            }   
+    });
+	
+            var query = getURLParameter('query');
+			if(query==null)
+			{			
+				$("#searchResults").hide();
+			}else{
+				$("#searchResults").hide();
+				$("#NotFound").hide();
+				$("#query").val(query);
+				search(query);
+			
+			}
+
+			$("#query").keyup(function(event){
+				if(event.keyCode == 13){
+					$("#searchButton").click();
+				}
+			});		
+			
+			$("#searchButton").click(function() {				
+				setGetParameter("query", $("#query").val());
+		   });
+
+	});
+	
+	function search(query){
+	if($("#query").val()!="")
+				{							
+				$("#searchBox").append($("#searchGroup"));
+				$("#searchjumbo").hide();
+				$("#note").hide();
+				$("#searchResults").show();
+				$("#searchLoading").show();
+				$.ajax({
+					url : "SearchMetadata",
+					data : {
+								"query" : $("#query").val()
+						   },
+					success : function completeHandler(response) {
+						if(response!=null)
+						{
+							$("#searchLoading").hide();
+							console.log(response);
+							var searchResults = response.PDResults;
+							if(searchResults.length==0)
+							{
+							$("#NotFound").show();
+							}else{
+							createResultTable();
+							$('#ResultsTable').bootstrapTable('load', searchResults);
+							}
+						}					
+					}
+				});		
+		
+			   }
+	}
+	
+	function FileNameFormatter(value) {
+	    var url = "http://podaac.jpl.nasa.gov/ws/metadata/dataset?format=gcmd&shortName="+encodeURIComponent(value);
+        //url = encodeURIComponent(url);		
+		return '<a href=' + url + ' target="_blank">' + value + '</a>'; 
+    }
+	
+	
+	
+	function createResultTable() {
+		var layout = {
+			cache : false,
+			pagination : true,
+			pageSize : 10,
+			//pageList : [ 11, 25, 50, 100, 200 ],
+			//sortName : "Time",
+			//sortOrder : "asc",
+			cardView: true,
+
+			columns : [ {
+				'title' : 'Short Name',
+				'field' : 'Short Name',
+				'formatter' : FileNameFormatter,
+				sortable : true
+			}, {
+				'title' : 'Long Name',
+				'field' : 'Long Name',
+			}, {			
+				'title' : 'Relevance',
+				'field' : 'Relevance',
+			},
+			{
+				'title' : 'Topic',
+				'field' : 'Topic',
+
+			}, 
+			{
+				'title' : 'Release Date',
+				'field' : 'Release Date',
+
+			},{
+				'title' : 'Abstract',
+				'field' : 'Abstract',
+
+			} ]
+
+		};
+
+		$('#ResultsTable').bootstrapTable(layout);
+	}
+	
+	
+	
+
+	
+	
+</script>
+
+<body>
+    <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+		  <a href="javascript:;" class="pull-left"><img src="images/NASALogo_burned.png" height="50">
+          <a href="javascript:;" class="navbar-brand">MUDROD Semantic Search Testbed</a>
+        </div>
+		
+		
+      </div>
+    </nav>
+	
+	<div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="vocab.html">Vocabulary linkage</a></li>
+			<li class="active"><a id= "searchNav" href = "search.html">Semantic search</a></li>			
+          </ul>
+		  
+          
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Semantic search</h1>
+		  <p class="lead" id = "note">In order to test the performance of our algorithms, all publicly available collection 
+		  level datasets on <a href="https://podaac.jpl.nasa.gov/" target="_blank">PO.DAAC</a> are harvested and hosted on <a href="http://cloud.gmu.edu">NSF Hybrid Cloud Service</a>.
+		  </p>
+
+
+		<div id= "searchjumbo" class="container" style = "width:84%;margin:7%">
+	      <h2 style ="text-align:center">Oceanographic Data Discovery <img src="images/docs.png" height="45"></h2>
+		  <p style ="text-align:center">Please search for archived dataset by concepts.</p>
+		  <div class="input-group" style="width:56%;;margin:0 auto" id = "searchGroup">
+			   <input type="text" class="form-control" placeholder="Search text..." id="query" name="query" value="">
+			   <div class="input-group-btn">
+				   <button type="button" class="btn btn-success" id = "searchButton" ><span class="glyphicon glyphicon-search"></span></button>
+				</div>
+		  </div>
+
+		  <p style="margin-left:22%;margin-top:1%"><a class="btn btn-primary" href="vocab.html"><span class="glyphicon glyphicon-eye-open"></span> Search vocabulary linkage</a></p>
+	   </div>
+	   
+	   <div class="container" id = "searchResults" style="width:80%">
+	     <div class="row" style = "border-bottom:1px solid #ddd; padding-bottom:10px;margin-bottom:10px;position:relative">
+		   <div class="col-md-12" id = "searchBox">
+		   </div>
+         </div> 
+		 <p id = "searchLoading" style="text-align:center; margin:10%"><img src="images/loading.gif" height="80"><br> Please wait while results are loading. </p>
+         
+		 <div class="row" id = "resultPanels"> 	
+         <table id="ResultsTable" class="table"></table>		 
+         </div> 
+		 
+		 <div class="row" id = "NotFound" style = "font-size:medium">
+			Your search did not match any documents. <br><strong>Suggestions</strong>:
+			<ul>
+			  <li>Check spelling.</li>
+			  <li>Try different keywords.</li>
+			  <li>Try fewer and more general keywords.</li>
+			</ul> 
+         </div>
+		 	
+	   </div>
+
+        </div>	
+      </div>
+	  
+    </div>
+	
+	
+	
+	<footer class="footer">
+      <div class="row" style = "margin:0">
+		  <div class="col-md-2">
+		  </div>
+		  <div class="col-md-10">
+		  <div class="container-fluid" style = "text-align:center;padding-top:20px;padding-bottom:5px;font-size:small">
+		This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>. 
+         
+		  </div>
+		  </div>
+			
+		  </div>
+    </footer>
+
+
+
+  
+
+
+
+</body>
+</html>
