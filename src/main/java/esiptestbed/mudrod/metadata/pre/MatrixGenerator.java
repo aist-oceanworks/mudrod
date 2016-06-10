@@ -26,6 +26,8 @@ public class MatrixGenerator extends DiscoveryStepAbstract  {
 	public Object execute() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Metadata matrix starts******************");
+		startTime=System.currentTimeMillis();
+		
 		String metadata_matrix_file = config.get("metadataMatrix");
 		try {
 			MetadataExtractor extractor = new MetadataExtractor();
@@ -40,7 +42,8 @@ public class MatrixGenerator extends DiscoveryStepAbstract  {
 			e.printStackTrace();
 		}
 		
-		System.out.println("*****************Metadata matrix ends******************");
+		endTime=System.currentTimeMillis();
+		System.out.println("*****************Metadata matrix ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
 

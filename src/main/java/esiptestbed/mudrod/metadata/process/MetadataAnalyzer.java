@@ -44,7 +44,7 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 	public Object execute() {
 		// TODO Auto-generated method stub
 		try {
-			System.out.println("*****************Metadata Analyzer ends******************");
+			System.out.println("*****************Metadata Analyzer starts******************");
 			startTime=System.currentTimeMillis();
 			
 			SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
