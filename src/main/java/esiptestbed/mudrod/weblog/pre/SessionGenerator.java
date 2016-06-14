@@ -62,6 +62,7 @@ public class SessionGenerator extends DiscoveryStepAbstract{
 		startTime=System.currentTimeMillis();
         generateSession();
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Session generating ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

@@ -80,6 +80,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract{
 			e.printStackTrace();
 		}
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Crawler detection ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

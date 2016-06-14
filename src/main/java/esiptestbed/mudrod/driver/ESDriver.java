@@ -97,7 +97,7 @@ public class ESDriver implements Serializable {
 					public void afterBulk(long executionId,
 							BulkRequest request,
 							Throwable failure) {
-						System.out.println("Bulk Fail!");
+						System.out.println("Bulk fails!");
 						throw new RuntimeException("Caught exception in bulk: " + request + ", failure: " + failure, failure);
 					} 
 				}

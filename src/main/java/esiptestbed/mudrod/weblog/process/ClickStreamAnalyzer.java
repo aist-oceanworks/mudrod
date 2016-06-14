@@ -46,6 +46,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 		}
 		
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************ClickStreamAnalyzer ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

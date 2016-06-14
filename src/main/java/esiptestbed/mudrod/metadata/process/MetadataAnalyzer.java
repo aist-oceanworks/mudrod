@@ -63,6 +63,7 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 		}
 
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Metadata Analyzer ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

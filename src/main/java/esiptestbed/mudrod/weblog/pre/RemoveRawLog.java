@@ -36,6 +36,7 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
 		es.deleteAllByQuery(config.get("indexName"), HTTP_type, QueryBuilders.matchAllQuery());
 		es.deleteAllByQuery(config.get("indexName"), FTP_type, QueryBuilders.matchAllQuery());
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Clean raw log ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

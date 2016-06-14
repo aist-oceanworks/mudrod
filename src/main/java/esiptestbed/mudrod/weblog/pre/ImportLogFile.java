@@ -48,6 +48,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 		readFile();
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Import ends******************Took " + (endTime-startTime)/1000+"s");
+		es.refreshIndex();
 		return null;
 	}
 

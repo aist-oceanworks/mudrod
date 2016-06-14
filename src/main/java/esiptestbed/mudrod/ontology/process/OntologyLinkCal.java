@@ -113,6 +113,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 				try {
 					br.close();
 					es.destroyBulkProcessor();
+					es.refreshIndex();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

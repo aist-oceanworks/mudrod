@@ -73,6 +73,7 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 			e.printStackTrace();
 		}
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Session summarizing ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
@@ -97,9 +98,7 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 		DateTime end = null;
 		int duration = 0;
 		float request_rate = 0;
-		//System.out.println("haha");
-
-		//int TEST = Sessions.getBuckets().size();
+		
 		int session_count = 0;
 		Pattern pattern = Pattern.compile("get (.*?) http/*");
 		for (Terms.Bucket entry : Sessions.getBuckets()) {
@@ -220,8 +219,8 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 
 				//if (searchDataListRequest_count != 0 && searchDataRequest_count != 0 && ftpRequest_count != 0 && keywords_num<50) {
 				if (searchDataListRequest_count != 0 && searchDataListRequest_count <=Integer.parseInt(config.get("searchf")) && searchDataRequest_count != 0 && searchDataRequest_count <= Integer.parseInt(config.get("viewf")) && ftpRequest_count <= Integer.parseInt(config.get("downloadf"))) {
-					GeoIp converter = new GeoIp();
-					Coordinates loc = converter.toLocation(IP);
+					//GeoIp converter = new GeoIp();
+					//Coordinates loc = converter.toLocation(IP);
 					String sessionURL = config.get("SessionPort")+"/logmining/?sessionid=" + entry.getKey() + "&sessionType=" + outputType
 							+ "&requestType=" + inputType;
 					session_count++;
@@ -236,7 +235,9 @@ public class SessionStatistic extends DiscoveryStepAbstract{
 							.field("searchDataRequest_count", searchDataRequest_count).field("keywords", es.customAnalyzing(config.get("indexName"), keywords))
 							.field("views", views).field("downloads", downloads).field("request_rate", request_rate)
 							.field("Comments", "").field("Validation", 0).field("Produceby", 0).field("Correlation", 0)
-							.field("IP", IP).field("Coordinates", loc.latlon).endObject());
+							.field("IP", IP)
+							//.field("Coordinates", loc.latlon)
+							.endObject());
 
 					es.bulkProcessor.add(ir);
 				}

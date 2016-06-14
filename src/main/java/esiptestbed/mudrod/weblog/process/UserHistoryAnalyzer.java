@@ -27,6 +27,7 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 		sa.SaveToES(triple_List, config.get("indexName"), config.get("userHistoryLinkageType"));
 		
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************UserHistoryAnalyzer ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}

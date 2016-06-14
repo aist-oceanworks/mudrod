@@ -45,6 +45,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 		getMetadata();
 		es.destroyBulkProcessor();
 		endTime=System.currentTimeMillis();
+		es.refreshIndex();
 		System.out.println("*****************Metadata harvesting ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
