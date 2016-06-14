@@ -55,6 +55,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
 		for(int i =0; i < Input_list.size(); i++){
 			startTime=System.currentTimeMillis();
+			System.out.println("*****************Web log preprocessing starts******************" + Input_list.get(i));
 			
 			DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark, Input_list.get(i));
 			im.execute();
@@ -78,11 +79,12 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 			cg.execute();
 			
 			endTime=System.currentTimeMillis();
-
+			
+			System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s***" + Input_list.get(i));
 		}
 
 		
-		System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
+		System.out.println("*****************Web log preprocessing ends******************");
 
 	}
 

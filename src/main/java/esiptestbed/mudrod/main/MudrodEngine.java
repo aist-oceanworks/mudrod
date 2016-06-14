@@ -85,20 +85,20 @@ public class MudrodEngine {
 
 
 	public void start(){		
-		/*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+		DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
 		wd.preprocess();
 		wd.process();
 
 		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
 		od.preprocess();
-		od.process();*/
+		od.process();
 
 		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
 		md.preprocess();
-		//md.process(); 
+		md.process(); 
 
-		/*LinkageIntegration li = new LinkageIntegration(config, es, spark);
-		li.execute();*/
+		LinkageIntegration li = new LinkageIntegration(config, es, spark);
+		li.execute();
 	}
 
 	public void end(){
