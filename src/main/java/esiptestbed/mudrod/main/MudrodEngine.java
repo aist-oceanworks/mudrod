@@ -13,8 +13,10 @@
  */
 package esiptestbed.mudrod.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,20 +85,20 @@ public class MudrodEngine {
 
 
 	public void start(){		
-		DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+		/*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
 		wd.preprocess();
 		wd.process();
 
 		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
 		od.preprocess();
-		od.process();
+		od.process();*/
 
 		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
 		md.preprocess();
-		md.process(); 
+		//md.process(); 
 
-		LinkageIntegration li = new LinkageIntegration(config, es, spark);
-		li.execute();
+		/*LinkageIntegration li = new LinkageIntegration(config, es, spark);
+		li.execute();*/
 	}
 
 	public void end(){
@@ -106,6 +108,7 @@ public class MudrodEngine {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MudrodEngine test = new MudrodEngine();
+		
 		test.start();
 		test.end();
 	}

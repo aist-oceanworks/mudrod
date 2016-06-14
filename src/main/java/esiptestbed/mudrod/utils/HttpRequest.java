@@ -31,6 +31,7 @@ public class HttpRequest {
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
+			
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			int code = connection.getResponseCode();

@@ -15,9 +15,11 @@ package esiptestbed.mudrod.metadata.pre;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -42,6 +44,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 		System.out.println("*****************Metadata harvesting starts******************");
 		startTime=System.currentTimeMillis();
 		es.createBulkProcesser();
+		addMetadataMapping();
 		getMetadata();
 		es.destroyBulkProcessor();
 		endTime=System.currentTimeMillis();
@@ -49,6 +52,15 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 		System.out.println("*****************Metadata harvesting ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
+	
+	public void addMetadataMapping(){
+		String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"cody\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
+		es.client.admin().indices()
+							  .preparePutMapping(config.get("indexName"))
+					          .setType(config.get("raw_metadataType"))
+					          .setSource(mapping_json)
+					          .execute().actionGet();
+    }
 	
 	private void getMetadata()
 	{
@@ -73,6 +85,12 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 				es.bulkProcessor.add(ir);
 		    }
 		    startIndex +=10;
+		    try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}while(doc_length!=0);
 	}
 

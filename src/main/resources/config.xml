@@ -9,10 +9,13 @@
 <Config>
 	<para name="loglevel">1</para> <!-- 1: engine, 2: step, 3: substep -->
 
-	<para name="httplogpath">C:/AIST LOG FILES/access_log.podaac.201502
+	<!--  <para name="httplogpath">C:/AIST LOG FILES/access_log.201502
 	</para>
-	<para name="ftplogpath">C:/AIST LOG FILES/podaac-ftp.log.201502</para>
+	<para name="ftplogpath">C:/AIST LOG FILES/podaac-ftp.log.201502</para>-->
 	
+	<para name="logDir">C:/AIST LOG FILES/</para>
+	<para name="httpPrefix">access_log.</para>
+	<para name="ftpPrefix">podaac-ftp.log.</para>
 
 	<para name="metadataurl">null</para>
 

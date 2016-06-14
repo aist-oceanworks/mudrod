@@ -35,8 +35,9 @@ import esiptestbed.mudrod.driver.SparkDriver;
 
 public class ImportLogFile extends DiscoveryStepAbstract{
 
-	public ImportLogFile(Map<String, String> config, ESDriver es, SparkDriver spark) {
+	public ImportLogFile(Map<String, String> config, ESDriver es, SparkDriver spark, String time_suffix) {
 		super(config, es, spark);
+		this.time_suffix = time_suffix;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -51,6 +52,8 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 		es.refreshIndex();
 		return null;
 	}
+	
+	String time_suffix = null;
 
 	String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
 
@@ -91,7 +94,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 	public void readFile(){
 		es.createBulkProcesser();
 		
-		String time_suffix = config.get("httplogpath").substring(Math.max(config.get("httplogpath").length() - 2, 0));
+		//String time_suffix = config.get("httplogpath").substring(Math.max(config.get("httplogpath").length() - 2, 0));
 		this.HTTP_type += time_suffix;
 		this.FTP_type += time_suffix;
 		this.Cleanup_type += time_suffix;
@@ -102,9 +105,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 		config.put("Cleanup_type", this.Cleanup_type);
 		config.put("SessionStats", this.SessionStats);
 		
+		String httplogpath = config.get("logDir") + config.get("httpPrefix") + time_suffix + "/" + config.get("httpPrefix") + time_suffix;
+		String ftplogpath = config.get("logDir") + config.get("ftpPrefix") + time_suffix + "/" + config.get("ftpPrefix") + time_suffix;
+		
 		try {
-			ReadLogFile(config.get("httplogpath"), "http", config.get("indexName"), this.HTTP_type);
-			ReadLogFile(config.get("ftplogpath"), "FTP", config.get("indexName"), this.FTP_type);
+			ReadLogFile(httplogpath, "http", config.get("indexName"), this.HTTP_type);
+			ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

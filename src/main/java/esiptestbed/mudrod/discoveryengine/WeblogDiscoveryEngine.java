@@ -13,6 +13,8 @@
  */
 package esiptestbed.mudrod.discoveryengine;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 
 import esiptestbed.mudrod.driver.ESDriver;
@@ -32,52 +34,71 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 	public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
 		super(config, es, spark);
 	}
-	
+
 	@Override
 	public void preprocess() {
 		// TODO Auto-generated method stub	
 		System.out.println("*****************Web log preprocessing starts******************");
-		startTime=System.currentTimeMillis();
 		
-		DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
-		im.execute();
+		File directory = new File(config.get("logDir"));
+
+		ArrayList<String> Input_list = new ArrayList<String>();
+		// get all the files from a directory
+		File[] fList = directory.listFiles();
+		for (File file : fList) {
+			if (file.isFile()) {
+
+			} else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
+				Input_list.add(file.getName().replace(config.get("httpPrefix"), ""));
+			}
+		}
+
+		for(int i =0; i < Input_list.size(); i++){
+			startTime=System.currentTimeMillis();
+			
+			DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark, Input_list.get(i));
+			im.execute();
+
+			DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+			cd.execute();
+
+			DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+			sg.execute();
+
+			DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+			ss.execute();
+
+			DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+			rr.execute();
+
+			DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+			hg.execute();
+
+			DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+			cg.execute();
+			
+			endTime=System.currentTimeMillis();
+
+		}
+
 		
-		DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
-		cd.execute();
-		
-		DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
-		sg.execute();
-		
-		DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
-		ss.execute();
-		
-		DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-		rr.execute();
-		
-		DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
-		hg.execute();
-		
-		DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
-		cg.execute();
-				
-		endTime=System.currentTimeMillis();
 		System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
 
 	}
-	
+
 
 	@Override
 	public void process() {
 		// TODO Auto-generated method stub
 		System.out.println("*****************Web log processing starts******************");
-
+		startTime=System.currentTimeMillis();
 
 		DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
 		svd.execute();
-		
+
 		DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
 		ua.execute();
-		
+
 		endTime=System.currentTimeMillis();
 		System.out.println("*****************Web log processing ends******************Took " + (endTime-startTime)/1000+"s");
 	}
@@ -85,7 +106,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 	@Override
 	public void output() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
