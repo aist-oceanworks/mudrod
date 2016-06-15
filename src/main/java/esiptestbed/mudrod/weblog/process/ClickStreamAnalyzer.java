@@ -24,36 +24,44 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
-	public ClickStreamAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
+  public ClickStreamAnalyzer(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************ClickStreamAnalyzer starts******************");
-		startTime=System.currentTimeMillis();
+  @Override
+  public Object execute() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************ClickStreamAnalyzer starts******************");
+    startTime = System.currentTimeMillis();
 
-		try {
-			SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
-			svd.GetSVDMatrix(config.get("clickstreamMatrix"), Integer.parseInt(config.get("clickstreamSVDDimension")), config.get("clickstreamSVDMatrix_tmp"));
-			List<LinkageTriple> triple_List = svd.CalTermSimfromMatrix(config.get("clickstreamMatrix"));
-		    svd.SaveToES(triple_List, config.get("indexName"), config.get("clickStreamLinkageType"));			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		endTime=System.currentTimeMillis();
-		es.refreshIndex();
-		System.out.println("*****************ClickStreamAnalyzer ends******************Took " + (endTime-startTime)/1000+"s");
-		return null;
-	}
+    try {
+      SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
+      svd.GetSVDMatrix(config.get("clickstreamMatrix"),
+          Integer.parseInt(config.get("clickstreamSVDDimension")),
+          config.get("clickstreamSVDMatrix_tmp"));
+      List<LinkageTriple> triple_List = svd
+          .CalTermSimfromMatrix(config.get("clickstreamMatrix"));
+      svd.SaveToES(triple_List, config.get("indexName"),
+          config.get("clickStreamLinkageType"));
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-	@Override
-	public Object execute(Object o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    endTime = System.currentTimeMillis();
+    es.refreshIndex();
+    System.out.println(
+        "*****************ClickStreamAnalyzer ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+    return null;
+  }
+
+  @Override
+  public Object execute(Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

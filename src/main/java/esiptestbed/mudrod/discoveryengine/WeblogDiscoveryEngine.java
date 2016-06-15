@@ -29,86 +29,103 @@ import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 
+public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
+  public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+  }
 
-public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {		
-	public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
-		super(config, es, spark);
-	}
+  @Override
+  public void preprocess() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Web log preprocessing starts******************");
 
-	@Override
-	public void preprocess() {
-		// TODO Auto-generated method stub	
-		System.out.println("*****************Web log preprocessing starts******************");
-		
-		File directory = new File(config.get("logDir"));
+    File directory = new File(config.get("logDir"));
 
-		ArrayList<String> Input_list = new ArrayList<String>();
-		// get all the files from a directory
-		File[] fList = directory.listFiles();
-		for (File file : fList) {
-			if (file.isFile()) {
+    ArrayList<String> Input_list = new ArrayList<String>();
+    // get all the files from a directory
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile()) {
 
-			} else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-				Input_list.add(file.getName().replace(config.get("httpPrefix"), ""));
-			}
-		}
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+          && file.getName().contains(config.get("httpPrefix"))) {
+        Input_list.add(file.getName().replace(config.get("httpPrefix"), ""));
+      }
+    }
 
-		for(int i =0; i < Input_list.size(); i++){
-			startTime=System.currentTimeMillis();
-			System.out.println("*****************Web log preprocessing starts******************" + Input_list.get(i));
-			
-			DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark, Input_list.get(i));
-			im.execute();
+    for (int i = 0; i < Input_list.size(); i++) {
+      startTime = System.currentTimeMillis();
+      System.out.println(
+          "*****************Web log preprocessing starts******************"
+              + Input_list.get(i));
 
-			DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
-			cd.execute();
+      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es,
+          this.spark, Input_list.get(i));
+      im.execute();
 
-			DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
-			sg.execute();
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es,
+          this.spark);
+      cd.execute();
 
-			DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
-			ss.execute();
+      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es,
+          this.spark);
+      sg.execute();
 
-			DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-			rr.execute();
+      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es,
+          this.spark);
+      ss.execute();
 
-			DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
-			hg.execute();
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es,
+          this.spark);
+      rr.execute();
 
-			DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
-			cg.execute();
-			
-			endTime=System.currentTimeMillis();
-			
-			System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s***" + Input_list.get(i));
-		}
+      DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es,
+          this.spark);
+      hg.execute();
 
-		
-		System.out.println("*****************Web log preprocessing ends******************");
+      DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es,
+          this.spark);
+      cg.execute();
 
-	}
+      endTime = System.currentTimeMillis();
 
+      System.out.println(
+          "*****************Web log preprocessing ends******************Took "
+              + (endTime - startTime) / 1000 + "s***" + Input_list.get(i));
+    }
 
-	@Override
-	public void process() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************Web log processing starts******************");
-		startTime=System.currentTimeMillis();
+    System.out.println(
+        "*****************Web log preprocessing ends******************");
 
-		DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
-		svd.execute();
+  }
 
-		DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
-		ua.execute();
+  @Override
+  public void process() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Web log processing starts******************");
+    startTime = System.currentTimeMillis();
 
-		endTime=System.currentTimeMillis();
-		System.out.println("*****************Web log processing ends******************Took " + (endTime-startTime)/1000+"s");
-	}
+    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es,
+        this.spark);
+    svd.execute();
 
-	@Override
-	public void output() {
-		// TODO Auto-generated method stub
+    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es,
+        this.spark);
+    ua.execute();
 
-	}
+    endTime = System.currentTimeMillis();
+    System.out.println(
+        "*****************Web log processing ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+  }
+
+  @Override
+  public void output() {
+    // TODO Auto-generated method stub
+
+  }
 
 }

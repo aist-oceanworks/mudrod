@@ -40,120 +40,128 @@ import esiptestbed.mudrod.utils.HttpRequest;
 
 public class ApiHarvester extends DiscoveryStepAbstract {
 
-	public ApiHarvester(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
+  public ApiHarvester(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************Metadata harvesting starts******************");
-		startTime=System.currentTimeMillis();
-		es.createBulkProcesser();
-		addMetadataMapping();
-		//harvestMetadatafromWeb();
-		importToES();
-		es.destroyBulkProcessor();
-		endTime=System.currentTimeMillis();
-		es.refreshIndex();
-		System.out.println("*****************Metadata harvesting ends******************Took " + (endTime-startTime)/1000+"s");
-		return null;
-	}
+  @Override
+  public Object execute() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Metadata harvesting starts******************");
+    startTime = System.currentTimeMillis();
+    es.createBulkProcesser();
+    addMetadataMapping();
+    // harvestMetadatafromWeb();
+    importToES();
+    es.destroyBulkProcessor();
+    endTime = System.currentTimeMillis();
+    es.refreshIndex();
+    System.out.println(
+        "*****************Metadata harvesting ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+    return null;
+  }
 
-	public void addMetadataMapping(){
-		String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"analyzer\": \"english\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
-		es.client.admin().indices()
-		.preparePutMapping(config.get("indexName"))
-		.setType(config.get("raw_metadataType"))
-		.setSource(mapping_json)
-		.execute().actionGet();
-	}
-	
-	private void importToES(){
-		File directory = new File(config.get("raw_metadataPath"));
-		File[] fList = directory.listFiles();
-		for (File file : fList) {
-			InputStream is;
-			try {
-				is = new FileInputStream(file);
-				try {
-					String jsonTxt = IOUtils.toString(is);
-					JsonParser parser = new JsonParser();
-					JsonElement item = parser.parse(jsonTxt);
-					IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
-					es.bulkProcessor.add(ir);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            
-		}
-	}
+  public void addMetadataMapping() {
+    String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"analyzer\": \"english\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
+    es.client.admin().indices().preparePutMapping(config.get("indexName"))
+        .setType(config.get("raw_metadataType")).setSource(mapping_json)
+        .execute().actionGet();
+  }
 
-	private void harvestMetadatafromWeb()
-	{
-		int startIndex = 0;
-		int doc_length = 0;
-		JsonParser parser = new JsonParser();
-		do{
-			String searchAPI="https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) +"&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
-			HttpRequest http = new HttpRequest();		
-			String response = http.getRequest(searchAPI);	
+  private void importToES() {
+    File directory = new File(config.get("raw_metadataPath"));
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      InputStream is;
+      try {
+        is = new FileInputStream(file);
+        try {
+          String jsonTxt = IOUtils.toString(is);
+          JsonParser parser = new JsonParser();
+          JsonElement item = parser.parse(jsonTxt);
+          IndexRequest ir = new IndexRequest(config.get("indexName"),
+              config.get("raw_metadataType")).source(item.toString());
+          es.bulkProcessor.add(ir);
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
-			JsonElement json = parser.parse(response);
-			JsonObject responseObject = json.getAsJsonObject();
-			JsonArray docs = responseObject.getAsJsonObject("response").getAsJsonArray("docs");
+    }
+  }
 
-			doc_length = docs.size();
-			
-			File file = new File(config.get("raw_metadataPath"));
-			if (!file.exists()) {
-	            if (file.mkdir()) {
-	                System.out.println("Directory is created!");
-	            } else {
-	                System.out.println("Failed to create directory!");
-	            }
-	        }
-			for(int i =0; i < doc_length; i++)
-			{
-				JsonElement item = docs.get(i);
-				
-		        int docId = startIndex + i;
-				File itemfile = new File(config.get("raw_metadataPath") + "/" + docId + ".json");
-				try {					
-					itemfile.createNewFile();
-					FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
-					BufferedWriter bw = new BufferedWriter(fw);
-					bw.write(item.toString());	
-					bw.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				/*IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
-				es.bulkProcessor.add(ir);*/
-			}
+  private void harvestMetadatafromWeb() {
+    int startIndex = 0;
+    int doc_length = 0;
+    JsonParser parser = new JsonParser();
+    do {
+      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex="
+          + Integer.toString(startIndex)
+          + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      HttpRequest http = new HttpRequest();
+      String response = http.getRequest(searchAPI);
 
-			startIndex +=10;
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}while(doc_length!=0);
-	}
+      JsonElement json = parser.parse(response);
+      JsonObject responseObject = json.getAsJsonObject();
+      JsonArray docs = responseObject.getAsJsonObject("response")
+          .getAsJsonArray("docs");
 
-	@Override
-	public Object execute(Object o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+      doc_length = docs.size();
+
+      File file = new File(config.get("raw_metadataPath"));
+      if (!file.exists()) {
+        if (file.mkdir()) {
+          System.out.println("Directory is created!");
+        } else {
+          System.out.println("Failed to create directory!");
+        }
+      }
+      for (int i = 0; i < doc_length; i++) {
+        JsonElement item = docs.get(i);
+
+        int docId = startIndex + i;
+        File itemfile = new File(
+            config.get("raw_metadataPath") + "/" + docId + ".json");
+        try {
+          itemfile.createNewFile();
+          FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
+          BufferedWriter bw = new BufferedWriter(fw);
+          bw.write(item.toString());
+          bw.close();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+        /*
+         * IndexRequest ir = new IndexRequest(config.get("indexName"),
+         * config.get("raw_metadataType")).source(item.toString());
+         * es.bulkProcessor.add(ir);
+         */
+      }
+
+      startIndex += 10;
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    } while (doc_length != 0);
+  }
+
+  @Override
+  public Object execute(Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

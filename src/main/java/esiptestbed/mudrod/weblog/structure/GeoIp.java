@@ -36,8 +36,10 @@ public class GeoIp {
     JsonObject responseObject = jobSon.getAsJsonObject();
 
     Coordinates co = new Coordinates();
-    String lon = responseObject.get("geobyteslongitude").toString().replace("\"", "");
-    String lat = responseObject.get("geobyteslatitude").toString().replace("\"", "");
+    String lon = responseObject.get("geobyteslongitude").toString()
+        .replace("\"", "");
+    String lat = responseObject.get("geobyteslatitude").toString().replace("\"",
+        "");
     co.latlon = lat + "," + lon;
     return co;
   }

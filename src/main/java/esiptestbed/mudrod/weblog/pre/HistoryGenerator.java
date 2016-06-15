@@ -33,114 +33,128 @@ import esiptestbed.mudrod.driver.SparkDriver;
 
 public class HistoryGenerator extends DiscoveryStepAbstract {
 
-	public HistoryGenerator(Map<String, String> config, ESDriver es,
-			SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
+  public HistoryGenerator(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************HistoryGenerator starts******************");
-		startTime=System.currentTimeMillis();
-		
-		GenerateBinaryMatrix();
-		
-		endTime=System.currentTimeMillis();
-		System.out.println("*****************HistoryGenerator ends******************Took " + (endTime-startTime)/1000+"s");
-		return null;
-	}
+  @Override
+  public Object execute() {
+    // TODO Auto-generated method stub
+    System.out
+        .println("*****************HistoryGenerator starts******************");
+    startTime = System.currentTimeMillis();
 
-	public void GenerateBinaryMatrix(){
-		try {
-			File file = new File(config.get("userHistoryMatrix"));
-			if (file.exists()) {
-                file.delete();
-			}
-			
-			file.createNewFile();
+    GenerateBinaryMatrix();
 
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
+    endTime = System.currentTimeMillis();
+    System.out
+        .println("*****************HistoryGenerator ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+    return null;
+  }
 
-			ArrayList<String> cleanup_typeList= es.getTypeListWithPrefix(config.get("indexName"), config.get("SessionStats"));
+  public void GenerateBinaryMatrix() {
+    try {
+      File file = new File(config.get("userHistoryMatrix"));
+      if (file.exists()) {
+        file.delete();
+      }
 
-			bw.write("Num" + ",");	
+      file.createNewFile();
 
-			//step 1: write first row of csv
-			SearchResponse sr = es.client.prepareSearch(config.get("indexName"))                          
-					.setTypes(String.join(", ", cleanup_typeList))
-					.setQuery(QueryBuilders.matchAllQuery())
-					.setSize(0)
-					.addAggregation(AggregationBuilders.terms("IPs")
-							.field("IP").size(0))  //important to set size 0, sum_other_doc_count
-							.execute().actionGet();
-			Terms IPs = sr.getAggregations().get("IPs");
-			List<String> IPList = new ArrayList<String>();
-			for (Terms.Bucket entry : IPs.getBuckets()) {
-				if(entry.getDocCount()> Integer.parseInt(config.get("mini_userHistory"))){         //filter out less active users/ips
-					IPList.add(entry.getKey());
-				}
-			} 
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw);
 
-			bw.write(String.join(",", IPList) +"\n");
+      ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
+          config.get("indexName"), config.get("SessionStats"));
 
-			/*bw.write("Num,");
-			for(int k=0; k< IPList.size(); k++){
-				if(k!=IPList.size()-1){
-					bw.write("f" + k + ",");
-				}else{
-					bw.write("f" + k + "\n");
-				}
+      bw.write("Num" + ",");
 
-			}*/
+      // step 1: write first row of csv
+      SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
+          .setTypes(String.join(", ", cleanup_typeList))
+          .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+          .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0)) // important
+                                                                                // to
+                                                                                // set
+                                                                                // size
+                                                                                // 0,
+                                                                                // sum_other_doc_count
+          .execute().actionGet();
+      Terms IPs = sr.getAggregations().get("IPs");
+      List<String> IPList = new ArrayList<String>();
+      for (Terms.Bucket entry : IPs.getBuckets()) {
+        if (entry.getDocCount() > Integer
+            .parseInt(config.get("mini_userHistory"))) { // filter out less
+                                                         // active users/ips
+          IPList.add(entry.getKey());
+        }
+      }
 
-			//step 2: step the rest rows of csv
-			SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))                          
-					.setTypes(String.join(", ", cleanup_typeList))
-					.setQuery(QueryBuilders.matchAllQuery())
-					.setSize(0)
-					.addAggregation(AggregationBuilders.terms("KeywordAgg")
-							.field("keywords").size(0).subAggregation(
-									AggregationBuilders.terms("IPAgg")
-									.field("IP").size(0)))  //important to set size 0, sum_other_doc_count
-									.execute().actionGet();
-			Terms keywords = sr_2.getAggregations().get("KeywordAgg");
-			for (Terms.Bucket keyword : keywords.getBuckets()) {							
-				Map<String, Integer> IP_map = new HashMap<String, Integer>();
-				Terms IPAgg = keyword.getAggregations().get("IPAgg");	
+      bw.write(String.join(",", IPList) + "\n");
 
-				int distinct_user = IPAgg.getBuckets().size();
-				if(distinct_user> Integer.parseInt(config.get("mini_userHistory")))         //filter out less active queries
-				{
-					bw.write(keyword.getKey() + ",");
-					for (Terms.Bucket IP : IPAgg.getBuckets()) {
+      /*
+       * bw.write("Num,"); for(int k=0; k< IPList.size(); k++){
+       * if(k!=IPList.size()-1){ bw.write("f" + k + ","); }else{ bw.write("f" +
+       * k + "\n"); }
+       * 
+       * }
+       */
 
-						IP_map.put(IP.getKey(), 1);
-					}			
-					for(int i =0; i<IPList.size();i++){
-						if(IP_map.containsKey(IPList.get(i))){
-							bw.write(IP_map.get(IPList.get(i)) + ",");
-						}else{
-							bw.write("0,");
-						}				
-					}			
-					bw.write("\n");
-				}
-			}
+      // step 2: step the rest rows of csv
+      SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))
+          .setTypes(String.join(", ", cleanup_typeList))
+          .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+          .addAggregation(AggregationBuilders.terms("KeywordAgg")
+              .field("keywords").size(0).subAggregation(
+                  AggregationBuilders.terms("IPAgg").field("IP").size(0))) // important
+                                                                           // to
+                                                                           // set
+                                                                           // size
+                                                                           // 0,
+                                                                           // sum_other_doc_count
+          .execute().actionGet();
+      Terms keywords = sr_2.getAggregations().get("KeywordAgg");
+      for (Terms.Bucket keyword : keywords.getBuckets()) {
+        Map<String, Integer> IP_map = new HashMap<String, Integer>();
+        Terms IPAgg = keyword.getAggregations().get("IPAgg");
 
-			bw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        int distinct_user = IPAgg.getBuckets().size();
+        if (distinct_user > Integer.parseInt(config.get("mini_userHistory"))) // filter
+                                                                              // out
+                                                                              // less
+                                                                              // active
+                                                                              // queries
+        {
+          bw.write(keyword.getKey() + ",");
+          for (Terms.Bucket IP : IPAgg.getBuckets()) {
 
-	@Override
-	public Object execute(Object o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            IP_map.put(IP.getKey(), 1);
+          }
+          for (int i = 0; i < IPList.size(); i++) {
+            if (IP_map.containsKey(IPList.get(i))) {
+              bw.write(IP_map.get(IPList.get(i)) + ",");
+            } else {
+              bw.write("0,");
+            }
+          }
+          bw.write("\n");
+        }
+      }
+
+      bw.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  @Override
+  public Object execute(Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

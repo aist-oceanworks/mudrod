@@ -21,12 +21,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 
 public class SparkDriver implements Serializable {
-	public JavaSparkContext sc;
-	
-	public SparkDriver() {
-		SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]");
-		sc = new JavaSparkContext(conf);
-		Logger.getLogger("org").setLevel(Level.OFF);
-		Logger.getLogger("akka").setLevel(Level.OFF);
-	}
+  public JavaSparkContext sc;
+
+  public SparkDriver() {
+    SparkConf conf = new SparkConf().setAppName("Testing")
+        .setMaster("local[2]");
+    sc = new JavaSparkContext(conf);
+    Logger.getLogger("org").setLevel(Level.OFF);
+    Logger.getLogger("akka").setLevel(Level.OFF);
+  }
 }
