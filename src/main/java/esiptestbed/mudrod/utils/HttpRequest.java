@@ -21,32 +21,33 @@ import java.net.URL;
 
 public class HttpRequest {
 
-	public HttpRequest() {
-		// TODO Auto-generated constructor stub
-	}
-	public String getRequest(String requestUrl) {
-		String line = null;
-		try {
-			URL url = new URL(requestUrl);
+  public HttpRequest() {
+    // TODO Auto-generated constructor stub
+  }
 
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setDoOutput(true);
-			
-			connection.setConnectTimeout(5000);
-			connection.setReadTimeout(5000);
-			int code = connection.getResponseCode();
-			if (code != HttpURLConnection.HTTP_OK) {
-				line = "{\"exception\":\"Service failed\"}";
-				System.out.println(line);
-			} else {
-				InputStream content = (InputStream) connection.getInputStream();
-				BufferedReader in = new BufferedReader(new InputStreamReader(content));
-				line = in.readLine();
-			}
-		} catch (Exception e) {
-			line = "{\"exception\":\"No service was found\"}";
-			System.out.println(line);
-		}
-		return line;
-	}
+  public String getRequest(String requestUrl) {
+    String line = null;
+    try {
+      URL url = new URL(requestUrl);
+
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.setDoOutput(true);
+
+      connection.setConnectTimeout(5000);
+      connection.setReadTimeout(5000);
+      int code = connection.getResponseCode();
+      if (code != HttpURLConnection.HTTP_OK) {
+        line = "{\"exception\":\"Service failed\"}";
+        System.out.println(line);
+      } else {
+        InputStream content = (InputStream) connection.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(content));
+        line = in.readLine();
+      }
+    } catch (Exception e) {
+      line = "{\"exception\":\"No service was found\"}";
+      System.out.println(line);
+    }
+    return line;
+  }
 }

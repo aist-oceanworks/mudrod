@@ -34,200 +34,199 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
 public class Session extends MudrodAbstract implements Comparable<Session> {
-	private String start;
-	private String end;
-	private String id;
-	private String newid = null;
-	private DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-	private String type;//es type
+  private String start;
+  private String end;
+  private String id;
+  private String newid = null;
+  private DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+  private String type;// es type
 
-	public Session(Map<String, String> config, ESDriver es, String Start, String end, String id) {
-		super(config, es, null);
-		this.start = start;
-		this.end = end;
-		this.id = id;
-	}
-	
-	public Session(Map<String, String> config, ESDriver es) {
-		super(config, es, null);
-	}
+  public Session(Map<String, String> config, ESDriver es, String Start,
+      String end, String id) {
+    super(config, es, null);
+    this.start = start;
+    this.end = end;
+    this.id = id;
+  }
 
-	public String getID() {
-		return id;
-	}
+  public Session(Map<String, String> config, ESDriver es) {
+    super(config, es, null);
+  }
 
-	public String getNewID() {
-		return newid;
-	}
+  public String getID() {
+    return id;
+  }
 
-	public String setNewID(String str) {
-		return newid = str;
-	}
+  public String getNewID() {
+    return newid;
+  }
 
-	public String getStartTime() {
-		return start;
-	}
+  public String setNewID(String str) {
+    return newid = str;
+  }
 
-	public String getEndTime() {
-		return end;
-	}
+  public String getStartTime() {
+    return start;
+  }
 
-	public int compareTo(Session o) {
-		// TODO Auto-generated method stub
-		// String compareEnd = o.end;
-		fmt.parseDateTime(this.end);
-		fmt.parseDateTime(o.end);
-		// ascending order
-		int result = Seconds.secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end)).getSeconds();
-		return result;
-	}
+  public String getEndTime() {
+    return end;
+  }
 
-	//used for session tree reconstruct
-	public JsonObject getSessionDetail(String cleanuptype, String SessionID) throws UnsupportedEncodingException{
-		JsonObject SessionResults = new JsonObject();
-		Gson gson = new Gson();	
-		//for session tree
-		SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
-		JsonObject jsonTree = tree.TreeToJson(tree.root);  
-		SessionResults.add("treeData", jsonTree.get("treeData"));
-		//for request
-		 JsonElement jsonRequest = this.getRequests(cleanuptype, SessionID);
-		 SessionResults.add("RequestList",jsonRequest);
-        //for comments
-        JsonElement JsonComments = this.getComment(SessionID);
-        SessionResults.add("Comments",JsonComments);
-        //keywords
-        JsonElement JsonKeywords = this.getKeywords(SessionID);
-        SessionResults.add("keywords",JsonKeywords);
-		 
-        return SessionResults;		
-	}
-	
-	public List<ClickStream> getClickStreamList(String cleanuptype, String SessionID) throws UnsupportedEncodingException{
-		SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
-		List<ClickStream> clickthroughs = tree.getClickStreamList();
-        return clickthroughs;
-	}
+  public int compareTo(Session o) {
+    // TODO Auto-generated method stub
+    // String compareEnd = o.end;
+    fmt.parseDateTime(this.end);
+    fmt.parseDateTime(o.end);
+    // ascending order
+    int result = Seconds
+        .secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end))
+        .getSeconds();
+    return result;
+  }
 
-	protected JsonElement getComment(String SessionID) {
-		Gson gson = new Gson();
-		SearchResponse comments = es.client.prepareSearch(config.get("indexName")).setTypes(config.get("commentType"))
-				.setQuery(QueryBuilders.termQuery("SessionID", SessionID))
-				.setSize(100)
-				.addSort("PostDate", SortOrder.DESC).execute().actionGet();
+  // used for session tree reconstruct
+  public JsonObject getSessionDetail(String cleanuptype, String SessionID)
+      throws UnsupportedEncodingException {
+    JsonObject SessionResults = new JsonObject();
+    Gson gson = new Gson();
+    // for session tree
+    SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
+    JsonObject jsonTree = tree.TreeToJson(tree.root);
+    SessionResults.add("treeData", jsonTree.get("treeData"));
+    // for request
+    JsonElement jsonRequest = this.getRequests(cleanuptype, SessionID);
+    SessionResults.add("RequestList", jsonRequest);
+    // for comments
+    JsonElement JsonComments = this.getComment(SessionID);
+    SessionResults.add("Comments", JsonComments);
+    // keywords
+    JsonElement JsonKeywords = this.getKeywords(SessionID);
+    SessionResults.add("keywords", JsonKeywords);
 
-		List<JsonObject> commentList = new ArrayList<JsonObject>();
-		for (SearchHit hit : comments.getHits().getHits()) {
-			Map<String, Object> result = hit.getSource();
-			String Date = (String) result.get("PostDate");
-			String Who = (String) result.get("Who");
-			String Generation = (String) result.get("Generation");
-			String Sub = (String) result.get("Sub");
-			String Cor = (String) result.get("Cor");
-			String Com = (String) result.get("Comment");
-			String id = hit.getId();
+    return SessionResults;
+  }
 
-			JsonObject comment = new JsonObject();
-			comment.addProperty("Posted Date", Date);
-			comment.addProperty("Posted by", Who);
-			comment.addProperty("Generated by", Generation);
-			comment.addProperty("Should be split", Sub);
-			comment.addProperty("Whether keywords are related", Cor);
-			comment.addProperty("Comment", Com);
-			comment.addProperty("id", id);
-			commentList.add(comment);
-		}
+  public List<ClickStream> getClickStreamList(String cleanuptype,
+      String SessionID) throws UnsupportedEncodingException {
+    SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
+    List<ClickStream> clickthroughs = tree.getClickStreamList();
+    return clickthroughs;
+  }
 
-		JsonElement JsonComments = gson.toJsonTree(commentList);
-		return JsonComments;
-	}
-	
-	protected JsonElement getKeywords(String SessionID){
-		Gson gson = new Gson();
-		 SearchResponse keywords = es.client.prepareSearch(config.get("indexName"))
-			        .setTypes("testlog_cleanup_referer_sessions")		        
-			        .setQuery(QueryBuilders.termQuery("SessionID", SessionID))
-			        .setSize(100)		       
-			        .execute()
-			        .actionGet();
-			
-	        List<JsonObject> keywordsList = new ArrayList<JsonObject>();  
-	        for (SearchHit hit : keywords.getHits().getHits()) {
-	        	Map<String,Object> result = hit.getSource();
-	        	String kws = (String) result.get("keywords");
-	        	JsonObject kw = new JsonObject();
-	        	kw.addProperty("keywords", kws);
-	        	keywordsList.add(kw);       
-	        }
-	        
-	        JsonElement JsonKeywords = gson.toJsonTree(keywordsList);
-	        return JsonKeywords;
-	}
-	
-	private SessionTree getSessionTree(String cleanuptype, String SessionID) throws UnsupportedEncodingException{
-		SearchResponse response = es.client.prepareSearch(config.get("indexName"))
-		        .setTypes(cleanuptype)		        
-		        .setQuery(QueryBuilders.termQuery("SessionID", SessionID))
-		        .setSize(100)
-		        .addSort("Time",SortOrder.ASC)  
-		        .execute()
-		        .actionGet();
-		int size  = response.getHits().getHits().length;
+  protected JsonElement getComment(String SessionID) {
+    Gson gson = new Gson();
+    SearchResponse comments = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(config.get("commentType"))
+        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .addSort("PostDate", SortOrder.DESC).execute().actionGet();
 
-        Gson gson = new Gson();		
-        SessionTree tree = new SessionTree(this.config, this.es, SessionID,cleanuptype);    
-        int seq = 1;
-        for (SearchHit hit : response.getHits().getHits()) {
-        	Map<String,Object> result = hit.getSource();
-        	String request = (String) result.get("Request");
-        	String requestUrl = (String) result.get("RequestUrl");
-        	String time = (String) result.get("Time");
-        	String logType = (String) result.get("LogType");
-        	String referer = (String) result.get("Referer");
- 
-        	SessionNode node = new SessionNode(request, logType, referer, time, seq);
-    		tree.insert(node);   
-    		seq ++;
-        }
-        
-        return tree;
-	}
-	
-	private JsonElement getRequests(String cleanuptype, String SessionID) throws UnsupportedEncodingException{
-		SearchResponse response = es.client.prepareSearch(config.get("indexName"))
-		        .setTypes(cleanuptype)		        
-		        .setQuery(QueryBuilders.termQuery("SessionID", SessionID))
-		        .setSize(100)
-		        .addSort("Time",SortOrder.ASC)  
-		        .execute()
-		        .actionGet();
-		int size  = response.getHits().getHits().length;
+    List<JsonObject> commentList = new ArrayList<JsonObject>();
+    for (SearchHit hit : comments.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      String Date = (String) result.get("PostDate");
+      String Who = (String) result.get("Who");
+      String Generation = (String) result.get("Generation");
+      String Sub = (String) result.get("Sub");
+      String Cor = (String) result.get("Cor");
+      String Com = (String) result.get("Comment");
+      String id = hit.getId();
 
-        Gson gson = new Gson();		
-        List<JsonObject> requestList = new ArrayList<JsonObject>();
-        int seq = 1;
-        for (SearchHit hit : response.getHits().getHits()) {
-        	Map<String,Object> result = hit.getSource();
-        	String request = (String) result.get("Request");
-        	String requestUrl = (String) result.get("RequestUrl");
-        	String time = (String) result.get("Time");
-        	String logType = (String) result.get("LogType");
-        	String referer = (String) result.get("Referer");
-        	
-        	JsonObject req = new JsonObject();
-    		req.addProperty("Time", time);
-    		req.addProperty("Request", request);
-    		req.addProperty("RequestURL", requestUrl);
-    		req.addProperty("LogType", logType);
-    		req.addProperty("Referer", referer);
-    		req.addProperty("Seq", seq);
-    		requestList.add(req);       
-    			 
-    		seq ++;
-        }
-        
-        JsonElement jsonElement = gson.toJsonTree(requestList);
-        return jsonElement;
-	}
+      JsonObject comment = new JsonObject();
+      comment.addProperty("Posted Date", Date);
+      comment.addProperty("Posted by", Who);
+      comment.addProperty("Generated by", Generation);
+      comment.addProperty("Should be split", Sub);
+      comment.addProperty("Whether keywords are related", Cor);
+      comment.addProperty("Comment", Com);
+      comment.addProperty("id", id);
+      commentList.add(comment);
+    }
+
+    JsonElement JsonComments = gson.toJsonTree(commentList);
+    return JsonComments;
+  }
+
+  protected JsonElement getKeywords(String SessionID) {
+    Gson gson = new Gson();
+    SearchResponse keywords = es.client.prepareSearch(config.get("indexName"))
+        .setTypes("testlog_cleanup_referer_sessions")
+        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .execute().actionGet();
+
+    List<JsonObject> keywordsList = new ArrayList<JsonObject>();
+    for (SearchHit hit : keywords.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      String kws = (String) result.get("keywords");
+      JsonObject kw = new JsonObject();
+      kw.addProperty("keywords", kws);
+      keywordsList.add(kw);
+    }
+
+    JsonElement JsonKeywords = gson.toJsonTree(keywordsList);
+    return JsonKeywords;
+  }
+
+  private SessionTree getSessionTree(String cleanuptype, String SessionID)
+      throws UnsupportedEncodingException {
+    SearchResponse response = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(cleanuptype)
+        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .addSort("Time", SortOrder.ASC).execute().actionGet();
+    int size = response.getHits().getHits().length;
+
+    Gson gson = new Gson();
+    SessionTree tree = new SessionTree(this.config, this.es, SessionID,
+        cleanuptype);
+    int seq = 1;
+    for (SearchHit hit : response.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      String request = (String) result.get("Request");
+      String requestUrl = (String) result.get("RequestUrl");
+      String time = (String) result.get("Time");
+      String logType = (String) result.get("LogType");
+      String referer = (String) result.get("Referer");
+
+      SessionNode node = new SessionNode(request, logType, referer, time, seq);
+      tree.insert(node);
+      seq++;
+    }
+
+    return tree;
+  }
+
+  private JsonElement getRequests(String cleanuptype, String SessionID)
+      throws UnsupportedEncodingException {
+    SearchResponse response = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(cleanuptype)
+        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .addSort("Time", SortOrder.ASC).execute().actionGet();
+    int size = response.getHits().getHits().length;
+
+    Gson gson = new Gson();
+    List<JsonObject> requestList = new ArrayList<JsonObject>();
+    int seq = 1;
+    for (SearchHit hit : response.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      String request = (String) result.get("Request");
+      String requestUrl = (String) result.get("RequestUrl");
+      String time = (String) result.get("Time");
+      String logType = (String) result.get("LogType");
+      String referer = (String) result.get("Referer");
+
+      JsonObject req = new JsonObject();
+      req.addProperty("Time", time);
+      req.addProperty("Request", request);
+      req.addProperty("RequestURL", requestUrl);
+      req.addProperty("LogType", logType);
+      req.addProperty("Referer", referer);
+      req.addProperty("Seq", seq);
+      requestList.add(req);
+
+      seq++;
+    }
+
+    JsonElement jsonElement = gson.toJsonTree(requestList);
+    return jsonElement;
+  }
 }
-

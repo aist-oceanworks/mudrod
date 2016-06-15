@@ -25,71 +25,79 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
-public class SVDUtil extends MudrodAbstract{
+public class SVDUtil extends MudrodAbstract {
 
-	JavaRDD<String> wordRDD;
-	private RowMatrix svdMatrix;
-	private CoordinateMatrix simMatrix;
+  JavaRDD<String> wordRDD;
+  private RowMatrix svdMatrix;
+  private CoordinateMatrix simMatrix;
 
-	public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
+  public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-	public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD, int svdDimension){
-		
-		RowMatrix svdMatrix = null;
-		try {
-			RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
-			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
-			svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
-			this.svdMatrix = svdMatrix;
-			this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
-			//exportSVDMatrixToCSV example
-			//MatrixUtil.exportSVDMatrixToCSV(wordDocMatrix, wordRDD.collect(), docwordRDD.keys().collect(), "D:/wordDocMatrix.csv");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return svdMatrix;
-	}
-	
-	public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension){
-		RowMatrix svdMatrix = null;
-		JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark, tfidfCSVfile, 2);
-		JavaRDD<Vector> vectorRDD = tfidfRDD.values();
-		
-		try {
-			svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
-			this.svdMatrix = svdMatrix;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		this.wordRDD = tfidfRDD.keys();
-		
-		return svdMatrix;
-	}
-	
-/*	public RowMatrix buildSVDMatrix(Map<String, List<String>> docwords){
+  public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD,
+      int svdDimension) {
 
-		return null;
-	}*/
+    RowMatrix svdMatrix = null;
+    try {
+      RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
+          spark.sc);
+      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
+          spark.sc);
+      svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
+      this.svdMatrix = svdMatrix;
+      this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
+      // exportSVDMatrixToCSV example
+      // MatrixUtil.exportSVDMatrixToCSV(wordDocMatrix, wordRDD.collect(),
+      // docwordRDD.keys().collect(), "D:/wordDocMatrix.csv");
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return svdMatrix;
+  }
 
-	public void CalSimilarity(){
-		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromMatrix(svdMatrix);
-		this.simMatrix = simMatrix;
-	}
-	
-	public void insertLinkageToES(String index, String type){
-		List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD, simMatrix);
-		try {
-			LinkageTriple.insertTriples(es, triples, index, type);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+  public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
+    RowMatrix svdMatrix = null;
+    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark,
+        tfidfCSVfile, 2);
+    JavaRDD<Vector> vectorRDD = tfidfRDD.values();
+
+    try {
+      svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
+      this.svdMatrix = svdMatrix;
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    this.wordRDD = tfidfRDD.keys();
+
+    return svdMatrix;
+  }
+
+  /*
+   * public RowMatrix buildSVDMatrix(Map<String, List<String>> docwords){
+   * 
+   * return null; }
+   */
+
+  public void CalSimilarity() {
+    CoordinateMatrix simMatrix = SimilarityUtil
+        .CalSimilarityFromMatrix(svdMatrix);
+    this.simMatrix = simMatrix;
+  }
+
+  public void insertLinkageToES(String index, String type) {
+    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD,
+        simMatrix);
+    try {
+      LinkageTriple.insertTriples(es, triples, index, type);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
 }

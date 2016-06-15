@@ -62,270 +62,271 @@ import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.integration.LinkageIntegration;
 
-
-
 public class ESDriver implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	public Client client = null;
-	public Node node = null;
-	public BulkProcessor bulkProcessor = null;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  public Client client = null;
+  public Node node = null;
+  public BulkProcessor bulkProcessor = null;
 
-	public ESDriver(String clusterName){
-		node =
-				nodeBuilder()
-				.settings(ImmutableSettings.settingsBuilder().put("http.enabled", false))
-				.clusterName(clusterName)
-				.client(true)
-				.node();
+  public ESDriver(String clusterName) {
+    node = nodeBuilder()
+        .settings(
+            ImmutableSettings.settingsBuilder().put("http.enabled", false))
+        .clusterName(clusterName).client(true).node();
 
-		client = node.client();	
-	}
+    client = node.client();
+  }
 
-	public void createBulkProcesser(){
-		bulkProcessor = BulkProcessor.builder(
-				client,
-				new BulkProcessor.Listener() {
-					public void beforeBulk(long executionId,
-							BulkRequest request) {/*System.out.println("New request!");*/} 
+  public void createBulkProcesser() {
+    bulkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener() {
+      public void beforeBulk(long executionId, BulkRequest request) {
+        /* System.out.println("New request!"); */}
 
-					public void afterBulk(long executionId,
-							BulkRequest request,
-							BulkResponse response) {/*System.out.println("Well done!");*/} 
+      public void afterBulk(long executionId, BulkRequest request,
+          BulkResponse response) {
+        /* System.out.println("Well done!"); */}
 
-					public void afterBulk(long executionId,
-							BulkRequest request,
-							Throwable failure) {
-						System.out.println("Bulk fails!");
-						throw new RuntimeException("Caught exception in bulk: " + request + ", failure: " + failure, failure);
-					} 
-				}
-				)
-				.setBulkActions(1000) 
-				.setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
-				.setFlushInterval(TimeValue.timeValueSeconds(5))    //let's test this
-				.setConcurrentRequests(1) 
-				.build();
-	}
+      public void afterBulk(long executionId, BulkRequest request,
+          Throwable failure) {
+        System.out.println("Bulk fails!");
+        throw new RuntimeException(
+            "Caught exception in bulk: " + request + ", failure: " + failure,
+            failure);
+      }
+    }).setBulkActions(1000).setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB))
+        .setFlushInterval(TimeValue.timeValueSeconds(5)) // let's test this
+        .setConcurrentRequests(1).build();
+  }
 
-	public void destroyBulkProcessor(){
-		try {
-			bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
-			bulkProcessor = null;
-			refreshIndex();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+  public void destroyBulkProcessor() {
+    try {
+      bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
+      bulkProcessor = null;
+      refreshIndex();
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
-	public void putMapping(String indexName, String settings_json, String mapping_json) throws IOException{
+  public void putMapping(String indexName, String settings_json,
+      String mapping_json) throws IOException {
 
-		boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
-		if(exists){
-			return;
-		}
+    boolean exists = client.admin().indices().prepareExists(indexName).execute()
+        .actionGet().isExists();
+    if (exists) {
+      return;
+    }
 
-		client.admin().indices().prepareCreate(indexName).setSettings(ImmutableSettings.settingsBuilder().loadFromSource(settings_json)).execute().actionGet();
-		client.admin().indices()
-		.preparePutMapping(indexName)
-		.setType("_default_")				            
-		.setSource(mapping_json)
-		.execute().actionGet();
-	}
+    client.admin().indices().prepareCreate(indexName)
+        .setSettings(
+            ImmutableSettings.settingsBuilder().loadFromSource(settings_json))
+        .execute().actionGet();
+    client.admin().indices().preparePutMapping(indexName).setType("_default_")
+        .setSource(mapping_json).execute().actionGet();
+  }
 
-	public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException{
-		String[] str_list = str.toLowerCase().split(",");
-		for(int i = 0; i<str_list.length;i++)
-		{
-			String tmp = "";
-			AnalyzeResponse r = client.admin().indices()
-					.prepareAnalyze(str_list[i]).setIndex(indexName).setAnalyzer("english")
-					.execute().get();
-			for (AnalyzeToken token : r.getTokens()) {
-				tmp +=token.getTerm() + " ";
-			}
-			str_list[i] = tmp.trim();
-		}
+  public String customAnalyzing(String indexName, String str)
+      throws InterruptedException, ExecutionException {
+    String[] str_list = str.toLowerCase().split(",");
+    for (int i = 0; i < str_list.length; i++) {
+      String tmp = "";
+      AnalyzeResponse r = client.admin().indices().prepareAnalyze(str_list[i])
+          .setIndex(indexName).setAnalyzer("english").execute().get();
+      for (AnalyzeToken token : r.getTokens()) {
+        tmp += token.getTerm() + " ";
+      }
+      str_list[i] = tmp.trim();
+    }
 
-		String analyzed_str = String.join(",", str_list);
-		return analyzed_str;
-	}
+    String analyzed_str = String.join(",", str_list);
+    return analyzed_str;
+  }
 
-	public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
-		if(list == null){
-			return list;
-		}
-		int size = list.size();
-		List<String> customlist = new ArrayList<String>();
-		for(int i=0; i<size; i++){
-			customlist.add(this.customAnalyzing(indexName, list.get(i)));
-		}
+  public List<String> customAnalyzing(String indexName, List<String> list)
+      throws InterruptedException, ExecutionException {
+    if (list == null) {
+      return list;
+    }
+    int size = list.size();
+    List<String> customlist = new ArrayList<String>();
+    for (int i = 0; i < size; i++) {
+      customlist.add(this.customAnalyzing(indexName, list.get(i)));
+    }
 
-		return customlist;
-	}
+    return customlist;
+  }
 
-	public void deleteAllByQuery(String index, String type, QueryBuilder query) {
-		createBulkProcesser();
-		SearchResponse scrollResp = client.prepareSearch(index)
-				.setSearchType(SearchType.SCAN)
-				.setTypes(type)
-				.setScroll(new TimeValue(60000))
-				.setQuery(query)
-				.setSize(10000)
-				.execute().actionGet();  //10000 hits per shard will be returned for each scroll
+  public void deleteAllByQuery(String index, String type, QueryBuilder query) {
+    createBulkProcesser();
+    SearchResponse scrollResp = client.prepareSearch(index)
+        .setSearchType(SearchType.SCAN).setTypes(type)
+        .setScroll(new TimeValue(60000)).setQuery(query).setSize(10000)
+        .execute().actionGet(); // 10000 hits per shard will be returned for
+                                // each scroll
 
-		while (true) {
-			for (SearchHit hit : scrollResp.getHits().getHits()) {
-				DeleteRequest deleteRequest = new DeleteRequest(index, type, hit.getId());
-				bulkProcessor.add(deleteRequest);
-			}
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        DeleteRequest deleteRequest = new DeleteRequest(index, type,
+            hit.getId());
+        bulkProcessor.add(deleteRequest);
+      }
 
-			System.out.println("Need to delete " + scrollResp.getHits().getHits().length + " records");
+      System.out.println("Need to delete "
+          + scrollResp.getHits().getHits().length + " records");
 
-			scrollResp = client.prepareSearchScroll(scrollResp.getScrollId())
-					.setScroll(new TimeValue(600000)).execute().actionGet();
-			if (scrollResp.getHits().getHits().length == 0) {
-				break;
-			}
+      scrollResp = client.prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
 
-		}
-		destroyBulkProcessor();
-	}
+    }
+    destroyBulkProcessor();
+  }
 
-	public void deleteType(String index, String type){
-		this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
-	}
+  public void deleteType(String index, String type) {
+    this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
+  }
 
-	public ArrayList<String> getTypeListWithPrefix(String index, String type_prefix)
-	{
-		ArrayList<String> type_list = new ArrayList<String>();
-		GetMappingsResponse res;
-		try {
-			res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
-			ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
-			for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
-				//System.out.println(c.key+" = "+c.value.source());
-				if(c.key.startsWith(type_prefix))
-				{
-					type_list.add(c.key);
-				}
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return type_list;	    
-	}
+  public ArrayList<String> getTypeListWithPrefix(String index,
+      String type_prefix) {
+    ArrayList<String> type_list = new ArrayList<String>();
+    GetMappingsResponse res;
+    try {
+      res = client.admin().indices()
+          .getMappings(new GetMappingsRequest().indices(index)).get();
+      ImmutableOpenMap<String, MappingMetaData> mapping = res.mappings()
+          .get(index);
+      for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
+        // System.out.println(c.key+" = "+c.value.source());
+        if (c.key.startsWith(type_prefix)) {
+          type_list.add(c.key);
+        }
+      }
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return type_list;
+  }
 
-	public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
-		boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
-		if(!exists){
-			return null;
-		}
-		
-		/*QueryBuilder qb = QueryBuilders.boolQuery()
-			    .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*", "DatasetSource-*")
-			    		             .boost(1)
-			    		             .type(MultiMatchQueryBuilder.Type.PHRASE))
-			    .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*", "DatasetSource-*")
-				   		             .boost(2)
-				   		             .type(MultiMatchQueryBuilder.Type.PHRASE));*/
+  public String searchByQuery(String index, String Type, String query)
+      throws IOException, InterruptedException, ExecutionException {
+    boolean exists = node.client().admin().indices().prepareExists(index)
+        .execute().actionGet().isExists();
+    if (!exists) {
+      return null;
+    }
 
-		QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
-		SearchResponse response = client.prepareSearch(index)
-				.setTypes(Type)		        
-				.setQuery(qb)
-				.setSize(500)
-				.execute()
-				.actionGet();
+    /*
+     * QueryBuilder qb = QueryBuilders.boolQuery()
+     * .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata",
+     * "Dataset-ShortName", "Dataset-LongName", "Dataset-Description",
+     * "DatasetParameter-*", "DatasetSource-*") .boost(1)
+     * .type(MultiMatchQueryBuilder.Type.PHRASE))
+     * .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata",
+     * "Dataset-ShortName", "Dataset-LongName", "Dataset-Description",
+     * "DatasetParameter-*", "DatasetSource-*") .boost(2)
+     * .type(MultiMatchQueryBuilder.Type.PHRASE));
+     */
 
-		Gson gson = new Gson();		
-		List<JsonObject> fileList = new ArrayList<JsonObject>();
-		DecimalFormat twoDForm = new DecimalFormat("#.##");
-		
-		for (SearchHit hit : response.getHits().getHits()) {
-			Map<String,Object> result = hit.getSource();
-			Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
-			String shortName = (String) result.get("Dataset-ShortName");
-			String longName = (String) result.get("Dataset-LongName");
-			@SuppressWarnings("unchecked")
-			ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
-			String topic = String.join(", ", topicList);
-			String content = (String) result.get("Dataset-Description");
-			@SuppressWarnings("unchecked")
-			ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-			
-			Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
-	        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
-	        String dateText = df2.format(date);
+    QueryBuilder qb = QueryBuilders.queryStringQuery(query);
+    SearchResponse response = client.prepareSearch(index).setTypes(Type)
+        .setQuery(qb).setSize(500).execute().actionGet();
 
-			JsonObject file = new JsonObject();
-			file.addProperty("Relevance", relevance);
-			file.addProperty("Short Name", shortName);
-			file.addProperty("Long Name", longName);
-			file.addProperty("Topic", topic);
-			file.addProperty("Abstract", content);
-			file.addProperty("Release Date", dateText);
-			fileList.add(file);       	
+    Gson gson = new Gson();
+    List<JsonObject> fileList = new ArrayList<JsonObject>();
+    DecimalFormat twoDForm = new DecimalFormat("#.##");
 
-		}
-		JsonElement fileList_Element = gson.toJsonTree(fileList);
+    for (SearchHit hit : response.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
+      String shortName = (String) result.get("Dataset-ShortName");
+      String longName = (String) result.get("Dataset-LongName");
+      @SuppressWarnings("unchecked")
+      ArrayList<String> topicList = (ArrayList<String>) result
+          .get("DatasetParameter-Variable");
+      String topic = String.join(", ", topicList);
+      String content = (String) result.get("Dataset-Description");
+      @SuppressWarnings("unchecked")
+      ArrayList<String> longdate = (ArrayList<String>) result
+          .get("DatasetCitation-ReleaseDateLong");
 
-		JsonObject PDResults = new JsonObject();
-		PDResults.add("PDResults", fileList_Element);
-		System.out.print("Search results returned." + "\n");
-		return PDResults.toString();
-	}
+      Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
+      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+      String dateText = df2.format(date);
 
-	public List<String> autoComplete(String index, String chars){
-		boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
-		if(!exists){
-			return null;
-		}
+      JsonObject file = new JsonObject();
+      file.addProperty("Relevance", relevance);
+      file.addProperty("Short Name", shortName);
+      file.addProperty("Long Name", longName);
+      file.addProperty("Topic", topic);
+      file.addProperty("Abstract", content);
+      file.addProperty("Release Date", dateText);
+      fileList.add(file);
 
-		List<String> SuggestList = new ArrayList<String>();
+    }
+    JsonElement fileList_Element = gson.toJsonTree(fileList);
 
-		CompletionSuggestionFuzzyBuilder suggestionsBuilder = new CompletionSuggestionFuzzyBuilder("completeMe");
-		suggestionsBuilder.text(chars);
-		suggestionsBuilder.size(10);
-		suggestionsBuilder.field("name_suggest");
-		suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));  
+    JsonObject PDResults = new JsonObject();
+    PDResults.add("PDResults", fileList_Element);
+    System.out.print("Search results returned." + "\n");
+    return PDResults.toString();
+  }
 
-		SuggestRequestBuilder suggestRequestBuilder =
-				client.prepareSuggest(index).addSuggestion(suggestionsBuilder);
+  public List<String> autoComplete(String index, String chars) {
+    boolean exists = node.client().admin().indices().prepareExists(index)
+        .execute().actionGet().isExists();
+    if (!exists) {
+      return null;
+    }
 
+    List<String> SuggestList = new ArrayList<String>();
 
-		SuggestResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
+    CompletionSuggestionFuzzyBuilder suggestionsBuilder = new CompletionSuggestionFuzzyBuilder(
+        "completeMe");
+    suggestionsBuilder.text(chars);
+    suggestionsBuilder.size(10);
+    suggestionsBuilder.field("name_suggest");
+    suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));
 
-		Iterator<? extends Suggest.Suggestion.Entry.Option> iterator =
-				suggestResponse.getSuggest().getSuggestion("completeMe").iterator().next().getOptions().iterator();
+    SuggestRequestBuilder suggestRequestBuilder = client.prepareSuggest(index)
+        .addSuggestion(suggestionsBuilder);
 
-		while (iterator.hasNext()) {
-			Suggest.Suggestion.Entry.Option next = iterator.next();
-			SuggestList.add(next.getText().string());
-		}
-		return SuggestList;
+    SuggestResponse suggestResponse = suggestRequestBuilder.execute()
+        .actionGet();
 
-	}
+    Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = suggestResponse
+        .getSuggest().getSuggestion("completeMe").iterator().next().getOptions()
+        .iterator();
 
-	public void close(){
-		node.close();   
-	}
+    while (iterator.hasNext()) {
+      Suggest.Suggestion.Entry.Option next = iterator.next();
+      SuggestList.add(next.getText().string());
+    }
+    return SuggestList;
 
-	public void refreshIndex(){
-		node.client().admin().indices().prepareRefresh().execute().actionGet();
-	}
+  }
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		ESDriver es = new ESDriver("cody");
-		es.getTypeListWithPrefix("podaacsession", "sessionstats");
-	}
+  public void close() {
+    node.close();
+  }
+
+  public void refreshIndex() {
+    node.client().admin().indices().prepareRefresh().execute().actionGet();
+  }
+
+  public static void main(String[] args) {
+    // TODO Auto-generated method stub
+    ESDriver es = new ESDriver("cody");
+    es.getTypeListWithPrefix("podaacsession", "sessionstats");
+  }
 
 }

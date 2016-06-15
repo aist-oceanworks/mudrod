@@ -35,81 +35,80 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
 
 public class MudrodEngine {
-	private Map<String, String> config = new HashMap<String, String>();
-	private ESDriver es = null;
-	private SparkDriver spark = null;
-	public MudrodEngine()
-	{
-		loadConfig();
-		es = new ESDriver(config.get("clusterName"));
-		spark = new SparkDriver();
+  private Map<String, String> config = new HashMap<String, String>();
+  private ESDriver es = null;
+  private SparkDriver spark = null;
 
-	}
+  public MudrodEngine() {
+    loadConfig();
+    es = new ESDriver(config.get("clusterName"));
+    spark = new SparkDriver();
 
-	public Map<String, String> getConfig(){
-		return config;
-	}
+  }
 
+  public Map<String, String> getConfig() {
+    return config;
+  }
 
-	public ESDriver getES(){
-		return this.es;
-	}
+  public ESDriver getES() {
+    return this.es;
+  }
 
+  public void loadConfig() {
+    SAXBuilder saxBuilder = new SAXBuilder();
+    InputStream configStream = MudrodEngine.class.getClassLoader()
+        .getResourceAsStream("config.xml");
 
-	public void loadConfig() {
-		SAXBuilder saxBuilder = new SAXBuilder();
-		InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
+    Document document;
+    try {
+      document = saxBuilder.build(configStream);
+      Element rootNode = document.getRootElement();
+      List<Element> para_list = rootNode.getChildren("para");
 
-		Document document;
-		try {
-			document = saxBuilder.build(configStream);
-			Element rootNode = document.getRootElement();
-			List<Element> para_list = rootNode.getChildren("para");
+      for (int i = 0; i < para_list.size(); i++) {
+        Element para_node = para_list.get(i);
+        config.put(para_node.getAttributeValue("name"),
+            para_node.getTextTrim());
+      }
+    } catch (JDOMException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-			for (int i = 0; i < para_list.size(); i++) {
-				Element para_node = para_list.get(i);
-				config.put(para_node.getAttributeValue("name"),para_node.getTextTrim());
-			}
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    for (Map.Entry<String, String> entry : config.entrySet()) {
+      System.out.println(entry.getKey() + " : " + entry.getValue());
+    }
+  }
 
-		for (Map.Entry<String, String> entry : config.entrySet()) {
-			System.out.println(entry.getKey()+" : "+entry.getValue());
-		}
-	}
+  public void start() {
+    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+    wd.preprocess();
+    wd.process();
 
+    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
+    od.preprocess();
+    od.process();
 
-	public void start(){		
-		DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
-		wd.preprocess();
-		wd.process();
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
+    md.preprocess();
+    md.process();
 
-		DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
-		od.preprocess();
-		od.process();
+    LinkageIntegration li = new LinkageIntegration(config, es, spark);
+    li.execute();
+  }
 
-		DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
-		md.preprocess();
-		md.process(); 
+  public void end() {
+    es.close();
+  }
 
-		LinkageIntegration li = new LinkageIntegration(config, es, spark);
-		li.execute();
-	}
+  public static void main(String[] args) {
+    // TODO Auto-generated method stub
+    MudrodEngine test = new MudrodEngine();
 
-	public void end(){
-		es.close();
-	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		MudrodEngine test = new MudrodEngine();
-		
-		test.start();
-		test.end();
-	}
+    test.start();
+    test.end();
+  }
 }

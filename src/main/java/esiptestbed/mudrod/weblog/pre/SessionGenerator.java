@@ -46,331 +46,375 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.Session;
 
+public class SessionGenerator extends DiscoveryStepAbstract {
 
-public class SessionGenerator extends DiscoveryStepAbstract{
+  public SessionGenerator(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-    public SessionGenerator(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
-    
+  @Override
+  public Object execute() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Session generating starts******************");
+    startTime = System.currentTimeMillis();
+    generateSession();
+    endTime = System.currentTimeMillis();
+    es.refreshIndex();
+    System.out.println(
+        "*****************Session generating ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+    return null;
+  }
 
-	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************Session generating starts******************");
-		startTime=System.currentTimeMillis();
-        generateSession();
-		endTime=System.currentTimeMillis();
-		es.refreshIndex();
-		System.out.println("*****************Session generating ends******************Took " + (endTime-startTime)/1000+"s");
-		return null;
-	}
+  public void generateSession() {
+    try {
+      es.createBulkProcesser();
+      genSessionByReferer(Integer.parseInt(config.get("timegap")));
+      es.destroyBulkProcessor();
 
-	
-    public void generateSession(){
-    	try {
-    		es.createBulkProcesser();
-			genSessionByReferer(Integer.parseInt(config.get("timegap")));
-			es.destroyBulkProcessor();
-			
-			es.createBulkProcesser();
-			combineShortSessions(Integer.parseInt(config.get("timegap")));
-			es.destroyBulkProcessor();
-		} catch (ElasticsearchException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+      es.createBulkProcesser();
+      combineShortSessions(Integer.parseInt(config.get("timegap")));
+      es.destroyBulkProcessor();
+    } catch (ElasticsearchException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
 
-	public void genSessionByReferer(int Timethres) throws ElasticsearchException, IOException {
-		SearchResponse sr = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-				.setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-				.addAggregation(AggregationBuilders.terms("Users").field("IP").size(0)).execute().actionGet();
-		Terms Users = sr.getAggregations().get("Users");
+  }
 
-		int session_count = 0;
-		for (Terms.Bucket entry : Users.getBuckets()) {
+  public void genSessionByReferer(int Timethres)
+      throws ElasticsearchException, IOException {
+    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(this.Cleanup_type).setQuery(QueryBuilders.matchAllQuery())
+        .setSize(0)
+        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
+        .execute().actionGet();
+    Terms Users = sr.getAggregations().get("Users");
 
-			String start_time = null;
-			int session_count_in = 0;
+    int session_count = 0;
+    for (Terms.Bucket entry : Users.getBuckets()) {
 
-			FilterBuilder filter_search = FilterBuilders.boolFilter()
-					.must(FilterBuilders.termFilter("IP", entry.getKey()));
-			QueryBuilder query_search = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
+      String start_time = null;
+      int session_count_in = 0;
 
-			SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-					.setScroll(new TimeValue(60000)).setQuery(query_search).addSort("Time", SortOrder.ASC) // important
-																											// !!
-					.setSize(100).execute().actionGet();
+      FilterBuilder filter_search = FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter("IP", entry.getKey()));
+      QueryBuilder query_search = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
 
-			Map<String, Map<String, DateTime>> sessionReqs = new HashMap<String, Map<String, DateTime>>();
-			String request = "";
-			String referer = "";
-			String logType = "";
-			String id = "";
-			String ip = entry.getKey();
-			String indexUrl = "http://podaac.jpl.nasa.gov/";
-			DateTime time = null;
-			DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+      SearchResponse scrollResp = es.client
+          .prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
+          .setScroll(new TimeValue(60000)).setQuery(query_search)
+          .addSort("Time", SortOrder.ASC) // important
+          // !!
+          .setSize(100).execute().actionGet();
 
-			while (scrollResp.getHits().getHits().length != 0) {
-				for (SearchHit hit : scrollResp.getHits().getHits()) {
-					Map<String, Object> result = hit.getSource();
-					request = (String) result.get("RequestUrl");
-					referer = (String) result.get("Referer");
-					logType = (String) result.get("LogType");
-					time = fmt.parseDateTime((String) result.get("Time"));
-					id = hit.getId();
+      Map<String, Map<String, DateTime>> sessionReqs = new HashMap<String, Map<String, DateTime>>();
+      String request = "";
+      String referer = "";
+      String logType = "";
+      String id = "";
+      String ip = entry.getKey();
+      String indexUrl = "http://podaac.jpl.nasa.gov/";
+      DateTime time = null;
+      DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 
-					if (logType.equals("PO.DAAC")) {
-						if (referer.equals("-") || referer.equals(indexUrl) || !referer.contains(indexUrl)) {
-							session_count++;
-							session_count_in++;
-							sessionReqs.put(ip + "@" + session_count_in, new HashMap<String, DateTime>());
-							sessionReqs.get(ip + "@" + session_count_in).put(request, time);
+      while (scrollResp.getHits().getHits().length != 0) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> result = hit.getSource();
+          request = (String) result.get("RequestUrl");
+          referer = (String) result.get("Referer");
+          logType = (String) result.get("LogType");
+          time = fmt.parseDateTime((String) result.get("Time"));
+          id = hit.getId();
 
-							update(config.get("indexName"), this.Cleanup_type, id, "SessionID", ip + "@" + session_count_in);
+          if (logType.equals("PO.DAAC")) {
+            if (referer.equals("-") || referer.equals(indexUrl)
+                || !referer.contains(indexUrl)) {
+              session_count++;
+              session_count_in++;
+              sessionReqs.put(ip + "@" + session_count_in,
+                  new HashMap<String, DateTime>());
+              sessionReqs.get(ip + "@" + session_count_in).put(request, time);
 
-						} else {
-							int count = session_count_in;
-							int rollbackNum = 0;
-							while (true) {
-								Map<String, DateTime> requests = (Map<String, DateTime>) sessionReqs
-										.get(ip + "@" + count);
-								if (requests == null) {
-									sessionReqs.put(ip + "@" + count, new HashMap<String, DateTime>());
-									sessionReqs.get(ip + "@" + count).put(request, time);
-									update(config.get("indexName"), this.Cleanup_type, id, "SessionID", ip + "@" + count);
+              update(config.get("indexName"), this.Cleanup_type, id,
+                  "SessionID", ip + "@" + session_count_in);
 
-									break;
-								}
-								ArrayList<String> keys = new ArrayList<String>(requests.keySet());
-								boolean bFindRefer = false;
+            } else {
+              int count = session_count_in;
+              int rollbackNum = 0;
+              while (true) {
+                Map<String, DateTime> requests = (Map<String, DateTime>) sessionReqs
+                    .get(ip + "@" + count);
+                if (requests == null) {
+                  sessionReqs.put(ip + "@" + count,
+                      new HashMap<String, DateTime>());
+                  sessionReqs.get(ip + "@" + count).put(request, time);
+                  update(config.get("indexName"), this.Cleanup_type, id,
+                      "SessionID", ip + "@" + count);
 
-								for (int i = keys.size() - 1; i >= 0; i--) {
-									rollbackNum++;
-									if (keys.get(i).equals(referer.toLowerCase())) {
-										bFindRefer = true;
-										// threshold,if time interval > 10*
-										// click num, start a new session
-										if (Math.abs(Seconds.secondsBetween(requests.get(keys.get(i)), time)
-												.getSeconds()) < Timethres * rollbackNum) {
-											sessionReqs.get(ip + "@" + count).put(request, time);
-											update(config.get("indexName"), this.Cleanup_type, id, "SessionID", ip + "@" + count);
-										} else {
-											session_count++;
-											session_count_in++;
-											sessionReqs.put(ip + "@" + session_count_in,
-													new HashMap<String, DateTime>());
-											sessionReqs.get(ip + "@" + session_count_in).put(request, time);
-											update(config.get("indexName"), this.Cleanup_type, id, "SessionID",
-													ip + "@" + session_count_in);
-										}
+                  break;
+                }
+                ArrayList<String> keys = new ArrayList<String>(
+                    requests.keySet());
+                boolean bFindRefer = false;
 
-										break;
-									}
-								}
+                for (int i = keys.size() - 1; i >= 0; i--) {
+                  rollbackNum++;
+                  if (keys.get(i).equals(referer.toLowerCase())) {
+                    bFindRefer = true;
+                    // threshold,if time interval > 10*
+                    // click num, start a new session
+                    if (Math.abs(
+                        Seconds.secondsBetween(requests.get(keys.get(i)), time)
+                            .getSeconds()) < Timethres * rollbackNum) {
+                      sessionReqs.get(ip + "@" + count).put(request, time);
+                      update(config.get("indexName"), this.Cleanup_type, id,
+                          "SessionID", ip + "@" + count);
+                    } else {
+                      session_count++;
+                      session_count_in++;
+                      sessionReqs.put(ip + "@" + session_count_in,
+                          new HashMap<String, DateTime>());
+                      sessionReqs.get(ip + "@" + session_count_in).put(request,
+                          time);
+                      update(config.get("indexName"), this.Cleanup_type, id,
+                          "SessionID", ip + "@" + session_count_in);
+                    }
 
-								if (bFindRefer) {
-									break;
-								}
+                    break;
+                  }
+                }
 
-								count--;
-								if (count < 0) {
+                if (bFindRefer) {
+                  break;
+                }
 
-									session_count++;
-									session_count_in++;
+                count--;
+                if (count < 0) {
 
-									sessionReqs.put(ip + "@" + session_count_in, new HashMap<String, DateTime>());
-									sessionReqs.get(ip + "@" + session_count_in).put(request, time);
-									update(config.get("indexName"), this.Cleanup_type, id, "SessionID", ip + "@" + session_count_in);
+                  session_count++;
+                  session_count_in++;
 
-									break;
-								}
-							}
-						}
-					} else if (logType.equals("ftp")) {
+                  sessionReqs.put(ip + "@" + session_count_in,
+                      new HashMap<String, DateTime>());
+                  sessionReqs.get(ip + "@" + session_count_in).put(request,
+                      time);
+                  update(config.get("indexName"), this.Cleanup_type, id,
+                      "SessionID", ip + "@" + session_count_in);
 
-						// may affect computation efficiency
-						Map<String, DateTime> requests = (Map<String, DateTime>) sessionReqs
-								.get(ip + "@" + session_count_in);
-						if (requests == null) {
-							sessionReqs.put(ip + "@" + session_count_in, new HashMap<String, DateTime>());
-						} else {
-							ArrayList<String> keys = new ArrayList<String>(requests.keySet());
-							int size = keys.size();
-							// System.out.println(Math.abs(Seconds.secondsBetween(requests.get(keys.get(size-1)),
-							// time).getSeconds()));
-							if (Math.abs(Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-									.getSeconds()) > Timethres) {
-								// System.out.println("new session");
-								session_count += 1;
-								session_count_in += 1;
-								sessionReqs.put(ip + "@" + session_count_in, new HashMap<String, DateTime>());
-							}
-						}
-						sessionReqs.get(ip + "@" + session_count_in).put(request, time);
-						update(config.get("indexName"), this.Cleanup_type, id, "SessionID", ip + "@" + session_count_in);
-					}
-				}
+                  break;
+                }
+              }
+            }
+          } else if (logType.equals("ftp")) {
 
-				scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
-						.setScroll(new TimeValue(600000)).execute().actionGet();
-			}
-		}
+            // may affect computation efficiency
+            Map<String, DateTime> requests = (Map<String, DateTime>) sessionReqs
+                .get(ip + "@" + session_count_in);
+            if (requests == null) {
+              sessionReqs.put(ip + "@" + session_count_in,
+                  new HashMap<String, DateTime>());
+            } else {
+              ArrayList<String> keys = new ArrayList<String>(requests.keySet());
+              int size = keys.size();
+              // System.out.println(Math.abs(Seconds.secondsBetween(requests.get(keys.get(size-1)),
+              // time).getSeconds()));
+              if (Math.abs(
+                  Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
+                      .getSeconds()) > Timethres) {
+                // System.out.println("new session");
+                session_count += 1;
+                session_count_in += 1;
+                sessionReqs.put(ip + "@" + session_count_in,
+                    new HashMap<String, DateTime>());
+              }
+            }
+            sessionReqs.get(ip + "@" + session_count_in).put(request, time);
+            update(config.get("indexName"), this.Cleanup_type, id, "SessionID",
+                ip + "@" + session_count_in);
+          }
+        }
 
-		/*System.out.print("Update is done\n");
-		System.out.print("The number of sessions:" + Integer.toString(session_count));*/
-	}
+        scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+      }
+    }
 
-	public void combineShortSessions(int Timethres) throws ElasticsearchException, IOException {
-		SearchResponse sr = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-				.setQuery(QueryBuilders.matchAllQuery())
-				.addAggregation(AggregationBuilders.terms("Users").field("IP").size(0)).execute().actionGet();
-		Terms Users = sr.getAggregations().get("Users");
+    /*
+     * System.out.print("Update is done\n"); System.out.print(
+     * "The number of sessions:" + Integer.toString(session_count));
+     */
+  }
 
-		for (Terms.Bucket entry : Users.getBuckets()) {
-			FilterBuilder filter_all = FilterBuilders.boolFilter()
-					.must(FilterBuilders.termFilter("IP", entry.getKey()));
-			QueryBuilder query_all = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter_all);
-			SearchResponse check_all = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-					.setScroll(new TimeValue(60000)).setQuery(query_all).setSize(0).execute().actionGet();
+  public void combineShortSessions(int Timethres)
+      throws ElasticsearchException, IOException {
+    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(this.Cleanup_type).setQuery(QueryBuilders.matchAllQuery())
+        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
+        .execute().actionGet();
+    Terms Users = sr.getAggregations().get("Users");
 
-			long all = check_all.getHits().getTotalHits();
+    for (Terms.Bucket entry : Users.getBuckets()) {
+      FilterBuilder filter_all = FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter("IP", entry.getKey()));
+      QueryBuilder query_all = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filter_all);
+      SearchResponse check_all = es.client
+          .prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
+          .setScroll(new TimeValue(60000)).setQuery(query_all).setSize(0)
+          .execute().actionGet();
 
-			FilterBuilder filter_check = FilterBuilders.boolFilter()
-					.must(FilterBuilders.termFilter("IP", entry.getKey()))
-					.must(FilterBuilders.termFilter("Referer", "-"));
-			QueryBuilder query_check = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter_check);
-			SearchResponse check_referer = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-					.setScroll(new TimeValue(60000)).setQuery(query_check).setSize(0).execute().actionGet();
+      long all = check_all.getHits().getTotalHits();
 
-			long num_invalid = check_referer.getHits().getTotalHits();
+      FilterBuilder filter_check = FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter("IP", entry.getKey()))
+          .must(FilterBuilders.termFilter("Referer", "-"));
+      QueryBuilder query_check = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filter_check);
+      SearchResponse check_referer = es.client
+          .prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
+          .setScroll(new TimeValue(60000)).setQuery(query_check).setSize(0)
+          .execute().actionGet();
 
-			double invalid_rate = (float) (num_invalid / all);
+      long num_invalid = check_referer.getHits().getTotalHits();
 
-			if (invalid_rate >= 0.8 || all < 3) {
-				deleteInvalid(entry.getKey());
-				//System.out.print(entry.getKey() + "\n");
-				continue;
-			}
+      double invalid_rate = (float) (num_invalid / all);
 
-			FilterBuilder filter_search = FilterBuilders.boolFilter()
-					.must(FilterBuilders.termFilter("IP", entry.getKey()));
-			QueryBuilder query_search = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
+      if (invalid_rate >= 0.8 || all < 3) {
+        deleteInvalid(entry.getKey());
+        // System.out.print(entry.getKey() + "\n");
+        continue;
+      }
 
-			MetricsAggregationBuilder StatsAgg = AggregationBuilders.stats("Stats").field("Time");
-			SearchResponse sr_session = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-					.setScroll(new TimeValue(60000)).setQuery(query_search)
-					.addAggregation(
-							AggregationBuilders.terms("Sessions").field("SessionID").size(0).subAggregation(StatsAgg))
-					.execute().actionGet();
+      FilterBuilder filter_search = FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter("IP", entry.getKey()));
+      QueryBuilder query_search = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
 
-			Terms Sessions = sr_session.getAggregations().get("Sessions");
+      MetricsAggregationBuilder StatsAgg = AggregationBuilders.stats("Stats")
+          .field("Time");
+      SearchResponse sr_session = es.client
+          .prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
+          .setScroll(new TimeValue(60000)).setQuery(query_search)
+          .addAggregation(AggregationBuilders.terms("Sessions")
+              .field("SessionID").size(0).subAggregation(StatsAgg))
+          .execute().actionGet();
 
-			List<Session> sessionList = new ArrayList<Session>();
-			for (Terms.Bucket session : Sessions.getBuckets()) {
-				Stats agg = session.getAggregations().get("Stats");
-				Session sess = new Session(config, es, agg.getMinAsString(), agg.getMaxAsString(), session.getKey());
-				sessionList.add(sess);
-			}
+      Terms Sessions = sr_session.getAggregations().get("Sessions");
 
-			Collections.sort(sessionList);
+      List<Session> sessionList = new ArrayList<Session>();
+      for (Terms.Bucket session : Sessions.getBuckets()) {
+        Stats agg = session.getAggregations().get("Stats");
+        Session sess = new Session(config, es, agg.getMinAsString(),
+            agg.getMaxAsString(), session.getKey());
+        sessionList.add(sess);
+      }
 
-			DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-			String last = null;
-			String lastnewID = null;
-			String lastoldID = null;
-			String current = null;
-			for (Session s : sessionList) {
-				current = s.getEndTime();
-				if (last != null) {
-					if (Seconds.secondsBetween(fmt.parseDateTime(last), fmt.parseDateTime(current))
-							.getSeconds() < Timethres) {
-						if (lastnewID == null) {
-							s.setNewID(lastoldID);
-						} else {
-							s.setNewID(lastnewID);
-						}
+      Collections.sort(sessionList);
 
-						FilterBuilder fs = FilterBuilders.boolFilter()
-								.must(FilterBuilders.termFilter("SessionID", s.getID()));
-						QueryBuilder qs = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), fs);
-						SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName"))
-								.setTypes(this.Cleanup_type).setScroll(new TimeValue(60000)).setQuery(qs).setSize(100)
-								.execute().actionGet();
-						while (true) {
-							for (SearchHit hit : scrollResp.getHits().getHits()) {
-								if (lastnewID == null) {
-									update(config.get("indexName"), this.Cleanup_type, hit.getId(), "SessionID", lastoldID);
-								} else {
-									update(config.get("indexName"), this.Cleanup_type, hit.getId(), "SessionID", lastnewID);
-								}
-							}
+      DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+      String last = null;
+      String lastnewID = null;
+      String lastoldID = null;
+      String current = null;
+      for (Session s : sessionList) {
+        current = s.getEndTime();
+        if (last != null) {
+          if (Seconds.secondsBetween(fmt.parseDateTime(last),
+              fmt.parseDateTime(current)).getSeconds() < Timethres) {
+            if (lastnewID == null) {
+              s.setNewID(lastoldID);
+            } else {
+              s.setNewID(lastnewID);
+            }
 
-							scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
-									.setScroll(new TimeValue(600000)).execute().actionGet();
-							// Break condition: No hits are returned
-							if (scrollResp.getHits().getHits().length == 0) {
-								break;
-							}
-						}
-					}
-					;
-				}
-				lastoldID = s.getID();
-				lastnewID = s.getNewID();
-				last = current;
-			}
+            FilterBuilder fs = FilterBuilders.boolFilter()
+                .must(FilterBuilders.termFilter("SessionID", s.getID()));
+            QueryBuilder qs = QueryBuilders
+                .filteredQuery(QueryBuilders.matchAllQuery(), fs);
+            SearchResponse scrollResp = es.client
+                .prepareSearch(config.get("indexName"))
+                .setTypes(this.Cleanup_type).setScroll(new TimeValue(60000))
+                .setQuery(qs).setSize(100).execute().actionGet();
+            while (true) {
+              for (SearchHit hit : scrollResp.getHits().getHits()) {
+                if (lastnewID == null) {
+                  update(config.get("indexName"), this.Cleanup_type,
+                      hit.getId(), "SessionID", lastoldID);
+                } else {
+                  update(config.get("indexName"), this.Cleanup_type,
+                      hit.getId(), "SessionID", lastnewID);
+                }
+              }
 
-			//System.out.print(entry.getKey() + "\n");
-		}
-		//System.out.print("Combining is done.\n");
-	}
+              scrollResp = es.client
+                  .prepareSearchScroll(scrollResp.getScrollId())
+                  .setScroll(new TimeValue(600000)).execute().actionGet();
+              // Break condition: No hits are returned
+              if (scrollResp.getHits().getHits().length == 0) {
+                break;
+              }
+            }
+          }
+          ;
+        }
+        lastoldID = s.getID();
+        lastnewID = s.getNewID();
+        last = current;
+      }
 
-	public void deleteInvalid(String ip) throws ElasticsearchException, IOException {
-		FilterBuilder filter_all = FilterBuilders.boolFilter().must(FilterBuilders.termFilter("IP", ip));
-		QueryBuilder query_all = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter_all);
+      // System.out.print(entry.getKey() + "\n");
+    }
+    // System.out.print("Combining is done.\n");
+  }
 
-		SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(this.Cleanup_type)
-				.setScroll(new TimeValue(60000)).setQuery(query_all).setSize(100).execute().actionGet();
-		while (true) {
-			for (SearchHit hit : scrollResp.getHits().getHits()) {
-				/*
-				 * DeleteResponse response =
-				 * Ek_test.client.prepareDelete(this.index, this.cleanup_type,
-				 * hit.getId()) .setOperationThreaded(false) .get();
-				 */
-				update(config.get("indexName"), Cleanup_type, hit.getId(), "SessionID", "invalid");
-			}
+  public void deleteInvalid(String ip)
+      throws ElasticsearchException, IOException {
+    FilterBuilder filter_all = FilterBuilders.boolFilter()
+        .must(FilterBuilders.termFilter("IP", ip));
+    QueryBuilder query_all = QueryBuilders
+        .filteredQuery(QueryBuilders.matchAllQuery(), filter_all);
 
-			scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
-					.setScroll(new TimeValue(600000)).execute().actionGet();
-			// Break condition: No hits are returned
-			if (scrollResp.getHits().getHits().length == 0) {
-				break;
-			}
-		}
-	}
+    SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName"))
+        .setTypes(this.Cleanup_type).setScroll(new TimeValue(60000))
+        .setQuery(query_all).setSize(100).execute().actionGet();
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        /*
+         * DeleteResponse response = Ek_test.client.prepareDelete(this.index,
+         * this.cleanup_type, hit.getId()) .setOperationThreaded(false) .get();
+         */
+        update(config.get("indexName"), Cleanup_type, hit.getId(), "SessionID",
+            "invalid");
+      }
 
-	private void update(String index, String type, String id, String field1, Object value1)
-			throws ElasticsearchException, IOException {
-		UpdateRequest ur = new UpdateRequest(index, type, id)
-				.doc(jsonBuilder().startObject().field(field1, value1).endObject());
-		es.bulkProcessor.add(ur);
-	}
+      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      // Break condition: No hits are returned
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
+    }
+  }
 
+  private void update(String index, String type, String id, String field1,
+      Object value1) throws ElasticsearchException, IOException {
+    UpdateRequest ur = new UpdateRequest(index, type, id)
+        .doc(jsonBuilder().startObject().field(field1, value1).endObject());
+    es.bulkProcessor.add(ur);
+  }
 
-	@Override
-	public Object execute(Object o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+  @Override
+  public Object execute(Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

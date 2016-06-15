@@ -23,42 +23,53 @@ import esiptestbed.mudrod.metadata.pre.MatrixGenerator;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 
-public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {	
-	
-	public MetadataDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void preprocess() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************Metadata preprocessing starts******************");
-		startTime=System.currentTimeMillis();
-		
-		DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es, this.spark);
-		harvester.execute();
-		
-		endTime=System.currentTimeMillis();
-		System.out.println("*****************Metadata preprocessing ends******************Took " + (endTime-startTime)/1000+"s");
-	}
+public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
+    implements Serializable {
 
-	public void process() {
-		// TODO Auto-generated method stub
-		System.out.println("*****************Metadata processing starts******************");
-		startTime=System.currentTimeMillis();
-		
-		DiscoveryStepAbstract matrix = new MatrixGenerator(this.config, this.es, this.spark);
-		matrix.execute();
-		
-		DiscoveryStepAbstract svd = new MetadataAnalyzer(this.config, this.es, this.spark);
-		svd.execute();
-		
-		endTime=System.currentTimeMillis();
-		System.out.println("*****************Metadata processing ends******************Took " + (endTime-startTime)/1000+"s");
-	}
+  public MetadataDiscoveryEngine(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
 
-	public void output() {
-		// TODO Auto-generated method stub
+  public void preprocess() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Metadata preprocessing starts******************");
+    startTime = System.currentTimeMillis();
 
-	}
+    DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
+        this.spark);
+    harvester.execute();
+
+    endTime = System.currentTimeMillis();
+    System.out.println(
+        "*****************Metadata preprocessing ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+  }
+
+  public void process() {
+    // TODO Auto-generated method stub
+    System.out.println(
+        "*****************Metadata processing starts******************");
+    startTime = System.currentTimeMillis();
+
+    DiscoveryStepAbstract matrix = new MatrixGenerator(this.config, this.es,
+        this.spark);
+    matrix.execute();
+
+    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.config, this.es,
+        this.spark);
+    svd.execute();
+
+    endTime = System.currentTimeMillis();
+    System.out.println(
+        "*****************Metadata processing ends******************Took "
+            + (endTime - startTime) / 1000 + "s");
+  }
+
+  public void output() {
+    // TODO Auto-generated method stub
+
+  }
 }
