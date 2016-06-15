@@ -34,7 +34,7 @@
 	<para name="metadataSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/metadataSVDMatrix_tmp.csv
 	</para>
 
-	<para name="clusterName">cody</para>
+	<para name="clusterName">elasticsearch</para>
 	<para name="indexName">mudrod</para>
 
 	<para name="HTTP_type">rawhttp</para>
@@ -51,6 +51,7 @@
 	<para name="viewf">200</para>   <!-- threshold for session summarizing, unit second -->
 	<para name="downloadf">100</para>   <!-- threshold for session summarizing, unit second -->
 
+    <para name="raw_metadataPath">./src/main/java/esiptestbed/tmp/RawMetadata</para>
 	<para name="raw_metadataType">RawMetadata</para>
 
 	<para name="clickstreamSVDDimension">50</para>

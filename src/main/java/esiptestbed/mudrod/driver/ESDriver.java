@@ -48,6 +48,7 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
@@ -141,7 +142,7 @@ public class ESDriver implements Serializable {
 		{
 			String tmp = "";
 			AnalyzeResponse r = client.admin().indices()
-					.prepareAnalyze(str_list[i]).setIndex(indexName).setAnalyzer("cody")
+					.prepareAnalyze(str_list[i]).setIndex(indexName).setAnalyzer("english")
 					.execute().get();
 			for (AnalyzeToken token : r.getTokens()) {
 				tmp +=token.getTerm() + " ";
@@ -227,6 +228,14 @@ public class ESDriver implements Serializable {
 		if(!exists){
 			return null;
 		}
+		
+		/*QueryBuilder qb = QueryBuilders.boolQuery()
+			    .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*", "DatasetSource-*")
+			    		             .boost(1)
+			    		             .type(MultiMatchQueryBuilder.Type.PHRASE))
+			    .should(QueryBuilders.multiMatchQuery("ocean wind", "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*", "DatasetSource-*")
+				   		             .boost(2)
+				   		             .type(MultiMatchQueryBuilder.Type.PHRASE));*/
 
 		QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
 		SearchResponse response = client.prepareSearch(index)

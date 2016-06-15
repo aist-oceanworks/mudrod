@@ -66,6 +66,9 @@ public class MetadataExtractor implements Serializable {
 				List<String>  longname = (List<String> ) result.get("DatasetProject-Project-LongName");
 				PODAACMetadata metadata = new PODAACMetadata(shortname, longname, es.customAnalyzing(index, topic), es.customAnalyzing(index, term), es.customAnalyzing(index, variable), es.customAnalyzing(index, keyword));
 				metadatas.add(metadata);
+				
+				/*Please look at these fields!
+				 * "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*", "DatasetSource-*"*/
 			}
 			scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))
 					.execute().actionGet();

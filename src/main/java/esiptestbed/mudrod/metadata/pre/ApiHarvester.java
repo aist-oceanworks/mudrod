@@ -15,9 +15,16 @@ package esiptestbed.mudrod.metadata.pre;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
@@ -45,24 +52,50 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 		startTime=System.currentTimeMillis();
 		es.createBulkProcesser();
 		addMetadataMapping();
-		getMetadata();
+		//harvestMetadatafromWeb();
+		importToES();
 		es.destroyBulkProcessor();
 		endTime=System.currentTimeMillis();
 		es.refreshIndex();
 		System.out.println("*****************Metadata harvesting ends******************Took " + (endTime-startTime)/1000+"s");
 		return null;
 	}
-	
+
 	public void addMetadataMapping(){
-		String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"cody\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
+		String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"analyzer\": \"english\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
 		es.client.admin().indices()
-							  .preparePutMapping(config.get("indexName"))
-					          .setType(config.get("raw_metadataType"))
-					          .setSource(mapping_json)
-					          .execute().actionGet();
-    }
+		.preparePutMapping(config.get("indexName"))
+		.setType(config.get("raw_metadataType"))
+		.setSource(mapping_json)
+		.execute().actionGet();
+	}
 	
-	private void getMetadata()
+	private void importToES(){
+		File directory = new File(config.get("raw_metadataPath"));
+		File[] fList = directory.listFiles();
+		for (File file : fList) {
+			InputStream is;
+			try {
+				is = new FileInputStream(file);
+				try {
+					String jsonTxt = IOUtils.toString(is);
+					JsonParser parser = new JsonParser();
+					JsonElement item = parser.parse(jsonTxt);
+					IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
+					es.bulkProcessor.add(ir);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
+		}
+	}
+
+	private void harvestMetadatafromWeb()
 	{
 		int startIndex = 0;
 		int doc_length = 0;
@@ -72,20 +105,43 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 			HttpRequest http = new HttpRequest();		
 			String response = http.getRequest(searchAPI);	
 
-		    JsonElement json = parser.parse(response);
-		    JsonObject responseObject = json.getAsJsonObject();
-		    JsonArray docs = responseObject.getAsJsonObject("response").getAsJsonArray("docs");
-		    
-		    doc_length = docs.size();
-		    for(int i =0; i < doc_length; i++)
-		    {
-		    	JsonElement item = docs.get(i);
-		    	IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
+			JsonElement json = parser.parse(response);
+			JsonObject responseObject = json.getAsJsonObject();
+			JsonArray docs = responseObject.getAsJsonObject("response").getAsJsonArray("docs");
 
-				es.bulkProcessor.add(ir);
-		    }
-		    startIndex +=10;
-		    try {
+			doc_length = docs.size();
+			
+			File file = new File(config.get("raw_metadataPath"));
+			if (!file.exists()) {
+	            if (file.mkdir()) {
+	                System.out.println("Directory is created!");
+	            } else {
+	                System.out.println("Failed to create directory!");
+	            }
+	        }
+			for(int i =0; i < doc_length; i++)
+			{
+				JsonElement item = docs.get(i);
+				
+		        int docId = startIndex + i;
+				File itemfile = new File(config.get("raw_metadataPath") + "/" + docId + ".json");
+				try {					
+					itemfile.createNewFile();
+					FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
+					BufferedWriter bw = new BufferedWriter(fw);
+					bw.write(item.toString());	
+					bw.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				/*IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("raw_metadataType")).source(item.toString());
+				es.bulkProcessor.add(ir);*/
+			}
+
+			startIndex +=10;
+			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
