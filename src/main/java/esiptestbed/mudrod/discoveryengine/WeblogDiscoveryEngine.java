@@ -71,20 +71,19 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
 			DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
 			rr.execute();
-
-			DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
-			hg.execute();
-
-			DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
-			cg.execute();
 			
 			endTime=System.currentTimeMillis();
 			
 			System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s***" + Input_list.get(i));
 		}
-
 		
-		System.out.println("*****************Web log preprocessing ends******************");
+		DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+		hg.execute();
+
+		DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+		cg.execute();
+		
+		System.out.println("*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
 	}
 

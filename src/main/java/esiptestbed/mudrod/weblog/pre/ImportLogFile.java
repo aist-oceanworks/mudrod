@@ -100,10 +100,10 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 		this.Cleanup_type += time_suffix;
 		this.SessionStats += time_suffix;
 		
-		config.put("HTTP_type", this.HTTP_type);
+		/*config.put("HTTP_type", this.HTTP_type);
 		config.put("FTP_type", this.FTP_type);
 		config.put("Cleanup_type", this.Cleanup_type);
-		config.put("SessionStats", this.SessionStats);
+		config.put("SessionStats", this.SessionStats);*/
 		
 		String httplogpath = config.get("logDir") + config.get("httpPrefix") + time_suffix + "/" + config.get("httpPrefix") + time_suffix;
 		String ftplogpath = config.get("logDir") + config.get("ftpPrefix") + time_suffix + "/" + config.get("ftpPrefix") + time_suffix;

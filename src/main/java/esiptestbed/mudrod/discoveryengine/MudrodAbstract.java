@@ -59,10 +59,10 @@ public abstract class MudrodAbstract implements Serializable {
 			e.printStackTrace();
 		}
 
-		HTTP_type = config.get("HTTP_type");
-		FTP_type = config.get("FTP_type");
-		Cleanup_type = config.get("Cleanup_type");
-		SessionStats = config.get("SessionStats");
+		HTTP_type = config.get("HTTP_type_prefix");
+		FTP_type = config.get("FTP_type_prefix");
+		Cleanup_type = config.get("Cleanup_type_prefix");
+		SessionStats = config.get("SessionStats_prefix");
 
 		print_level = Integer.parseInt(config.get("loglevel"));
 	}

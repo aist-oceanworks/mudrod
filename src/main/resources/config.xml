@@ -15,7 +15,7 @@
 	
 	<para name="logDir">C:/AIST LOG FILES/</para>
 	<para name="httpPrefix">access_log.</para>
-	<para name="ftpPrefix">podaac-ftp.log.</para>
+	<para name="ftpPrefix">vsftpd.log.</para>
 
 	<para name="metadataurl">null</para>
 
@@ -37,10 +37,10 @@
 	<para name="clusterName">cody</para>
 	<para name="indexName">mudrod</para>
 
-	<para name="HTTP_type">rawhttp</para>
-	<para name="FTP_type">rawftp</para>
-	<para name="Cleanup_type">cleanupLog</para>
-	<para name="SessionStats">sessionstats</para>
+	<para name="HTTP_type_prefix">rawhttp</para>
+	<para name="FTP_type"_prefix>rawftp</para>
+	<para name="Cleanup_type_prefix">cleanupLog</para>
+	<para name="SessionStats_prefix">sessionstats</para>
 
 	<para name="commentType">comment</para>
 	<para name="SessionPort">443</para>

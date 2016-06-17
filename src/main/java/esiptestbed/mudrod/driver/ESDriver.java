@@ -104,7 +104,7 @@ public class ESDriver implements Serializable {
 				)
 				.setBulkActions(1000) 
 				.setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
-				.setFlushInterval(TimeValue.timeValueSeconds(5))    //let's test this
+				//.setFlushInterval(TimeValue.timeValueSeconds(5))    //let's test this
 				.setConcurrentRequests(1) 
 				.build();
 	}
