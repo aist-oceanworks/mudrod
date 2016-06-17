@@ -29,29 +29,34 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 
 public class SVDAnalyzer extends SemanticAnalyzer {
 
-	public SVDAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public void GetSVDMatrix(String CSV_fileName, int svdDimention, String svd_matrix_fileName){
-		
-		try {
-			JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, 1);
-			JavaRDD<Vector> vectorRDD = importRDD.values();
-			RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());		
-			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
-			RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimention);
-			
-			List<String> rowKeys = importRDD.keys().collect();
-			List<String> colKeys = new ArrayList<String>();
-			for(int i=0; i<svdDimention; i++){
-				colKeys.add("dimension" + i);
-			}
-			MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+  public SVDAnalyzer(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+  }
+
+  public void GetSVDMatrix(String CSV_fileName, int svdDimention,
+      String svd_matrix_fileName) {
+
+    try {
+      JavaPairRDD<String, Vector> importRDD = MatrixUtil
+          .loadVectorFromCSV(spark, CSV_fileName, 1);
+      JavaRDD<Vector> vectorRDD = importRDD.values();
+      RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
+      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
+          spark.sc);
+      RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix,
+          svdDimention);
+
+      List<String> rowKeys = importRDD.keys().collect();
+      List<String> colKeys = new ArrayList<String>();
+      for (int i = 0; i < svdDimention; i++) {
+        colKeys.add("dimension" + i);
+      }
+      MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 }

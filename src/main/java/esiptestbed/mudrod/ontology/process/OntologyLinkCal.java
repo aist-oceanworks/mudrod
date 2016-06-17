@@ -31,101 +31,97 @@ import esiptestbed.mudrod.driver.SparkDriver;
 
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
-	public OntologyLinkCal(Map<String, String> config, ESDriver es, SparkDriver spark) {
-		super(config, es, spark);
-		// TODO Auto-generated constructor stub
-		es.deleteAllByQuery(config.get("indexName"), config.get("ontologyLinkageType"), QueryBuilders.matchAllQuery());
-		addSWEETMapping();
-	}
-	
-	 public void addSWEETMapping(){
-	    	XContentBuilder Mapping;
-			try {
-				Mapping = jsonBuilder()
-						.startObject()
-							.startObject(config.get("ontologyLinkageType"))
-								.startObject("properties")
-									.startObject("concept_A")
-										.field("type", "string")
-										.field("index", "not_analyzed")
-									.endObject()
-									.startObject("concept_B")
-										.field("type", "string")
-										.field("index", "not_analyzed")
-									.endObject()
-									
-								.endObject()
-							.endObject()
-						.endObject();
-				
-				es.client.admin().indices()
-				  .preparePutMapping(config.get("indexName"))
-		          .setType(config.get("ontologyLinkageType"))
-		          .setSource(Mapping)
-		          .execute().actionGet();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-	    }
+  public OntologyLinkCal(Map<String, String> config, ESDriver es,
+      SparkDriver spark) {
+    super(config, es, spark);
+    // TODO Auto-generated constructor stub
+    es.deleteAllByQuery(config.get("indexName"),
+        config.get("ontologyLinkageType"), QueryBuilders.matchAllQuery());
+    addSWEETMapping();
+  }
 
-	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		es.deleteType(config.get("indexName"), config.get("ontologyLinkageType"));
-		es.createBulkProcesser();		
-		
-		BufferedReader br = null;
-		String line = "";
-		double weight = 0;
-		
-		try {
-			br = new BufferedReader(new FileReader(config.get("oceanTriples")));
-			while ((line = br.readLine()) != null) {
-				String[] strList = line.toLowerCase().split(",");
-				if(strList[1].equals("subclassof"))
-				{
-					weight = 0.75;
-				}else{
-					weight = 0.9;
-				}
+  public void addSWEETMapping() {
+    XContentBuilder Mapping;
+    try {
+      Mapping = jsonBuilder().startObject()
+          .startObject(config.get("ontologyLinkageType"))
+          .startObject("properties").startObject("concept_A")
+          .field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("concept_B").field("type", "string")
+          .field("index", "not_analyzed").endObject()
 
-				IndexRequest ir = new IndexRequest(config.get("indexName"), config.get("ontologyLinkageType")).source(jsonBuilder()
-						.startObject()
-						.field("concept_A", es.customAnalyzing(config.get("indexName"), strList[2]))
-						.field("concept_B", es.customAnalyzing(config.get("indexName"), strList[0]))
-						.field("weight", weight)	
-						.endObject());
-				es.bulkProcessor.add(ir);
+          .endObject().endObject().endObject();
 
-			}
+      es.client.admin().indices().preparePutMapping(config.get("indexName"))
+          .setType(config.get("ontologyLinkageType")).setSource(Mapping)
+          .execute().actionGet();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (br != null) {
-				try {
-					br.close();
-					es.destroyBulkProcessor();
-					es.refreshIndex();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return null;
-	}
+  @Override
+  public Object execute() {
+    // TODO Auto-generated method stub
+    es.deleteType(config.get("indexName"), config.get("ontologyLinkageType"));
+    es.createBulkProcesser();
 
-	@Override
-	public Object execute(Object o) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    BufferedReader br = null;
+    String line = "";
+    double weight = 0;
+
+    try {
+      br = new BufferedReader(new FileReader(config.get("oceanTriples")));
+      while ((line = br.readLine()) != null) {
+        String[] strList = line.toLowerCase().split(",");
+        if (strList[1].equals("subclassof")) {
+          weight = 0.75;
+        } else {
+          weight = 0.9;
+        }
+
+        IndexRequest ir = new IndexRequest(config.get("indexName"),
+            config.get("ontologyLinkageType"))
+                .source(
+                    jsonBuilder().startObject()
+                        .field("concept_A",
+                            es.customAnalyzing(config.get("indexName"),
+                                strList[2]))
+                        .field("concept_B",
+                            es.customAnalyzing(config.get("indexName"),
+                                strList[0]))
+                        .field("weight", weight).endObject());
+        es.bulkProcessor.add(ir);
+
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally {
+      if (br != null) {
+        try {
+          br.close();
+          es.destroyBulkProcessor();
+          es.refreshIndex();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public Object execute(Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

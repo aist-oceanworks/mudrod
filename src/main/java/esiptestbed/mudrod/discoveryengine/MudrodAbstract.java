@@ -24,8 +24,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 /**
  * This is the most generit class of MUDROD,
  * 
- * conig: configuration read from config.xml
- * es: Elasticsearch instance
+ * conig: configuration read from config.xml es: Elasticsearch instance
  * 
  */
 public abstract class MudrodAbstract implements Serializable {
