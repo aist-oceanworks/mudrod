@@ -38,7 +38,7 @@
 	<para name="indexName">mudrod</para>
 
 	<para name="HTTP_type_prefix">rawhttp</para>
-	<para name="FTP_type"_prefix>rawftp</para>
+	<para name="FTP_type_prefix">rawftp</para>
 	<para name="Cleanup_type_prefix">cleanupLog</para>
 	<para name="SessionStats_prefix">sessionstats</para>
 
@@ -51,6 +51,7 @@
 	<para name="viewf">200</para>   <!-- threshold for session summarizing, unit second -->
 	<para name="downloadf">100</para>   <!-- threshold for session summarizing, unit second -->
 
+    <para name="raw_metadataPath">./src/main/java/esiptestbed/tmp/RawMetadata</para>
 	<para name="raw_metadataType">RawMetadata</para>
 
 	<para name="clickstreamSVDDimension">50</para>
