@@ -25,7 +25,14 @@ $ cd mudrod
 $ mvn clean install
 $ mvn jetty:run
 ```
-You will now see XYZ
+You will now be able to access the Mudrod Web Application at http://localhost:8080/mudrod-service
+
+## Deploying to Apache Tomcat (or any other Servlet container)
+Once you have built the codebase as above, merely copy the genrated .war artifact to the servlet deployment directory. In Tomcat (for example), this would look as follows
+```
+$ cp service/target/mudrod-service-0.0.1-SNAPSHOT.war $CATALINA_HOME/webapps/
+```
+Once Tomcat hot deploys the .war artifact, you will be able to browse to the running application similar to what is shown above http://localhost:8080/mudrod-service
 
 ## Docker Container
 
