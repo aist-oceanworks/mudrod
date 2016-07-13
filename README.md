@@ -1,8 +1,8 @@
 # MUDROD
 ## Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access
 
+<img src="http://geant4.slac.stanford.edu/Space06/NASAJPLlogo.jpg" align="right" width="300" />
 <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/400px-GMU_logo.svg.png" align="right" width="300" />
-<img src="http://www.jpl.nasa.gov/assets/images/logo_nasa_trio_black@2x.png" align="right" width="300" />
 
 [MUDROD](https://esto.nasa.gov/forum/estf2015/presentations/Yang_S8P1_ESTF2015.pdf) 
 is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).
