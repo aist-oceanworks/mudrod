@@ -1,6 +1,8 @@
 # MUDROD
 ## Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access
 
+[![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
+
 <img src="http://geant4.slac.stanford.edu/Space06/NASAJPLlogo.jpg" align="right" width="300" />
 <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/400px-GMU_logo.svg.png" align="right" width="300" />
 
