@@ -16,3 +16,5 @@ install:
 script:
   - jdk_switcher use oraclejdk8
   - mvn install javadoc:aggregate
+after_success:
+  - mvn clean test jacoco:report coveralls:report
