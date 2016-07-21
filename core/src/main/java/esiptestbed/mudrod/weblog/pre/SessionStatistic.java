@@ -22,8 +22,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.joda.time.DateTime;
@@ -42,43 +40,42 @@ import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
-import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.weblog.structure.Coordinates;
-import esiptestbed.mudrod.weblog.structure.GeoIp;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SessionStatistic extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(SessionStatistic.class);
+
   public SessionStatistic(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Session summarizing starts******************");
+    LOG.info("*****************Session summarizing starts******************");
     startTime = System.currentTimeMillis();
     try {
       processSession();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************Session summarizing ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Session summarizing ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -88,12 +85,12 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     String inputType = this.Cleanup_type;
     String outputType = this.SessionStats;
 
-    MetricsAggregationBuilder StatsAgg = AggregationBuilders.stats("Stats")
+    MetricsAggregationBuilder<?> statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
     SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
         .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .size(0).subAggregation(StatsAgg))
+            .size(0).subAggregation(statsAgg))
         .execute().actionGet();
 
     Terms Sessions = sr.getAggregations().get("Sessions");
@@ -230,7 +227,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         // && ftpRequest_count != 0 && keywords_num<50) {
         if (searchDataListRequest_count != 0
             && searchDataListRequest_count <= Integer
-                .parseInt(config.get("searchf"))
+            .parseInt(config.get("searchf"))
             && searchDataRequest_count != 0
             && searchDataRequest_count <= Integer.parseInt(config.get("viewf"))
             && ftpRequest_count <= Integer.parseInt(config.get("downloadf"))) {
@@ -244,31 +241,31 @@ public class SessionStatistic extends DiscoveryStepAbstract {
           IndexRequest ir = new IndexRequest(config.get("indexName"),
               outputType).source(
                   jsonBuilder().startObject().field("SessionID", entry.getKey())
-                      .field("SessionURL", sessionURL)
-                      .field("Request_count", entry.getDocCount())
-                      .field("Duration", duration)
-                      .field("Number of Keywords", keywords_num)
-                      .field("Time", min).field("End_time", max)
-                      .field("searchDataListRequest_count",
-                          searchDataListRequest_count)
-                      .field("searchDataListRequest_byKeywords_count",
-                          searchDataListRequest_byKeywords_count)
-                      .field("searchDataRequest_count", searchDataRequest_count)
-                      .field("keywords",
-                          es.customAnalyzing(config.get("indexName"), keywords))
-                      .field("views", views).field("downloads", downloads)
-                      .field("request_rate", request_rate).field("Comments", "")
-                      .field("Validation", 0).field("Produceby", 0)
-                      .field("Correlation", 0).field("IP", IP)
-                      // .field("Coordinates", loc.latlon)
-                      .endObject());
+                  .field("SessionURL", sessionURL)
+                  .field("Request_count", entry.getDocCount())
+                  .field("Duration", duration)
+                  .field("Number of Keywords", keywords_num)
+                  .field("Time", min).field("End_time", max)
+                  .field("searchDataListRequest_count",
+                      searchDataListRequest_count)
+                  .field("searchDataListRequest_byKeywords_count",
+                      searchDataListRequest_byKeywords_count)
+                  .field("searchDataRequest_count", searchDataRequest_count)
+                  .field("keywords",
+                      es.customAnalyzing(config.get("indexName"), keywords))
+                  .field("views", views).field("downloads", downloads)
+                  .field("request_rate", request_rate).field("Comments", "")
+                  .field("Validation", 0).field("Produceby", 0)
+                  .field("Correlation", 0).field("IP", IP)
+                  // .field("Coordinates", loc.latlon)
+                  .endObject());
 
           es.bulkProcessor.add(ir);
         }
       }
     }
 
-    System.out.println("Session count:" + Integer.toString(session_count));
+    LOG.info("Session count: {}", Integer.toString(session_count));
     es.destroyBulkProcessor();
   }
 
@@ -292,7 +289,6 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

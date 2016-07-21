@@ -25,7 +25,12 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SessionTree extends MudrodAbstract {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SessionTree.class);
   public int size = 0;
   protected SessionNode root = null;
   public boolean binsert = false;
@@ -89,7 +94,7 @@ public class SessionTree extends MudrodAbstract {
   }
 
   public void printTree(SessionNode node) {
-    System.out.print("node:" + node.getRequest() + "\n");
+    LOG.info("node: {} \n", node.getRequest());
     if (node.children.size() != 0) {
       for (int i = 0; i < node.children.size(); i++) {
         printTree(node.children.get(i));
@@ -102,34 +107,29 @@ public class SessionTree extends MudrodAbstract {
     JsonObject json = new JsonObject();
 
     json.addProperty("seq", node.getSeq());
-    if (node.getKey().equals("datasetlist")) {
+    if ("datasetlist".equals(node.getKey())) {
       json.addProperty("icon", "searching.png");
 
       json.addProperty("name", node.getRequest());
 
-    } else if (node.getKey().equals("dataset")) {
+    } else if ("dataset".equals(node.getKey())) {
       json.addProperty("icon", "viewing.png");
       json.addProperty("name", node.getDatasetId());
-      // json.addProperty("tips", node.getDatasetId());
-
-    } else if (node.getKey().equals("ftp")) {
+    } else if ("ftp".equals(node.getKey())) {
       json.addProperty("icon", "downloading.png");
       json.addProperty("name", node.getRequest());
-      // json.addProperty("tips", node.getRequest());
-
-    } else if (node.getKey().equals("root")) {
+    } else if ("root".equals(node.getKey())) {
       json.addProperty("name", "");
       json.addProperty("icon", "users.png");
-      // json.addProperty("tips","user");
     }
 
-    if (node.children.size() != 0) {
-      List<JsonObject> json_children = new ArrayList<JsonObject>();
+    if (node.children.isEmpty()) {
+      List<JsonObject> jsonChildren = new ArrayList<>();
       for (int i = 0; i < node.children.size(); i++) {
-        JsonObject json_child = TreeToJson(node.children.get(i));
-        json_children.add(json_child);
+        JsonObject jsonChild = TreeToJson(node.children.get(i));
+        jsonChildren.add(jsonChild);
       }
-      JsonElement jsonElement = gson.toJsonTree(json_children);
+      JsonElement jsonElement = gson.toJsonTree(jsonChildren);
       json.add("children", jsonElement);
     }
 
@@ -139,7 +139,7 @@ public class SessionTree extends MudrodAbstract {
   public List<ClickStream> getClickStreamList()
       throws UnsupportedEncodingException {
 
-    List<ClickStream> clickthroughs = new ArrayList<ClickStream>();
+    List<ClickStream> clickthroughs = new ArrayList<>();
     List<SessionNode> viewnodes = this.getViewNodes(this.root);
     for (int i = 0; i < viewnodes.size(); i++) {
 
@@ -158,7 +158,7 @@ public class SessionTree extends MudrodAbstract {
       boolean download = false;
       for (int j = 0; j < children.size(); j++) {
         SessionNode child = children.get(j);
-        if (child.getKey().equals("ftp")) {
+        if ("ftp".equals(child.getKey())) {
           download = true;
           break;
         }
@@ -198,8 +198,8 @@ public class SessionTree extends MudrodAbstract {
     String tmpnodeKey = tmpnode.getKey();
     String nodeKey = node.getKey();
 
-    if (nodeKey.equals("datasetlist")) {
-      if (node.getReferer().equals("-")) {
+    if ("datasetlist".equals(nodeKey)) {
+      if ("-".equals(node.getReferer())) {
         return root;
       } else {
         SessionNode tmp = this.findLatestRefer(tmpnode, node.getReferer());
@@ -209,7 +209,7 @@ public class SessionTree extends MudrodAbstract {
           return tmp;
         }
       }
-    } else if (nodeKey.equals("dataset")) {
+    } else if ("dataset".equals(nodeKey)) {
       if (node.getReferer().equals("-")) {
         return null;
       } else {

@@ -21,18 +21,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
-import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
-
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RequestUrl extends MudrodAbstract {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RequestUrl.class);
+
   public RequestUrl(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public static String UrlPage(String strURL) {
@@ -124,13 +126,10 @@ public class RequestUrl extends MudrodAbstract {
             .replaceAll("\\s+", " ").trim();
 
       } catch (UnsupportedEncodingException e) {
-        // TODO Auto-generated catch block
-        System.out.println(mapRequest.get("search"));
+        LOG.error(mapRequest.get("search"));
         e.printStackTrace();
       }
-      // keyword = keyword.replace("\"", "").toLowerCase().trim();
-      if (!keyword.equals("")) {
-        // info = keyword + ",";
+      if (!"".equals(keyword)) {
         info.add(keyword);
       }
 
@@ -163,15 +162,12 @@ public class RequestUrl extends MudrodAbstract {
                 item = item.replace("%20", " ");
                 item = item.replace("%25", " ");
               }
-              // item = item.replaceAll("[-+.^:,*_]"," ").replaceAll("\\s+","
-              // ").trim();
               item = item.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
                   .replaceAll("\\s+", " ").trim();
               info.add(item);
             }
           } catch (Exception e) {
-            // TODO Auto-generated catch block
-            System.out.println(values[i]);
+            LOG.error(values[i]);
             e.printStackTrace();
           }
         }
@@ -211,14 +207,10 @@ public class RequestUrl extends MudrodAbstract {
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
         }
-
-        // keyword = keyword.replaceAll("[-+.^:,*_]"," ").replaceAll("\\s+","
-        // ");
         keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
             .replaceAll("\\s+", " ").trim();
       } catch (UnsupportedEncodingException e) {
-        // TODO Auto-generated catch block
-        System.out.println(mapRequest.get("search"));
+        LOG.error(mapRequest.get("search"));
         e.printStackTrace();
       }
     }
@@ -245,20 +237,14 @@ public class RequestUrl extends MudrodAbstract {
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
         }
-
-        // keyword = keyword.replaceAll("[-+.^:,*_]"," ").replaceAll("\\s+","
-        // ");
         keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
             .replaceAll("\\s+", " ").trim();
 
       } catch (UnsupportedEncodingException e) {
-        // TODO Auto-generated catch block
-        System.out.println(mapRequest.get("search"));
+        LOG.error(mapRequest.get("search"));
         e.printStackTrace();
       }
-      // keyword = keyword.replace("\"", "").toLowerCase().trim();
-      if (!keyword.equals("")) {
-        // info = keyword + ",";
+      if (!"".equals(keyword)) {
         info.add(keyword);
       }
 
@@ -291,8 +277,7 @@ public class RequestUrl extends MudrodAbstract {
             filterValues.put(ids[i], item);
           }
         } catch (Exception e) {
-          // TODO Auto-generated catch block
-          System.out.println(values[i]);
+          LOG.error(values[i]);
           e.printStackTrace();
         }
       }

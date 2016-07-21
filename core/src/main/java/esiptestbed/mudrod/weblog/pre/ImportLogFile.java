@@ -32,8 +32,17 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImportLogFile extends DiscoveryStepAbstract{
+
+  private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
   public ImportLogFile(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
@@ -41,11 +50,11 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
   @Override
   public Object execute() {
-    System.out.println("*****************Import starts******************");
+    LOG.info("*****************Import starts******************");
     startTime=System.currentTimeMillis();
     readFile();
     endTime=System.currentTimeMillis();
-    System.out.println("*****************Import ends******************Took " + (endTime-startTime)/1000+"s");
+    LOG.info("*****************Import ends******************Took {}s", (endTime-startTime)/1000);
     es.refreshIndex();
     return null;
   }
@@ -98,16 +107,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
       ReadLogFile(httplogpath, "http", config.get("indexName"), this.HTTP_type);
       ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
     } catch (ParseException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
     es.destroyBulkProcessor();
 
   }
@@ -129,15 +134,13 @@ public class ImportLogFile extends DiscoveryStepAbstract{
         count++;
       }
     } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }finally {
       br.close();
 
-      System.out.println("Num of " + Type + ": " + count);
+      LOG.info("Num of {}: {}", Type, count);
     }
   }
 
@@ -173,7 +176,6 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     matcher = p.matcher(log);
     if (!matcher.matches() || 
         NUM_FIELDS != matcher.groupCount()) {
-      //bw.write(log+"\n");
       return;
     }
     String time = matcher.group(4);
@@ -182,7 +184,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     Date date = formatter.parse(time);
 
     String bytes = matcher.group(7);
-    if(bytes.equals("-")){
+    if("-".equals(bytes)){
       bytes="0";
     }
 
@@ -217,15 +219,11 @@ public class ImportLogFile extends DiscoveryStepAbstract{
         es.bulkProcessor.add(ir);
 
       }
-    }		
+    }
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
-
-
-
 }

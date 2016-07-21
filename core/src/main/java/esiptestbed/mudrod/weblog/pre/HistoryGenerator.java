@@ -31,27 +31,31 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HistoryGenerator extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(HistoryGenerator.class);
 
   public HistoryGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out
-    .println("*****************HistoryGenerator starts******************");
+    LOG.info("*****************HistoryGenerator starts******************");
     startTime = System.currentTimeMillis();
 
     GenerateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    System.out
-    .println("*****************HistoryGenerator ends******************Took "
-        + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************HistoryGenerator ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -67,32 +71,32 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       FileWriter fw = new FileWriter(file.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
+      ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
           config.get("indexName"), config.get("SessionStats_prefix"));
 
       bw.write("Num" + ",");
 
       // step 1: write first row of csv
       SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-          .setTypes(String.join(", ", cleanup_typeList))
+          .setTypes(String.join(", ", cleanupTypeList))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0))
           .execute().actionGet();
       Terms IPs = sr.getAggregations().get("IPs");
-      List<String> IPList = new ArrayList<String>();
+      List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : IPs.getBuckets()) {
         if (entry.getDocCount() > Integer
             .parseInt(config.get("mini_userHistory"))) { // filter out less
           // active users/ips
-          IPList.add(entry.getKey());
+          ipList.add(entry.getKey());
         }
       }
 
-      bw.write(String.join(",", IPList) + "\n");
+      bw.write(String.join(",", ipList) + "\n");
 
       // step 2: step the rest rows of csv
       SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))
-          .setTypes(cleanup_typeList.toArray(new String[0]))
+          .setTypes(cleanupTypeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("KeywordAgg")
               .field("keywords").size(0).subAggregation(
@@ -104,20 +108,16 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
         Terms IPAgg = keyword.getAggregations().get("IPAgg");
 
         int distinct_user = IPAgg.getBuckets().size();
-        if (distinct_user > Integer.parseInt(config.get("mini_userHistory"))) // filter
-          // out
-          // less
-          // active
-          // queries
+        if (distinct_user > Integer.parseInt(config.get("mini_userHistory")))
         {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : IPAgg.getBuckets()) {
 
             IP_map.put(IP.getKey(), 1);
           }
-          for (int i = 0; i < IPList.size(); i++) {
-            if (IP_map.containsKey(IPList.get(i))) {
-              bw.write(IP_map.get(IPList.get(i)) + ",");
+          for (int i = 0; i < ipList.size(); i++) {
+            if (IP_map.containsKey(ipList.get(i))) {
+              bw.write(IP_map.get(ipList.get(i)) + ",");
             } else {
               bw.write("0,");
             }
@@ -128,14 +128,12 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
       bw.close();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

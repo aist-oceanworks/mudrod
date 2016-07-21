@@ -46,26 +46,26 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.Session;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SessionGenerator extends DiscoveryStepAbstract {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SessionGenerator.class);
 
   public SessionGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Session generating starts******************");
+    LOG.info("*****************Session generating starts******************");
     startTime = System.currentTimeMillis();
     generateSession();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************Session generating ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Session generating ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -79,10 +79,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       combineShortSessions(Integer.parseInt(config.get("timegap")));
       es.destroyBulkProcessor();
     } catch (ElasticsearchException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -97,7 +95,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
         .execute().actionGet();
     Terms Users = sr.getAggregations().get("Users");
 
-    int session_count = 0;
+    int sessionCount = 0;
     for (Terms.Bucket entry : Users.getBuckets()) {
 
       String start_time = null;
@@ -137,7 +135,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
           if (logType.equals("PO.DAAC")) {
             if (referer.equals("-") || referer.equals(indexUrl)
                 || !referer.contains(indexUrl)) {
-              session_count++;
+              sessionCount++;
               session_count_in++;
               sessionReqs.put(ip + "@" + session_count_in,
                   new HashMap<String, DateTime>());
@@ -173,12 +171,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                     // click num, start a new session
                     if (Math.abs(
                         Seconds.secondsBetween(requests.get(keys.get(i)), time)
-                            .getSeconds()) < Timethres * rollbackNum) {
+                        .getSeconds()) < Timethres * rollbackNum) {
                       sessionReqs.get(ip + "@" + count).put(request, time);
                       update(config.get("indexName"), this.Cleanup_type, id,
                           "SessionID", ip + "@" + count);
                     } else {
-                      session_count++;
+                      sessionCount++;
                       session_count_in++;
                       sessionReqs.put(ip + "@" + session_count_in,
                           new HashMap<String, DateTime>());
@@ -199,7 +197,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                 count--;
                 if (count < 0) {
 
-                  session_count++;
+                  sessionCount++;
                   session_count_in++;
 
                   sessionReqs.put(ip + "@" + session_count_in,
@@ -224,13 +222,10 @@ public class SessionGenerator extends DiscoveryStepAbstract {
             } else {
               ArrayList<String> keys = new ArrayList<String>(requests.keySet());
               int size = keys.size();
-              // System.out.println(Math.abs(Seconds.secondsBetween(requests.get(keys.get(size-1)),
-              // time).getSeconds()));
               if (Math.abs(
                   Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-                      .getSeconds()) > Timethres) {
-                // System.out.println("new session");
-                session_count += 1;
+                  .getSeconds()) > Timethres) {
+                sessionCount += 1;
                 session_count_in += 1;
                 sessionReqs.put(ip + "@" + session_count_in,
                     new HashMap<String, DateTime>());
@@ -246,11 +241,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
             .setScroll(new TimeValue(600000)).execute().actionGet();
       }
     }
-
-    /*
-     * System.out.print("Update is done\n"); System.out.print(
-     * "The number of sessions:" + Integer.toString(session_count));
-     */
   }
 
   public void combineShortSessions(int Timethres)
@@ -289,7 +279,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
       if (invalid_rate >= 0.8 || all < 3) {
         deleteInvalid(entry.getKey());
-        // System.out.print(entry.getKey() + "\n");
         continue;
       }
 
@@ -369,10 +358,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
         lastnewID = s.getNewID();
         last = current;
       }
-
-      // System.out.print(entry.getKey() + "\n");
     }
-    // System.out.print("Combining is done.\n");
   }
 
   public void deleteInvalid(String ip)
@@ -387,17 +373,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
         .setQuery(query_all).setSize(100).execute().actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
-        /*
-         * DeleteResponse response = Ek_test.client.prepareDelete(this.index,
-         * this.cleanup_type, hit.getId()) .setOperationThreaded(false) .get();
-         */
         update(config.get("indexName"), Cleanup_type, hit.getId(), "SessionID",
             "invalid");
       }
 
       scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
-      // Break condition: No hits are returned
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -413,7 +394,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

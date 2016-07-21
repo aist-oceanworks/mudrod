@@ -27,7 +27,7 @@ public class SessionNode {
   protected String id;
   protected String value;
   protected SessionNode parent;
-  protected List<SessionNode> children = new ArrayList<SessionNode>();
+  protected List<SessionNode> children = new ArrayList<>();
   protected String time;
   protected String request;
   protected String referer;
@@ -202,13 +202,11 @@ public class SessionNode {
     try {
       request = URLDecoder.decode(request, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     String[] twoparts = request.split("[?]");
     String[] parts = twoparts[0].split("/");
     if (parts.length <= 2) {
-      // System.out.println(request);
       return;
     }
     this.datasetId = parts[2];

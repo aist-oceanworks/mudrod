@@ -40,8 +40,12 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class LinkageIntegration extends DiscoveryStepAbstract {
-  /** */
+
+  private static final Logger LOG = LoggerFactory.getLogger(LinkageIntegration.class);
   private static final long serialVersionUID = 1L;
   transient List<LinkedTerm> termList = new ArrayList<>();
   DecimalFormat df = new DecimalFormat("#.00");
@@ -109,7 +113,6 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       sortedMap = sortMapByValue(termsMap); // terms_map will be empty after
       // this step
     } catch (InterruptedException | ExecutionException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return sortedMap;
@@ -125,9 +128,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
       count++;
     }
-    System.out.println(
-        "\n************************Integrated results***************************");
-    System.out.println(output);
+    LOG.info("\n************************Integrated results***************************");
+    LOG.info(output);
     return output;
   }
 
@@ -203,8 +205,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
 
-    System.out.println("\n************************" + model
-        + " results***************************");
+    LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String keywords = (String) result.get("keywords");
@@ -213,9 +214,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       if (!relatedKey.equals(input)) {
         LinkedTerm lTerm = new LinkedTerm(relatedKey,
             (double) result.get(WEIGHT), model);
-
-        System.out
-        .print(relatedKey + "(" + (double) result.get(WEIGHT) + "), ");
+        LOG.info("( {} {} )", relatedKey, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
 
@@ -226,16 +225,14 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
-    System.out.println("\n************************" + model
-        + " results***************************");
+    LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String conceptB = (String) result.get("concept_B");
       if (!conceptB.equals(input)) {
         LinkedTerm lTerm = new LinkedTerm(conceptB,
             (double) result.get(WEIGHT), model);
-        System.out
-        .print(conceptB + "(" + (double) result.get(WEIGHT) + "), ");
+        LOG.info("( {} {} )", conceptB, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
     }

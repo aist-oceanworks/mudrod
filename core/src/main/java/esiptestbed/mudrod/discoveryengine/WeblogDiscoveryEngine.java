@@ -29,37 +29,44 @@ import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {		
+public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
   public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
     super(config, es, spark);
   }
 
-  public String time_suffix = null;
+  public String timeSuffix = null;
 
   @Override
   public void preprocess() {
-    // TODO Auto-generated method stub	
-    System.out.println("*****************Web log preprocessing starts******************");
+    LOG.info("*****************Web log preprocessing starts******************");
 
     File directory = new File(config.get("logDir"));
 
-    ArrayList<String> Input_list = new ArrayList<String>();
+    ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
     File[] fList = directory.listFiles();
     for (File file : fList) {
       if (file.isFile()) {
 
       } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        Input_list.add(file.getName().replace(config.get("httpPrefix"), ""));
+        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
       }
     }
 
-    for(int i =0; i < Input_list.size(); i++){
-      time_suffix = Input_list.get(i);
-      config.put("TimeSuffix", time_suffix);
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);
+      config.put("TimeSuffix", timeSuffix);
       startTime=System.currentTimeMillis();
-      System.out.println("*****************Web log preprocessing starts******************" + Input_list.get(i));
+      LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
 
       DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
       im.execute();
@@ -78,7 +85,8 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
       endTime=System.currentTimeMillis();
 
-      System.out.println("*****************Web log preprocessing ends******************Took " + (endTime-startTime)/1000+"s***" + Input_list.get(i));
+      LOG.info("*****************Web log preprocessing ends******************Took {}s {}", 
+          (endTime-startTime)/1000, inputList.get(i));
     }
 
     DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
@@ -87,15 +95,14 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
     cg.execute();
 
-    System.out.println("*****************Web log preprocessing (user history and clickstream finished) ends******************");
+    LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
   }
 
 
   @Override
   public void process() {
-    // TODO Auto-generated method stub
-    System.out.println("*****************Web log processing starts******************");
+    LOG.info("*****************Web log processing starts******************");
     startTime=System.currentTimeMillis();
 
     DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
@@ -105,13 +112,11 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     ua.execute();
 
     endTime=System.currentTimeMillis();
-    System.out.println("*****************Web log processing ends******************Took " + (endTime-startTime)/1000+"s");
+    LOG.info("*****************Web log processing ends******************Took {}s", (endTime-startTime)/1000);
   }
 
   @Override
   public void output() {
-    // TODO Auto-generated method stub
-
   }
 
 }

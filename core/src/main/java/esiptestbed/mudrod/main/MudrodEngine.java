@@ -32,7 +32,12 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class MudrodEngine {
+  
+  private static final Logger LOG = LoggerFactory.getLogger(MudrodEngine.class);
   private Map<String, String> config = new HashMap<>();
   private ESDriver es = null;
   private SparkDriver spark = null;
@@ -61,12 +66,12 @@ public class MudrodEngine {
     try {
       document = saxBuilder.build(configStream);
       Element rootNode = document.getRootElement();
-      List<Element> para_list = rootNode.getChildren("para");
+      List<Element> paraList = rootNode.getChildren("para");
 
-      for (int i = 0; i < para_list.size(); i++) {
-        Element para_node = para_list.get(i);
-        config.put(para_node.getAttributeValue("name"),
-            para_node.getTextTrim());
+      for (int i = 0; i < paraList.size(); i++) {
+        Element paraNode = paraList.get(i);
+        config.put(paraNode.getAttributeValue("name"),
+            paraNode.getTextTrim());
       }
     } catch (JDOMException e) {
       e.printStackTrace();
@@ -99,7 +104,7 @@ public class MudrodEngine {
 
   public static void main(String[] args) {
     if (args.length != 1) {
-      System.out.println("Mudrod Engine expects one argument <logDirectory>");
+      LOG.error("Mudrod Engine expects one argument <logDirectory>");
       return;
     }
     String dataDir = args[0];

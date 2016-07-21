@@ -22,19 +22,26 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
 
   public ClickStreamAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************ClickStreamAnalyzer starts******************");
+    LOG.info("*****************ClickStreamAnalyzer starts******************");
     startTime = System.currentTimeMillis();
 
     try {
@@ -42,26 +49,23 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
       svd.GetSVDMatrix(config.get("clickstreamMatrix"),
           Integer.parseInt(config.get("clickstreamSVDDimension")),
           config.get("clickstreamSVDMatrix_tmp"));
-      List<LinkageTriple> triple_List = svd
+      List<LinkageTriple> tripleList = svd
           .CalTermSimfromMatrix(config.get("clickstreamMatrix"));
-      svd.SaveToES(triple_List, config.get("indexName"),
+      svd.SaveToES(tripleList, config.get("indexName"),
           config.get("clickStreamLinkageType"));
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************ClickStreamAnalyzer ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************ClickStreamAnalyzer ends******************Took {}s",
+        (endTime - startTime) / 1000 + "s");
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 }

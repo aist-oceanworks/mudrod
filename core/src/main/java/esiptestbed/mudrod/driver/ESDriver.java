@@ -60,7 +60,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ESDriver implements Serializable {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   /**
    * 
    */
@@ -104,23 +109,22 @@ public class ESDriver implements Serializable {
         client,
         new BulkProcessor.Listener() {
           public void beforeBulk(long executionId,
-              BulkRequest request) {/*System.out.println("New request!");*/} 
+              BulkRequest request) {} 
 
           public void afterBulk(long executionId,
               BulkRequest request,
-              BulkResponse response) {/*System.out.println("Well done!");*/} 
+              BulkResponse response) {} 
 
           public void afterBulk(long executionId,
               BulkRequest request,
               Throwable failure) {
-            System.out.println("Bulk fails!");
+            LOG.error("Bulk request has failed!");
             throw new RuntimeException("Caught exception in bulk: " + request + ", failure: " + failure, failure);
           } 
         }
         )
         .setBulkActions(1000) 
         .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
-        //.setFlushInterval(TimeValue.timeValueSeconds(5))    //let's test this
         .setConcurrentRequests(1) 
         .build();
   }
@@ -131,7 +135,6 @@ public class ESDriver implements Serializable {
       bulkProcessor = null;
       refreshIndex();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -146,27 +149,25 @@ public class ESDriver implements Serializable {
     client.admin().indices().prepareCreate(indexName).setSettings(ImmutableSettings.settingsBuilder().loadFromSource(settings_json)).execute().actionGet();
     client.admin().indices()
     .preparePutMapping(indexName)
-    .setType("_default_")				            
+    .setType("_default_")
     .setSource(mapping_json)
     .execute().actionGet();
   }
 
   public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException{
-    String[] str_list = str.toLowerCase().split(",");
-    for(int i = 0; i<str_list.length;i++)
+    String[] strList = str.toLowerCase().split(",");
+    for(int i = 0; i<strList.length;i++)
     {
       String tmp = "";
       AnalyzeResponse r = client.admin().indices()
-          .prepareAnalyze(str_list[i]).setIndex(indexName).setAnalyzer("cody")
+          .prepareAnalyze(strList[i]).setIndex(indexName).setAnalyzer("cody")
           .execute().get();
       for (AnalyzeToken token : r.getTokens()) {
         tmp +=token.getTerm() + " ";
       }
-      str_list[i] = tmp.trim();
+      strList[i] = tmp.trim();
     }
-
-    String analyzed_str = String.join(",", str_list);
-    return analyzed_str;
+    return String.join(",", strList);
   }
 
   public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
@@ -174,7 +175,7 @@ public class ESDriver implements Serializable {
       return list;
     }
     int size = list.size();
-    List<String> customlist = new ArrayList<String>();
+    List<String> customlist = new ArrayList<>();
     for(int i=0; i<size; i++){
       customlist.add(this.customAnalyzing(indexName, list.get(i)));
     }
@@ -190,7 +191,7 @@ public class ESDriver implements Serializable {
         .setScroll(new TimeValue(60000))
         .setQuery(query)
         .setSize(10000)
-        .execute().actionGet();  //10000 hits per shard will be returned for each scroll
+        .execute().actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -212,28 +213,25 @@ public class ESDriver implements Serializable {
     this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
   }
 
-  public ArrayList<String> getTypeListWithPrefix(String index, String type_prefix)
+  public ArrayList<String> getTypeListWithPrefix(String index, String typePrefix)
   {
-    ArrayList<String> type_list = new ArrayList<String>();
+    ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
       res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
       ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
       for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
-        //System.out.println(c.key+" = "+c.value.source());
-        if(c.key.startsWith(type_prefix))
+        if(c.key.startsWith(typePrefix))
         {
-          type_list.add(c.key);
+          typeList.add(c.key);
         }
       }
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    return type_list;	    
+    return typeList;
   }
 
   public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
@@ -251,7 +249,7 @@ public class ESDriver implements Serializable {
         .actionGet();
 
     Gson gson = new Gson();		
-    List<JsonObject> fileList = new ArrayList<JsonObject>();
+    List<JsonObject> fileList = new ArrayList<>();
     DecimalFormat twoDForm = new DecimalFormat("#.##");
 
     for (SearchHit hit : response.getHits().getHits()) {
@@ -280,11 +278,11 @@ public class ESDriver implements Serializable {
       fileList.add(file);       	
 
     }
-    JsonElement fileList_Element = gson.toJsonTree(fileList);
+    JsonElement fileListElement = gson.toJsonTree(fileList);
 
     JsonObject PDResults = new JsonObject();
-    PDResults.add("PDResults", fileList_Element);
-    System.out.print("Search results returned." + "\n");
+    PDResults.add("PDResults", fileListElement);
+    LOG.info("Search results returned. \n");
     return PDResults.toString();
   }
 
@@ -294,7 +292,7 @@ public class ESDriver implements Serializable {
       return null;
     }
 
-    List<String> SuggestList = new ArrayList<String>();
+    List<String> suggestList = new ArrayList<>();
 
     CompletionSuggestionFuzzyBuilder suggestionsBuilder = new CompletionSuggestionFuzzyBuilder("completeMe");
     suggestionsBuilder.text(chars);
@@ -313,14 +311,14 @@ public class ESDriver implements Serializable {
 
     while (iterator.hasNext()) {
       Suggest.Suggestion.Entry.Option next = iterator.next();
-      SuggestList.add(next.getText().string());
+      suggestList.add(next.getText().string());
     }
-    return SuggestList;
+    return suggestList;
 
   }
 
   public void close(){
-    node.close();   
+    node.close();
   }
 
   public void refreshIndex(){
@@ -328,7 +326,6 @@ public class ESDriver implements Serializable {
   }
 
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
     ESDriver es = new ESDriver("cody");
     es.getTypeListWithPrefix("podaacsession", "sessionstats");
   }

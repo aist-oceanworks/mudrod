@@ -13,8 +13,6 @@
  */
 package esiptestbed.mudrod.metadata.pre;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,8 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,38 +34,49 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.HttpRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ApiHarvester extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(ApiHarvester.class);
 
   public ApiHarvester(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Metadata harvesting starts******************");
+    LOG.info("*****************Metadata harvesting starts******************");
     startTime = System.currentTimeMillis();
     es.createBulkProcesser();
     addMetadataMapping();
-    // harvestMetadatafromWeb();
     importToES();
     es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************Metadata harvesting ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Metadata harvesting ends******************Took {}s", 
+        (endTime - startTime) / 1000);
     return null;
   }
 
   public void addMetadataMapping() {
-    String mapping_json = "{\r\n   \"dynamic_templates\": [\r\n      {\r\n         \"strings\": {\r\n            \"match_mapping_type\": \"string\",\r\n            \"mapping\": {\r\n               \"type\": \"string\",\r\n               \"analyzer\": \"english\"\r\n            }\r\n         }\r\n      }\r\n   ]\r\n}";
+    String mappingJson = 
+        "{\r\n   \"dynamic_templates\": "
+            + "[\r\n      "
+            + "{\r\n         \"strings\": "
+            + "{\r\n            \"match_mapping_type\": \"string\","
+            + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
+            + "\r\n               \"analyzer\": \"english\"\r\n            }"
+            + "\r\n         }\r\n      }\r\n   ]\r\n}";
     es.client.admin().indices().preparePutMapping(config.get("indexName"))
-        .setType(config.get("raw_metadataType")).setSource(mapping_json)
-        .execute().actionGet();
+    .setType(config.get("raw_metadataType")).setSource(mappingJson)
+    .execute().actionGet();
   }
 
   private void importToES() {
@@ -87,11 +94,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
               config.get("raw_metadataType")).source(item.toString());
           es.bulkProcessor.add(ir);
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -119,9 +124,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       File file = new File(config.get("raw_metadataPath"));
       if (!file.exists()) {
         if (file.mkdir()) {
-          System.out.println("Directory is created!");
+          LOG.info("Directory is created!");
         } else {
-          System.out.println("Failed to create directory!");
+          LOG.error("Failed to create directory!");
         }
       }
       for (int i = 0; i < doc_length; i++) {
@@ -137,22 +142,14 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           bw.write(item.toString());
           bw.close();
         } catch (IOException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
-
-        /*
-         * IndexRequest ir = new IndexRequest(config.get("indexName"),
-         * config.get("raw_metadataType")).source(item.toString());
-         * es.bulkProcessor.add(ir);
-         */
       }
 
       startIndex += 10;
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } while (doc_length != 0);

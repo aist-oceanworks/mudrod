@@ -19,10 +19,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HttpRequest {
+  
+  private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
 
   public HttpRequest() {
-    // TODO Auto-generated constructor stub
   }
 
   public String getRequest(String requestUrl) {
@@ -38,15 +42,15 @@ public class HttpRequest {
       int code = connection.getResponseCode();
       if (code != HttpURLConnection.HTTP_OK) {
         line = "{\"exception\":\"Service failed\"}";
-        System.out.println(line);
+        LOG.info(line);
       } else {
-        InputStream content = (InputStream) connection.getInputStream();
+        InputStream content = connection.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(content));
         line = in.readLine();
       }
     } catch (Exception e) {
       line = "{\"exception\":\"No service was found\"}";
-      System.out.println(line);
+      LOG.error(line);
     }
     return line;
   }

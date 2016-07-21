@@ -26,22 +26,28 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
 import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClickStreamGenerator extends DiscoveryStepAbstract {
+  
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamGenerator.class);
 
   public ClickStreamGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************ClickStreamGenerator starts******************");
+    LOG.info("*****************ClickStreamGenerator starts******************");
     startTime = System.currentTimeMillis();
 
-    String clickstrem_matrix_file = config.get("clickstreamMatrix");
+    String clickstremMatrixFile = config.get("clickstreamMatrix");
     try {
       SessionExtractor extractor = new SessionExtractor();
       JavaRDD<ClickStream> clickstreamRDD = extractor
@@ -53,22 +59,19 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
           .createWordDocMatrix(metaddataQueryRDD, spark.sc);
 
       MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
-          clickstrem_matrix_file);
+          clickstremMatrixFile);
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************ClickStreamGenerator ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************ClickStreamGenerator ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

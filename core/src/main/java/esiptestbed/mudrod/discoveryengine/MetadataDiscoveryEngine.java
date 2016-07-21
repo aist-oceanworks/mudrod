@@ -21,21 +21,25 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.pre.ApiHarvester;
 import esiptestbed.mudrod.metadata.pre.MatrixGenerator;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
-import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 
-public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
-    implements Serializable {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataDiscoveryEngine.class);
 
   public MetadataDiscoveryEngine(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public void preprocess() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Metadata preprocessing starts******************");
+    LOG.info("*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
@@ -43,15 +47,12 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
     harvester.execute();
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************Metadata preprocessing ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Metadata preprocessing ends******************Took {}s",
+        (endTime - startTime) / 1000);
   }
 
   public void process() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Metadata processing starts******************");
+    LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract matrix = new MatrixGenerator(this.config, this.es,
@@ -63,13 +64,10 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
     svd.execute();
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************Metadata processing ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Metadata processing ends******************Took {}s",
+        (endTime - startTime) / 1000);
   }
 
   public void output() {
-    // TODO Auto-generated method stub
-
   }
 }

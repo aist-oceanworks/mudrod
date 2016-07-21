@@ -17,61 +17,59 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.spark.api.java.JavaPairRDD;
-
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
-import esiptestbed.mudrod.utils.SVDUtil;
 
-public class MetadataAnalyzer extends DiscoveryStepAbstract
-    implements Serializable {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataAnalyzer.class);
+
   public MetadataAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     try {
-      System.out.println(
-          "*****************Metadata Analyzer starts******************");
+      LOG.info("*****************Metadata Analyzer starts******************");
       startTime = System.currentTimeMillis();
 
       SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
       int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
-      String metadata_matrix_file = config.get("metadataMatrix");
-      String svd_matrix_fileName = config.get("metadataSVDMatrix_tmp");
+      String metadataMatrixFile = config.get("metadataMatrix");
+      String svdMatrixFileName = config.get("metadataSVDMatrix_tmp");
 
-      analyzer.GetSVDMatrix(metadata_matrix_file, svdDimension,
-          svd_matrix_fileName);
+      analyzer.GetSVDMatrix(metadataMatrixFile, svdDimension,
+          svdMatrixFileName);
       List<LinkageTriple> triples = analyzer
-          .CalTermSimfromMatrix(svd_matrix_fileName);
+          .CalTermSimfromMatrix(svdMatrixFileName);
 
       analyzer.SaveToES(triples, config.get("indexName"),
           config.get("metadataLinkageType"));
 
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************Metadata Analyzer ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Metadata Analyzer ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 }

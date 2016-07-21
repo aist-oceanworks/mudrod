@@ -34,7 +34,16 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AggregateTriples extends DiscoveryStepAbstract {
+  
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
 
   public AggregateTriples(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
@@ -64,7 +73,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     File[] files = new File(this.config.get("ontologyInputDir")).listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
-      if (ext.equals("owl")) {
+      if ("owl".equals(ext)) {
         try {
           loadxml(file_in.getAbsolutePath());
           getAllClass();
@@ -111,10 +120,10 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       Element e = (Element) processDescendants.next();
       String currentName = e.getName();
       text = e.getTextTrim();
-      if (text.equals("")) {
-        System.out.println(currentName);
+      if ("".equals(text)) {
+        LOG.info(currentName);
       } else {
-        System.out.println(currentName + ":" + text);
+        LOG.info("{} : {}", currentName, text);
       }
     }
   }
@@ -137,7 +146,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   }
 
   public void getAllClass() throws IOException {
-    List classElements = rootNode.getChildren("Class",
+    List<?> classElements = rootNode.getChildren("Class",
         Namespace.getNamespace("owl", owl_namespace));
 
     for (int i = 0; i < classElements.size(); i++) {
@@ -150,38 +159,38 @@ public class AggregateTriples extends DiscoveryStepAbstract {
             Namespace.getNamespace("rdf", rdf_namespace));
       }
 
-      List SubclassElements = classElement.getChildren("subClassOf",
+      List<?> subclassElements = classElement.getChildren("subClassOf",
           Namespace.getNamespace("rdfs", rdfs_namespace));
-      for (int j = 0; j < SubclassElements.size(); j++) {
-        Element subclassElement = (Element) SubclassElements.get(j);
-        String SubclassName = subclassElement.getAttributeValue("resource",
+      for (int j = 0; j < subclassElements.size(); j++) {
+        Element subclassElement = (Element) subclassElements.get(j);
+        String subclassName = subclassElement.getAttributeValue("resource",
             Namespace.getNamespace("rdf", rdf_namespace));
-        if (SubclassName == null) {
+        if (subclassName == null) {
           Element allValuesFromEle = findChild("allValuesFrom",
               subclassElement);
           if (allValuesFromEle != null) {
-            SubclassName = allValuesFromEle.getAttributeValue("resource",
+            subclassName = allValuesFromEle.getAttributeValue("resource",
                 Namespace.getNamespace("rdf", rdf_namespace));
             bw.write(cutString(className) + ",SubClassOf,"
-                + cutString(SubclassName) + "\n");
+                + cutString(subclassName) + "\n");
           }
         } else {
           bw.write(cutString(className) + ",SubClassOf,"
-              + cutString(SubclassName) + "\n");
+              + cutString(subclassName) + "\n");
         }
 
       }
 
-      List EqualclassElements = classElement.getChildren("equivalentClass",
+      List equalClassElements = classElement.getChildren("equivalentClass",
           Namespace.getNamespace("owl", owl_namespace));
-      for (int k = 0; k < EqualclassElements.size(); k++) {
-        Element EqualclassElement = (Element) EqualclassElements.get(k);
-        String EqualclassElementName = EqualclassElement.getAttributeValue(
+      for (int k = 0; k < equalClassElements.size(); k++) {
+        Element equalClassElement = (Element) equalClassElements.get(k);
+        String equalClassElementName = equalClassElement.getAttributeValue(
             "resource", Namespace.getNamespace("rdf", rdf_namespace));
 
-        if (EqualclassElementName != null) {
+        if (equalClassElementName != null) {
           bw.write(cutString(className) + ",equivalentClass,"
-              + cutString(EqualclassElementName) + "\n");
+              + cutString(equalClassElementName) + "\n");
         }
       }
 
@@ -190,8 +199,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   public String cutString(String str) {
     str = str.substring(str.indexOf("#") + 1);
-    String[] str_array = str.split("(?=[A-Z])");
-    str = Arrays.toString(str_array);
+    String[] strArray = str.split("(?=[A-Z])");
+    str = Arrays.toString(strArray);
     return str.substring(1, str.length() - 1).replace(",", "");
   }
 

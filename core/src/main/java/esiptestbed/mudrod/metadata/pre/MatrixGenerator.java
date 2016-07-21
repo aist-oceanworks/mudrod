@@ -17,32 +17,34 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.mllib.linalg.distributed.RowMatrix;
-
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
-import esiptestbed.mudrod.utils.RDDUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MatrixGenerator extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
 
   public MatrixGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out
-        .println("*****************Metadata matrix starts******************");
+    LOG.info("*****************Metadata matrix starts******************");
     startTime = System.currentTimeMillis();
 
-    String metadata_matrix_file = config.get("metadataMatrix");
+    String metadataMatrixFile = config.get("metadataMatrix");
     try {
       MetadataExtractor extractor = new MetadataExtractor();
       JavaPairRDD<String, List<String>> metadataTermsRDD = extractor
@@ -51,23 +53,19 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
       LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD,
           spark.sc);
       MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
-          metadata_matrix_file);
+          metadataMatrixFile);
 
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    System.out
-        .println("*****************Metadata matrix ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Metadata matrix ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

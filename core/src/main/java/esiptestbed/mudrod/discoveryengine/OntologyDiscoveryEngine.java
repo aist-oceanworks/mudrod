@@ -20,18 +20,24 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.ontology.pre.AggregateTriples;
 import esiptestbed.mudrod.ontology.process.OntologyLinkCal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
+  
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(OntologyDiscoveryEngine.class);
 
   public OntologyDiscoveryEngine(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public void preprocess() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Ontology preprocessing starts******************");
+    LOG.info("*****************Ontology preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract at = new AggregateTriples(this.config, this.es,
@@ -39,15 +45,12 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     at.execute();
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************Ontology preprocessing ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Ontology preprocessing ends******************Took {}s",
+        (endTime - startTime) / 1000);
   }
 
   public void process() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************Ontology processing starts******************");
+    LOG.info("*****************Ontology processing starts******************");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract ol = new OntologyLinkCal(this.config, this.es,
@@ -55,14 +58,10 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     ol.execute();
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************Ontology processing ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Ontology processing ends******************Took {}s", (endTime - startTime) / 1000);
   }
 
   public void output() {
-    // TODO Auto-generated method stub
-
   }
 
 }

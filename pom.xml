@@ -22,7 +22,7 @@
   <packaging>pom</packaging>
 
   <name>Mudrod :: Parent</name>
-  <url>https://github.com/Yongyao/mudrod</url>
+  <url>https://github.com/mudrod/mudrod.git</url>
 
   <licenses>
     <license>
@@ -45,9 +45,9 @@
   </properties>
 
   <scm>
-    <developerConnection>scm:git:https://github.com/Yongyao/mudrod.git</developerConnection>
-    <connection>scm:git:http://github.com/Yongyao/mudrod.git</connection>
-    <url>https://github.com/Yongyao/mudrod.git</url>
+    <developerConnection>scm:git:https://github.com/mudrod/mudrod.git</developerConnection>
+    <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
+    <url>https://github.com/mudrod/mudrod.git</url>
     <tag>HEAD</tag>
   </scm>
   
@@ -210,6 +210,18 @@
         <artifactId>spark-mllib_2.10</artifactId>
         <version>1.5.2</version>
         <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.7.21</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
+        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

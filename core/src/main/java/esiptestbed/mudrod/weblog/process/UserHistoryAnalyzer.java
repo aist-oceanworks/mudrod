@@ -22,37 +22,42 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
+  
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(UserHistoryAnalyzer.class);
+  
   public UserHistoryAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out.println(
-        "*****************UserHistoryAnalyzer starts******************");
+    LOG.info("*****************UserHistoryAnalyzer starts******************");
     startTime = System.currentTimeMillis();
 
     SemanticAnalyzer sa = new SemanticAnalyzer(config, es, spark);
-    List<LinkageTriple> triple_List = sa
+    List<LinkageTriple> tripleList = sa
         .CalTermSimfromMatrix(config.get("userHistoryMatrix"));
-    sa.SaveToES(triple_List, config.get("indexName"),
+    sa.SaveToES(tripleList, config.get("indexName"),
         config.get("userHistoryLinkageType"));
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************UserHistoryAnalyzer ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************UserHistoryAnalyzer ends******************Took {}s"
+        , (endTime - startTime) / 1000);
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

@@ -40,11 +40,19 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CrawlerDetection extends DiscoveryStepAbstract {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
+
   public CrawlerDetection(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public static final String GoogleBot = "gsa-crawler (Enterprise; T4-JPDGU3TRCQAXZ; earthdata-sa@lists.nasa.gov,srinivasa.s.tummala@nasa.gov)";
@@ -65,24 +73,18 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    System.out
-        .println("*****************Crawler detection starts******************");
+    LOG.info("*****************Crawler detection starts******************");
     startTime = System.currentTimeMillis();
     try {
       CheckByRate();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    System.out.println(
-        "*****************Crawler detection ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    LOG.info("*****************Crawler detection ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -134,7 +136,6 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
       List<? extends Bucket> botList = agg.getBuckets();
       long max_count = botList.get(0).getDocCount();
       if (max_count >= rate) { // variable one
-        // System.out.print(Long.toString(max_count)+"\n");
       } else {
         user_count++;
         DateTime dt1 = null;
@@ -142,17 +143,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
         SearchResponse scrollResp = es.client
             .prepareSearch(config.get("indexName"))
             .setTypes(HTTP_type, FTP_type).setScroll(new TimeValue(60000))
-            .setQuery(query_search).setSize(100).execute().actionGet(); // 100
-                                                                        // hits
-                                                                        // per
-                                                                        // shard
-                                                                        // will
-                                                                        // be
-                                                                        // returned
-                                                                        // for
-                                                                        // each
-                                                                        // scroll
-
+            .setQuery(query_search).setSize(100).execute().actionGet();
         while (true) {
           for (SearchHit hit : scrollResp.getHits().getHits()) {
             Map<String, Object> result = hit.getSource();
@@ -202,12 +193,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
     es.destroyBulkProcessor();
 
-    System.out.println("User count: " + Integer.toString(user_count));
+    LOG.info("User count: {}", Integer.toString(user_count));
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
