@@ -50,6 +50,24 @@
     <url>https://github.com/mudrod/mudrod.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </pluginRepository>
+  </pluginRepositories>
   
   <modules>
     <module>core</module>
@@ -119,10 +137,10 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.2.0</version>
-        <!--configuration>
-          <repoToken>yourcoverallsprojectrepositorytoken</repoToken>
-        </configuration-->
+        <version>4.3.0-SNAPSHOT</version>
+        <configuration>
+          <timestampFormat>EpochMillis</timestampFormat>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
