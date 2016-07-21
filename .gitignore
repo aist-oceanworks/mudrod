@@ -65,3 +65,4 @@ dist
 lib
 dependency-reduced-pom.xml
 /bin/
+/core/mudrod.log
