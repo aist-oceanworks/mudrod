@@ -18,13 +18,11 @@ import java.util.Map;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.mllib.linalg.distributed.RowMatrix;
-
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
-import esiptestbed.mudrod.utils.RDDUtil;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
 import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
@@ -51,13 +49,10 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
       int weight = Integer.parseInt(config.get("downloadWeight"));
       JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor
           .bulidDataQueryRDD(clickstreamRDD, weight);
-      RowMatrix wordDocMatrix = MatrixUtil
+      LabeledRowMatrix wordDocMatrix = MatrixUtil
           .createWordDocMatrix(metaddataQueryRDD, spark.sc);
 
-      List<String> rowKeys = RDDUtil.getAllWordsInDoc(metaddataQueryRDD)
-          .collect();
-      List<String> colKeys = metaddataQueryRDD.keys().collect();
-      MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, colKeys,
+      MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
           clickstrem_matrix_file);
     } catch (Exception e) {
       // TODO Auto-generated catch block

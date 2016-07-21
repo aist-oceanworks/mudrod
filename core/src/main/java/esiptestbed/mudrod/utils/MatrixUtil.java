@@ -43,7 +43,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import scala.Tuple2;
 
 public class MatrixUtil {
-  
+
   private MatrixUtil() {}
 
   public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension)
@@ -74,28 +74,27 @@ public class MatrixUtil {
     return new RowMatrix(idf.rdd());
   }
 
-  public static RowMatrix createWordDocMatrix(
+  public static LabeledRowMatrix createWordDocMatrix(
       JavaPairRDD<String, List<String>> uniqueDocRDD, JavaSparkContext sc)
           throws IOException {
     // Index documents with unique IDs
-    JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values()
-        .zipWithIndex();
+    JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values().zipWithIndex();
     // cal word-doc numbers
-    JavaPairRDD<Tuple2<String, Long>, Double> worddocNumRDD = corpus
+    JavaPairRDD<Tuple2<String, Long>, Double> worddoc_num_RDD = corpus
         .flatMapToPair(
             new PairFlatMapFunction<Tuple2<List<String>, Long>, Tuple2<String, Long>, Double>() {
-
-              /** */
+              /**
+               * 
+               */
               private static final long serialVersionUID = 1L;
 
-              @Override
               public Iterable<Tuple2<Tuple2<String, Long>, Double>> call(
                   Tuple2<List<String>, Long> docwords) throws Exception {
-                List<Tuple2<Tuple2<String, Long>, Double>> pairs = new ArrayList<>();
+                List<Tuple2<Tuple2<String, Long>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, Long>, Double>>();
                 List<String> words = docwords._1;
                 int n = words.size();
                 for (int i = 0; i < n; i++) {
-                  Tuple2<String, Long> worddoc = new Tuple2<>(
+                  Tuple2<String, Long> worddoc = new Tuple2<String, Long>(
                       words.get(i), docwords._2);
                   pairs.add(
                       new Tuple2<Tuple2<String, Long>, Double>(worddoc, 1.0));
@@ -109,58 +108,59 @@ public class MatrixUtil {
            */
           private static final long serialVersionUID = 1L;
 
-          @Override
           public Double call(Double first, Double second) throws Exception {
             return first + second;
           }
         });
     // cal word doc-numbers
-    JavaPairRDD<String, Tuple2<List<Long>, List<Double>>> wordDocnumRDD = worddocNumRDD
+    JavaPairRDD<String, Tuple2<List<Long>, List<Double>>> word_docnum_RDD = worddoc_num_RDD
         .mapToPair(
             new PairFunction<Tuple2<Tuple2<String, Long>, Double>, String, Tuple2<List<Long>, List<Double>>>() {
-              /** */
+              /**
+               * 
+               */
               private static final long serialVersionUID = 1L;
 
-              @Override
               public Tuple2<String, Tuple2<List<Long>, List<Double>>> call(
-                  Tuple2<Tuple2<String, Long>, Double> worddocNum)
+                  Tuple2<Tuple2<String, Long>, Double> worddoc_num)
                       throws Exception {
-                List<Long> docs = new ArrayList<>();
-                docs.add(worddocNum._1._2);
-                List<Double> nums = new ArrayList<>();
-                nums.add(worddocNum._2);
-                Tuple2<List<Long>, List<Double>> docmums = new Tuple2<>(
+                List<Long> docs = new ArrayList<Long>();
+                docs.add(worddoc_num._1._2);
+                List<Double> nums = new ArrayList<Double>();
+                nums.add(worddoc_num._2);
+                Tuple2<List<Long>, List<Double>> docmums = new Tuple2<List<Long>, List<Double>>(
                     docs, nums);
-                return new Tuple2<>(
-                    worddocNum._1._1, docmums);
+                return new Tuple2<String, Tuple2<List<Long>, List<Double>>>(
+                    worddoc_num._1._1, docmums);
               }
             });
     // trans to vector
     final int corporsize = (int) uniqueDocRDD.keys().count();
-    JavaPairRDD<String, Vector> wordVectorRDD = wordDocnumRDD.reduceByKey(
+    JavaPairRDD<String, Vector> word_vectorRDD = word_docnum_RDD.reduceByKey(
         new Function2<Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>>() {
-
-          /** */
+          /**
+           * 
+           */
           private static final long serialVersionUID = 1L;
 
-          @Override
           public Tuple2<List<Long>, List<Double>> call(
               Tuple2<List<Long>, List<Double>> arg0,
               Tuple2<List<Long>, List<Double>> arg1) throws Exception {
             arg0._1.addAll(arg1._1);
             arg0._2.addAll(arg1._2);
-            return new Tuple2<>(arg0._1, arg0._2);
+            return new Tuple2<List<Long>, List<Double>>(arg0._1, arg0._2);
           }
         }).mapToPair(
             new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
-
-              /** */
+              /**
+               * 
+               */
               private static final long serialVersionUID = 1L;
 
-              @Override
               public Tuple2<String, Vector> call(
                   Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
                       throws Exception {
+                // TODO Auto-generated method stub
                 int docsize = arg0._2._1.size();
                 int[] intArray = new int[docsize];
                 double[] doubleArray = new double[docsize];
@@ -169,10 +169,17 @@ public class MatrixUtil {
                   doubleArray[i] = arg0._2._2.get(i).intValue();
                 }
                 Vector sv = Vectors.sparse(corporsize, intArray, doubleArray);
-                return new Tuple2<>(arg0._1, sv);
+                return new Tuple2<String, Vector>(arg0._1, sv);
               }
             });
-    return new RowMatrix(wordVectorRDD.values().rdd());
+
+    RowMatrix wordDocMatrix = new RowMatrix(word_vectorRDD.values().rdd());
+
+    LabeledRowMatrix labeledRowMatrix =  new LabeledRowMatrix();
+    labeledRowMatrix.wordDocMatrix = wordDocMatrix;
+    labeledRowMatrix.words = word_vectorRDD.keys().collect();
+    labeledRowMatrix.docs = uniqueDocRDD.keys().collect();
+    return labeledRowMatrix;
   }
 
   public static JavaPairRDD<String, Vector> loadVectorFromCSV(SparkDriver spark,

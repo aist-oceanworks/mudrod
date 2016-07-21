@@ -41,16 +41,13 @@ public class SVDUtil extends MudrodAbstract {
 
     RowMatrix svdMatrix = null;
     try {
-      RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
+      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
           spark.sc);
-      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
+      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.wordDocMatrix,
           spark.sc);
       svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
       this.svdMatrix = svdMatrix;
       this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
-      // exportSVDMatrixToCSV example
-      // MatrixUtil.exportSVDMatrixToCSV(wordDocMatrix, wordRDD.collect(),
-      // docwordRDD.keys().collect(), "D:/wordDocMatrix.csv");
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -76,12 +73,6 @@ public class SVDUtil extends MudrodAbstract {
 
     return svdMatrix;
   }
-
-  /*
-   * public RowMatrix buildSVDMatrix(Map<String, List<String>> docwords){
-   * 
-   * return null; }
-   */
 
   public void CalSimilarity() {
     CoordinateMatrix simMatrix = SimilarityUtil

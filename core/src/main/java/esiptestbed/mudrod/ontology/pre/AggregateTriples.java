@@ -39,12 +39,10 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   public AggregateTriples(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     File file = new File(this.config.get("oceanTriples"));
     if (file.exists()) {
       file.delete();
@@ -52,7 +50,6 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     try {
       file.createNewFile();
     } catch (IOException e2) {
-      // TODO Auto-generated catch block
       e2.printStackTrace();
     }
 
@@ -61,7 +58,6 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       fw = new FileWriter(file.getAbsoluteFile());
       bw = new BufferedWriter(fw);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -73,10 +69,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
           loadxml(file_in.getAbsolutePath());
           getAllClass();
         } catch (JDOMException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         } catch (IOException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
 
@@ -86,7 +80,6 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     try {
       bw.close();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return null;
@@ -204,7 +197,6 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

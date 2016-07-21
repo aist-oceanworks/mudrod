@@ -43,15 +43,15 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
   public Object execute() {
     // TODO Auto-generated method stub
     System.out
-        .println("*****************HistoryGenerator starts******************");
+    .println("*****************HistoryGenerator starts******************");
     startTime = System.currentTimeMillis();
 
     GenerateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
     System.out
-        .println("*****************HistoryGenerator ends******************Took "
-            + (endTime - startTime) / 1000 + "s");
+    .println("*****************HistoryGenerator ends******************Took "
+        + (endTime - startTime) / 1000 + "s");
     return null;
   }
 
@@ -68,7 +68,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       BufferedWriter bw = new BufferedWriter(fw);
 
       ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
-          config.get("indexName"), config.get("SessionStats"));
+          config.get("indexName"), config.get("SessionStats_prefix"));
 
       bw.write("Num" + ",");
 
@@ -76,45 +76,27 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
           .setTypes(String.join(", ", cleanup_typeList))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-          .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0)) // important
-                                                                                // to
-                                                                                // set
-                                                                                // size
-                                                                                // 0,
-                                                                                // sum_other_doc_count
+          .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0))
           .execute().actionGet();
       Terms IPs = sr.getAggregations().get("IPs");
       List<String> IPList = new ArrayList<String>();
       for (Terms.Bucket entry : IPs.getBuckets()) {
         if (entry.getDocCount() > Integer
             .parseInt(config.get("mini_userHistory"))) { // filter out less
-                                                         // active users/ips
+          // active users/ips
           IPList.add(entry.getKey());
         }
       }
 
       bw.write(String.join(",", IPList) + "\n");
 
-      /*
-       * bw.write("Num,"); for(int k=0; k< IPList.size(); k++){
-       * if(k!=IPList.size()-1){ bw.write("f" + k + ","); }else{ bw.write("f" +
-       * k + "\n"); }
-       * 
-       * }
-       */
-
       // step 2: step the rest rows of csv
       SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))
-          .setTypes(String.join(", ", cleanup_typeList))
+          .setTypes(cleanup_typeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("KeywordAgg")
               .field("keywords").size(0).subAggregation(
-                  AggregationBuilders.terms("IPAgg").field("IP").size(0))) // important
-                                                                           // to
-                                                                           // set
-                                                                           // size
-                                                                           // 0,
-                                                                           // sum_other_doc_count
+                  AggregationBuilders.terms("IPAgg").field("IP").size(0)))
           .execute().actionGet();
       Terms keywords = sr_2.getAggregations().get("KeywordAgg");
       for (Terms.Bucket keyword : keywords.getBuckets()) {
@@ -123,10 +105,10 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
         int distinct_user = IPAgg.getBuckets().size();
         if (distinct_user > Integer.parseInt(config.get("mini_userHistory"))) // filter
-                                                                              // out
-                                                                              // less
-                                                                              // active
-                                                                              // queries
+          // out
+          // less
+          // active
+          // queries
         {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : IPAgg.getBuckets()) {

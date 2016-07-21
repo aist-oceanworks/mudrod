@@ -15,7 +15,6 @@ package esiptestbed.mudrod.weblog.structure;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +24,8 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
@@ -41,13 +37,12 @@ import scala.Tuple2;
 public class SessionExtractor implements Serializable {
 
   public SessionExtractor() {
-    // TODO Auto-generated constructor stub
   }
 
   // load data from es
   public JavaRDD<ClickStream> extractClickStreamFromES(
       Map<String, String> config, ESDriver es, SparkDriver spark)
-      throws Exception {
+          throws Exception {
     List<ClickStream> QueryList = this.getClickStreamList(config, es);
     JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(QueryList);
     return clickstreamRDD;
@@ -56,8 +51,8 @@ public class SessionExtractor implements Serializable {
   protected List<ClickStream> getClickStreamList(Map<String, String> config,
       ESDriver es) throws Exception {
     ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
-        config.get("indexName"), config.get("Cleanup_type"));
-    List<ClickStream> result = new ArrayList<ClickStream>();
+        config.get("indexName"), config.get("Cleanup_type_prefix"));
+    List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanup_typeList.size(); n++) {
       String cleanupType = cleanup_typeList.get(n);
       List<String> sessionId_list = this.getSessions(config, es, cleanupType);

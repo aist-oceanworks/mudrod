@@ -28,56 +28,54 @@ import esiptestbed.mudrod.driver.SparkDriver;
  * 
  */
 public abstract class MudrodAbstract implements Serializable {
-	protected Map<String, String> config = new HashMap<String, String>();
-	protected ESDriver es = null;
-	protected SparkDriver spark = null;
-	protected long startTime, endTime;
-	public String HTTP_type = null;
-	public String FTP_type = null;
-	public String Cleanup_type = null;
-	public String SessionStats = null;
-	//public final String settings_json = "{\r\n      \"analysis\": {\r\n         \"filter\": {\r\n            \"cody_stop\": {\r\n               \"type\": \"stop\",\r\n               \"stopwords\": \"_english_\"\r\n            },\r\n            \"cody_stemmer\": {\r\n               \"type\": \"stemmer\",\r\n               \"language\": \"light_english\"\r\n            }\r\n         },\r\n         \"analyzer\": {\r\n            \"cody\": {\r\n               \"tokenizer\": \"standard\",\r\n               \"filter\": [\r\n                  \"lowercase\",\r\n                  \"cody_stop\",\r\n                  \"cody_stemmer\"\r\n               ]\r\n            },\r\n            \"csv\": {\r\n               \"type\": \"pattern\",\r\n               \"pattern\": \",\"\r\n            }\r\n         }\r\n      }\r\n   }";
-	
-	public final String settings_json = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
-	public final String mapping_json = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
-	//public final String mapping_json = "{\r\n   \"mappings\": {\r\n      \"RawMetadata\": {\r\n         \"dynamic_templates\": [\r\n            {\r\n               \"strings\": {\r\n                  \"match_mapping_type\": \"string\",\r\n                  \"mapping\": {\r\n                     \"type\": \"string\",\r\n                     \"index_analyzer\": \"cody\"\r\n                  }\r\n               }\r\n            }\r\n         ]\r\n      },\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }\r\n}";
-	private int print_level = 0;
+  protected Map<String, String> config = new HashMap<>();
+  protected ESDriver es = null;
+  protected SparkDriver spark = null;
+  protected long startTime, endTime;
+  public String HTTP_type = null;
+  public String FTP_type = null;
+  public String Cleanup_type = null;
+  public String SessionStats = null;
 
-	public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
-		this.config = config;
-		this.es = es;
-		this.spark = spark;
-		this.initMudrod();
-	}
+  public final String settings_json = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
+  public final String mapping_json = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
+  private int print_level = 0;
 
-	protected void initMudrod(){
-		try {
-			es.putMapping(config.get("indexName"), settings_json, mapping_json);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+  public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
+    this.config = config;
+    this.es = es;
+    this.spark = spark;
+    this.initMudrod();
+  }
 
-		HTTP_type = config.get("HTTP_type_prefix");
-		FTP_type = config.get("FTP_type_prefix");
-		Cleanup_type = config.get("Cleanup_type_prefix");
-		SessionStats = config.get("SessionStats_prefix");
+  protected void initMudrod(){
+    try {
+      es.putMapping(config.get("indexName"), settings_json, mapping_json);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-		print_level = Integer.parseInt(config.get("loglevel"));
-	}
+    HTTP_type = config.get("HTTP_type_prefix") + config.get("TimeSuffix");
+    FTP_type = config.get("FTP_type_prefix") + config.get("TimeSuffix");
+    Cleanup_type = config.get("Cleanup_type_prefix") + config.get("TimeSuffix");
+    SessionStats = config.get("SessionStats_prefix") + config.get("TimeSuffix");
 
-	public void print(String log, int level){
-		if(level <= print_level)
-		{
-			System.out.println(log);
-		}
-	}
+    print_level = Integer.parseInt(config.get("loglevel"));
+  }
 
-	public ESDriver getES(){
-		return this.es;
-	}
+  public void print(String log, int level){
+    if(level <= print_level)
+    {
+      System.out.println(log);
+    }
+  }
 
-	public Map<String, String> getConfig(){
-		return this.config;
-	}
+  public ESDriver getES(){
+    return this.es;
+  }
+
+  public Map<String, String> getConfig(){
+    return this.config;
+  }
 }

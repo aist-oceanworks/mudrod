@@ -77,6 +77,8 @@
                     <Build-Number>${implementation.build}</Build-Number>
                   </manifestEntries>
                 </transformer>
+                <transformer 
+                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
               </transformers>
               <filters>
                 <filter>
@@ -112,6 +114,14 @@
           <useLastCommittedRevision>true</useLastCommittedRevision>
           <!-- default revision number if unavailable -->
           <revisionOnScmFailure>??????</revisionOnScmFailure>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>4.2.0</version>
+        <configuration>
+          <repoToken>yourcoverallsprojectrepositorytoken</repoToken>
         </configuration>
       </plugin>
     </plugins>

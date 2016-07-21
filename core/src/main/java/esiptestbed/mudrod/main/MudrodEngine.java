@@ -13,10 +13,8 @@
  */
 package esiptestbed.mudrod.main;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +33,13 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
 
 public class MudrodEngine {
-  private Map<String, String> config = new HashMap<String, String>();
+  private Map<String, String> config = new HashMap<>();
   private ESDriver es = null;
   private SparkDriver spark = null;
 
   public MudrodEngine() {
     loadConfig();
-    es = new ESDriver(config.get("clusterName"));
+    es = new ESDriver(config);
     spark = new SparkDriver();
 
   }
@@ -71,16 +69,11 @@ public class MudrodEngine {
             para_node.getTextTrim());
       }
     } catch (JDOMException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
-    for (Map.Entry<String, String> entry : config.entrySet()) {
-      System.out.println(entry.getKey() + " : " + entry.getValue());
-    }
   }
 
   public void start() {
@@ -105,10 +98,30 @@ public class MudrodEngine {
   }
 
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
-    MudrodEngine test = new MudrodEngine();
+    if (args.length != 1) {
+      System.out.println("Mudrod Engine expects one argument <logDirectory>");
+      return;
+    }
+    String dataDir = args[0];
+    if(!dataDir.endsWith("/")){
+      dataDir += "/";
+    }
+    MudrodEngine me = new MudrodEngine();
+    me.config.put("logDir", dataDir);
 
-    test.start();
-    test.end();
+    me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
+    me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
+
+    me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
+    me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
+    me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
+
+    me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
+    me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+
+    me.config.put("raw_metadataPath", dataDir + "RawMetadata");
+
+    me.start();
+    me.end();
   }
 }

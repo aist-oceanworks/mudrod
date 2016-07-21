@@ -23,6 +23,7 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.structure.MetadataExtractor;
+import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.RDDUtil;
 
@@ -47,12 +48,9 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
       JavaPairRDD<String, List<String>> metadataTermsRDD = extractor
           .loadMetadata(this.es, this.spark.sc, config.get("indexName"),
               config.get("raw_metadataType"));
-      RowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD,
+      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD,
           spark.sc);
-      List<String> rowKeys = RDDUtil.getAllWordsInDoc(metadataTermsRDD)
-          .collect();
-      List<String> colKeys = metadataTermsRDD.keys().collect();
-      MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, colKeys,
+      MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
           metadata_matrix_file);
 
     } catch (Exception e) {
