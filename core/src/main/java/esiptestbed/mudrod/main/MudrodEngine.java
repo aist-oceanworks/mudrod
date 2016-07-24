@@ -114,7 +114,7 @@ public class MudrodEngine {
     }
     
     String processingType = args[0];
-    String dataDir = args[1];
+    String dataDir = args[1].replace("\\", "/");;
     if(!dataDir.endsWith("/")){
       dataDir += "/";
     }
@@ -126,20 +126,25 @@ public class MudrodEngine {
     {
     	me.startLogIngest();    
     }
+    
+    if(processingType.equals("All"))
+    {
+    	me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
+        me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
 
-    /*me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
-    me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
+        me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
+        me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
+        me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
 
-    me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
-    me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
-    me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
+        me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
+        me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
 
-    me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
-    me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+        me.config.put("raw_metadataPath", dataDir + "RawMetadata");
 
-    me.config.put("raw_metadataPath", dataDir + "RawMetadata");
+        me.start(); 
+    }
 
-    me.start();*/
+    
     me.end();
   }
 }
