@@ -97,24 +97,37 @@ public class MudrodEngine {
     LinkageIntegration li = new LinkageIntegration(config, es, spark);
     li.execute();
   }
+  
+  public void startLogIngest() {
+	WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
+	wd.logIngest();
+  }
 
   public void end() {
     es.close();
   }
 
   public static void main(String[] args) {
-    if (args.length != 1) {
-      LOG.error("Mudrod Engine expects one argument <logDirectory>");
+    if (args.length < 1) {
+      LOG.error("Mudrod Engine expects at least one argument");
       return;
     }
-    String dataDir = args[0];
+    
+    String processingType = args[0];
+    String dataDir = args[1];
     if(!dataDir.endsWith("/")){
       dataDir += "/";
     }
+        
     MudrodEngine me = new MudrodEngine();
     me.config.put("logDir", dataDir);
+    
+    if(processingType.equals("LogIngest"))
+    {
+    	me.startLogIngest();    
+    }
 
-    me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
+    /*me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
     me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
 
     me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
@@ -126,7 +139,7 @@ public class MudrodEngine {
 
     me.config.put("raw_metadataPath", dataDir + "RawMetadata");
 
-    me.start();
+    me.start();*/
     me.end();
   }
 }

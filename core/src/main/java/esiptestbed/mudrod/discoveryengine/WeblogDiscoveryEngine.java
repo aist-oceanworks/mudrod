@@ -63,7 +63,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     }
 
     for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);
+      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
       config.put("TimeSuffix", timeSuffix);
       startTime=System.currentTimeMillis();
       LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
@@ -96,6 +96,33 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     cg.execute();
 
     LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
+
+  }
+  
+  public void logIngest() {
+    LOG.info("*****************Web log ingest starts******************");
+
+    File directory = new File(config.get("logDir"));
+
+    ArrayList<String> inputList = new ArrayList<>();
+    // get all the files from a directory
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile()) {
+
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
+        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+      }
+    }
+
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
+      config.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      im.execute();
+    }
+
+    LOG.info("*****************Web log ingest ends******************");
 
   }
 

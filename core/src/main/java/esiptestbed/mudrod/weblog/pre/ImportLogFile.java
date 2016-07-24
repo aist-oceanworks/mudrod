@@ -106,18 +106,15 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     try {
       ReadLogFile(httplogpath, "http", config.get("indexName"), this.HTTP_type);
       ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
-    } catch (ParseException e) {
-      e.printStackTrace();
+    
     } catch (IOException e) {
       e.printStackTrace();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    } 
     es.destroyBulkProcessor();
 
   }
 
-  public void ReadLogFile(String fileName, String Type, String index, String type) throws ParseException, IOException, InterruptedException{
+  public void ReadLogFile(String fileName, String Type, String index, String type) throws IOException{
     BufferedReader br = new BufferedReader(new FileReader(fileName));
     int count =0;
     try {
@@ -144,35 +141,51 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     }
   }
 
-  public void ParseSingleLineFTP(String log, String index, String type) throws IOException, ParseException{
+  public void ParseSingleLineFTP(String log, String index, String type){
     String ip = log.split(" +")[6];
 
     String time = log.split(" +")[1] + ":"+log.split(" +")[2] +":"+log.split(" +")[3]+":"+log.split(" +")[4];
 
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
-    Date date = formatter.parse(time);
+    Date date = null;
+	try {
+		date = formatter.parse(time);
+	} catch (ParseException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     String bytes = log.split(" +")[7];
 
     String request = log.split(" +")[8].toLowerCase();
 
     if(!request.contains("/misc/") && !request.contains("readme"))
     {
-      IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder()
-          .startObject()
-          .field("LogType", "ftp")
-          .field("IP", ip)
-          .field("Time", date)
-          .field("Request", request)
-          .field("Bytes", Long.parseLong(bytes))
-          .endObject());
+      IndexRequest ir;
+	try {
+		ir = new IndexRequest(index, type).source(jsonBuilder()
+		      .startObject()
+		      .field("LogType", "ftp")
+		      .field("IP", ip)
+		      .field("Time", date)
+		      .field("Request", request)
+		      .field("Bytes", Long.parseLong(bytes))
+		      .endObject());
+		es.bulkProcessor.add(ir);
+	} catch (NumberFormatException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 
-      es.bulkProcessor.add(ir);
+      
     }
 
   }
 
-  public void ParseSingleLineHTTP(String log, String index, String type) throws IOException, ParseException{
+  public void ParseSingleLineHTTP(String log, String index, String type){
     matcher = p.matcher(log);
     if (!matcher.matches() || 
         NUM_FIELDS != matcher.groupCount()) {
@@ -181,7 +194,13 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     String time = matcher.group(4);
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
-    Date date = formatter.parse(time);
+    Date date = null;
+	try {
+		date = formatter.parse(time);
+	} catch (ParseException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 
     String bytes = matcher.group(7);
     if("-".equals(bytes)){
@@ -204,19 +223,30 @@ public class ImportLogFile extends DiscoveryStepAbstract{
       {
 
       }else{
-        IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder()
-            .startObject()
-            .field("LogType", "PO.DAAC")
-            .field("IP", matcher.group(1))
-            .field("Time", date)
-            .field("Request", matcher.group(5))
-            .field("Response", matcher.group(6))
-            .field("Bytes", Integer.parseInt(bytes))
-            .field("Referer", matcher.group(8))
-            .field("Browser", matcher.group(9))
-            .endObject());
+        IndexRequest ir;
+		try {
+			ir = new IndexRequest(index, type).source(jsonBuilder()
+			    .startObject()
+			    .field("LogType", "PO.DAAC")
+			    .field("IP", matcher.group(1))
+			    .field("Time", date)
+			    .field("Request", matcher.group(5))
+			    .field("Response", matcher.group(6))
+			    .field("Bytes", Integer.parseInt(bytes))
+			    .field("Referer", matcher.group(8))
+			    .field("Browser", matcher.group(9))
+			    .endObject());
+			
+			es.bulkProcessor.add(ir);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-        es.bulkProcessor.add(ir);
+        
 
       }
     }
