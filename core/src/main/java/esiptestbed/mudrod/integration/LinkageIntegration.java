@@ -71,7 +71,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    getIngeratedList("sst", 11);
+    getIngeratedList("sea surface topography", 11);
     return null;
   }
 

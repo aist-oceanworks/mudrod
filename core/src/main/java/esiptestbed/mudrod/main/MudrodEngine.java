@@ -98,6 +98,22 @@ public class MudrodEngine {
     li.execute();
   }
   
+  public void startProcessing() {
+	DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+	wd.process();
+
+	DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
+	od.preprocess();
+	od.process();
+
+	DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
+	md.preprocess();
+	md.process();
+
+	LinkageIntegration li = new LinkageIntegration(config, es, spark);
+	li.execute();
+  }
+  
   public void startLogIngest() {
 	WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
 	wd.logIngest();
@@ -127,7 +143,7 @@ public class MudrodEngine {
     	me.startLogIngest();    
     }
     
-    if(processingType.equals("All"))
+    if(processingType.equals("All")||processingType.equals("Processing"))
     {
     	me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
         me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
@@ -141,7 +157,11 @@ public class MudrodEngine {
 
         me.config.put("raw_metadataPath", dataDir + "RawMetadata");
 
+        if(processingType.equals("All"))
         me.start(); 
+        
+        if(processingType.equals("Processing"))
+        me.startProcessing(); 
     }
 
     
