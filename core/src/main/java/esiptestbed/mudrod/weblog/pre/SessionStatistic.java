@@ -233,8 +233,8 @@ public class SessionStatistic extends DiscoveryStepAbstract {
             && ftpRequest_count <= Integer.parseInt(config.get("downloadf"))) {
           // GeoIp converter = new GeoIp();
           // Coordinates loc = converter.toLocation(IP);
-          String sessionURL = config.get("SessionPort")
-              + "/logmining/?sessionid=" + entry.getKey() + "&sessionType="
+          String sessionURL = config.get("SessionPort") + config.get("SessionUrl")
+              + "?sessionid=" + entry.getKey() + "&sessionType="
               + outputType + "&requestType=" + inputType;
           session_count++;
 
