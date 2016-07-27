@@ -64,5 +64,5 @@ target
 dist
 lib
 dependency-reduced-pom.xml
-/bin/
-/core/mudrod.log
+/core/mudrod.log*
+/service/mudrod.log*
