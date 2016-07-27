@@ -45,5 +45,5 @@ Most commands print help when invoked w/o parameters."
 
 # Support and Development
 If you require help with this file, or you have some suggestions
-for improving it, please file an issue](https://github.com/mudrod/mudrod/issues)
+for improving it, please [file an issue](https://github.com/mudrod/mudrod/issues)
 and use the **docker** tag.
