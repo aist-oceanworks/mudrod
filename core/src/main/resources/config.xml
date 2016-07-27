@@ -35,7 +35,7 @@
   <para name="SessionStats_prefix">sessionstats</para>
 
   <para name="commentType">comment</para>
-  <para name="SessionPort">443</para>
+  <para name="SessionPort">8080</para>
    <para name="SessionUrl">/mudrod-service/session.html</para>
 
   <para name="sendingrate">30</para>   <!-- threshold for crawler detection, unit request/second -->
