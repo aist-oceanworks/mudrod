@@ -36,7 +36,7 @@ if [ $# = 0 ]; then
   echo " /  \ /  \|  |  \/ __ |\_  __ \/  _ \ / __ | "
   echo "/    Y    \  |  / /_/ | |  | \(  <_> ) /_/ | "
   echo "\____|__  /____/\____ | |__|   \____/\____ | "
-  echo "        \/           \/                   \/ v0.0.1"
+  echo "        \/           \/                   \/ "
   echo "Mining and Utilizing Dataset Relevancy from Oceanographic"
   echo "Datasets to Improve Data Discovery and Access."
   echo "Usage: run COMMAND"
