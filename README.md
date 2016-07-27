@@ -59,10 +59,10 @@ $ open target/site/apidocs/index.html
 
 # Team members:
 
- * Chaowei (Phil) Yang - George Mason University
- * Yongyao Jiang - George Mason University
- * Yun Li - George Mason University
- * Edward M Armstrong - 
+ * Chaowei (Phil) Yang - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * [Yongyao Jiang](https://www.linkedin.com/in/yongyao-jiang-42516164) - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * Yun Li - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * Edward M Armstrong - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * Thomas Huang - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * David Moroni - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * Chris Finch - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
