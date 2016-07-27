@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MudrodEngine {
-
+  
   private static final Logger LOG = LoggerFactory.getLogger(MudrodEngine.class);
   private Map<String, String> config = new HashMap<>();
   private ESDriver es = null;
@@ -97,26 +97,26 @@ public class MudrodEngine {
     LinkageIntegration li = new LinkageIntegration(config, es, spark);
     li.execute();
   }
-
+  
   public void startProcessing() {
-    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
-    wd.process();
+	DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+	wd.process();
 
-    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
-    od.preprocess();
-    od.process();
+	DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
+	od.preprocess();
+	od.process();
 
-    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
-    md.preprocess();
-    md.process();
+	DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
+	md.preprocess();
+	md.process();
 
-    LinkageIntegration li = new LinkageIntegration(config, es, spark);
-    li.execute();
+	LinkageIntegration li = new LinkageIntegration(config, es, spark);
+	li.execute();
   }
-
+  
   public void startLogIngest() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
-    wd.logIngest();
+	WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
+	wd.logIngest();
   }
 
   public void end() {
@@ -128,43 +128,43 @@ public class MudrodEngine {
       LOG.error("Mudrod Engine expects at least one argument");
       return;
     }
-
+    
     String processingType = args[0];
     String dataDir = args[1].replace("\\", "/");;
     if(!dataDir.endsWith("/")){
       dataDir += "/";
     }
-
+        
     MudrodEngine me = new MudrodEngine();
     me.config.put("logDir", dataDir);
-
+    
     if(processingType.equals("LogIngest"))
     {
-      me.startLogIngest();    
+    	me.startLogIngest();    
     }
-
+    
     if(processingType.equals("All")||processingType.equals("Processing"))
     {
-      me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
-      me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
+    	me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
+        me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
 
-      me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
-      me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
-      me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
+        me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
+        me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
+        me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
 
-      me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
-      me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+        me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
+        me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
 
-      me.config.put("raw_metadataPath", dataDir + "RawMetadata");
+        me.config.put("raw_metadataPath", dataDir + "RawMetadata");
 
-      if(processingType.equals("All"))
+        if(processingType.equals("All"))
         me.start(); 
-
-      if(processingType.equals("Processing"))
+        
+        if(processingType.equals("Processing"))
         me.startProcessing(); 
     }
 
-
+    
     me.end();
   }
 }
