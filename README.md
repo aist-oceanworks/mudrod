@@ -1,5 +1,5 @@
 # MUDROD
-## Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access
+## Mining and Utilizing Dataset Relevancy from Oceanographic Datasets to Improve Data Discovery and Access
 
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
 [![Coverage Status](https://coveralls.io/repos/github/mudrod/mudrod/badge.svg?branch=master)](https://coveralls.io/github/mudrod/mudrod?branch=master)
