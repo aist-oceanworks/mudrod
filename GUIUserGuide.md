@@ -43,7 +43,7 @@ Once the time range is set, logs falling into the range are shown in the main ar
 
 ![](https://raw.githubusercontent.com/quintinali/images/master/defaul%20log%20list.png)
 
-If you are interested in data visulaization and want to explore the log data deeply, please refer to [**Kibana User Guide**](https://www.elastic.co/guide/en/kibana/4.1/index.html)
+If you are interested in data visualization and want to explore the log data deeply, please refer to [**Kibana User Guide**](https://www.elastic.co/guide/en/kibana/4.1/index.html)
 
 
 # Session Structure
