@@ -125,6 +125,68 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Web log ingest ends******************");
 
   }
+  
+  public void sessionReconstruction() {
+		LOG.info("*****************Log session reconstruction starts******************");
+
+		//which method　is right? using configuration files or data already stored in Elasticsearch?
+		/*File directory = new File(config.get("logDir"));
+		ArrayList<String> inputList = new ArrayList<>();
+		// get all the files from a directory
+		File[] fList = directory.listFiles();
+		for (File file : fList) {
+			if (file.isFile()) {
+
+			} else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+					&& file.getName().contains(config.get("httpPrefix"))) {
+				inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+			}
+		}
+
+		for (int i = 0; i < inputList.size(); i++) {
+			timeSuffix = inputList.get(i); // change timeSuffix dynamically
+			config.put("TimeSuffix", timeSuffix);
+			
+		  DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+	      cd.execute();
+
+	      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+	      sg.execute();
+
+	      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+	      ss.execute();
+
+	      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+	      rr.execute();	
+		}*/
+		
+		ArrayList<String> rawHttpTypeList = es.getTypeListWithPrefix(
+		          config.get("indexName"), config.get("HTTP_type_prefix"));
+
+		String http_prefix = config.get("HTTP_type_prefix");
+		int size = rawHttpTypeList.size();
+		for(int i=0; i<size; i++){
+			
+		  timeSuffix = rawHttpTypeList.get(i).replace(http_prefix, ""); // change timeSuffix dynamically
+		  config.put("TimeSuffix", timeSuffix);
+		  
+			
+		 /* DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+	      cd.execute();
+
+	      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+	      sg.execute();*/
+
+	      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+	      ss.execute();
+
+	      /*DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+	      rr.execute();	*/
+		}
+
+		LOG.info("*****************Log session reconstruction ends******************");
+	}
+  
 
 
   @Override

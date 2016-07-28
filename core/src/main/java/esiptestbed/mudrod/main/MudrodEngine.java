@@ -118,6 +118,11 @@ public class MudrodEngine {
     WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
     wd.logIngest();
   }
+  
+  public void startSessionReconstruction() {
+	WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
+	wd.sessionReconstruction();
+  }
 
   public void end() {
     es.close();
@@ -141,6 +146,11 @@ public class MudrodEngine {
     if(processingType.equals("LogIngest"))
     {
       me.startLogIngest();    
+    }
+    
+    if(processingType.equals("SessionBuild"))
+    {
+      me.startSessionReconstruction();    
     }
 
     if(processingType.equals("All")||processingType.equals("Processing"))
