@@ -78,8 +78,10 @@ public class Searcher extends MudrodAbstract {
       String dateText = df2.format(date);
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
-      re.setRelevance(relevance);
-      re.setDateLong(Long.valueOf(longdate.get(0)).longValue());
+      SResult.set(re, "relevance", relevance);
+      SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).longValue());
+      /*re.setRelevance(relevance);
+      re.setDateLong(Long.valueOf(longdate.get(0)).longValue());*/
       
       /***************************set click count*********************************/
       QueryBuilder qb_clicks = dp.createQueryForClicks(selected_Map, shortName);
@@ -98,7 +100,8 @@ public class Searcher extends MudrodAbstract {
         Double query_weight = selected_Map.get(query_str);
         click_count += click_frequency * query_weight;
       }
-      re.setClicks(click_count);
+      SResult.set(re, "clicks", click_count);
+      //re.setClicks(click_count);
       /***************************************************************************/
       resultList.add(re); 
     }
@@ -109,6 +112,10 @@ public class Searcher extends MudrodAbstract {
   public static void main(String[] args) {
     MudrodEngine mudrod = new MudrodEngine();
     Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
-    //dp.createSemQuery("ocean wind", 2);
+    List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
+        mudrod.getConfig().get("raw_metadataType"), "ocean wind");
+    Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null);
+    rr.setResultList(resultList);
+    System.out.println(rr.rank());
   }
 }

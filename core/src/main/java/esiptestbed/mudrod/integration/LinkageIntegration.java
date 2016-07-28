@@ -71,7 +71,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    getIngeratedList("sea surface topography", 11);
+    getIngeratedList("ocean wind", 11);
     return null;
   }
 
@@ -146,20 +146,6 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
     return mapToJson(input, trimmedMap);
   }
-
- /* public String getModifiedQuery(String input, int num) {
-    Map<String, Double> sortedMap = appyMajorRule(input);
-    String output = "(" + input.replace(" ", " AND ") + ")";
-    int count = 0;
-    for (Entry<String, Double> entry : sortedMap.entrySet()) {
-      String item = "(" + entry.getKey().replace(" ", " AND ") + ")";
-      if (count < num) {
-        output += " OR " + item;
-      }
-      count++;
-    }
-    return output;
-  }*/
 
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
       String input) {

@@ -10,14 +10,14 @@ public class SResult {
   String description = null;
   String date = null;
 
-  long dateLong = 0;
-  Double clicks = null;
-  Double relevance = null;
+  public long dateLong = 0;
+  public Double clicks = null;
+  public Double relevance = null;
 
-  Double final_score = null;
-  Double term_score = null;
-  Double releaseDate_score = null;
-  Double click_score = null;
+  public Double final_score = 0.0;
+  public Double term_score = 0.0;
+  public Double releaseDate_score = 0.0;
+  public Double click_score = 0.0;
 
 
   public SResult(String shortName, String longName, String topic, String description, String date){
@@ -28,7 +28,7 @@ public class SResult {
     this.date = date;
   }
 
-  public void setDateLong(long dateL)
+/*  public void setDateLong(long dateL)
   {
     dateLong = dateL;
   }
@@ -62,7 +62,7 @@ public class SResult {
   public void setClickScore(Double s)
   {
     click_score = s;
-  }
+  }*/
 
   public static boolean set(Object object, String fieldName, Object fieldValue) {
     Class<?> clazz = object.getClass();

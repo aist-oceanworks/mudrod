@@ -10,6 +10,8 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -18,7 +20,7 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
 
 public class Dispatcher extends MudrodAbstract {
-
+  private static final Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
   public Dispatcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
@@ -56,6 +58,7 @@ public class Dispatcher extends MudrodAbstract {
           .boost(entry.getValue().floatValue())
           .type(MultiMatchQueryBuilder.Type.PHRASE));
     }
+    LOG.info(qb.toString());
     return qb;
   }
   

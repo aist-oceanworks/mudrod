@@ -2,6 +2,8 @@ package esiptestbed.mudrod.ssearch;
 
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
@@ -16,6 +18,13 @@ public class Ranker extends MudrodAbstract {
     // TODO Auto-generated constructor stub
   }
 
+  public class ResultComparator implements Comparator<SResult> {
+    @Override
+    public int compare(SResult o1, SResult o2) {
+      return Double.compare(o2.final_score, o1.final_score);
+    }
+  }
+  
   public void setResultList(List<SResult> rl)
   {
     resultList = rl;
@@ -23,9 +32,17 @@ public class Ranker extends MudrodAbstract {
 
   double getMean(String attribute)
   {
-    Double sum = 0.0;
+    double sum = 0.0;
     for(SResult a : resultList)
-      sum += (Double)SResult.get(a, attribute);
+    {
+     if(attribute.equals("dateLong"))
+     {
+       sum += ((Long)SResult.get(a, attribute)).doubleValue();
+     }else{
+       sum += (double)SResult.get(a, attribute);
+     }
+      
+    }
     return sum/resultList.size();
   }
 
@@ -43,45 +60,52 @@ public class Ranker extends MudrodAbstract {
     return Math.sqrt(getVariance(attribute));
   }
 
-  public void generateStats()
+  public List<SResult> rank()
   {
     double relevance_mean = getMean("relevance");
+    double clicks_mean = getMean("clicks");
+    //double release_mean = getMean("dateLong");
+
+    double relevance_std = getStdDev("relevance");
+    double clicks_std = getStdDev("clicks");
+    //double release_std = getStdDev("dateLong");
+
+
     for(int i=0; i< resultList.size(); i++)
     {
+      if(relevance_std!=0)
+      {
+        resultList.get(i).term_score = (resultList.get(i).relevance - relevance_mean)/relevance_std;
+      }
+      else
+      {
+        resultList.get(i).term_score = (double) 0;
+      }
 
+      if(clicks_std!=0)
+      {
+        resultList.get(i).click_score = (resultList.get(i).clicks - clicks_mean)/clicks_std;
+      }
+      else
+      {
+        resultList.get(i).click_score = (double) 0;
+      }
+
+      /*if(release_std!=0)
+      {
+        resultList.get(i).releaseDate_score = (resultList.get(i).dateLong - release_mean)/release_std;
+      }
+      else
+      {
+        resultList.get(i).releaseDate_score = (double) 0;
+      }*/
+
+      resultList.get(i).final_score = resultList.get(i).term_score + resultList.get(i).click_score + resultList.get(i).releaseDate_score;
     }
-  }
-
-
-  /*  public List<Result> addRecency(String query){
-    List<Result> resultList = new ArrayList<Result>();
-
-    String index = config.get("indexName");
-    String type = config.get("raw_metadataType");
-
-    //BoolQueryBuilder qb = createSemQuery();
-    BoolQueryBuilder qb = null;
-
-    SearchResponse response = es.client.prepareSearch(index)
-        .setTypes(type)           
-        .setQuery(qb)
-        .setSize(500)
-        .addSort("DatasetCitation-ReleaseDateLong", SortOrder.DESC)
-        .execute()
-        .actionGet();
-
-    int i = 1;
-
-    for (SearchHit hit : response.getHits().getHits()) {
-      Map<String,Object> result = hit.getSource();
-      String shortName = (String) result.get("Dataset-ShortName");
-
-      Result re = new Result(shortName, (float)i, null, null, null, null, "recency");
-      resultList.add(re);
-      i++;
-    }
-
+    
+    Collections.sort(resultList, new ResultComparator());
+    
     return resultList;
-  }*/
+  }
 
 }
