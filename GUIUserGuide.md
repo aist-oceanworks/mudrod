@@ -2,7 +2,7 @@
 
 Background Information
 ---
-This tutorial is designed to enable the user to successfully use web service component of MUDROD.
+This tutorial is designed to enable the user to successfully use the web service component of MUDROD.
 
 The MUDROD GUI enables the user to:
 
