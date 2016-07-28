@@ -85,6 +85,11 @@
     }
     });
     });
+	
+	$(window).resize(function() {
+    	removeGraph();
+    	drawGraph();
+    });
   </script>
   <body>
     <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
@@ -127,10 +132,11 @@
             <div class="col-md-1"> 
             </div>
             <div class="col-md-10">
-              <div class="panel panel-default">
-                <div class="panel-heading">Ontology search results</div>
-                <div class="panel-body" id = "graphBody" style = "min-height:510px;max-height:510px;"></div>
-              </div>
+              <div class="panel panel-default" style = "height:66vh"> <!-- ADDED height here-->
+					   <div class="panel-heading">Ontology search results</div>
+					   <!-- CHANGED min-height and max-height to only 60% of viewport height-->
+					   <div class="panel-body" id = "graphBody" style = "height:60vh"></div>
+			  </div>
             </div>
             <div class="col-md-1"> 
             </div>

@@ -1,11 +1,12 @@
 # MUDROD
-## Mining and Utilizing Dataset Relevancy from Oceanographic Dataset to Improve Data Discovery and Access
+## Mining and Utilizing Dataset Relevancy from Oceanographic Datasets to Improve Data Discovery and Access
 
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
 [![Coverage Status](https://coveralls.io/repos/github/mudrod/mudrod/badge.svg?branch=master)](https://coveralls.io/github/mudrod/mudrod?branch=master)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
 
 <img src="http://geant4.slac.stanford.edu/Space06/NASAJPLlogo.jpg" align="right" width="300" />
-<img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/GMU_logo.svg/400px-GMU_logo.svg.png" align="right" width="300" />
+<img src="http://www.iucrc.org/sites/default/files/centerLogo.png" align="right" width="170" />
 
 [MUDROD](https://esto.nasa.gov/forum/estf2015/presentations/Yang_S8P1_ESTF2015.pdf) 
 is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).
@@ -13,11 +14,11 @@ is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).
 # Software requirements: 
  * Java 8
  * Git
- * Apache Maven
- * Elasticsearch v1.7
+ * Apache Maven 3.X
+ * Elasticsearch v2.6.X
  * Kibana v4
- * Apache Spark v1.4
- * Apache Tomcat 8
+ * Apache Spark v1.6.X
+ * Apache Tomcat 8.X
 
 # Installation
 
@@ -38,8 +39,14 @@ $ cp service/target/mudrod-service-0.0.1-SNAPSHOT.war $CATALINA_HOME/webapps/
 Once Tomcat hot deploys the .war artifact, you will be able to browse to the running application similar to what is shown above http://localhost:8080/mudrod-service
 
 ## Docker Container
+Please see the [Dockerfile documentation](https://github.com/mudrod/mudrod/tree/master/docker)
+for guidance on how to quickly use Docker to deploy Mudrod.
 
 # Publications
+* Jiang, Y., Y. Li, C. Yang, E. M. Armstrong, T. Huang & D. Moroni (2016) Reconstructing Sessions from Data Discovery and Access Logs to Build a Semantic Knowledge Base for Improving Data Discovery. ISPRS International Journal of Geo-Information, 5, 54. http://www.mdpi.com/2220-9964/5/5/54#stats 
+* Jiang, Y., Y. Li, C. Yang, K. Liu, E. M. Armstrong, T. Huang & D. Moroni (2016) A Comprehensive Approach to Determining the Linkage Weights among Geospatial Vocabularies - An Example with Oceanographic Data Discovery. International Journal of Geographical Information Science (submitted)
+* Y. Li, Jiang, Y., C. Yang, K. Liu, E. M. Armstrong, T. Huang & D. Moroni (2016) Leverage cloud computing to improve data access log mining. IEEE Oceans 2016. (in press)
+
 
 # Documentation
 
@@ -52,10 +59,10 @@ $ open target/site/apidocs/index.html
 
 # Team members:
 
- * Chaowei (Phil) Yang - George Mason University
- * Yongyao Jiang - George Mason University
- * Yun Li - George Mason University
- * Edward M Armstrong - 
+ * Chaowei (Phil) Yang - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * [Yongyao Jiang](https://www.linkedin.com/in/yongyao-jiang-42516164) - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * Yun Li - [NSF Spatiotemporal Innovation Center](http://stcenter.net/), George Mason University
+ * Edward M Armstrong - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * Thomas Huang - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * David Moroni - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * Chris Finch - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)

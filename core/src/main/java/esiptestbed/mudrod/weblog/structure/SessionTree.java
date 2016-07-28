@@ -108,22 +108,20 @@ public class SessionTree extends MudrodAbstract {
 
     json.addProperty("seq", node.getSeq());
     if ("datasetlist".equals(node.getKey())) {
-      json.addProperty("icon", "searching.png");
-
+      json.addProperty("icon", "./resources/images/searching.png");
       json.addProperty("name", node.getRequest());
-
     } else if ("dataset".equals(node.getKey())) {
-      json.addProperty("icon", "viewing.png");
+      json.addProperty("icon", "./resources/images/viewing.png");
       json.addProperty("name", node.getDatasetId());
     } else if ("ftp".equals(node.getKey())) {
-      json.addProperty("icon", "downloading.png");
+      json.addProperty("icon", "./resources/images/downloading.png");
       json.addProperty("name", node.getRequest());
     } else if ("root".equals(node.getKey())) {
       json.addProperty("name", "");
-      json.addProperty("icon", "users.png");
+      json.addProperty("icon", "./resources/images/users.png");
     }
 
-    if (node.children.isEmpty()) {
+    if (!node.children.isEmpty()) {
       List<JsonObject> jsonChildren = new ArrayList<>();
       for (int i = 0; i < node.children.size(); i++) {
         JsonObject jsonChild = TreeToJson(node.children.get(i));
