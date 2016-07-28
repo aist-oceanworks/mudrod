@@ -12,7 +12,7 @@ The MUDROD GUI enables the user to:
 4. Find datasets using semantic search
     
 
-This tutorial will require MUDROD to already be published as a web service. Please refer to [**Installing MUDROD on CentOS**](https://github.com/mudrod/mudrod/blob/master/Installation.md)
+This tutorial will require MUDROD to already be published as a web service. Please refer to [**Installing MUDROD on CentOS**](https://github.com/mudrod/mudrod/blob/master/Installation.md) for further information.
 
 Mudrod provides two kinds of web services. One web service is based on Kibana - a visulization tool of ELK stack. The port of this service is 5601. Another one is a java web service developed on our own, which is published through tomcat, with a port of 8080.
 
