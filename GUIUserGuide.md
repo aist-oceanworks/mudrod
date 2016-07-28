@@ -59,22 +59,32 @@ In order to get a brief overview of  sessions, you can add fields from the avail
 ![](https://raw.githubusercontent.com/quintinali/images/master/detailed%20log%20list.png)
 
 Click view link in the table row, the system will take you to session tree structure page, where you could see the hierarchy treeview of the session, as well as all the requests in the session.
+![](https://raw.githubusercontent.com/quintinali/images/master/session%20tree.png)
 
 # Ontology Navigation
 ---
 
 
-First,
+First, visit the homepage of MUDROD web service:
+
+    http://your_public_ip:8080/mudrod-service/
 ## Vocabulary Relationship
 ---
+Select "Vocabulary linkage" in the left side bar and input words in the search box.
 
+![](https://raw.githubusercontent.com/quintinali/images/master/vacobulary%20linkage.png)
 
-First,
+Ontology search results contain the most related words to the user queries with linkage weight . If you double click any node in the grahp, the system will show related words to the vocabulary you just selected.
+![](https://raw.githubusercontent.com/quintinali/images/master/vl%20result.png)
+
 ## Semantic Search
 ---
+Select "Semantic search" in the left side bar.
+![](https://raw.githubusercontent.com/quintinali/images/master/search.png)
 
+Next  search datasets by  keywords. Related datasets are  listed in a decending order of relevance.
 
-First,
+![](https://raw.githubusercontent.com/quintinali/images/master/search%20result.png)
 
 
 
