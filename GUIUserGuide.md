@@ -27,8 +27,9 @@ First, visit the homepage of kibana:
 > The first time you visit this page, the system will let you configure an index pattern. Please input the index name in the "index name or pattern" field, such as mudrod, and then choose the Time-field name.
 ![](https://raw.githubusercontent.com/quintinali/images/master/add%20index.png)
 > After clicking the create button, all fields in the index will be listed. Please find a filed named "SessionURL" and edit it the following ways:
-1. Change format to URL
-2. Input "view" in label template and save it.
+
+>1. Change format to URL
+>2. Input "view" in label template and save it.
 ![](https://raw.githubusercontent.com/quintinali/images/master/edit%20index.png)
 
 Next, choose the "Discover" tab at the menu bar. 
