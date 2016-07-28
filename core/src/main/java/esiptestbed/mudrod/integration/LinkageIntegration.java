@@ -147,7 +147,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return mapToJson(input, trimmedMap);
   }
 
-  public String getModifiedQuery(String input, int num) {
+ /* public String getModifiedQuery(String input, int num) {
     Map<String, Double> sortedMap = appyMajorRule(input);
     String output = "(" + input.replace(" ", " AND ") + ")";
     int count = 0;
@@ -159,7 +159,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       count++;
     }
     return output;
-  }
+  }*/
 
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
       String input) {
@@ -203,7 +203,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   public void aggregateRelatedTerms(String input, String model) {
     SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
+        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();  //get the 10 most relate terms
 
     LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {

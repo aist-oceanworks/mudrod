@@ -233,6 +233,28 @@ public class ESDriver implements Serializable {
     }
     return typeList;
   }
+  
+  public boolean checkTypeExist(String index, String type)
+  {
+    GetMappingsResponse res;
+    try {
+      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
+      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
+      for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
+        if(c.key.equals(type))
+        {
+          return true;
+        }
+      }
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return false;     
+  }
 
   public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
     boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
