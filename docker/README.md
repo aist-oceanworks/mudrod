@@ -1,5 +1,8 @@
 # MUDROD Dockerfile
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
+[![Docker Stars](https://img.shields.io/docker/stars/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
+
 # Pulling from Dockerhub
 Mudrod is available on Dockerhub for rapid deployment and prototyping.
 To get the Mudrod application and environment make sure you have [Docker](https://www.docker.com/) installed then simply execute:

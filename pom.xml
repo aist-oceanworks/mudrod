@@ -15,27 +15,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
+  
   <groupId>esiptestbed</groupId>
   <artifactId>mudrod-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  
   <name>Mudrod :: Parent</name>
   <url>https://github.com/mudrod/mudrod.git</url>
-
+  
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-
+  
   <organization>
     <name>George Mason University</name>
     <url>https://www2.gmu.edu/</url>
   </organization>
-
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
@@ -44,14 +44,14 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spark.version>1.6.2</spark.version>
   </properties>
-
+  
   <scm>
     <developerConnection>scm:git:https://github.com/mudrod/mudrod.git</developerConnection>
     <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
     <url>https://github.com/mudrod/mudrod.git</url>
     <tag>HEAD</tag>
   </scm>
-
+  
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
@@ -62,7 +62,7 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
+  
   <pluginRepositories>
     <pluginRepository>
       <id>ossrh</id>
@@ -74,45 +74,9 @@
     <module>core</module>
     <module>service</module>
   </modules>
-
+  
   <build>
     <plugins>
-      <!--plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>esiptestbed.mudrod.main.MudrodEngine</Main-Class>
-                    <Build-Number>${implementation.build}</Build-Number>
-                  </manifestEntries>
-                </transformer>
-                <transformer 
-                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-              </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>buildnumber-maven-plugin</artifactId>
@@ -159,34 +123,6 @@
     </plugins>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings 
-          only. It has no influence on the Maven build itself. -->
-        <plugin>
-          <groupId>org.eclipse.m2e</groupId>
-          <artifactId>lifecycle-mapping</artifactId>
-          <version>1.0.0</version>
-          <configuration>
-            <lifecycleMappingMetadata>
-              <pluginExecutions>
-                <pluginExecution>
-                  <pluginExecutionFilter>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <versionRange>
-                      [${buildnumber-maven-plugin.version},)
-                    </versionRange>
-                    <goals>
-                      <goal>create</goal>
-                    </goals>
-                  </pluginExecutionFilter>
-                  <action>
-                    <ignore></ignore>
-                  </action>
-                </pluginExecution>
-              </pluginExecutions>
-            </lifecycleMappingMetadata>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
@@ -210,6 +146,51 @@
       </plugins>
     </pluginManagement>
   </build>
+  <profiles>
+    <profile>
+      <id>only-eclipse</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <!--This plugin's configuration is used to store Eclipse m2e settings 
+              only. It has no influence on the Maven build itself. -->
+            <plugin>
+              <groupId>org.eclipse.m2e</groupId>
+              <artifactId>lifecycle-mapping</artifactId>
+              <version>1.0.0</version>
+              <configuration>
+                <lifecycleMappingMetadata>
+                  <pluginExecutions>
+                    <pluginExecution>
+                      <pluginExecutionFilter>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
+                        <versionRange>
+                          [${buildnumber-maven-plugin.version},)
+                        </versionRange>
+                        <goals>
+                          <goal>create</goal>
+                        </goals>
+                      </pluginExecutionFilter>
+                      <action>
+                        <ignore></ignore>
+                      </action>
+                    </pluginExecution>
+                  </pluginExecutions>
+                </lifecycleMappingMetadata>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
+  
   <dependencyManagement>
     <dependencies>
       <!-- Gson: Java to Json conversion -->
@@ -235,25 +216,25 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-core_2.11</artifactId>
         <version>${spark.version}</version>
-        <scope>provided</scope>
+        <!--scope>provided</scope-->
       </dependency>
       <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-mllib_2.11</artifactId>
         <version>${spark.version}</version>
-        <scope>provided</scope>
+        <!--scope>provided</scope-->
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>1.7.21</version>
-        <scope>compile</scope>
+        <!--scope>compile</scope-->
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.17</version>
-        <scope>runtime</scope>
+        <!--scope>runtime</scope-->
       </dependency>
     </dependencies>
   </dependencyManagement>
