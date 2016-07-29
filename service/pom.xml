@@ -42,20 +42,15 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- BEGIN: Servlet Deps. -->
-    <!-- dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>servlet-api-3.0</artifactId>
-      <version>7.0.0pre2</version>
-      <scope>provided</scope>
+    <!-- Logging Dependencies -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-servlet-tester</artifactId>
-      <version>7.0.0.pre5</version>
-      <scope>test</scope>
-    </dependency-->
-    <!-- END: Servlet Deps. -->
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
 
     <!-- BEGIN: Jetty Deps. -->
     <dependency>
