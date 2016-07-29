@@ -68,3 +68,5 @@ dependency-reduced-pom.xml
 /service/mudrod.log*
 *.class
 core/maven-eclipse.xml
+*.html
+core/doc/stylesheet.css
