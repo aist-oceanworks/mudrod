@@ -27,6 +27,7 @@ import org.jdom2.input.SAXBuilder;
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
 import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
+import esiptestbed.mudrod.discoveryengine.RecommendEngine;
 import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -82,7 +83,7 @@ public class MudrodEngine {
   }
 
   public void start() {
-    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
+    /*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
     wd.preprocess();
     wd.process();
 
@@ -95,7 +96,10 @@ public class MudrodEngine {
     md.process();
 
     LinkageIntegration li = new LinkageIntegration(config, es, spark);
-    li.execute();
+    li.execute();*/
+    
+	DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
+	recom.preprocess();
   }
 
   public void startProcessing() {

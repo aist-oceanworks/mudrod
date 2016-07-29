@@ -17,6 +17,7 @@ import java.io.Serializable;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SQLContext;
 
 public class SparkDriver implements Serializable {
   /**
@@ -24,10 +25,12 @@ public class SparkDriver implements Serializable {
    */
   private static final long serialVersionUID = 1L;
   public JavaSparkContext sc;
+  public SQLContext sqlContext;
 
   public SparkDriver() {
     SparkConf conf = new SparkConf().setAppName("Testing")
         .setMaster("local[2]");
     sc = new JavaSparkContext(conf);
+    sqlContext = new SQLContext(sc);
   }
 }

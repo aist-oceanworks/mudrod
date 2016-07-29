@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.driver;
 
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -39,6 +41,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
@@ -49,6 +52,7 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
@@ -168,6 +172,22 @@ public class ESDriver implements Serializable {
       strList[i] = tmp.trim();
     }
     return String.join(",", strList);
+  }
+  
+  public String customAnalyzing(String indexName, String analyzer, String str) throws InterruptedException, ExecutionException{
+	    String[] strList = str.toLowerCase().split(",");
+	    for(int i = 0; i<strList.length;i++)
+	    {
+	      String tmp = "";
+	      AnalyzeResponse r = client.admin().indices()
+	          .prepareAnalyze(strList[i]).setIndex(indexName).setAnalyzer(analyzer)
+	          .execute().get();
+	      for (AnalyzeToken token : r.getTokens()) {
+	        tmp +=token.getTerm() + " ";
+	      }
+	      strList[i] = tmp.trim();
+	    }
+	    return String.join(",", strList);
   }
 
   public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
@@ -323,6 +343,40 @@ public class ESDriver implements Serializable {
 
   public void refreshIndex(){
     node.client().admin().indices().prepareRefresh().execute().actionGet();
+  }
+  
+  public UpdateRequest genUpdateRequest(String index, String type, String id, String field1,
+	      Object value1) {
+	  
+	    UpdateRequest ur = null;
+		try {
+			ur = new UpdateRequest(index, type, id).doc(jsonBuilder().startObject().field(field1, value1).endObject());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    return ur;
+  }
+  
+  public UpdateRequest genUpdateRequest(String index, String type, String id, Map<String, Object>filedValueMap) {
+	  
+	    UpdateRequest ur = null;
+		try {
+			
+			XContentBuilder builder = jsonBuilder().startObject();
+			for(String field : filedValueMap.keySet()){
+				builder.field(field, filedValueMap.get(field));
+			}
+			builder.endObject();
+			ur = new UpdateRequest(index, type, id).doc(builder);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    return ur;
   }
 
   public static void main(String[] args) {
