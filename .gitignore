@@ -64,9 +64,6 @@ target
 dist
 lib
 dependency-reduced-pom.xml
-/core/mudrod.log*
-/service/mudrod.log*
-*.class
+/bin/
+/core/mudrod.log
 core/maven-eclipse.xml
-*.html
-core/doc/stylesheet.css
