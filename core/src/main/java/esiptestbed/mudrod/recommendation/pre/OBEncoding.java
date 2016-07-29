@@ -48,9 +48,63 @@ public class OBEncoding extends DiscoveryStepAbstract{
 		metadataType = config.get("recom_metadataType");
 		CategoricalVarValueVecs = new HashMap<String, Map<String, Vector>>();
 		CategoricalVars = new ArrayList<String>();
-		//CategoricalVars.add("Dataset-GridSpatialResolution");
-		//CategoricalVars.add("Dataset-SatelliteSpatialResolution");
-		CategoricalVars.add("DatasetResource-Type");
+
+		CategoricalVars.add("Dataset-TemporalRepeat");
+		CategoricalVars.add("Dataset-AcrossTrackResolution");
+		CategoricalVars.add("Dataset-SatelliteSpatialResolution");
+		CategoricalVars.add("Dataset-ProjectionType");
+		CategoricalVars.add("Dataset-LongitudeResolution");
+		CategoricalVars.add("Dataset-SwathWidth");
+	
+		CategoricalVars.add("Dataset-TemporalResolution-Group");
+		CategoricalVars.add("Dataset-TemporalRepeatMin");
+		CategoricalVars.add("Dataset-TemporalResolutionRange");
+		CategoricalVars.add("Dataset-TemporalResolution");
+		CategoricalVars.add("Dataset-TemporalRepeatMax");
+		
+		CategoricalVars.add("Dataset-ProcessingLevel");
+		CategoricalVars.add("Dataset-HorizontalResolutionRange");
+		CategoricalVars.add("Dataset-AlongTrackResolution");
+		CategoricalVars.add("Dataset-LatitudeResolution");
+		CategoricalVars.add("Dataset-Provider-ShortName");
+		CategoricalVars.add("Dataset-DatasetCoverage-TimeSpan");
+		CategoricalVars.add("DatasetRegion-Region");
+		
+		CategoricalVars.add("DatasetCoverage-NorthLat");
+		CategoricalVars.add("DatasetCoverage-SouthLat");
+		CategoricalVars.add("DatasetCoverage-WestLon");
+		CategoricalVars.add("DatasetCoverage-EastLon");
+		CategoricalVars.add("DatasetParameter-Category");
+		CategoricalVars.add("DatasetParameter-Variable");
+		CategoricalVars.add("DatasetParameter-Topic");
+		CategoricalVars.add("DatasetParameter-Term");
+		
+		CategoricalVars.add("DatasetPolicy-DataDuration");
+		CategoricalVars.add("DatasetPolicy-DataFormat");
+		CategoricalVars.add("DatasetPolicy-DataLatency");
+		CategoricalVars.add("DatasetPolicy-DataFrequency");
+		CategoricalVars.add("DatasetPolicy-Availability");
+		
+		CategoricalVars.add("DatasetSource-Source-Type");
+		CategoricalVars.add("DatasetSource-Source-OrbitPeriod");
+		CategoricalVars.add("DatasetSource-Source-InclAngle");
+		CategoricalVars.add("DatasetSource-Source-ShortName");
+		CategoricalVars.add("DatasetSource-Sensor-SwathWidth");
+		
+		CategoricalVars.add("Collection-ShortName");
+		CategoricalVars.add("DatasetCharacter-Value");
+		CategoricalVars.add("DatasetCharacter-DatasetElement-Element-ShortName");
+		
+		//CategoricalVars.add("CollectionDataset-GranuleRange360");
+		//CategoricalVars.add("DatasetPolicy-SpatialType");
+		//CategoricalVars.add("DatasetCitation-SeriesName");
+		//CategoricalVars.add("Dataset-ProviderDatasetName");
+		//CategoricalVars.add("Dataset-AltitudeResolution");
+		//CategoricalVars.add("Dataset-DepthResolution");
+		//CategoricalVars.add("Dataset-DatasetCoverage-StopTimeLong");
+		//CategoricalVars.add("Dataset-DatasetCoverage-StartTimeLong");
+		//CategoricalVars.add("DatasetCoverage-StartTimeLong-Long");
+		//CategoricalVars.add("DatasetCoverage-StopTimeLong-Long");
 	}
 
 	@Override
@@ -69,7 +123,9 @@ public class OBEncoding extends DiscoveryStepAbstract{
 	
 	private void OBEncodeaAllMetadata() {
 		
-		SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(metadataType)
+		es.createBulkProcesser();
+		
+		/*SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(metadataType)
 				.setQuery(QueryBuilders.matchAllQuery()).setSize(1).execute()
 				.actionGet();
 		
@@ -83,6 +139,8 @@ public class OBEncoding extends DiscoveryStepAbstract{
 						JSONObject updateJson = new JSONObject(metadatacode);
 						UpdateRequest ur = es.genUpdateRequest(config.get("indexName"), metadataType, hit.getId(), metadatacode);
 						System.out.println(ur);
+						System.out.println(es);
+						System.out.println(es.bulkProcessor);
 						es.bulkProcessor.add(ur);
 						
 					} catch (InterruptedException | ExecutionException e) {
@@ -92,22 +150,22 @@ public class OBEncoding extends DiscoveryStepAbstract{
 				}
 				
 				System.out.println(metadatacode);
-			}
+			}*/
 
-		/*SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(metadataType)
+		SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName")).setTypes(metadataType)
 				.setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
 				.actionGet();
 		while (true) {
 			for (SearchHit hit : scrollResp.getHits().getHits()) {
 				Map<String, Object> metadata = hit.getSource();
-				Map<String, Object> metadatacode = OBEncodeMetadata(metadata);
-				
+				Map<String, Object> metadatacode;
 				try {
+					metadatacode = OBEncodeMetadata(metadata);
 					UpdateRequest ur = es.genUpdateRequest(config.get("indexName"), metadataType, hit.getId(), metadatacode);
 					es.bulkProcessor.add(ur);
-				} catch (IOException e) {
+				} catch (InterruptedException | ExecutionException e1) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					e1.printStackTrace();
 				}
 			}
 
@@ -116,62 +174,74 @@ public class OBEncoding extends DiscoveryStepAbstract{
 			if (scrollResp.getHits().getHits().length == 0) {
 				break;
 			}
-		}*/
+		}
+			
+		es.destroyBulkProcessor();
 	}
 	
 	private Map<String, Object> OBEncodeMetadata(Map<String, Object> metadata) throws InterruptedException, ExecutionException{
-		String code = "";
-		//double[] codes = null;	
+		String code = "";	
 		Map<String, Object> metadataCodes = new HashMap<String, Object>();
-		System.out.println(metadata.get("Dataset-ShortName"));
+		//System.out.println(metadata.get("Dataset-ShortName"));
 		int CategoryNum = CategoricalVars.size();
 		for(int i=0; i<CategoryNum; i++ ){
 			String var = CategoricalVars.get(i);
 			//System.out.println(var);
 			Vector vec = null;
-			if( metadata.get(var) != null){
+			if( metadata.get(var) != null && metadata.get(var) != ""){
 				String value = es.customAnalyzing(config.get("indexName"), "csv", metadata.get(var).toString());
-				value = value.substring(1, value.length()-1);
 				//System.out.println(value);
 				if(value.contains(",")){
+					
 					String[] values = value.split(",");
 					int valuenum = values.length;
 					Vector tmpvec = null;
 					for(int j=0; j<valuenum; j++){
-						tmpvec = CategoricalVarValueVecs.get(var).get(values[j]);
-						//System.out.println(values[j]);
-						//System.out.println(tmpvec);
+						tmpvec = getValueVec(var,values[j]);
 						if(vec == null){
 							vec = tmpvec;
 						}else{
 							vec = this.VectorSum(vec, tmpvec);
 						}
-						//System.out.println(vec.toString());
 					}
-					
-					System.out.println(vec.toString());
+					//System.out.println(vec.toString());
 				}else{
-					//System.out.println(value);
-					vec = CategoricalVarValueVecs.get(var).get(value);	
+					vec = getValueVec(var,value);
+					if(vec == null){
+						 vec = getValueVec(var,VAR_NOT_EXIST);
+					}
 				}
 			}else{
-				//System.out.println(VAR_NOT_EXIST);
-			    vec = CategoricalVarValueVecs.get(var).get(VAR_NOT_EXIST);
+			    vec = getValueVec(var,VAR_NOT_EXIST);
 			}	
 			
 			double[] codeArr = vec.toArray();
 			String codeStr =  Arrays.toString(codeArr);
 			codeStr = codeStr.substring(1, codeStr.length()-1);
 			metadataCodes.put(var + "_code",  codeStr);
-			//codes = (double[])ArrayUtils.addAll(codeArr, codes);
-			
 			code += codeStr + ",";
 		}
 		
-		//code = Arrays.toString(codes);
 		code = code.substring(0, code.length()-1);
-		metadataCodes.put("metadata_code",  code);
+		metadataCodes.put("Metadata_code",  code);
 		return metadataCodes;
+	}
+	
+	private Vector getValueVec(String var, String value){
+		
+		if(value.startsWith("[")){
+			value = value.substring(1, value.length());
+		}
+		
+		if(value.endsWith("]")){
+			value = value.substring(0, value.length()-1);
+		}
+		
+		Vector tmpvec = CategoricalVarValueVecs.get(var).get(value);
+		if(tmpvec == null){
+			tmpvec = CategoricalVarValueVecs.get(var).get(VAR_NOT_EXIST);
+		}
+		return tmpvec;
 	}
 	
 	private void OBEncodeVars(){
@@ -179,7 +249,7 @@ public class OBEncoding extends DiscoveryStepAbstract{
 		for(int i=0; i<CategoryNum; i++ ){
 			String var = CategoricalVars.get(i);
 			Map<String, Vector> valueVecs= this.OBEncodeVar(var);
-			System.out.println(valueVecs.toString());
+			//System.out.println(var + " ： " + valueVecs.toString());
 			CategoricalVarValueVecs.put(var, valueVecs);
 		}
 	}

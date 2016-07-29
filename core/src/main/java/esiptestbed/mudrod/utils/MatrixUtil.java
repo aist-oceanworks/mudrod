@@ -254,12 +254,15 @@ public class MatrixUtil {
 
     FileWriter fw = new FileWriter(file.getAbsoluteFile());
     BufferedWriter bw = new BufferedWriter(fw);
-    String coltitle = " Num" + ",";
-    for (int j = 0; j < colnum; j++) {
-      coltitle += colKeys.get(j) + ",";
+    
+    if(colKeys != null){
+	    String coltitle = " Num" + ",";
+	    for (int j = 0; j < colnum; j++) {
+	      coltitle += colKeys.get(j) + ",";
+	    }
+	    coltitle = coltitle.substring(0, coltitle.length() - 1);
+	    bw.write(coltitle + "\n");
     }
-    coltitle = coltitle.substring(0, coltitle.length() - 1);
-    bw.write(coltitle + "\n");
 
     for (int i = 0; i < rownum; i++) {
       double[] rowvlaue = rows.get(i).toArray();

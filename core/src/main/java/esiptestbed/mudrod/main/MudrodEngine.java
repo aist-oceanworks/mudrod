@@ -99,7 +99,9 @@ public class MudrodEngine {
     li.execute();*/
     
 	DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
-	recom.preprocess();
+	//recom.preprocess();
+	recom.process();
+	
   }
 
   public void startProcessing() {
@@ -165,7 +167,8 @@ public class MudrodEngine {
       me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
       me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
       me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
-
+      me.config.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
+      
       me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
       me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
 

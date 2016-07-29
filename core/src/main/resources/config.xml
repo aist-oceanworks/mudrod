@@ -64,4 +64,7 @@
   <para name="clickStream_w">2</para>
   <para name="metadata_w">1</para>
   <para name="ontology_w">2</para>
+  
+  <para name="metadataCodeSimType">MetadataCodeSim</para>
+  
 </Config>
