@@ -34,10 +34,14 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * MUDROD entry class use to start the program.
+ * @author Yongyao
+ *
+ */
 public class MudrodEngine {
-
   private static final Logger LOG = LoggerFactory.getLogger(MudrodEngine.class);
+
   private Map<String, String> config = new HashMap<>();
   private ESDriver es = null;
   private SparkDriver spark = null;
@@ -46,9 +50,19 @@ public class MudrodEngine {
     loadConfig();
     es = new ESDriver(config);
     spark = new SparkDriver();
-
   }
 
+  public MudrodEngine(String StartUpType) {
+    loadConfig();
+    if(StartUpType.equals("Elasticsearch"))
+    {
+      es = new ESDriver(config);
+    }
+  }
+  /**
+   * Get mudrod configuration parameters
+   * @return mudrod configuration
+   */
   public Map<String, String> getConfig() {
     return config;
   }
@@ -122,7 +136,10 @@ public class MudrodEngine {
   public void end() {
     es.close();
   }
-
+  /**
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
     if (args.length < 1) {
       LOG.error("Mudrod Engine expects at least one argument");
@@ -163,8 +180,6 @@ public class MudrodEngine {
       if(processingType.equals("Processing"))
         me.startProcessing(); 
     }
-
-
     me.end();
   }
 }

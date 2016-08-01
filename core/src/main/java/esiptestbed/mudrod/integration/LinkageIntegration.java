@@ -71,7 +71,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    getIngeratedList("sea surface topography", 11);
+    getIngeratedList("ocean wind", 11);
     return null;
   }
 
@@ -147,20 +147,6 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return mapToJson(input, trimmedMap);
   }
 
-  public String getModifiedQuery(String input, int num) {
-    Map<String, Double> sortedMap = appyMajorRule(input);
-    String output = "(" + input.replace(" ", " AND ") + ")";
-    int count = 0;
-    for (Entry<String, Double> entry : sortedMap.entrySet()) {
-      String item = "(" + entry.getKey().replace(" ", " AND ") + ")";
-      if (count < num) {
-        output += " OR " + item;
-      }
-      count++;
-    }
-    return output;
-  }
-
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
       String input) {
     aggregateRelatedTerms(input, config.get("userHistoryLinkageType"));
@@ -203,7 +189,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   public void aggregateRelatedTerms(String input, String model) {
     SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
+        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();  //get the 10 most relate terms
 
     LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {

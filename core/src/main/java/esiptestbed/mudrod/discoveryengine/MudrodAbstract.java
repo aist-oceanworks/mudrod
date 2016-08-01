@@ -25,17 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the most generit class of MUDROD,
- * 
- * conig: configuration read from config.xml es: Elasticsearch instance
- * 
+ * Superclass of mudrod program
+ * @author Yongyao
+ *
  */
 public abstract class MudrodAbstract implements Serializable {
   
   private static final Logger LOG = LoggerFactory.getLogger(MudrodAbstract.class);
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   protected Map<String, String> config = new HashMap<>();
   protected ESDriver es = null;
@@ -48,8 +44,12 @@ public abstract class MudrodAbstract implements Serializable {
 
   public final String settingsJson = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
   public final String mappingJson = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
-  private int printLevel = 0;
-
+/**
+ * Constructuor method
+ * @param config  configuration
+ * @param es      elasticsearch client
+ * @param spark   spark connection
+ */
   public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
     this.config = config;
     this.es = es;
@@ -68,15 +68,6 @@ public abstract class MudrodAbstract implements Serializable {
     FTP_type = config.get("FTP_type_prefix") + config.get("TimeSuffix");
     Cleanup_type = config.get("Cleanup_type_prefix") + config.get("TimeSuffix");
     SessionStats = config.get("SessionStats_prefix") + config.get("TimeSuffix");
-
-    printLevel = Integer.parseInt(config.get("loglevel"));
-  }
-
-  public void print(String log, int level){
-    if(level <= printLevel)
-    {
-      LOG.info(log);
-    }
   }
 
   public ESDriver getES(){
