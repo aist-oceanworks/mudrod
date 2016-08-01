@@ -308,10 +308,8 @@ public class ESDriver implements Serializable {
 		      file.addProperty("Dataset-TemporalRepeatMin", (String) result.get("Dataset-TemporalRepeatMin"));
 		      file.addProperty("DatasetPolicy-DataFormat", (String) result.get(" DatasetPolicy-DataFormat"));
 		      file.addProperty("DatasetPolicy-DataLatency", (String) result.get("DatasetPolicy-DataLatency"));
-		      
-				 
-				 
-		      
+		      file.addProperty("Dataset-Description", (String) result.get("Dataset-Description"));
+
 		      List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
 		      file.addProperty("DatasetSource-Sensor-ShortName", String.join(", ", sensors));  
 		     

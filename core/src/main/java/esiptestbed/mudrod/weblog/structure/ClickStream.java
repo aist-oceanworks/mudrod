@@ -37,6 +37,10 @@ public class ClickStream implements Serializable {
 
   }
 
+  public String getSessionID() {
+	    return sessionID;
+  }
+  
   public void setKeyWords(String query) {
     this.keywords = query;
   }

@@ -6,9 +6,11 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import esiptestbed.mudrod.recommendation.pre.ApiHarvester;
+import esiptestbed.mudrod.recommendation.pre.ItemRateGenerator;
 import esiptestbed.mudrod.recommendation.pre.MatrixGenerator;
 import esiptestbed.mudrod.recommendation.pre.OBEncoding;
 import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
+import esiptestbed.mudrod.recommendation.process.ModelBasedCF;
 
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
@@ -24,17 +26,22 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Metadata preprocessing starts******************");
 	    startTime = System.currentTimeMillis();
 
-	   /* DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
+	    /*DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
 	        this.spark);
-	    harvester.execute();*/
+	    harvester.execute();
 	  
-	    /*DiscoveryStepAbstract obencoder = new OBEncoding(this.config, this.es,
+	    DiscoveryStepAbstract obencoder = new OBEncoding(this.config, this.es,
 		        this.spark);
-	    obencoder.execute();*/
+	    obencoder.execute();
 	    
-	   /* DiscoveryStepAbstract obencoder = new MatrixGenerator(this.config, this.es,
+	    DiscoveryStepAbstract matrixGen = new MatrixGenerator(this.config, this.es,
 		        this.spark);
-	    obencoder.execute();*/
+	    matrixGen.execute();*/
+	    
+	    DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,
+		        this.spark);
+	    rateGen.execute();
+	    
 
 	    endTime = System.currentTimeMillis();
 	    System.out.println("*****************Metadata preprocessing ends******************Took "+ (endTime - startTime) / 1000);
@@ -47,8 +54,12 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Metadata processing starts******************");
 		startTime = System.currentTimeMillis();
 
-		DiscoveryStepAbstract matrix = new ContentBasedCF(this.config, this.es, this.spark);
-		matrix.execute();
+		/*DiscoveryStepAbstract matrix = new ContentBasedCF(this.config, this.es, this.spark);
+		matrix.execute();*/
+		
+		/*DiscoveryStepAbstract modelBasedCF = new ModelBasedCF(this.config, this.es,
+		        this.spark);
+	    modelBasedCF.execute();*/
 
 		endTime = System.currentTimeMillis();
 		 System.out.println("*****************Metadata processing ends******************Took "+ (endTime - startTime) / 1000);

@@ -22,6 +22,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 import org.elasticsearch.action.search.SearchResponse;
@@ -33,6 +34,7 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
 import scala.Tuple2;
+import scala.Tuple3;
 
 public class SessionExtractor implements Serializable {
 
@@ -54,6 +56,8 @@ public class SessionExtractor implements Serializable {
         config.get("indexName"), config.get("Cleanup_type_prefix"));
     List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanup_typeList.size(); n++) {
+      if(n>1){
+    	  break;      }
       String cleanupType = cleanup_typeList.get(n);
       List<String> sessionId_list = this.getSessions(config, es, cleanupType);
       Session session = new Session(config, es);
@@ -133,4 +137,54 @@ public class SessionExtractor implements Serializable {
     }
     return sessionID_list;
   }
+  
+ /* public JavaPairRDD<String, List<String>> bulidUserItermRDD(
+	      JavaRDD<ClickStream> clickstreamRDD) {
+		JavaRDD<Tuple3<String, String, Double>> userItemRateRDD = clickstreamRDD
+				.map(new Function<ClickStream, Tuple3<String, String, Double>>() {
+					public Tuple3<String, String, Double> call(ClickStream click) throws Exception {
+						double rate = 1.0;
+						boolean download = click.isDownload();
+						if (download) {
+							rate = 2.0;
+						}
+
+						String sessionID = click.getSessionID();
+						String user = sessionID.split("@")[0];
+
+						return new Tuple3<String, String, Double>(user, click.getViewDataset(), rate);
+					}
+				});
+
+	    return dataQueryRDD;
+	  }*/
+
+  public JavaPairRDD<String, Double> bulidUserItermRDD(JavaRDD<ClickStream> clickstreamRDD) {
+	    JavaPairRDD<String, Double> useritem_rateRDD = clickstreamRDD
+	        .mapToPair(new PairFunction<ClickStream, String, Double>() {
+	          public Tuple2<String, Double> call(ClickStream click)
+	              throws Exception {
+	            double rate = 1.0;
+	            boolean download = click.isDownload();
+	            if (download) {
+	              rate = 2.0;
+	            }
+	            
+	            String sessionID = click.getSessionID();
+				String user = sessionID.split("@")[0];
+				
+	            return new Tuple2<String, Double>(user + "," + click.getViewDataset(),rate);
+	          }
+	        })
+	        .reduceByKey(new Function2<Double, Double, Double>() {
+	          public Double call(Double v1, Double v2)
+	              throws Exception {
+	            // TODO Auto-generated method stub
+	            return v1>=v2 ? v1 : v2;
+	            
+	          }
+	        });
+
+	    return useritem_rateRDD;
+	  }
 }
