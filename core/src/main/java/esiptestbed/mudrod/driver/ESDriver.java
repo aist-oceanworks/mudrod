@@ -255,56 +255,96 @@ public class ESDriver implements Serializable {
   }
 
   public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
-    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
-    if(!exists){
-      return null;
-    }
-
-    QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
-    SearchResponse response = client.prepareSearch(index)
-        .setTypes(Type)		        
-        .setQuery(qb)
-        .setSize(500)
-        .execute()
-        .actionGet();
-
-    Gson gson = new Gson();		
-    List<JsonObject> fileList = new ArrayList<>();
-    DecimalFormat twoDForm = new DecimalFormat("#.##");
-
-    for (SearchHit hit : response.getHits().getHits()) {
-      Map<String,Object> result = hit.getSource();
-      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
-      String shortName = (String) result.get("Dataset-ShortName");
-      String longName = (String) result.get("Dataset-LongName");
-      @SuppressWarnings("unchecked")
-      ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
-      String topic = String.join(", ", topicList);
-      String content = (String) result.get("Dataset-Description");
-      @SuppressWarnings("unchecked")
-      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-
-      Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
-      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
-      String dateText = df2.format(date);
-
-      JsonObject file = new JsonObject();
-      file.addProperty("Relevance", relevance);
-      file.addProperty("Short Name", shortName);
-      file.addProperty("Long Name", longName);
-      file.addProperty("Topic", topic);
-      file.addProperty("Abstract", content);
-      file.addProperty("Release Date", dateText);
-      fileList.add(file);       	
-
-    }
-    JsonElement fileListElement = gson.toJsonTree(fileList);
-
-    JsonObject PDResults = new JsonObject();
-    PDResults.add("PDResults", fileListElement);
-    LOG.info("Search results returned. \n");
-    return PDResults.toString();
+	  return searchByQuery(index, Type, query, false);
   }
+  
+  public String searchByQuery(String index, String Type, String query, boolean bdetail) throws IOException, InterruptedException, ExecutionException{
+	    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+	    if(!exists){
+	      return null;
+	    }
+
+	    QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
+	    SearchResponse response = client.prepareSearch(index)
+	        .setTypes(Type)		        
+	        .setQuery(qb)
+	        .setSize(500)
+	        .execute()
+	        .actionGet();
+
+	    Gson gson = new Gson();		
+	    List<JsonObject> fileList = new ArrayList<>();
+	    DecimalFormat twoDForm = new DecimalFormat("#.##");
+
+	    for (SearchHit hit : response.getHits().getHits()) {
+	      Map<String,Object> result = hit.getSource();
+	      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
+	      String shortName = (String) result.get("Dataset-ShortName");
+	      String longName = (String) result.get("Dataset-LongName");
+	      @SuppressWarnings("unchecked")
+	      ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
+	      String topic = String.join(", ", topicList);
+	      String content = (String) result.get("Dataset-Description");
+	      @SuppressWarnings("unchecked")
+	      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
+
+	      Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
+	      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+	      String dateText = df2.format(date);
+
+	      JsonObject file = new JsonObject();
+	      file.addProperty("Relevance", relevance);
+	      file.addProperty("Short Name", shortName);
+	      file.addProperty("Long Name", longName);
+	      file.addProperty("Topic", topic);
+	      file.addProperty("Abstract", content);
+	      file.addProperty("Release Date", dateText);
+	      
+	      if(bdetail){
+	    	  file.addProperty("Processing Level", (String) result.get("Dataset-ProcessingLevel"));
+		      file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
+		      file.addProperty("Dataset-TemporalRepeat", (String) result.get("Dataset-TemporalRepeat"));
+		      file.addProperty("Dataset-TemporalRepeatMax", (String) result.get("Dataset-TemporalRepeatMax"));
+		      file.addProperty("Dataset-TemporalRepeatMin", (String) result.get("Dataset-TemporalRepeatMin"));
+		      file.addProperty("DatasetPolicy-DataFormat", (String) result.get(" DatasetPolicy-DataFormat"));
+		      file.addProperty("DatasetPolicy-DataLatency", (String) result.get("DatasetPolicy-DataLatency"));
+		      
+				 
+				 
+		      
+		      List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
+		      file.addProperty("DatasetSource-Sensor-ShortName", String.join(", ", sensors));  
+		     
+		      List<String> projects = (List<String>) result.get("DatasetProject-Project-ShortName");
+		      file.addProperty("DatasetProject-Project-ShortName", String.join(", ", projects));  
+		      
+		      List<String> categories = (List<String>) result.get("DatasetParameter-Category");
+		      file.addProperty("DatasetParameter-Category", String.join(", ", categories));  
+		      
+		      List<String> variables = (List<String>) result.get("DatasetParameter-Variable");
+		      file.addProperty("DatasetParameter-Variable", String.join(", ", variables));  
+		      
+		      List<String> terms = (List<String>) result.get("DatasetParameter-Term");
+		      file.addProperty("DatasetParameter-Term", String.join(", ", terms));  
+	      
+		      
+		     
+		      
+		      
+		     
+		      
+	      }
+	      
+	      fileList.add(file);       	
+
+	    }
+	    JsonElement fileListElement = gson.toJsonTree(fileList);
+
+	    JsonObject PDResults = new JsonObject();
+	    PDResults.add("PDResults", fileListElement);
+	    LOG.info("Search results returned. \n");
+	    return PDResults.toString();
+	  }
 
   public List<String> autoComplete(String index, String chars){
     boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+  -->
+<html lang="en">
+  <head>
+    <title>MUDROD</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="./resources/images/NASALogo_burned.png">
+    <script src="./resources/js/jquery/1.12.0/jquery-1.12.0.min.js"></script>
+    <script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
+    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <!-- bt table -->
+    <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
+    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+    <!-- Custom styles for this template -->
+    <script src="./resources/js/util.js"></script>
+    <link href="./resources/css/dashboard.css" rel="stylesheet">
+    <style>
+      .ui-autocomplete {
+      position: absolute;
+      z-index: 1000;
+      cursor: default;
+      padding: 0;
+      margin-top: 2px;
+      list-style: none;
+      background-color: #ffffff;
+      border: 1px solid #ccc
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      }
+      .ui-autocomplete > li {
+      padding: 3px 20px;
+      }
+      .ui-autocomplete > li.ui-state-focus {
+      background-color: #DDD;
+      }
+      .ui-helper-hidden-accessible {
+      display: none;
+      }
+      
+      /* #related ul {
+		    list-style: circle;
+	  }
+		
+	  #related ul li {
+		    display: inline-block;
+		    max-width: 30px;
+		    text-align: left;
+		    color: #000;
+	  } */
+    </style>
+  </head>
+  
+  <body>
+    <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          </button>
+          <a href="javascript:;" class="pull-left"><img src="./resources/images/NASALogo_burned.png" height="50">
+          <a href="javascript:;" class="navbar-brand">MUDROD Semantic Search Testbed</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="vocab.html">Vocabulary linkage</a></li>
+            <li class="active"><a id= "searchNav" href = "search.html">Semantic search</a></li>
+          </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Matedata</h1>
+          <div class="col-sm-9 row" id = "resultPanels">
+              <table id="ResultsTable" class="table"></table>
+          </div>
+          <div class="col-sm-3 row"  id="related">
+           <p>Related</p>
+           <ul id="relatedul" style="width:50px">
+           </ul>
+          </div>
+          <div class="col-sm-3 row"  id= "interested">
+           <p>Interested</p>
+           <ul id="interestedul">
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="row" style = "margin:0">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-10">
+          <div class="container-fluid" style = "text-align:center;padding-top:20px;padding-bottom:5px;font-size:small">
+            This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>. 
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+  <script type="text/javascript">
+  
+  var shortname = getURLParameter('shortname');
+  $(document).ready(function(){
+	 loadMetaData(shortname);
+	 loadRecomData(shortname);
+  });
+  
+  function loadRecomData(shortname) {
+	if (shortname != "") {
+		$("#dataset").show();
+		$.ajax({
+			url : "RecomDatasets",
+			data : {
+				"shortname" : shortname
+			},
+			success : function completeHandler(response) {
+				if (response != null) {
+					var recomdata = response.recomdata;
+					var related = recomdata.related;
+					if (related.length == 0) {
+						$("#NotFound").show();
+					} else {
+						$.each(related, function(i, item) {
+					       var li = $("<li><a></a></li>");
+					       $("#relatedul").append(li);
+					       $("a",li).text(item.name);
+					       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
+					    });
+					}
+				}
+			}
+		});
+	}
+}
+    
+	
+  function loadMetaData(shortname) {
+		if (shortname != "") {
+			$("#dataset").show();
+			//$("#searchLoading").show();
+			$.ajax({
+				url : "DatasetDetail",
+				data : {
+					"shortname" : shortname
+				},
+				success : function completeHandler(response) {
+					if (response != null) {
+						$("#searchLoading").hide();
+						var searchResults = response.PDResults;
+						if (searchResults.length == 0) {
+							$("#NotFound").show();
+						} else {
+							createResultTable();
+							$('#ResultsTable').bootstrapTable('load', searchResults);
+						}
+					}
+				}
+			});
+		}
+	}
+	
+	function createResultTable() {
+		var layout = {
+			cache : false,
+					cardView : true,
+					columns : [ {
+						'title' : 'Short Name',
+						'field' : 'Short Name',
+					}, {
+						'title' : 'Long Name',
+						'field' : 'Long Name',
+					}, {
+						'title' : 'Topic',
+						'field' : 'Topic',
+					}, {
+						'title' : 'Release Date',
+						'field' : 'Release Date',
+
+					}, {
+						'title' : 'Abstract',
+						'field' : 'Abstract',
+
+					} , {
+						'title' : 'Processing Level',
+						'field' : 'Processing Level',
+
+					} , {
+						'title' : 'Doi',
+						'field' : 'Dataset-Doi',
+
+					} , {
+						'title' : 'TemporalRepeat',
+						'field' : 'Dataset-TemporalRepeat',
+
+					} , {
+						'title' : 'TemporalRepeatMax',
+						'field' : 'Dataset-TemporalRepeatMax',
+
+					} , {
+						'title' : 'TemporalRepeatMin',
+						'field' : 'Dataset-TemporalRepeatMin',
+
+					} , {
+						'title' : 'Sensor',
+						'field' : 'DatasetSource-Sensor-ShortName',
+					}, {
+						'title' : 'Project',
+						'field' : 'DatasetProject-Project-ShortName',
+					} , {
+						'title' : 'Format',
+						'field' : 'DatasetPolicy-DataFormat',
+					} , {
+						'title' : 'DataLatency',
+						'field' : 'DatasetPolicy-DataLatency',
+					} , {
+						'title' : 'Category',
+						'field' : 'DatasetParameter-Category',
+					} , {
+						'title' : 'Variable',
+						'field' : 'DatasetParameter-Variable',
+					} , {
+						'title' : 'Term',
+						'field' : 'DatasetParameter-Term',
+					}  ]
+
+				};
+
+				$('#ResultsTable').bootstrapTable(layout);
+			}
+		</script>
+</html>
