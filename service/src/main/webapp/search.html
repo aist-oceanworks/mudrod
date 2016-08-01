@@ -58,45 +58,43 @@
   </head>
   <script type="text/javascript">
     $(document).ready(function(){
+		/*$("#query").autocomplete({
+				   source: function(request, response) {
+					   $.ajax({
+						   url: "AutoComplete",
+						   type: "POST",
+						   data: {chars: $("#query").val()},
+		
+						   dataType: "json",
+		
+						   success: function(data) {
+							response(data);
+						   }
+					  });              
+				   }   
+		   });*/
     
-    
-    $("#query").autocomplete({
-               source: function(request, response) {
-                   $.ajax({
-                       url: "AutoComplete",
-                       type: "POST",
-                       data: {chars: $("#query").val()},
-    
-                       dataType: "json",
-    
-                       success: function(data) {
-    				    response(data);
-                       }
-                  });              
-               }   
-       });
-    
-               var query = getURLParameter('query');
-    		if(query==null)
-    		{			
-    			$("#searchResults").hide();
-    		}else{
-    			$("#searchResults").hide();
-    			$("#NotFound").hide();
-    			$("#query").val(query);
-    			search(query);
-    		
-    		}
-    
-    		$("#query").keyup(function(event){
-    			if(event.keyCode == 13){
-    				$("#searchButton").click();
-    			}
-    		});		
-    		
-    		$("#searchButton").click(function() {				
-    			setGetParameter("query", $("#query").val());
-    	   });
+		var query = getURLParameter('query');
+		if(query==null)
+		{			
+			$("#searchResults").hide();
+		}else{
+			$("#searchResults").hide();
+			$("#NotFound").hide();
+			$("#query").val(query);
+			search(query);
+		
+		}
+
+		$("#query").keyup(function(event){
+			if(event.keyCode == 13){
+				$("#searchButton").click();
+			}
+		});		
+		
+		$("#searchButton").click(function() {				
+			setGetParameter("query", $("#query").val());
+	   });
     
     });
     

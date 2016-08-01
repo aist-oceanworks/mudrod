@@ -256,7 +256,7 @@ public class ESDriver implements Serializable {
     return false;     
   }
 
-  public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
+/*  public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
     boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
     if(!exists){
       return null;
@@ -306,10 +306,10 @@ public class ESDriver implements Serializable {
     PDResults.add("PDResults", fileListElement);
     LOG.info("Search results returned. \n");
     return PDResults.toString();
-  }
+  }*/
 
   public List<String> autoComplete(String index, String chars){
-    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+   /* boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
     if(!exists){
       return null;
     }
@@ -335,7 +335,8 @@ public class ESDriver implements Serializable {
       Suggest.Suggestion.Entry.Option next = iterator.next();
       suggestList.add(next.getText().string());
     }
-    return suggestList;
+    return suggestList;*/
+    return null;
 
   }
 

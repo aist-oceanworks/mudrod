@@ -50,7 +50,14 @@ public class MudrodEngine {
     loadConfig();
     es = new ESDriver(config);
     spark = new SparkDriver();
+  }
 
+  public MudrodEngine(String StartUpType) {
+    loadConfig();
+    if(StartUpType.equals("Elasticsearch"))
+    {
+      es = new ESDriver(config);
+    }
   }
   /**
    * Get mudrod configuration parameters

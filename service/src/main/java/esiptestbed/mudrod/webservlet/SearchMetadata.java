@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
  * Servlet implementation class SearchMetadata
@@ -46,7 +47,7 @@ public class SearchMetadata extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    /*response.setContentType("application/json");
+    response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     String query = request.getParameter("query");
 
@@ -54,19 +55,12 @@ public class SearchMetadata extends HttpServlet {
         .getAttribute("MudrodInstance");
     Map<String, String> config = mudrod.getConfig();
     String fileList = null;
-    try {
-      LinkageIntegration li = new LinkageIntegration(config, mudrod.getES(),
-          null);
-      fileList = mudrod.getES().searchByQuery(config.get("indexName"),
-          config.get("raw_metadataType"), li.getModifiedQuery(query, 3));
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-    }
+    Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
+    fileList = sr.ssearch(config.get("indexName"),
+        config.get("raw_metadataType"), query);
     PrintWriter out = response.getWriter();
     out.print(fileList);
-    out.flush();*/
+    out.flush();
   }
 
   /**

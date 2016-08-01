@@ -20,6 +20,7 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
+import esiptestbed.mudrod.ssearch.ClickstreamImporter;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
 import org.slf4j.Logger;
@@ -56,6 +57,10 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
+    //Store click stream in ES for the ranking use
+    ClickstreamImporter cs = new ClickstreamImporter(config, es, spark);
+    cs.importfromCSVtoES();      
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

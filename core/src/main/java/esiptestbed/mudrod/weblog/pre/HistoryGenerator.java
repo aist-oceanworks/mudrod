@@ -78,7 +78,6 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
       // step 1: write first row of csv
       SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-          //.setTypes(String.join(", ", cleanupTypeList))
     	  .setTypes(cleanupTypeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0))
@@ -97,7 +96,6 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
       // step 2: step the rest rows of csv
       SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))
-          //.setTypes(cleanupTypeList.toArray(new String[0]))
     	  .setTypes(cleanupTypeList.toArray(new String[0]))
     	  .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("KeywordAgg")

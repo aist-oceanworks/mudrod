@@ -43,7 +43,7 @@ public class MudrodWebListener implements ServletContextListener {
    * @see ServletContextListener#contextInitialized(ServletContextEvent)
    */
   public void contextInitialized(ServletContextEvent arg0) {
-    MudrodEngine mudrod = new MudrodEngine();
+    MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     ServletContext ctx = arg0.getServletContext();
     ctx.setAttribute("MudrodInstance", mudrod);
   }

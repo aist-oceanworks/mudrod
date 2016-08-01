@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.ssearch.structure;
 
 import java.lang.reflect.Field;
@@ -19,7 +32,6 @@ public class SResult {
   public Double releaseDate_score = 0.0;
   public Double click_score = 0.0;
 
-
   public SResult(String shortName, String longName, String topic, String description, String date){
     this.shortName = shortName;
     this.longName = longName;
@@ -27,42 +39,17 @@ public class SResult {
     this.description = description;
     this.date = date;
   }
-
-/*  public void setDateLong(long dateL)
-  {
-    dateLong = dateL;
-  }
   
-  public void setClicks(Double s)
-  {
-    clicks = s;
+  public String toString(String delimiter ){
+    return shortName + delimiter + 
+           longName + delimiter + 
+           final_score + delimiter + 
+           term_score + delimiter + 
+           click_score + delimiter + 
+           releaseDate_score + delimiter +
+           clicks + delimiter + 
+           date + "\n";
   }
-
-  public void setRelevance(Double s)
-  {
-    relevance = s;
-  }
-
-
-  public void setFinalScore(Double s)
-  {
-    final_score = s;
-  }
-
-  public void setTermScore(Double s)
-  {
-    term_score = s;
-  }
-
-  public void setReleaseScore(Double s)
-  {
-    releaseDate_score = s;
-  }
-
-  public void setClickScore(Double s)
-  {
-    click_score = s;
-  }*/
 
   public static boolean set(Object object, String fieldName, Object fieldValue) {
     Class<?> clazz = object.getClass();

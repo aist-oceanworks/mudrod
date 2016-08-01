@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.ssearch;
 
 import java.util.HashMap;
@@ -24,11 +37,6 @@ public class Dispatcher extends MudrodAbstract {
   public Dispatcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
-    if(es.checkTypeExist(config.get("indexName"), config.get("clickstreamMatrixType")))
-    {
-      ClickstreamImporter cs = new ClickstreamImporter(config, es, spark);
-      cs.importfromCSVtoES();
-    }
   }
 
   public Map<String, Double> getRelatedTerms(String input, int num) {
@@ -61,23 +69,26 @@ public class Dispatcher extends MudrodAbstract {
     LOG.info(qb.toString());
     return qb;
   }
-  
-  public QueryBuilder createQueryForClicks(Map<String, Double> selected_Map, String shortName){   
+
+  public QueryBuilder createQueryForClicks(String input, int num, String shortName){   
+    Map<String, Double> selected_Map = getRelatedTerms(input, num);
+    selected_Map.put(input, (double) 1);
+
     BoolFilterBuilder bf = new BoolFilterBuilder();
     bf.must(FilterBuilders.termFilter("dataID", shortName));
-    
+
     for (Map.Entry<String, Double> entry : selected_Map.entrySet()){
       bf.should(FilterBuilders.termFilter("query", entry.getKey()));      
     }
     QueryBuilder click_search = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), bf);
-    
+
     return click_search;
   }
-  
+
   public static void main(String[] args) {
-    MudrodEngine mudrod = new MudrodEngine();
+    /*MudrodEngine mudrod = new MudrodEngine();
     Dispatcher dp = new Dispatcher(mudrod.getConfig(), mudrod.getES(), null);
-    dp.createSemQuery("ocean wind", 2);
+    dp.createSemQuery("ocean wind", 2);*/
   }
 
 }
