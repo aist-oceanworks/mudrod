@@ -101,7 +101,6 @@ public class MudrodEngine {
 	DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
 	//recom.preprocess();
 	recom.process();
-	
   }
 
   public void startProcessing() {
@@ -173,6 +172,10 @@ public class MudrodEngine {
       me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
 
       me.config.put("raw_metadataPath", dataDir + "RawMetadata");
+      me.config.put("user_item_rate", dataDir + "user_item_rate");
+      me.config.put("user_item_rate_pre", dataDir + "user_item_rate_pre");
+      me.config.put("mb_predictionMatrix", dataDir + "MBPredictionMatrix.csv");
+      
 
       if(processingType.equals("All"))
         me.start(); 

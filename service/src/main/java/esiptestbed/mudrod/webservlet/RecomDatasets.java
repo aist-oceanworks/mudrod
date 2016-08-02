@@ -49,16 +49,13 @@ public class RecomDatasets extends HttpServlet {
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 
-			MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
-		          .getAttribute("MudrodInstance");
-			RecomData recom = new RecomData(mudrod.getConfig(),
-	          mudrod.getES(), null);
+			MudrodEngine mudrod = (MudrodEngine) request.getServletContext().getAttribute("MudrodInstance");
+			RecomData recom = new RecomData(mudrod.getConfig(), mudrod.getES(), null);
 
-	      JsonObject jsonKb = new JsonObject();
-
-	      jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 5));
-	      out.print(jsonKb.toString());
-	      out.flush();
+			JsonObject jsonKb = new JsonObject();
+			jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 5));
+			out.print(jsonKb.toString());
+			out.flush();
 		} else {
 			out.print("Please input metadata short name");
 			out.flush();

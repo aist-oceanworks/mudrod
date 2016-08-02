@@ -96,7 +96,7 @@ public class OBCodeExtractor implements Serializable {
         	
         	Vector vec = Vectors.dense(nums);
         	
-            return new Tuple2<String, Vector>(tmps[0],vec);
+            return new Tuple2<String, Vector>(tmps[0].toLowerCase(),vec);
           }
         });
 

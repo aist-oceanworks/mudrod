@@ -66,5 +66,6 @@
   <para name="ontology_w">2</para>
   
   <para name="metadataCodeSimType">MetadataCodeSim</para>
-  
+  <para name="metadataModelBasedSimType">MetadataMBSim</para>
+
 </Config>

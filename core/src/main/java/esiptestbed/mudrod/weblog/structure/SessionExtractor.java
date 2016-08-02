@@ -56,8 +56,6 @@ public class SessionExtractor implements Serializable {
         config.get("indexName"), config.get("Cleanup_type_prefix"));
     List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanup_typeList.size(); n++) {
-      if(n>1){
-    	  break;      }
       String cleanupType = cleanup_typeList.get(n);
       List<String> sessionId_list = this.getSessions(config, es, cleanupType);
       Session session = new Session(config, es);

@@ -43,25 +43,22 @@ public class ItemRateGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************ClickStreamGenerator starts******************");
+    LOG.info("*****************ItemRateGenerator starts******************");
     startTime = System.currentTimeMillis();
 
-    String clickstremMatrixFile = config.get("clickstreamMatrix");
     try {
       SessionExtractor extractor = new SessionExtractor();
       JavaRDD<ClickStream> clickstreamRDD = extractor
           .extractClickStreamFromES(this.config, this.es, this.spark);
-      
       JavaPairRDD<String, Double> useritem_rateRDD = extractor.bulidUserItermRDD(clickstreamRDD);
-      System.out.println(useritem_rateRDD.count());
-      //String path = "C:/Users/tinay/Downloads/mudrodCoreTestData/user_item_rate.txt";
-      useritem_rateRDD.coalesce(1,true).saveAsTextFile(config.get("user_item_rate"));
+      useritem_rateRDD/*.coalesce(1,true)*/.saveAsTextFile(config.get("user_item_rate"));
+      
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************ClickStreamGenerator ends******************Took {}s",
+    LOG.info("*****************ItemRateGenerator ends******************Took {}s",
         (endTime - startTime) / 1000);
     return null;
   }

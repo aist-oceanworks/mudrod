@@ -1,6 +1,8 @@
 package esiptestbed.mudrod.recommendation.process;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.api.java.JavaPairRDD;
@@ -14,6 +16,8 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.ModelBasedRating;
+import esiptestbed.mudrod.semantics.SemanticAnalyzer;
+import esiptestbed.mudrod.utils.LinkageTriple;
 import scala.Tuple2;
 
 public class ModelBasedCF extends DiscoveryStepAbstract implements Serializable {
@@ -26,8 +30,22 @@ public class ModelBasedCF extends DiscoveryStepAbstract implements Serializable 
 	@Override
 	public Object execute() {
 		// TODO Auto-generated method stub
-		ModelBasedRating rating = new ModelBasedRating();
-		rating.test(es, spark.sc, config.get("user_item_rate"));
+		
+		try {
+			ModelBasedRating mbrate = new ModelBasedRating();
+			mbrate.predictRating(es, spark.sc, config.get("user_item_rate"));
+			
+			String MBPredictionFileName = config.get("mb_predictionMatrix");
+			mbrate.saveToCSV(MBPredictionFileName);
+			
+			SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
+			List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(MBPredictionFileName);
+			analyzer.SaveToES(triples, config.get("indexName"), config.get("metadataModelBasedSimType"));
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 

@@ -24,7 +24,7 @@ public class ContentBasedCF extends DiscoveryStepAbstract implements Serializabl
 		// TODO Auto-generated method stub
 		SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
 		String MatrixCodeFileName = config.get("metadataOBCodeMatrix");
-		List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(MatrixCodeFileName);
+		List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(MatrixCodeFileName, 0);
 		analyzer.SaveToES(triples, config.get("indexName"), config.get("metadataCodeSimType"));
 
 		return null;

@@ -23,7 +23,7 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 	@Override
 	public void preprocess() {
 		// TODO Auto-generated method stub
-		System.out.println("*****************Metadata preprocessing starts******************");
+		System.out.println("*****************Recommendation preprocessing starts******************");
 	    startTime = System.currentTimeMillis();
 
 	    /*DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
@@ -32,37 +32,36 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 	  
 	    DiscoveryStepAbstract obencoder = new OBEncoding(this.config, this.es,
 		        this.spark);
-	    obencoder.execute();
+	    obencoder.execute();*/
 	    
 	    DiscoveryStepAbstract matrixGen = new MatrixGenerator(this.config, this.es,
 		        this.spark);
-	    matrixGen.execute();*/
+	    matrixGen.execute();
 	    
-	    DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,
-		        this.spark);
-	    rateGen.execute();
+	    /*DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
+	    rateGen.execute();*/
 	    
 
 	    endTime = System.currentTimeMillis();
-	    System.out.println("*****************Metadata preprocessing ends******************Took "+ (endTime - startTime) / 1000);
+	    System.out.println("*****************Recommendation preprocessing ends******************Took "+ (endTime - startTime) / 1000);
 	}
 
 	@Override
 	public void process() {
 		// TODO Auto-generated method stub
 
-		System.out.println("*****************Metadata processing starts******************");
+		System.out.println("*****************Recommendation processing starts******************");
 		startTime = System.currentTimeMillis();
 
-		/*DiscoveryStepAbstract matrix = new ContentBasedCF(this.config, this.es, this.spark);
-		matrix.execute();*/
+		DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
+		cbCF.execute();
 		
 		/*DiscoveryStepAbstract modelBasedCF = new ModelBasedCF(this.config, this.es,
 		        this.spark);
 	    modelBasedCF.execute();*/
 
 		endTime = System.currentTimeMillis();
-		 System.out.println("*****************Metadata processing ends******************Took "+ (endTime - startTime) / 1000);
+		 System.out.println("*****************Recommendation processing ends******************Took "+ (endTime - startTime) / 1000);
 	}
 
 	@Override

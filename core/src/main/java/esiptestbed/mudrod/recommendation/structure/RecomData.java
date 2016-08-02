@@ -14,7 +14,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.map.LinkedMap;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
@@ -26,7 +31,7 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-
+import esiptestbed.mudrod.recommendation.structure.RecomData.LinkedTerm;
 
 public class RecomData extends DiscoveryStepAbstract {
 
@@ -65,36 +70,58 @@ public class RecomData extends DiscoveryStepAbstract {
 	}
 
 	public JsonObject getRecomDataInJson(String input, int num) {
-		Map<String, Double> sortedMap = getRelatedData(input);
-		//System.out.println(sortedMap);
-		int count = 0;
-		Map<String, Double> trimmedMap = new LinkedMap();
-		for (Entry<String, Double> entry : sortedMap.entrySet()) {
-			if (count < num) {
-				trimmedMap.put(entry.getKey(), entry.getValue());
-			}
-			count++;
-		}
-
-		//System.out.println(trimmedMap);
+		String type = config.get("metadataCodeSimType");
+		Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
+		JsonElement linkedJson =  mapToJson(sortedOBSimMap, num);
 		
-		return mapToJson(input, trimmedMap);
+		type = config.get("metadataModelBasedSimType");
+		Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
+		JsonElement relatedJson =  mapToJson(sortedMBSimMap, num);
+		
+		JsonObject json = new JsonObject();
+		
+		json.add("linked", linkedJson);
+		json.add("related", relatedJson);
+		
+		return json;
 	}
 	
-	public Map<String, Double> getRelatedData(String input) {
+	protected JsonElement mapToJson(Map<String, Double> wordweights, int num) {
+		Gson gson = new Gson();
+		JsonObject json = new JsonObject();
+
+		List<JsonObject> nodes = new ArrayList<>();
+		Set<String> words = wordweights.keySet();
+		int i = 0;
+		for (String wordB : words) {
+			JsonObject node = new JsonObject();
+			node.addProperty("name", wordB.toUpperCase());
+			node.addProperty("weight", wordweights.get(wordB));
+			nodes.add(node);
+			
+			i += 1;
+			if(i >= num){
+				break;
+			}
+		}
+		
+		String nodesJson = gson.toJson(nodes);
+		JsonElement nodesElement = gson.fromJson(nodesJson, JsonElement.class);
+		
+
+		return nodesElement;
+	}
+
+
+	public Map<String, Double> getRelatedData(String type, String input, int num) {
 		termList = new ArrayList<>();
 		Map<String, Double> termsMap = new HashMap<>();
 		Map<String, Double> sortedMap = new HashMap<>();
 		try {
-			Map<String, List<LinkedTerm>> map = aggregateRelatedTermsFromAllmodel(input);
-			for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {
-				List<LinkedTerm> list = entry.getValue();
-				double finalWeight = 0;
-				for (LinkedTerm element : list) {
-					finalWeight += element.weight;
-				}
-
-				termsMap.put(entry.getKey(), finalWeight);
+			List<LinkedTerm> links = getRelatedDataFromES(type, input, num);
+			int size = links.size();
+			for (int i = 0; i < size; i++) {
+				termsMap.put(links.get(i).term, links.get(i).weight);
 			}
 
 			sortedMap = sortMapByValue(termsMap); // terms_map will be empty
@@ -104,37 +131,12 @@ public class RecomData extends DiscoveryStepAbstract {
 		return sortedMap;
 	}
 
-	protected JsonObject mapToJson(String word, Map<String, Double> wordweights) {
-		Gson gson = new Gson();
-		JsonObject json = new JsonObject();
+	public List<LinkedTerm> getRelatedDataFromES(String type, String input, int num) {
 
-		List<JsonObject> nodes = new ArrayList<>();
-		Set<String> words = wordweights.keySet();
-		for (String wordB : words) {
-			JsonObject node = new JsonObject();
-			node.addProperty("name", wordB);
-			node.addProperty("weight", wordweights.get(wordB));
-			nodes.add(node);
-		}
-		String nodesJson = gson.toJson(nodes);
-		JsonElement nodesElement = gson.fromJson(nodesJson,JsonElement.class);
-		json.add("related", nodesElement);
-
-		return json;
-	}
-
-	public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(String input) {
-
-		String customInput = null;
-		try {
-			customInput = es.customAnalyzing(config.get(INDEX_NAME), input);
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String type = config.get("metadataCodeSimType");
+		String customInput = input.toLowerCase();
+		//
 		SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME)).setTypes(type)
-				.setQuery(QueryBuilders.termQuery("keywords", customInput)).addSort(WEIGHT, SortOrder.DESC).setSize(11)
+				.setQuery(QueryBuilders.termQuery("keywords", customInput)).addSort(WEIGHT, SortOrder.DESC).setSize(num)
 				.execute().actionGet();
 
 		for (SearchHit hit : usrhis.getHits().getHits()) {
@@ -142,23 +144,22 @@ public class RecomData extends DiscoveryStepAbstract {
 			String keywords = (String) result.get("keywords");
 			String relatedKey = extractRelated(keywords, input);
 
-			if (!relatedKey.equals(input)) {
+			if (!relatedKey.equals(input.toLowerCase())) {
 				LinkedTerm lTerm = new LinkedTerm(relatedKey, (double) result.get(WEIGHT), type);
-
-				//System.out.println(input + " : " + relatedKey + " : " + (double) result.get(WEIGHT));
 				termList.add(lTerm);
 			}
 		}
 
-		return termList.stream().collect(Collectors.groupingBy(w -> w.term));
+		return termList;
 	}
 
+	
 	private String extractRelated(String str, String input) {
 		String[] strList = str.split(",");
 		if (input.equals(strList[0])) {
-			return strList[1];
+			return strList[1].toLowerCase();
 		} else {
-			return strList[0];
+			return strList[0].toLowerCase();
 		}
 	}
 
@@ -186,9 +187,7 @@ public class RecomData extends DiscoveryStepAbstract {
 					sortedMap.put((String) key, (Double) val);
 					break;
 				}
-
 			}
-
 		}
 		return sortedMap;
 	}

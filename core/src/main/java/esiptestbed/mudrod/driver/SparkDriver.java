@@ -29,7 +29,8 @@ public class SparkDriver implements Serializable {
 
   public SparkDriver() {
     SparkConf conf = new SparkConf().setAppName("Testing")
-        .setMaster("local[2]");
+        .setMaster("local[2]")
+        .set("spark.hadoop.validateOutputSpecs", "false");
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
   }

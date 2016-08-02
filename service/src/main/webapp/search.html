@@ -136,6 +136,7 @@
     function FileNameFormatter(value) {
         var url = "http://podaac.jpl.nasa.gov/ws/metadata/dataset?format=gcmd&shortName="+encodeURIComponent(value);
            //url = encodeURIComponent(url);		
+        url = "./dataset.html?shortname=" + value;
     	return '<a href=' + url + ' target="_blank">' + value + '</a>'; 
        }
 

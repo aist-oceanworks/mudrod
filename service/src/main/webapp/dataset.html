@@ -65,9 +65,8 @@
 		    text-align: left;
 		    color: #000;
 	  } */
-    </style>
-  </head>
-  
+</style>
+</head>
   <body>
     <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -93,18 +92,18 @@
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Matedata</h1>
+          <h1 class="page-header">Metadata</h1>
           <div class="col-sm-9 row" id = "resultPanels">
               <table id="ResultsTable" class="table"></table>
           </div>
           <div class="col-sm-3 row"  id="related">
-           <p>Related</p>
-           <ul id="relatedul" style="width:50px">
+           <h4>Linked</h4>
+           <ul id="linkedul" style="width:50px">
            </ul>
           </div>
           <div class="col-sm-3 row"  id= "interested">
-           <p>Interested</p>
-           <ul id="interestedul">
+           <h4>Related</h4>
+           <ul id="relatedul">
           </div>
         </div>
       </div>
@@ -140,6 +139,19 @@
 			success : function completeHandler(response) {
 				if (response != null) {
 					var recomdata = response.recomdata;
+					
+					var linked = recomdata.linked;
+					if (linked.length == 0) {
+						$("#NotFound").show();
+					} else {
+						$.each(linked, function(i, item) {
+					       var li = $("<li><a></a></li>");
+					       $("#linkedul").append(li);
+					       $("a",li).text(item.name  + "(" + item.weight + ")");
+					       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
+					    });
+					}
+					
 					var related = recomdata.related;
 					if (related.length == 0) {
 						$("#NotFound").show();
@@ -147,10 +159,13 @@
 						$.each(related, function(i, item) {
 					       var li = $("<li><a></a></li>");
 					       $("#relatedul").append(li);
-					       $("a",li).text(item.name);
+					       $("a",li).text(item.name + "(" + item.weight + ")");
 					       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
 					    });
 					}
+					
+					
+					
 				}
 			}
 		});
@@ -245,11 +260,7 @@
 					} , {
 						'title' : 'Term',
 						'field' : 'DatasetParameter-Term',
-					} , {
-						'title' : 'Description',
-						'field' : 'Dataset-Description',
 					} 
-					
 					]
 
 				};

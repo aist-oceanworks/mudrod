@@ -54,7 +54,6 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
       JavaPairRDD<String,Vector> metadataVecRDD = extractor.loadOBCode(this.es, this.spark.sc, config.get("indexName"),config.get("recom_metadataType"));
       RowMatrix wordDocMatrix = new RowMatrix(metadataVecRDD.values().rdd());
       List<String> rowKeys = metadataVecRDD.keys().collect();
-      List<String> colKeys = new ArrayList<String>();
       MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);
 
     } catch (Exception e) {
