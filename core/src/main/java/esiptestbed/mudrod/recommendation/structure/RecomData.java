@@ -108,7 +108,6 @@ public class RecomData extends DiscoveryStepAbstract {
 		String nodesJson = gson.toJson(nodes);
 		JsonElement nodesElement = gson.fromJson(nodesJson, JsonElement.class);
 		
-
 		return nodesElement;
 	}
 
@@ -128,6 +127,7 @@ public class RecomData extends DiscoveryStepAbstract {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return sortedMap;
 	}
 
@@ -135,15 +135,16 @@ public class RecomData extends DiscoveryStepAbstract {
 
 		String customInput = input.toLowerCase();
 		//
-		SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME)).setTypes(type)
-				.setQuery(QueryBuilders.termQuery("keywords", customInput)).addSort(WEIGHT, SortOrder.DESC).setSize(num)
-				.execute().actionGet();
-
+		SearchRequestBuilder builder = es.client.prepareSearch(config.get(INDEX_NAME)).setTypes(type)
+				.setQuery(QueryBuilders.termQuery("keywords", customInput)).addSort(WEIGHT, SortOrder.DESC).setSize(num);
+	
+		SearchResponse usrhis = builder.execute().actionGet();
+		
 		for (SearchHit hit : usrhis.getHits().getHits()) {
 			Map<String, Object> result = hit.getSource();
 			String keywords = (String) result.get("keywords");
-			String relatedKey = extractRelated(keywords, input);
-
+			String relatedKey = extractRelated(keywords, customInput);
+			
 			if (!relatedKey.equals(input.toLowerCase())) {
 				LinkedTerm lTerm = new LinkedTerm(relatedKey, (double) result.get(WEIGHT), type);
 				termList.add(lTerm);
