@@ -177,7 +177,7 @@ public class MudrodEngine {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
     Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest with the WeblogDiscoveryEngine only");
-    Option fullIngestOpt = new Option("a", FULL_INGEST, false, "begin full ingest Mudrod workflow");
+    Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
     // argument options
     Option logDirOpt = Option.builder(LOG_DIR).required(true).numberOfArgs(1)
         .hasArg(true).desc("the log directory to be processed by Mudrod").argName(LOG_DIR).build();
@@ -192,15 +192,8 @@ public class MudrodEngine {
     CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
-      if (line.hasOption("help") || !line.hasOption(LOG_DIR)
-          || (!line.hasOption(LOG_INGEST) || !line.hasOption(FULL_INGEST))) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
-            + "User must also provide either 'logIngest' or 'fullIngest'.", options, true);
-        return;
-      }
       String processingType;
-      if (line.getOptionValue(LOG_INGEST) != null) {
+      if (line.hasOption(LOG_INGEST)) {
         processingType = line.getOptionValue(LOG_INGEST);
       } else {
         processingType = line.getOptionValue(FULL_INGEST);
@@ -227,12 +220,15 @@ public class MudrodEngine {
       }
       me.end();
     } catch (Exception e) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
+          + "User must also provide either 'logIngest' or 'fullIngest'.", options, true);
       LOG.error("MudrodEngine: 'logDir' argument is mandatory. "
-            + "User must also provide either 'logIngest' or 'fullIngest'.", e);
+          + "User must also provide either 'logIngest' or 'fullIngest'.", e);
       return;
     }
   }
-  
+
   private static void loadFullConfig(MudrodEngine me, String dataDir) {
     me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
     me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
