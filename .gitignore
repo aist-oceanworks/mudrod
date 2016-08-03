@@ -67,3 +67,4 @@ dependency-reduced-pom.xml
 /bin/
 /core/mudrod.log
 core/maven-eclipse.xml
+service/mudrod.log
