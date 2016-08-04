@@ -48,7 +48,11 @@ public class Ranker extends MudrodAbstract {
       if(attribute.equals("dateLong"))
       {
         sum += ((Long)SResult.get(a, attribute)).doubleValue();
-      }else{
+      }else if(attribute.equals("allPop"))
+      {
+        sum = ((Integer)SResult.get(a, attribute)).doubleValue();
+      }
+      else{
         sum += (double)SResult.get(a, attribute);
       }      
     }
@@ -65,7 +69,11 @@ public class Ranker extends MudrodAbstract {
       if(attribute.equals("dateLong"))
       {
         val = ((Long)SResult.get(a, attribute)).doubleValue();
-      }else{
+      }else if(attribute.equals("allPop"))
+      {
+        val = ((Integer)SResult.get(a, attribute)).doubleValue();
+      }
+      else{
         val = (Double)SResult.get(a, attribute);
       }
       temp += (mean - val)*(mean - val);
@@ -95,7 +103,7 @@ public class Ranker extends MudrodAbstract {
     double relevance_std = getStdDev("relevance", resultList);
     double clicks_std = getStdDev("clicks", resultList);
     double release_std = getStdDev("dateLong", resultList);
-    double allPop_std = getMean("allPop", resultList);
+    double allPop_std = getStdDev("allPop", resultList);
 
     for(int i=0; i< resultList.size(); i++)
     {
@@ -120,9 +128,10 @@ public class Ranker extends MudrodAbstract {
       }
 
       resultList.get(i).final_score = getNDForm(resultList.get(i).term_score + 
-          resultList.get(i).click_score + 
-          resultList.get(i).releaseDate_score + 
-          resultList.get(i).allPop_score);
+          0.25*resultList.get(i).click_score -
+          0.25*resultList.get(i).allPop_score +
+          0.75*resultList.get(i).releaseDate_score 
+          );
     }
 
     Collections.sort(resultList, new ResultComparator());

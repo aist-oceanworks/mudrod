@@ -53,9 +53,24 @@ public class Dispatcher extends MudrodAbstract {
     }
     return selected_Map;
   }
+  
+  public Map<String, Double> getRelatedTermsByT(String input, double T) {
+    LinkageIntegration li = new LinkageIntegration(this.config,
+        this.es, null);
+    Map<String, Double> sortedMap = li.appyMajorRule(input);
+    Map<String, Double> selected_Map = new HashMap<>();
+    //int count = 0;
+    for (Entry<String, Double> entry : sortedMap.entrySet()) {
+      if (entry.getValue() >= T) {
+        selected_Map.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return selected_Map;
+  }
 
   public BoolQueryBuilder createSemQuery(String input, int num){
-    Map<String, Double> selected_Map = getRelatedTerms(input, num);
+   // Map<String, Double> selected_Map = getRelatedTerms(input, num);
+    Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
     selected_Map.put(input, (double) 1);
 
     String fieldsList[] = {"Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*"};
@@ -71,7 +86,8 @@ public class Dispatcher extends MudrodAbstract {
   }
 
   public QueryBuilder createQueryForClicks(String input, int num, String shortName){   
-    Map<String, Double> selected_Map = getRelatedTerms(input, num);
+    //Map<String, Double> selected_Map = getRelatedTerms(input, num);
+    Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
     selected_Map.put(input, (double) 1);
 
     BoolFilterBuilder bf = new BoolFilterBuilder();
@@ -85,10 +101,5 @@ public class Dispatcher extends MudrodAbstract {
     return click_search;
   }
 
-  public static void main(String[] args) {
-    /*MudrodEngine mudrod = new MudrodEngine();
-    Dispatcher dp = new Dispatcher(mudrod.getConfig(), mudrod.getES(), null);
-    dp.createSemQuery("ocean wind", 2);*/
-  }
 
 }

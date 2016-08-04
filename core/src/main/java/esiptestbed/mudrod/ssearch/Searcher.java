@@ -111,7 +111,7 @@ public class Searcher extends MudrodAbstract {
           version = versionList.get(0);
         }
       }
-      
+
       String stopDateLong = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
       if(stopDateLong.equals(""))
       {
@@ -119,7 +119,7 @@ public class Searcher extends MudrodAbstract {
       }
       Date date1=new Date(Long.valueOf(stopDateLong).longValue());
       String dateText1 = df2.format(date1);
-      
+
       String processingLevel = (String) result.get("Dataset-ProcessingLevel");     
       Double spatialR = (Double) result.get("Dataset-SatelliteSpatialResolution");
       String temporalR = (String) result.get("Dataset-TemporalResolution");
@@ -129,7 +129,7 @@ public class Searcher extends MudrodAbstract {
       {
         allPop=1000;
       }
-      
+
       Integer monthPop = (Integer) result.get("Dataset-MonthlyPopularity");
 
 
@@ -205,32 +205,38 @@ public class Searcher extends MudrodAbstract {
   }
 
   public static void main(String[] args) throws IOException {
-    String query = "ocean wind";
-    File file = new File("C:/mudrodCoreTestData/rankingResults/" + query + ".csv");
-    if (file.exists()) {
-      file.delete();
-    }
-
-    file.createNewFile();
-
-    FileWriter fw = new FileWriter(file.getAbsoluteFile());
-    BufferedWriter bw = new BufferedWriter(fw); 
-    bw.write( "Query:"+ query + "\n");
-    bw.write(SResult.getHeader(","));
-
+    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+        "saline density", "noaa 11", "amsr", "pathfinder"};
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
-    List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
-        mudrod.getConfig().get("raw_metadataType"), query);
-    Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null);
-    List<SResult> li = rr.rank(resultList);
-    for(int i =0; i< li.size(); i++)
+    for(String q:query_list)
     {
-      //System.out.println(li.get(i).toString(" "));
-      bw.write(li.get(i).toString(","));
+      File file = new File("C:/mudrodCoreTestData/rankingResults/evaluation/" + q + ".csv");
+      if (file.exists()) {
+        file.delete();
+      }
+
+      file.createNewFile();
+
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw); 
+      bw.write( "Query:"+ q + "\n");
+      bw.write(SResult.getHeader(","));
+      
+      List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
+          mudrod.getConfig().get("raw_metadataType"), q);
+      Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null);
+      List<SResult> li = rr.rank(resultList);
+      for(int i =0; i< li.size(); i++)
+      {
+        //System.out.println(li.get(i).toString(" "));
+        bw.write(li.get(i).toString(","));
+      }
+
+      bw.close();
     }
 
-    bw.close();
+
     /*  String result = sr.ssearch(mudrod.getConfig().get("indexName"), 
         mudrod.getConfig().get("raw_metadataType"), 
         "sea surface temperature");

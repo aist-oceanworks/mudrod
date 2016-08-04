@@ -69,11 +69,14 @@ public class SResult {
             "SpatialResolution(grid)"  + delimiter +
             "TemporalResolution"  + delimiter +
             "UserPopularity"  + delimiter +*/
+            "ReleaseDate(format)" + delimiter +
             "AllPopularity"  + delimiter +
             "AllPop_score"  + delimiter +
            /* "MonthPopularity"  + delimiter +
-            "ReleaseDate(long)"  + delimiter +*/
-            "ReleaseDate(format)" + "\n";
+            "ReleaseDate(long)"  + delimiter +*/            
+            "Evaluation"  + delimiter +
+            "Comments"  + delimiter +
+            "\n";
   }
   
   public String toString(String delimiter ){
@@ -93,11 +96,12 @@ public class SResult {
            spatialR + delimiter + 
            temporalR + delimiter + 
            userPop + delimiter + */
+           relase_date + delimiter +
            allPop + delimiter + 
            allPop_score + delimiter +
            /*monthPop + delimiter + 
            dateLong + delimiter + */
-           relase_date + "\n";
+           "\n";
   }
 
   public static boolean set(Object object, String fieldName, Object fieldValue) {
