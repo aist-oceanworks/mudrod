@@ -51,7 +51,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
           Integer.parseInt(config.get("clickstreamSVDDimension")),
           config.get("clickstreamSVDMatrix_tmp"));
       List<LinkageTriple> tripleList = svd
-          .CalTermSimfromMatrix(config.get("clickstreamMatrix"));
+          .CalTermSimfromMatrix(config.get("clickstreamSVDMatrix_tmp"));
       svd.SaveToES(tripleList, config.get("indexName"),
           config.get("clickStreamLinkageType"));
     } catch (Exception e) {
