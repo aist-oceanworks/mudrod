@@ -125,6 +125,11 @@ public class Searcher extends MudrodAbstract {
       String temporalR = (String) result.get("Dataset-TemporalResolution");
       Integer userPop = (Integer) result.get("Dataset-UserPopularity");
       Integer allPop = (Integer) result.get("Dataset-AllTimePopularity");
+      if(allPop>1000)
+      {
+        allPop=1000;
+      }
+      
       Integer monthPop = (Integer) result.get("Dataset-MonthlyPopularity");
 
 

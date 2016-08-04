@@ -90,10 +90,12 @@ public class Ranker extends MudrodAbstract {
     double relevance_mean = getMean("relevance", resultList);
     double clicks_mean = getMean("clicks", resultList);
     double release_mean = getMean("dateLong", resultList);
+    double allPop_mean = getMean("allPop", resultList);
 
     double relevance_std = getStdDev("relevance", resultList);
     double clicks_std = getStdDev("clicks", resultList);
     double release_std = getStdDev("dateLong", resultList);
+    double allPop_std = getMean("allPop", resultList);
 
     for(int i=0; i< resultList.size(); i++)
     {
@@ -111,10 +113,16 @@ public class Ranker extends MudrodAbstract {
       {
         resultList.get(i).releaseDate_score = getNDForm((resultList.get(i).dateLong - release_mean)/release_std);
       }
+      
+      if(allPop_std!=0)
+      {
+        resultList.get(i).allPop_score = getNDForm((resultList.get(i).allPop - allPop_mean)/allPop_std);
+      }
 
       resultList.get(i).final_score = getNDForm(resultList.get(i).term_score + 
-          0.5*resultList.get(i).click_score + 
-          resultList.get(i).releaseDate_score);
+          resultList.get(i).click_score + 
+          resultList.get(i).releaseDate_score + 
+          resultList.get(i).allPop_score);
     }
 
     Collections.sort(resultList, new ResultComparator());

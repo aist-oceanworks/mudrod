@@ -31,6 +31,7 @@ public class SResult {
   public Double term_score = 0.0;
   public Double releaseDate_score = 0.0;
   public Double click_score = 0.0;
+  public Double allPop_score = 0.0;
   
   public String version = null;
   public String processingLevel = null;
@@ -56,21 +57,22 @@ public class SResult {
             
              "final_score" + delimiter + 
              "term_score" + delimiter + 
-             "click_score (0.5)" + delimiter + 
+             "click_score" + delimiter + 
              "clicks" + delimiter +
              "releaseDate_score" + delimiter + 
          
-            "Version"  + delimiter +
+            /*"Version"  + delimiter +
             "Processing Level"  + delimiter +
             "Latency(hrs)"  + delimiter +
             "StopDate(long)"  + delimiter +
             "StopDate(format)"  + delimiter +
             "SpatialResolution(grid)"  + delimiter +
             "TemporalResolution"  + delimiter +
-            "UserPopularity"  + delimiter +
+            "UserPopularity"  + delimiter +*/
             "AllPopularity"  + delimiter +
-            "MonthPopularity"  + delimiter +
-            "ReleaseDate(long)"  + delimiter +
+            "AllPop_score"  + delimiter +
+           /* "MonthPopularity"  + delimiter +
+            "ReleaseDate(long)"  + delimiter +*/
             "ReleaseDate(format)" + "\n";
   }
   
@@ -83,17 +85,18 @@ public class SResult {
            clicks + delimiter +
            releaseDate_score + delimiter +
         
-           version + delimiter + 
+          /* version + delimiter + 
            processingLevel + delimiter + 
            latency + delimiter + 
            stopDateLong + delimiter +
            stopDateFormat + delimiter +
            spatialR + delimiter + 
            temporalR + delimiter + 
-           userPop + delimiter + 
+           userPop + delimiter + */
            allPop + delimiter + 
-           monthPop + delimiter + 
-           dateLong + delimiter + 
+           allPop_score + delimiter +
+           /*monthPop + delimiter + 
+           dateLong + delimiter + */
            relase_date + "\n";
   }
 
