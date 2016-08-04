@@ -21,7 +21,7 @@ public class SResult {
   String longName = null;
   String topic = null;
   String description = null;
-  String date = null;
+  String relase_date = null;
 
   public long dateLong = 0;
   public Double clicks = null;
@@ -31,24 +31,70 @@ public class SResult {
   public Double term_score = 0.0;
   public Double releaseDate_score = 0.0;
   public Double click_score = 0.0;
+  
+  public String version = null;
+  public String processingLevel = null;
+  public String latency = null;
+  public String stopDateLong = null;
+  public String stopDateFormat = null;
+  public Double spatialR = null;
+  public String temporalR = null;
+  public Integer userPop = null;
+  public Integer allPop = null;
+  public Integer monthPop = null;
 
   public SResult(String shortName, String longName, String topic, String description, String date){
     this.shortName = shortName;
     this.longName = longName;
     this.topic = topic;
     this.description = description;
-    this.date = date;
+    this.relase_date = date;
+  }
+  
+  public static String getHeader(String delimiter){
+     return "ShortName" + delimiter +
+            
+             "final_score" + delimiter + 
+             "term_score" + delimiter + 
+             "click_score (0.5)" + delimiter + 
+             "clicks" + delimiter +
+             "releaseDate_score" + delimiter + 
+         
+            "Version"  + delimiter +
+            "Processing Level"  + delimiter +
+            "Latency(hrs)"  + delimiter +
+            "StopDate(long)"  + delimiter +
+            "StopDate(format)"  + delimiter +
+            "SpatialResolution(grid)"  + delimiter +
+            "TemporalResolution"  + delimiter +
+            "UserPopularity"  + delimiter +
+            "AllPopularity"  + delimiter +
+            "MonthPopularity"  + delimiter +
+            "ReleaseDate(long)"  + delimiter +
+            "ReleaseDate(format)" + "\n";
   }
   
   public String toString(String delimiter ){
     return shortName + delimiter + 
-           longName + delimiter + 
+        
            final_score + delimiter + 
            term_score + delimiter + 
            click_score + delimiter + 
+           clicks + delimiter +
            releaseDate_score + delimiter +
-           clicks + delimiter + 
-           date + "\n";
+        
+           version + delimiter + 
+           processingLevel + delimiter + 
+           latency + delimiter + 
+           stopDateLong + delimiter +
+           stopDateFormat + delimiter +
+           spatialR + delimiter + 
+           temporalR + delimiter + 
+           userPop + delimiter + 
+           allPop + delimiter + 
+           monthPop + delimiter + 
+           dateLong + delimiter + 
+           relase_date + "\n";
   }
 
   public static boolean set(Object object, String fieldName, Object fieldValue) {

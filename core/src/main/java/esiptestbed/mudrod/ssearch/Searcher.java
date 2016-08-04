@@ -57,13 +57,13 @@ public class Searcher extends MudrodAbstract {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
   }
-/**
- * 
- * @param index index name in elasticsearch
- * @param type  type name in elasticsearch
- * @param query query string
- * @return a list of result
- */
+  /**
+   * 
+   * @param index index name in elasticsearch
+   * @param type  type name in elasticsearch
+   * @param query query string
+   * @return a list of result
+   */
   public List<SResult> searchByQuery(String index, String type, String query) 
   {
     boolean exists = es.node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
@@ -99,9 +99,48 @@ public class Searcher extends MudrodAbstract {
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
+      //more features
+      String latency = (String) result.get("DatasetPolicy-DataLatency");
+      @SuppressWarnings("unchecked")
+      ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
+      String version=null;
+      if(versionList!=null)
+      {
+        if(versionList.size()>0)
+        {
+          version = versionList.get(0);
+        }
+      }
+      
+      String stopDateLong = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
+      if(stopDateLong.equals(""))
+      {
+        stopDateLong = String.valueOf(System.currentTimeMillis());
+      }
+      Date date1=new Date(Long.valueOf(stopDateLong).longValue());
+      String dateText1 = df2.format(date1);
+      
+      String processingLevel = (String) result.get("Dataset-ProcessingLevel");     
+      Double spatialR = (Double) result.get("Dataset-SatelliteSpatialResolution");
+      String temporalR = (String) result.get("Dataset-TemporalResolution");
+      Integer userPop = (Integer) result.get("Dataset-UserPopularity");
+      Integer allPop = (Integer) result.get("Dataset-AllTimePopularity");
+      Integer monthPop = (Integer) result.get("Dataset-MonthlyPopularity");
+
+
       SResult re = new SResult(shortName, longName, topic, content, dateText);
       SResult.set(re, "relevance", relevance);
-      SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).longValue());
+      SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).longValue());     
+      SResult.set(re, "version", version);
+      SResult.set(re, "processingLevel", processingLevel);
+      SResult.set(re, "latency", latency);
+      SResult.set(re, "stopDateLong", stopDateLong);
+      SResult.set(re, "stopDateFormat", dateText1);
+      SResult.set(re, "spatialR", spatialR);
+      SResult.set(re, "temporalR", temporalR);
+      SResult.set(re, "userPop", userPop);
+      SResult.set(re, "allPop", allPop);
+      SResult.set(re, "monthPop", monthPop);
 
       /***************************set click count*********************************/
       //important to convert shortName to lowercase
@@ -161,7 +200,8 @@ public class Searcher extends MudrodAbstract {
   }
 
   public static void main(String[] args) throws IOException {
-    File file = new File("C:/mudrodCoreTestData/rankingResults/test.csv");
+    String query = "ocean wind";
+    File file = new File("C:/mudrodCoreTestData/rankingResults/" + query + ".csv");
     if (file.exists()) {
       file.delete();
     }
@@ -169,12 +209,14 @@ public class Searcher extends MudrodAbstract {
     file.createNewFile();
 
     FileWriter fw = new FileWriter(file.getAbsoluteFile());
-    BufferedWriter bw = new BufferedWriter(fw);   
+    BufferedWriter bw = new BufferedWriter(fw); 
+    bw.write( "Query:"+ query + "\n");
+    bw.write(SResult.getHeader(","));
 
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
     List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
-        mudrod.getConfig().get("raw_metadataType"), "ocean wind");
+        mudrod.getConfig().get("raw_metadataType"), query);
     Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null);
     List<SResult> li = rr.rank(resultList);
     for(int i =0; i< li.size(); i++)

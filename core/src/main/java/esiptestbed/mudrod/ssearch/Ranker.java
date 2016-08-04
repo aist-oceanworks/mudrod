@@ -113,7 +113,7 @@ public class Ranker extends MudrodAbstract {
       }
 
       resultList.get(i).final_score = getNDForm(resultList.get(i).term_score + 
-          resultList.get(i).click_score + 
+          0.5*resultList.get(i).click_score + 
           resultList.get(i).releaseDate_score);
     }
 
