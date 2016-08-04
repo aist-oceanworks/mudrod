@@ -106,7 +106,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     try {
       ReadLogFile(httplogpath, "http", config.get("indexName"), this.HTTP_type);
       ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
-    
+
     } catch (IOException e) {
       e.printStackTrace();
     } 
@@ -149,12 +149,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
     Date date = null;
-	try {
-		date = formatter.parse(time);
-	} catch (ParseException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+    try {
+      date = formatter.parse(time);
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     String bytes = log.split(" +")[7];
 
     String request = log.split(" +")[8].toLowerCase();
@@ -162,25 +162,24 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     if(!request.contains("/misc/") && !request.contains("readme"))
     {
       IndexRequest ir;
-	try {
-		ir = new IndexRequest(index, type).source(jsonBuilder()
-		      .startObject()
-		      .field("LogType", "ftp")
-		      .field("IP", ip)
-		      .field("Time", date)
-		      .field("Request", request)
-		      .field("Bytes", Long.parseLong(bytes))
-		      .endObject());
-		es.bulkProcessor.add(ir);
-	} catch (NumberFormatException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+      try {
+        ir = new IndexRequest(index, type).source(jsonBuilder()
+            .startObject()
+            .field("LogType", "ftp")
+            .field("IP", ip)
+            .field("Time", date)
+            .field("Request", request)
+            .field("Bytes", Long.parseLong(bytes))
+            .endObject());
+        es.bulkProcessor.add(ir);
+      } catch (NumberFormatException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
-      
     }
 
   }
@@ -195,12 +194,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     Date date = null;
-	try {
-		date = formatter.parse(time);
-	} catch (ParseException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+    try {
+      date = formatter.parse(time);
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
     String bytes = matcher.group(7);
     if("-".equals(bytes)){
@@ -224,29 +223,29 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
       }else{
         IndexRequest ir;
-		try {
-			ir = new IndexRequest(index, type).source(jsonBuilder()
-			    .startObject()
-			    .field("LogType", "PO.DAAC")
-			    .field("IP", matcher.group(1))
-			    .field("Time", date)
-			    .field("Request", matcher.group(5))
-			    .field("Response", matcher.group(6))
-			    .field("Bytes", Integer.parseInt(bytes))
-			    .field("Referer", matcher.group(8))
-			    .field("Browser", matcher.group(9))
-			    .endObject());
-			
-			es.bulkProcessor.add(ir);
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        try {
+          ir = new IndexRequest(index, type).source(jsonBuilder()
+              .startObject()
+              .field("LogType", "PO.DAAC")
+              .field("IP", matcher.group(1))
+              .field("Time", date)
+              .field("Request", matcher.group(5))
+              .field("Response", matcher.group(6))
+              .field("Bytes", Integer.parseInt(bytes))
+              .field("Referer", matcher.group(8))
+              .field("Browser", matcher.group(9))
+              .endObject());
 
-        
+          es.bulkProcessor.add(ir);
+        } catch (NumberFormatException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+
 
       }
     }
