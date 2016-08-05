@@ -53,7 +53,7 @@ public class RecomDatasets extends HttpServlet {
 			RecomData recom = new RecomData(mudrod.getConfig(), mudrod.getES(), null);
 
 			JsonObject jsonKb = new JsonObject();
-			jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 5));
+			jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 10));
 			out.print(jsonKb.toString());
 			out.flush();
 		} else {

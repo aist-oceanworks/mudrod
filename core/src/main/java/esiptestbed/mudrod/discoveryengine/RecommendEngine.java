@@ -7,9 +7,11 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import esiptestbed.mudrod.recommendation.pre.ApiHarvester;
 import esiptestbed.mudrod.recommendation.pre.ItemRateGenerator;
+import esiptestbed.mudrod.recommendation.pre.ItemSimGenerator;
 import esiptestbed.mudrod.recommendation.pre.MatrixGenerator;
 import esiptestbed.mudrod.recommendation.pre.OBEncoding;
 import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
+import esiptestbed.mudrod.recommendation.process.ItemBasedCF;
 import esiptestbed.mudrod.recommendation.process.ModelBasedCF;
 
 
@@ -32,14 +34,17 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 	  
 	    DiscoveryStepAbstract obencoder = new OBEncoding(this.config, this.es,
 		        this.spark);
-	    obencoder.execute();*/
+	    obencoder.execute();
 	    
 	    DiscoveryStepAbstract matrixGen = new MatrixGenerator(this.config, this.es,
 		        this.spark);
-	    matrixGen.execute();
+	    matrixGen.execute();*/
 	    
-	    /*DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
+	   /* DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
 	    rateGen.execute();*/
+	    
+	    DiscoveryStepAbstract rateGen = new ItemSimGenerator(this.config, this.es,this.spark);
+	    rateGen.execute();
 	    
 
 	    endTime = System.currentTimeMillis();
@@ -53,12 +58,17 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Recommendation processing starts******************");
 		startTime = System.currentTimeMillis();
 
-		DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
-		cbCF.execute();
+		/*DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
+		cbCF.execute();*/
 		
 		/*DiscoveryStepAbstract modelBasedCF = new ModelBasedCF(this.config, this.es,
 		        this.spark);
 	    modelBasedCF.execute();*/
+		
+		DiscoveryStepAbstract modelBasedCF = new ItemBasedCF(this.config, this.es,
+		        this.spark);
+	    modelBasedCF.execute();
+
 
 		endTime = System.currentTimeMillis();
 		 System.out.println("*****************Recommendation processing ends******************Took "+ (endTime - startTime) / 1000);

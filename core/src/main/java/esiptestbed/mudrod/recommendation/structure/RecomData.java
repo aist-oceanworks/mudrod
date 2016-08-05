@@ -74,7 +74,8 @@ public class RecomData extends DiscoveryStepAbstract {
 		Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
 		JsonElement linkedJson =  mapToJson(sortedOBSimMap, num);
 		
-		type = config.get("metadataModelBasedSimType");
+		//type = config.get("metadataModelBasedSimType");
+		type = config.get("metadataItemBasedSimType");
 		Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
 		JsonElement relatedJson =  mapToJson(sortedMBSimMap, num);
 		

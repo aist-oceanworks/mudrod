@@ -24,6 +24,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -136,36 +137,15 @@ public class SessionExtractor implements Serializable {
     return sessionID_list;
   }
   
- /* public JavaPairRDD<String, List<String>> bulidUserItermRDD(
-	      JavaRDD<ClickStream> clickstreamRDD) {
-		JavaRDD<Tuple3<String, String, Double>> userItemRateRDD = clickstreamRDD
-				.map(new Function<ClickStream, Tuple3<String, String, Double>>() {
-					public Tuple3<String, String, Double> call(ClickStream click) throws Exception {
-						double rate = 1.0;
-						boolean download = click.isDownload();
-						if (download) {
-							rate = 2.0;
-						}
-
-						String sessionID = click.getSessionID();
-						String user = sessionID.split("@")[0];
-
-						return new Tuple3<String, String, Double>(user, click.getViewDataset(), rate);
-					}
-				});
-
-	    return dataQueryRDD;
-	  }*/
-
   public JavaPairRDD<String, Double> bulidUserItermRDD(JavaRDD<ClickStream> clickstreamRDD) {
 	    JavaPairRDD<String, Double> useritem_rateRDD = clickstreamRDD
 	        .mapToPair(new PairFunction<ClickStream, String, Double>() {
 	          public Tuple2<String, Double> call(ClickStream click)
 	              throws Exception {
-	            double rate = 1.0;
+	            double rate = 1;
 	            boolean download = click.isDownload();
 	            if (download) {
-	              rate = 2.0;
+	              rate = 2;
 	            }
 	            
 	            String sessionID = click.getSessionID();
@@ -185,4 +165,5 @@ public class SessionExtractor implements Serializable {
 
 	    return useritem_rateRDD;
 	  }
+ 
 }

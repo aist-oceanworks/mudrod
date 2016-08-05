@@ -176,6 +176,7 @@ public class MudrodEngine {
       me.config.put("user_item_rate_pre", dataDir + "user_item_rate_pre");
       me.config.put("mb_predictionMatrix", dataDir + "MBPredictionMatrix.csv");
       
+      me.config.put("user_based_item_optMatrix", dataDir + "User_based_item_optMatrix.csv");
 
       if(processingType.equals("All"))
         me.start(); 

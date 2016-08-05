@@ -215,7 +215,16 @@ public class OBEncoding extends DiscoveryStepAbstract{
 			    vec = getValueVec(var,VAR_NOT_EXIST);
 			}	
 			
-			double[] codeArr = vec.toArray();
+			
+			double[] codeArr1 = vec.toArray();
+			double[] codeArr = codeArr1;
+			//test
+			if(var.equals("DatasetParameter-Topic")){
+				for(int k=0; k<codeArr1.length; k++){
+					codeArr[k] = codeArr[k] *5;
+				}
+			}
+			
 			String codeStr =  Arrays.toString(codeArr);
 			codeStr = codeStr.substring(1, codeStr.length()-1);
 			metadataCodes.put(var + "_code",  codeStr);
