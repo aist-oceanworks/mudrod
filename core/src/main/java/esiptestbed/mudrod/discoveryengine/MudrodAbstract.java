@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Superclass of mudrod program
- * @author Yongyao
- *
+ * This is the most generic class of Mudrod
  */
 public abstract class MudrodAbstract implements Serializable {
   

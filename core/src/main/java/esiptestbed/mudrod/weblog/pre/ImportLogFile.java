@@ -44,9 +44,6 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
   private static final String TIME_SUFFIX = "TimeSuffix";
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
 
   String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] "
@@ -77,6 +74,10 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     return null;
   }
 
+  @Override
+  public Object execute(Object o) {
+    return null;
+  }
   /**
    * Utility function to aid String to Number formatting such that three letter
    * months such as 'Jan' are converted to the Gregorian integer equivalent.
@@ -266,7 +267,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
           ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/"};
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
-          //do nothing we don;t wish to process those mimeTypes above
+          //do nothing we don't wish to process those mimeTypes above
         }else{
           IndexRequest ir = null;
           executeBulkRequest(ir, index, type, matcher, date, bytes);
@@ -296,10 +297,5 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     } catch (IOException e) {
       LOG.error("IOError whilst adding to the bulk processor.", e);
     }
-  }
-
-  @Override
-  public Object execute(Object o) {
-    return null;
   }
 }

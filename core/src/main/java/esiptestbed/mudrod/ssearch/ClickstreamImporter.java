@@ -33,7 +33,6 @@ public class ClickstreamImporter extends MudrodAbstract {
 
   public ClickstreamImporter(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
     addClickStreamMapping();
   }
 
@@ -63,7 +62,6 @@ public class ClickstreamImporter extends MudrodAbstract {
       .setSource(Mapping)
       .execute().actionGet();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } 
   }

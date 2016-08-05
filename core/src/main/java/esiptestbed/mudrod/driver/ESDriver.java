@@ -66,9 +66,6 @@ import org.slf4j.LoggerFactory;
 public class ESDriver implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   public Client client = null;
   public Node node = null;

@@ -55,7 +55,6 @@ public class Searcher extends MudrodAbstract {
    */
   public Searcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
   /**
    * 
@@ -132,7 +131,6 @@ public class Searcher extends MudrodAbstract {
 
       Integer monthPop = (Integer) result.get("Dataset-MonthlyPopularity");
 
-
       SResult re = new SResult(shortName, longName, topic, content, dateText);
       SResult.set(re, "relevance", relevance);
       SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).longValue());     
@@ -169,7 +167,6 @@ public class Searcher extends MudrodAbstract {
         }
       }
       SResult.set(re, "clicks", click_count);
-      //re.setClicks(click_count);
       /***************************************************************************/
       resultList.add(re); 
     }

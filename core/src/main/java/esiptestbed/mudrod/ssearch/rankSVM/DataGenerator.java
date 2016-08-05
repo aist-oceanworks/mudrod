@@ -21,9 +21,6 @@ import java.util.List;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
-/*import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;*/
-
 /**
  * SVMData is a program designed to create appropriate input data for the RankSVM
  * algorithm that involves Pairwise Classification.  Specifically, instead of working in
@@ -155,28 +152,27 @@ public class DataGenerator {
     List<List<String>> listofLists = new ArrayList<List<String>>(); // Holds calculations 
     
     int rowStart = 1;
-    while(rowStart < arr.length) // Perform calculations for each row continuously until last is reached
+    for(int row = rowStart; row < arr.length; row++) // Start at row 1 because row 0 is heading lol
     {
-      for(int row = rowStart; row < arr.length - 1; row++) // Start at row 1 because row 0 is heading lol
+      for(int i = 1; i < arr.length - row; i++)
       {
         List<String> colList = new ArrayList<String>(); // create vector to store all values inside of a column, which is stored inside 2D vector
         for(int col = 0; col < arr[0].length - 1; col++) // Columns go until the next to last column 
         {
-          
           // Extract double value from each cell
           double x1 = Double.parseDouble(arr[row][col]);
-          double x2 = Double.parseDouble(arr[row + 1][col]);
-          
+          double x2 = Double.parseDouble(arr[row + i][col]);
+
           // Perform calculation for each cell
           double result = x1-x2;
-          
+
           // Convert this double value into string, and store inside array list
           String strResult = Double.toString(result);
           colList.add(strResult);
         }
-        
+
         // Finally, add either 1, -1, or do not add row at all when encountering evaluation value
-        int addEvalNum = compareEvaluation(arr[row][arr[0].length - 1], arr[row + 1][arr[0].length - 1]);
+        int addEvalNum = compareEvaluation(arr[row][arr[0].length - 1], arr[row + i][arr[0].length - 1]);
         if(addEvalNum == 1) 
         {
           colList.add("1");
@@ -189,8 +185,6 @@ public class DataGenerator {
         }
         // Else, they are equal, do not even add this row to 2D vector
       }
-      
-      rowStart++;  // Start calculations all over, this time beginning at the next row
     }
     
     // After all processing takes place, send to method that recreates data with equal # of 1's and -1's
@@ -241,7 +235,7 @@ public class DataGenerator {
     List<Integer> pos1List = new ArrayList<Integer>();  
     List<Integer> neg1List = new ArrayList<Integer>(); 
     
-    for(int i = 0; i < rawList.size() - 1; i++) // Iterate through all rows to get indexes 
+    for(int i = 0; i < rawList.size(); i++) // Iterate through all rows to get indexes 
     {
       int evalNum = Integer.parseInt(rawList.get(i).get(rawList.get(0).size() - 1)); // Get 1 or -1 from original array list
       if(evalNum == 1)
@@ -254,16 +248,54 @@ public class DataGenerator {
       }
     }
     
-    int count = 0;
-    List<List<String>> equalizedList = new ArrayList<List<String>>(); // Holds calculations 
-    while(count < pos1List.size() && count < neg1List.size()) // Equally select amongst the two to include in new 2D arr list
+    int totPosCount = pos1List.size(); // Total # of 1's
+    int totNegCount = neg1List.size(); // Total # of -1's
+    
+    if((totPosCount - totNegCount) >= 1) // There are more 1's than -1's, equalize them
     {
-      equalizedList.add(rawList.get(pos1List.get(count)));
-      equalizedList.add(rawList.get(neg1List.get(count)));
-      count++;
+      int indexOfPosList = 0; // Start getting indexes from the first index of positive index location list
+      while((totPosCount - totNegCount) >= 1) // Keep going until we have acceptable amount of both +1 and -1
+      {
+        int pos1IndexVal = pos1List.get(indexOfPosList); // Get index from previously made list of indexes
+        for(int col = 0; col < rawList.get(0).size(); col++) // Go through elements of indexed row, negating it to transform to -1 row
+        {
+          double d = Double.parseDouble(rawList.get(pos1IndexVal).get(col)); // Transform to double first
+          d = d*-1; // Negate it
+          String negatedValue = Double.toString(d); // Change back to String
+          rawList.get(pos1IndexVal).set(col, negatedValue);// Put this value back into dat row
+        }
+        
+        totPosCount--; // We changed a +1 row to a -1 row, decrement count of positives
+        totNegCount++; // Increment count of negatives
+        indexOfPosList++; // Get next +1 location in raw data
+      }
+    }
+    else if((totNegCount - totPosCount) > 1) // There are more -1's than 1's, equalize them
+    {
+      int indexOfNegList = 0;
+      while((totNegCount - totPosCount) > 1) // Keep going until we have acceptable amount of both +1 and -1
+      {
+        int neg1IndexVal = neg1List.get(indexOfNegList); // Get index from previously made list of indexes
+        for(int col = 0; col < rawList.get(0).size(); col++) // Go through elements of indexed row, negating it to transform to +1 row
+        {
+          double d = Double.parseDouble(rawList.get(neg1IndexVal).get(col)); // Transform to double first
+          d = d*-1; // Negate it
+          String negatedValue = Double.toString(d); // Change back to String
+          rawList.get(neg1IndexVal).set(col, negatedValue);// Put this value back into dat row
+        }
+        
+        totNegCount--; // We changed a -1 row to a +1 row, decrement count of negatives now
+        totPosCount++; // Increment count of positives
+        indexOfNegList++; // Get next -1 location in raw data
+      }
+    }
+    else
+    {
+      // Do nothing - rows are within acceptable equality bounds of plus or minus 1
     }
     
-    return equalizedList;
+    
+    return rawList;
   }
   
   /**

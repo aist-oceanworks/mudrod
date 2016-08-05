@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes web log pre-processing classes.
+ * Preprocessing for all functionality required by the 
+ * {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
  */
 package esiptestbed.mudrod.weblog.pre;

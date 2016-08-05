@@ -36,7 +36,6 @@ public class Dispatcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
   public Dispatcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public Map<String, Double> getRelatedTerms(String input, int num) {
