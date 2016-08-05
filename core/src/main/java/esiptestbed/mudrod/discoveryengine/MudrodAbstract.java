@@ -25,10 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the most generit class of MUDROD,
- * 
- * conig: configuration read from config.xml es: Elasticsearch instance
- * 
+ * This is the most generic class of Mudrod
  */
 public abstract class MudrodAbstract implements Serializable {
   
