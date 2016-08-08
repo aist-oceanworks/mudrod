@@ -31,46 +31,51 @@ import esiptestbed.mudrod.utils.SimilarityUtil;
 
 public class SemanticAnalyzer extends MudrodAbstract {
 
-  public SemanticAnalyzer(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
-  }
+	public SemanticAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
+		// TODO Auto-generated constructor stub
+	}
 
-  public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName) {
+	public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName) {
 
-    /*JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        CSV_fileName, 1);
-    CoordinateMatrix simMatrix = SimilarityUtil
-        .CalSimilarityFromVector(importRDD.values());
-    JavaRDD<String> rowKeyRDD = importRDD.keys();
-    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD,
-        simMatrix);
+		/*
+		 * JavaPairRDD<String, Vector> importRDD =
+		 * MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, 1);
+		 * CoordinateMatrix simMatrix = SimilarityUtil
+		 * .CalSimilarityFromVector(importRDD.values()); JavaRDD<String>
+		 * rowKeyRDD = importRDD.keys(); List<LinkageTriple> triples =
+		 * SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
+		 * 
+		 * return triples;
+		 */
 
-    return triples;*/
-	  
-	return this.CalTermSimfromMatrix(CSV_fileName, 1);
-  }
-  
-  public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName, int skipRow) {
+		return this.CalTermSimfromMatrix(CSV_fileName, 1);
+	}
 
-	    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-	        CSV_fileName, skipRow);
-	    CoordinateMatrix simMatrix = SimilarityUtil
-	        .CalSimilarityFromVector(importRDD.values());
-	    JavaRDD<String> rowKeyRDD = importRDD.keys();
-	    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD,
-	        simMatrix);
+	public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName, int skipRow) {
 
-	    return triples;
-  }
+		JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, skipRow);
+		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromVector(importRDD.values());
+		JavaRDD<String> rowKeyRDD = importRDD.keys();
+		List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
 
-  public void SaveToES(List<LinkageTriple> triple_List, String index,
-      String type) {
-    try {
-      LinkageTriple.insertTriples(es, triple_List, index, type);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+		return triples;
+	}
+
+	public void SaveToES(List<LinkageTriple> triple_List, String index, String type) {
+		try {
+			LinkageTriple.insertTriples(es, triple_List, index, type);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void SaveToES(List<LinkageTriple> triple_List, String index, String type, boolean bTriple) {
+		try {
+			LinkageTriple.insertTriples(es, triple_List, index, type, bTriple);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

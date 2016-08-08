@@ -33,7 +33,10 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.RecomData.LinkedTerm;
 
-public class RecomData extends DiscoveryStepAbstract {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class HybirdRecommendation extends DiscoveryStepAbstract {
 
 	protected transient List<LinkedTerm> termList = new ArrayList<>();
 	DecimalFormat df = new DecimalFormat("#.00");
@@ -52,7 +55,7 @@ public class RecomData extends DiscoveryStepAbstract {
 		}
 	}
 
-	public RecomData(Map<String, String> config, ESDriver es, SparkDriver spark) {
+	public HybirdRecommendation(Map<String, String> config, ESDriver es, SparkDriver spark) {
 		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
@@ -72,17 +75,33 @@ public class RecomData extends DiscoveryStepAbstract {
 	public JsonObject getRecomDataInJson(String input, int num) {
 		String type = config.get("metadataCodeSimType");
 		Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
-		JsonElement linkedJson =  mapToJson(sortedOBSimMap, num);
 		
 		type = config.get("metadataItemBasedSimType");
 		Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
-		JsonElement relatedJson =  mapToJson(sortedMBSimMap, num);
 		
+		Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
+		
+		for(String name : sortedOBSimMap.keySet()){
+			hybirdSimMap.put(name, sortedOBSimMap.get(name) * 0.5);
+		}
+		
+		for(String name : sortedMBSimMap.keySet()){
+			if(hybirdSimMap.get(name) != null){
+				double sim = hybirdSimMap.get(name) + 0.5 * sortedMBSimMap.get(name);
+				
+				hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
+			}else{
+				double sim = sortedMBSimMap.get(name) * 0.5;
+				hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
+			}
+		}
+		
+		Map<String, Double> sortedHybirdSimMap = this.sortMapByValue(hybirdSimMap);
+		
+		JsonElement linkedJson =  mapToJson(sortedHybirdSimMap, num);
 		JsonObject json = new JsonObject();
-		
 		json.add("linked", linkedJson);
-		json.add("related", relatedJson);
-		
+
 		return json;
 	}
 	
@@ -176,7 +195,6 @@ public class RecomData extends DiscoveryStepAbstract {
 		return termList;
 	}
 
-	
 	private String extractRelated(String str, String input) {
 		String[] strList = str.split(",");
 		if (input.equals(strList[0])) {

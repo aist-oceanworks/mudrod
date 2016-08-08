@@ -7,13 +7,12 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import esiptestbed.mudrod.recommendation.pre.ApiHarvester;
 import esiptestbed.mudrod.recommendation.pre.ItemRateGenerator;
-import esiptestbed.mudrod.recommendation.pre.ItemSimGenerator;
-import esiptestbed.mudrod.recommendation.pre.MatrixGenerator;
-import esiptestbed.mudrod.recommendation.pre.OBEncoding;
+import esiptestbed.mudrod.recommendation.pre.ItemRateMatrixGenerator;
+import esiptestbed.mudrod.recommendation.pre.OHCodeMatrixGenerator;
+import esiptestbed.mudrod.recommendation.pre.OHEncodeMetadata;
+import esiptestbed.mudrod.recommendation.pre.TranformMetadata;
 import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
 import esiptestbed.mudrod.recommendation.process.ItemBasedCF;
-import esiptestbed.mudrod.recommendation.process.ModelBasedCF;
-
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
@@ -31,22 +30,25 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 	    /*DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
 	        this.spark);
 	    harvester.execute();
-	  
-	    DiscoveryStepAbstract obencoder = new OBEncoding(this.config, this.es,
+	    
+	    DiscoveryStepAbstract obencoder = new TranformMetadata(this.config, this.es,
 		        this.spark);
 	    obencoder.execute();
-	    
-	    DiscoveryStepAbstract matrixGen = new MatrixGenerator(this.config, this.es,
+	  
+	    DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.config, this.es,
 		        this.spark);
-	    matrixGen.execute();*/
+	    obencoder.execute();*/
 	    
-	   /* DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
-	    rateGen.execute();*/
+	    DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.config, this.es,
+		        this.spark);
+	    matrixGen.execute();
 	    
-	    DiscoveryStepAbstract rateGen = new ItemSimGenerator(this.config, this.es,this.spark);
+	    /*DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
 	    rateGen.execute();
 	    
-
+	    DiscoveryStepAbstract rateMatrixGen = new ItemRateMatrixGenerator(this.config, this.es,this.spark);
+	    rateMatrixGen.execute();*/
+	    
 	    endTime = System.currentTimeMillis();
 	    System.out.println("*****************Recommendation preprocessing ends******************Took "+ (endTime - startTime) / 1000);
 	}
@@ -58,20 +60,15 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 		System.out.println("*****************Recommendation processing starts******************");
 		startTime = System.currentTimeMillis();
 
-		/*DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
-		cbCF.execute();*/
-		
-		/*DiscoveryStepAbstract modelBasedCF = new ModelBasedCF(this.config, this.es,
-		        this.spark);
-	    modelBasedCF.execute();*/
-		
-		DiscoveryStepAbstract modelBasedCF = new ItemBasedCF(this.config, this.es,
-		        this.spark);
-	    modelBasedCF.execute();
+		DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
+		cbCF.execute();
 
+		DiscoveryStepAbstract itemBasedCF = new ItemBasedCF(this.config, this.es,
+		        this.spark);
+		itemBasedCF.execute();
 
 		endTime = System.currentTimeMillis();
-		 System.out.println("*****************Recommendation processing ends******************Took "+ (endTime - startTime) / 1000);
+		System.out.println("*****************Recommendation processing ends******************Took "+ (endTime - startTime) / 1000);
 	}
 
 	@Override

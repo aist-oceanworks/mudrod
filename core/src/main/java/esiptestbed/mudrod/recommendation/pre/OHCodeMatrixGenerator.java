@@ -24,21 +24,21 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.recommendation.structure.OBCodeExtractor;
+import esiptestbed.mudrod.recommendation.structure.OHCodeExtractor;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MatrixGenerator extends DiscoveryStepAbstract {
+public class OHCodeMatrixGenerator extends DiscoveryStepAbstract {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(OHCodeMatrixGenerator.class);
 
-  public MatrixGenerator(Map<String, String> config, ESDriver es,
+  public OHCodeMatrixGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
@@ -50,10 +50,17 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
 
     String metadataCodeMatrixFile = config.get("metadataOBCodeMatrix");
     try {
-      OBCodeExtractor extractor = new OBCodeExtractor();
+      /*OHCodeExtractor extractor = new OHCodeExtractor();
       JavaPairRDD<String,Vector> metadataVecRDD = extractor.loadOBCode(this.es, this.spark.sc, config.get("indexName"),config.get("recom_metadataType"));
       RowMatrix wordDocMatrix = new RowMatrix(metadataVecRDD.values().rdd());
       List<String> rowKeys = metadataVecRDD.keys().collect();
+      MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);*/
+      
+      OHCodeExtractor extractor = new OHCodeExtractor(config);
+      Map<String, Vector>  metedataCodes = extractor.loadMetadataOHEncode(es);
+      List<Vector> vectors = new ArrayList(metedataCodes.values());
+      RowMatrix wordDocMatrix = new RowMatrix(spark.sc.parallelize(vectors).rdd());
+      List<String> rowKeys = new ArrayList(metedataCodes.keySet());
       MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);
 
     } catch (Exception e) {
