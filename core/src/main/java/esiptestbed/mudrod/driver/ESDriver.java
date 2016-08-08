@@ -63,6 +63,10 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports Elasticsearch related functions
+ *
+ */
 public class ESDriver implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
@@ -71,6 +75,10 @@ public class ESDriver implements Serializable {
   public Node node = null;
   public BulkProcessor bulkProcessor = null;
 
+  /**
+   * Start an Elasticsearch client by cluster name
+   * @param clusterName name of Elasticsearch cluster
+   */
   public ESDriver(String clusterName){
     node =
         nodeBuilder()
@@ -82,6 +90,10 @@ public class ESDriver implements Serializable {
     client = node.client();
   }
 
+  /**
+   * Start an Elasticsearch client by cluster name
+   * @param config MUDROD config map
+   */
   public ESDriver(Map<String, String> config){
     Settings settings = System.getProperty("file.separator").equals("/") ? ImmutableSettings.settingsBuilder()
         .put("http.enabled", "false")
@@ -101,6 +113,9 @@ public class ESDriver implements Serializable {
         client = node.client();
   }
 
+  /**
+   * Method of creating a bulk processor
+   */
   public void createBulkProcesser(){
     bulkProcessor = BulkProcessor.builder(
         client,
@@ -126,6 +141,9 @@ public class ESDriver implements Serializable {
         .build();
   }
 
+  /**
+   * Method of closing a bulk processor
+   */
   public void destroyBulkProcessor(){
     try {
       bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
@@ -136,6 +154,13 @@ public class ESDriver implements Serializable {
     }
   }
 
+  /**
+   * Method of setting Elasticsearch schema by setting and mapping JSON object
+   * @param indexName name of Elasticsearch index
+   * @param settings_json setting in JSON format
+   * @param mapping_json mapping in JSON format
+   * @throws IOException
+   */
   public void putMapping(String indexName, String settings_json, String mapping_json) throws IOException{
 
     boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
@@ -151,6 +176,14 @@ public class ESDriver implements Serializable {
     .execute().actionGet();
   }
 
+  /**
+   * Method of analyzing a string through customized analyzer
+   * @param indexName name of index
+   * @param str String needed to be processed
+   * @return Processed string
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
   public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException{
     String[] strList = str.toLowerCase().split(",");
     for(int i = 0; i<strList.length;i++)
@@ -167,6 +200,14 @@ public class ESDriver implements Serializable {
     return String.join(",", strList);
   }
 
+  /**
+   * Method of analyzing a string through customized analyzer
+   * @param indexName The name of index
+   * @param list The list of array that needs to be processed
+   * @return A processed list of String
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
   public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
     if(list == null){
       return list;
@@ -180,6 +221,12 @@ public class ESDriver implements Serializable {
     return customlist;
   }
 
+  /**
+   * Method of deleting documents from Elasticsearch by a particular query
+   * @param index The name of index
+   * @param type The name of type
+   * @param query a particular query used for delete
+   */
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcesser();
     SearchResponse scrollResp = client.prepareSearch(index)
@@ -206,10 +253,21 @@ public class ESDriver implements Serializable {
     destroyBulkProcessor();
   }
 
+  /**
+   * Method of deleting a type from a index
+   * @param index The name of index
+   * @param type The name of type
+   */
   public void deleteType(String index, String type){
     this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
   }
 
+  /**
+   * Method of getting a list of types given a prefix
+   * @param index The name of index
+   * @param typePrefix Prefix string
+   * @return
+   */
   public ArrayList<String> getTypeListWithPrefix(String index, String typePrefix)
   {
     ArrayList<String> typeList = new ArrayList<>();
@@ -231,6 +289,12 @@ public class ESDriver implements Serializable {
     return typeList;
   }
   
+  /**
+   * Method of checking if a type exists in an index or not
+   * @param index The name of index
+   * @param type The name of type
+   * @return 1 if it exists, 0 otherwise
+   */
   public boolean checkTypeExist(String index, String type)
   {
     GetMappingsResponse res;
@@ -253,60 +317,14 @@ public class ESDriver implements Serializable {
     return false;     
   }
 
-/*  public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
-    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
-    if(!exists){
-      return null;
-    }
-
-    QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
-    SearchResponse response = client.prepareSearch(index)
-        .setTypes(Type)		        
-        .setQuery(qb)
-        .setSize(500)
-        .execute()
-        .actionGet();
-
-    Gson gson = new Gson();		
-    List<JsonObject> fileList = new ArrayList<>();
-    DecimalFormat twoDForm = new DecimalFormat("#.##");
-
-    for (SearchHit hit : response.getHits().getHits()) {
-      Map<String,Object> result = hit.getSource();
-      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
-      String shortName = (String) result.get("Dataset-ShortName");
-      String longName = (String) result.get("Dataset-LongName");
-      @SuppressWarnings("unchecked")
-      ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
-      String topic = String.join(", ", topicList);
-      String content = (String) result.get("Dataset-Description");
-      @SuppressWarnings("unchecked")
-      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-
-      Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
-      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
-      String dateText = df2.format(date);
-
-      JsonObject file = new JsonObject();
-      file.addProperty("Relevance", relevance);
-      file.addProperty("Short Name", shortName);
-      file.addProperty("Long Name", longName);
-      file.addProperty("Topic", topic);
-      file.addProperty("Abstract", content);
-      file.addProperty("Release Date", dateText);
-      fileList.add(file);       	
-
-    }
-    JsonElement fileListElement = gson.toJsonTree(fileList);
-
-    JsonObject PDResults = new JsonObject();
-    PDResults.add("PDResults", fileListElement);
-    LOG.info("Search results returned. \n");
-    return PDResults.toString();
-  }*/
-
+  /**
+   * Get a list of terms give a string
+   * @param index The name of index
+   * @param chars The piece of string
+   * @return A list of string for autocompletion
+   */
   public List<String> autoComplete(String index, String chars){
-   /* boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
     if(!exists){
       return null;
     }
@@ -332,22 +350,21 @@ public class ESDriver implements Serializable {
       Suggest.Suggestion.Entry.Option next = iterator.next();
       suggestList.add(next.getText().string());
     }
-    return suggestList;*/
-    return null;
-
+    return suggestList;
   }
 
+  /**
+   * Method of closing Elasticsearch client
+   */
   public void close(){
     node.close();
   }
 
+  /**
+   * Method of refreshing Elasticsearch storage
+   */
   public void refreshIndex(){
     node.client().admin().indices().prepareRefresh().execute().actionGet();
-  }
-
-  public static void main(String[] args) {
-    ESDriver es = new ESDriver("cody");
-    es.getTypeListWithPrefix("podaacsession", "sessionstats");
   }
 
 }
