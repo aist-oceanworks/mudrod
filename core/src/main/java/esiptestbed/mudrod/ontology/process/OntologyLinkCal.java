@@ -29,8 +29,17 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * Supports ability to parse and process FTP and HTTP log files 
+ */
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public OntologyLinkCal(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -40,6 +49,9 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     addSWEETMapping();
   }
 
+  /**
+   * Method of adding mapping for triples extracted from SWEET
+   */
   public void addSWEETMapping() {
     XContentBuilder Mapping;
     try {
@@ -61,6 +73,9 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of calculating and importing SWEET triples into Elasticsearch
+   */
   @Override
   public Object execute() {
     // TODO Auto-generated method stub

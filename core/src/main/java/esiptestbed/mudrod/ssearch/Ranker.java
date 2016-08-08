@@ -25,14 +25,26 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
+/**
+ * Supports ability to calculating ranking score
+ */
 public class Ranker extends MudrodAbstract {
   List<SResult> resultList = new ArrayList<SResult>();
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public Ranker(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * Method of comparing results based on final score
+   */
   public class ResultComparator implements Comparator<SResult> {
     @Override
     public int compare(SResult o1, SResult o2) {
@@ -40,6 +52,12 @@ public class Ranker extends MudrodAbstract {
     }
   }
 
+  /**
+   * Method of calculating mean value
+   * @param attribute the attribute name that need to be calculated on
+   * @param resultList an array list of result
+   * @return mean value
+   */
   private double getMean(String attribute, List<SResult> resultList)
   {
     double sum = 0.0;
@@ -59,6 +77,12 @@ public class Ranker extends MudrodAbstract {
     return getNDForm(sum/resultList.size());
   }
 
+  /**
+   * Method of calculating variance value
+   * @param attribute the attribute name that need to be calculated on
+   * @param resultList an array list of result
+   * @return variance value
+   */
   private double getVariance(String attribute, List<SResult> resultList)
   {
     double mean = getMean(attribute, resultList);
@@ -82,17 +106,33 @@ public class Ranker extends MudrodAbstract {
     return getNDForm(temp/resultList.size());
   }
 
+  /**
+   * Method of calculating standard variance
+   * @param attribute the attribute name that need to be calculated on
+   * @param resultList an array list of result
+   * @return standard variance
+   */
   private double getStdDev(String attribute, List<SResult> resultList)
   {
     return getNDForm(Math.sqrt(getVariance(attribute, resultList)));
   }
 
+  /**
+   * Get the first N decimals of a double value
+   * @param d double value that needs to be processed
+   * @return processed double value
+   */
   private double getNDForm(double d)
   {
     DecimalFormat NDForm = new DecimalFormat("#.###");
     return Double.valueOf(NDForm.format(d));
   }
 
+  /**
+   * Method of ranking a list of result
+   * @param resultList result list
+   * @return ranked result list
+   */
   public List<SResult> rank(List<SResult> resultList)
   {
     double relevance_mean = getMean("relevance", resultList);
@@ -121,7 +161,7 @@ public class Ranker extends MudrodAbstract {
       {
         resultList.get(i).releaseDate_score = getNDForm((resultList.get(i).dateLong - release_mean)/release_std);
       }
-      
+
       if(allPop_std!=0)
       {
         resultList.get(i).allPop_score = getNDForm((resultList.get(i).allPop - allPop_mean)/allPop_std);

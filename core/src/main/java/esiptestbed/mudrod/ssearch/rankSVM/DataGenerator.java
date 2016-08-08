@@ -51,7 +51,6 @@ public class DataGenerator {
    * Constructor which takes in path containing one or multiple files to process.  
    * Also takes in argument specifying whether or not a single file needs to be processed,
    * or multiple files need to be processed.
-   * 
    * @param fileDir directory containing single file or multiple files to be processed
    * @param multFiles true if multiple files in directory need to be processed and false if
    *                  only a single file needs to be processed

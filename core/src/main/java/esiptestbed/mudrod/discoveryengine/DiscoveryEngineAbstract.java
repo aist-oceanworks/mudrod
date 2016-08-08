@@ -19,17 +19,36 @@ import java.util.Map;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/*
+ * Generic class of discovery engine
+ */
 public abstract class DiscoveryEngineAbstract extends MudrodAbstract
-    implements Serializable {
+implements Serializable {
+
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public DiscoveryEngineAbstract(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * Abstract method of preprocess
+   */
   public abstract void preprocess();
 
+  /**
+   * Abstract method of process
+   */
   public abstract void process();
 
+  /**
+   * Abstract method of output
+   */
   public abstract void output();
 }

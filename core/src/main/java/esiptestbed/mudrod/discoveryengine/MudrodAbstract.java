@@ -42,12 +42,13 @@ public abstract class MudrodAbstract implements Serializable {
 
   public final String settingsJson = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
   public final String mappingJson = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
-/**
- * Constructuor method
- * @param config  configuration
- * @param es      elasticsearch client
- * @param spark   spark connection
- */
+
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
     this.config = config;
     this.es = es;
@@ -55,6 +56,9 @@ public abstract class MudrodAbstract implements Serializable {
     this.initMudrod();
   }
 
+  /**
+   * Method of setting up essential configuration for MUDROD to start
+   */
   protected void initMudrod(){
     try {
       es.putMapping(config.get("indexName"), settingsJson, mappingJson);
@@ -68,10 +72,18 @@ public abstract class MudrodAbstract implements Serializable {
     SessionStats = config.get("SessionStats_prefix") + config.get("TimeSuffix");
   }
 
+  /**
+   * Get driver of Elasticsearch
+   * @return driver of Elasticsearch
+   */
   public ESDriver getES(){
     return this.es;
   }
 
+  /**
+   * Get configuration of MUDROD (read from configuration file)
+   * @return configuration of MUDROD 
+   */
   public Map<String, String> getConfig(){
     return this.config;
   }

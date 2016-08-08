@@ -32,19 +32,29 @@ import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports to preprocess and process web log
+ */
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
+  
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
     super(config, es, spark);
   }
 
   public String timeSuffix = null;
 
+
+  /**
+   * Method of preprocessing web logs
+   */
   @Override
   public void preprocess() {
     LOG.info("*****************Web log preprocessing starts******************");
@@ -99,6 +109,10 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   }
   
+
+  /**
+   * Method of web log ingest
+   */
   public void logIngest() {
     LOG.info("*****************Web log ingest starts******************");
 
@@ -127,6 +141,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   }
 
 
+  /**
+   * Method of processing web log
+   */
   @Override
   public void process() {
     LOG.info("*****************Web log processing starts******************");

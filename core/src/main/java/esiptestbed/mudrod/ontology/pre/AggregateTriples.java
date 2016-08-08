@@ -37,14 +37,19 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AggregateTriples extends DiscoveryStepAbstract {
-  
-  /**
-   * 
-   */
+/**
+ * Supports ability to extract triples (subclassOf, equivalent class) from OWL file
+ */
+public class AggregateTriples extends DiscoveryStepAbstract { 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public AggregateTriples(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -102,15 +107,23 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   BufferedWriter bw = null;
 
+  /**
+   * Load OWL file into memory
+   * @param filePathName local path of OWL file
+   * @throws JDOMException
+   * @throws IOException
+   */
   public void loadxml(String filePathName) throws JDOMException, IOException {
     SAXBuilder saxBuilder = new SAXBuilder();
     File file = new File(filePathName);
 
     document = saxBuilder.build(file);
     rootNode = document.getRootElement();
-
   }
 
+  /**
+   * Method of going through OWL structure
+   */
   public void loopxml() {
     Iterator<?> processDescendants = rootNode
         .getDescendants(new ElementFilter());
@@ -128,6 +141,12 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of identifying a specific child given a element name
+   * @param str element name
+   * @param ele parent element
+   * @return
+   */
   public Element findChild(String str, Element ele) {
     Iterator<?> processDescendants = ele.getDescendants(new ElementFilter());
     String name = "";
@@ -145,6 +164,11 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   }
 
+
+  /**
+   * Method of extract triples (subclassOf, equivalent class) from OWL file
+   * @throws IOException
+   */
   public void getAllClass() throws IOException {
     List<?> classElements = rootNode.getChildren("Class",
         Namespace.getNamespace("owl", owl_namespace));
@@ -197,6 +221,11 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of cleaning up a string
+   * @param str String needed to be processed
+   * @return
+   */
   public String cutString(String str) {
     str = str.substring(str.indexOf("#") + 1);
     String[] strArray = str.split("(?=[A-Z])");

@@ -15,6 +15,9 @@ package esiptestbed.mudrod.ssearch.structure;
 
 import java.lang.reflect.Field;
 
+/**
+ * Data structure class for search result
+ */
 public class SResult {
 //may replace it with Map<String,Object>
   String shortName = null;
@@ -44,6 +47,13 @@ public class SResult {
   public Integer allPop = null;
   public Integer monthPop = null;
 
+  /**
+   * @param shortName short name of dataset
+   * @param longName long name of dataset
+   * @param topic topic of dataset
+   * @param description description of dataset
+   * @param date release date of dataset
+   */
   public SResult(String shortName, String longName, String topic, String description, String date){
     this.shortName = shortName;
     this.longName = longName;
@@ -52,6 +62,11 @@ public class SResult {
     this.relase_date = date;
   }
   
+  /**
+   * Method of getting export header
+   * @param delimiter the delimiter used to separate strings
+   * @return header
+   */
   public static String getHeader(String delimiter){
      return "ShortName" + delimiter +
             
@@ -78,7 +93,12 @@ public class SResult {
             "Comments"  + delimiter +
             "\n";
   }
-  
+ 
+  /**
+   * Method of get a search results as string
+   * @param delimiter the delimiter used to separate strings
+   * @return search result as string
+   */
   public String toString(String delimiter ){
     return shortName + delimiter + 
         
@@ -104,6 +124,13 @@ public class SResult {
            "\n";
   }
 
+  /**
+   * Generic setter method
+   * @param object instance of SResult
+   * @param fieldName field name that needs to be set on
+   * @param fieldValue field value that needs to be set to
+   * @return 1 means success, and 0 otherwise
+   */
   public static boolean set(Object object, String fieldName, Object fieldValue) {
     Class<?> clazz = object.getClass();
     while (clazz != null) {
@@ -121,6 +148,12 @@ public class SResult {
     return false;
   }
 
+  /**
+   * Generic getter method
+   * @param object instance of SResult
+   * @param fieldName field name of search result
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public static <V> V get(Object object, String fieldName) {
     Class<?> clazz = object.getClass();

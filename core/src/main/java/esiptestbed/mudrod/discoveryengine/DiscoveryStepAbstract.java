@@ -19,16 +19,34 @@ import java.util.Map;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/*
+ * Generic class of discovery engine step
+ */
 public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public DiscoveryStepAbstract(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * Abstract class of step execution without parameter
+   * @return An instance of Object
+   */
   public abstract Object execute();
 
+  /**
+   * Abstract class of step execution with a parameter
+   * @param o
+   * @return An instance of Object
+   */
   public abstract Object execute(Object o);
 
 }

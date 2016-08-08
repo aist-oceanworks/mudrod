@@ -29,13 +29,25 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * Supports ability to import click stream data into Elasticsearch
+ * through .csv file
+ */
 public class ClickstreamImporter extends MudrodAbstract {
-
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public ClickstreamImporter(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
     addClickStreamMapping();
   }
 
+  /**
+   * Method to add Elasticsearch mapping for click stream data
+   */
   public void addClickStreamMapping(){
     XContentBuilder Mapping;
     try {
@@ -66,6 +78,9 @@ public class ClickstreamImporter extends MudrodAbstract {
     } 
   }
 
+  /**
+   * Method to import click stream CSV into Elasticsearch
+   */
   public void importfromCSVtoES(){
     es.deleteType(config.get("indexName"), config.get("clickstreamMatrixType"));    
     es.createBulkProcesser();
@@ -76,7 +91,8 @@ public class ClickstreamImporter extends MudrodAbstract {
     try {
       br = new BufferedReader(new FileReader(config.get("clickstreamMatrix")));
       String line = br.readLine();
-      String dataList[] = line.split(cvsSplitBy);  // first item need to be skipped
+      // first item needs to be skipped
+      String dataList[] = line.split(cvsSplitBy);  
       while ((line = br.readLine()) != null) {
         String[] clicks = line.split(cvsSplitBy);
         for(int i=1; i<clicks.length; i++)

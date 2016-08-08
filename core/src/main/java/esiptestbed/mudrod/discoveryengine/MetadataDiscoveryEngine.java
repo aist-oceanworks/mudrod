@@ -25,19 +25,28 @@ import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
 
-  /**
-   * 
-   */
+/**
+ * Supports to preprocess and process metadata
+ */
+public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(MetadataDiscoveryEngine.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public MetadataDiscoveryEngine(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of preprocessing metadata
+   */
   public void preprocess() {
     LOG.info("*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
@@ -51,6 +60,9 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
         (endTime - startTime) / 1000);
   }
 
+  /**
+   * Method of processing metadata
+   */
   public void process() {
     LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();

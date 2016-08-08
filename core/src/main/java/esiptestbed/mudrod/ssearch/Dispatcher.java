@@ -32,12 +32,28 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
 
+/**
+ * Supports ability to transform regular user query into a semantic query
+ */
 public class Dispatcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
+  
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public Dispatcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of getting semantically most related terms by number
+   * @param input regular input query
+   * @param num the number of most related terms
+   * @return
+   */
   public Map<String, Double> getRelatedTerms(String input, int num) {
     LinkageIntegration li = new LinkageIntegration(this.config,
         this.es, null);
@@ -52,13 +68,19 @@ public class Dispatcher extends MudrodAbstract {
     }
     return selected_Map;
   }
-  
+
+  /**
+   * Method of getting semantically most related terms by similarity threshold
+   * @param input regular input query
+   * @param T value of threshold, raning from 0 to 1
+   * @return
+   */
   public Map<String, Double> getRelatedTermsByT(String input, double T) {
     LinkageIntegration li = new LinkageIntegration(this.config,
         this.es, null);
     Map<String, Double> sortedMap = li.appyMajorRule(input);
     Map<String, Double> selected_Map = new HashMap<>();
-    //int count = 0;
+
     for (Entry<String, Double> entry : sortedMap.entrySet()) {
       if (entry.getValue() >= T) {
         selected_Map.put(entry.getKey(), entry.getValue());
@@ -67,8 +89,14 @@ public class Dispatcher extends MudrodAbstract {
     return selected_Map;
   }
 
+  /**
+   * Method of creating semantic query based on Threshold
+   * @param input regular query
+   * @param num the number of most related terms
+   * @return an semantic Elasticsearch query clause
+   */
   public BoolQueryBuilder createSemQuery(String input, int num){
-   // Map<String, Double> selected_Map = getRelatedTerms(input, num);
+    // Map<String, Double> selected_Map = getRelatedTerms(input, num);
     Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
     selected_Map.put(input, (double) 1);
 
@@ -84,6 +112,13 @@ public class Dispatcher extends MudrodAbstract {
     return qb;
   }
 
+  /**
+   * Method of creating semantic query based on Threshold, and dataset shortname
+   * @param input regular query
+   * @param num the number of most related terms
+   * @param shortName dataset shortName
+   * @return
+   */
   public QueryBuilder createQueryForClicks(String input, int num, String shortName){   
     //Map<String, Double> selected_Map = getRelatedTerms(input, num);
     Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);

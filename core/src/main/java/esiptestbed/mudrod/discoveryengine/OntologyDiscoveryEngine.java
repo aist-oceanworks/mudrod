@@ -23,19 +23,27 @@ import esiptestbed.mudrod.ontology.process.OntologyLinkCal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports to preprocess and process ontology
+ */
 public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
-  
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(OntologyDiscoveryEngine.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public OntologyDiscoveryEngine(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of preprocessing ontology
+   */
   public void preprocess() {
     LOG.info("*****************Ontology preprocessing starts******************");
     startTime = System.currentTimeMillis();
@@ -49,6 +57,9 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
         (endTime - startTime) / 1000);
   }
 
+  /**
+   * Method of processing ontology
+   */
   public void process() {
     LOG.info("*****************Ontology processing starts******************");
     startTime = System.currentTimeMillis();

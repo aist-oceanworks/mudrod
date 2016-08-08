@@ -48,20 +48,23 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
 public class Searcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   DecimalFormat NDForm = new DecimalFormat("#.##");
+
   /**
-   * @param config  Hashmap read from config.xml
-   * @param es      Elasticsearch client
-   * @param spark   Spark connection
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
    */
   public Searcher(Map<String, String> config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
   }
+
   /**
-   * 
-   * @param index index name in elasticsearch
-   * @param type  type name in elasticsearch
-   * @param query query string
-   * @return a list of result
+   * Main method of semantic search
+   * @param index index name in Elasticsearch
+   * @param type  type name in Elasticsearch
+   * @param query regular query string
+   * @return a list of search result
    */
   public List<SResult> searchByQuery(String index, String type, String query) 
   {
@@ -174,6 +177,13 @@ public class Searcher extends MudrodAbstract {
     return resultList;
   }
 
+  /**
+   * Method of semantic search to generate JSON string
+   * @param index index name in Elasticsearch
+   * @param type  type name in Elasticsearch
+   * @param query regular query string
+   * @return
+   */
   public String ssearch(String index, String type, String query) 
   {
     List<SResult> resultList = searchByQuery(index, type, query);
@@ -219,7 +229,7 @@ public class Searcher extends MudrodAbstract {
       BufferedWriter bw = new BufferedWriter(fw); 
       bw.write( "Query:"+ q + "\n");
       bw.write(SResult.getHeader(","));
-      
+
       List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
           mudrod.getConfig().get("raw_metadataType"), q);
       Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null);
