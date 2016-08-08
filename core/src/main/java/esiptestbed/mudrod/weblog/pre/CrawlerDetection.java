@@ -43,6 +43,9 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to detect crawler by agent names and request sending rate
+ */
 public class CrawlerDetection extends DiscoveryStepAbstract {
   /**
    * 
@@ -50,11 +53,20 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public CrawlerDetection(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Crawler agent name list
+   */
   public static final String GoogleBot = "gsa-crawler (Enterprise; T4-JPDGU3TRCQAXZ; earthdata-sa@lists.nasa.gov,srinivasa.s.tummala@nasa.gov)";
   public static final String GoogleBot21 = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
   public static final String BingBot = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
@@ -88,6 +100,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Check known crawler through crawler agent name list
+   * @param agent name of a log line
+   * @return 1 if the log is initiated by crawler, 0 otherwise
+   */
   public boolean CheckKnownCrawler(String agent) {
     if (agent.equals(GoogleBot) || agent.equals(GoogleBot21)
         || agent.equals(BingBot) || agent.equals(YahooBot)
@@ -103,6 +120,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   }
 
+  /**
+   * Check crawler by request sending rate, which is read from configruation file
+   * @throws InterruptedException
+   * @throws IOException
+   */
   public void CheckByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();
 
@@ -129,7 +151,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
           .addAggregation(AggregationBuilders.dateHistogram("by_minute")
               .field("Time").interval((DateHistogram.Interval.MINUTE))
               .order(DateHistogram.Order.COUNT_DESC))
-          .execute().actionGet();
+              .execute().actionGet();
 
       DateHistogram agg = checkRobot.getAggregations().get("by_minute");
 

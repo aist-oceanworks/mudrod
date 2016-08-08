@@ -47,14 +47,20 @@ import esiptestbed.mudrod.weblog.structure.RequestUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to post-process session, including summarizing statistics and filtering
+ *
+ */
 public class SessionStatistic extends DiscoveryStepAbstract {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(SessionStatistic.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public SessionStatistic(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -79,6 +85,13 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     return null;
   }
 
+/**
+ * Method to summarize duration, numbers of searching, viewing, and downloading requests, and 
+ * filter out suspicious sessions
+ * @throws IOException
+ * @throws InterruptedException
+ * @throws ExecutionException
+ */
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcesser();
@@ -208,12 +221,10 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                 }
               }
             }
-
           }
 
           scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
-          // Break condition: No hits are returned
           if (scrollResp.getHits().getHits().length == 0) {
             break;
           }
@@ -223,8 +234,6 @@ public class SessionStatistic extends DiscoveryStepAbstract {
           keywords_num = keywords.split(",").length;
         }
 
-        // if (searchDataListRequest_count != 0 && searchDataRequest_count != 0
-        // && ftpRequest_count != 0 && keywords_num<50) {
         if (searchDataListRequest_count != 0
             && searchDataListRequest_count <= Integer
             .parseInt(config.get("searchf"))
@@ -264,11 +273,15 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         }
       }
     }
-
     LOG.info("Session count: {}", Integer.toString(session_count));
     es.destroyBulkProcessor();
   }
 
+  /**
+   * Extract the dataset ID from a long request
+   * @param request raw log request
+   * @return dataset ID
+   */
   public String findDataset(String request) {
     String pattern1 = "/dataset/";
     String pattern2;
@@ -277,7 +290,6 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     } else {
       pattern2 = " ";
     }
-
     Pattern p = Pattern
         .compile(Pattern.quote(pattern1) + "(.*?)" + Pattern.quote(pattern2));
     Matcher m = p.matcher(request);

@@ -26,8 +26,6 @@ import au.com.bytecode.opencsv.CSVWriter;
  * algorithm that involves Pairwise Classification.  Specifically, instead of working in
  * the space of query-document vectors, e.g. x1, x2, x3, we transform them into a new space 
  * in which a pair of documents is represented as the difference between their feature vectors.
- *
- * @author Joseph J. George, University of Richmond
  */
 public class DataGenerator {
 

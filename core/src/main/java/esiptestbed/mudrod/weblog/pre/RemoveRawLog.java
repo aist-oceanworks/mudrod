@@ -24,14 +24,19 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to remove raw logs after processing is finished
+ */
 public class RemoveRawLog extends DiscoveryStepAbstract {
-  
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RemoveRawLog.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public RemoveRawLog(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);

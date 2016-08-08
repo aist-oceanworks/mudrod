@@ -34,14 +34,19 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to generate search history (queries) for each individual user (IP)
+ */
 public class HistoryGenerator extends DiscoveryStepAbstract {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(HistoryGenerator.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public HistoryGenerator(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -59,6 +64,9 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Method to generate a binary user*query matrix (stored in temporary .csv file)
+   */
   public void GenerateBinaryMatrix() {
     try {
       File file = new File(config.get("userHistoryMatrix"));
