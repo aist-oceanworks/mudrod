@@ -139,7 +139,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
       ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
 
     } catch (IOException e) {
-      LOG.error("Error whilst reading log file.", e);
+      LOG.error("Error while reading log file.", e);
     } 
     es.destroyBulkProcessor();
 
