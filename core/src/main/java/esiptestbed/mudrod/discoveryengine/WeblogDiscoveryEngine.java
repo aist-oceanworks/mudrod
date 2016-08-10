@@ -38,7 +38,8 @@ import org.slf4j.LoggerFactory;
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
-  
+  public String timeSuffix = null;
+
   /**
    * Constructor supporting a number of parameters documented below.
    * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
@@ -49,18 +50,13 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     super(config, es, spark);
   }
 
-  public String timeSuffix = null;
-
-
   /**
-   * Method of preprocessing web logs
+   * Get log file list from a directory
+   * @param path folder directory
+   * @return a list of log files
    */
-  @Override
-  public void preprocess() {
-    LOG.info("*****************Web log preprocessing starts******************");
-
-    File directory = new File(config.get("logDir"));
-
+  public ArrayList<String> getFileList(String path){
+    File directory = new File(path);
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
     File[] fList = directory.listFiles();
@@ -71,7 +67,15 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
         inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
       }
     }
-
+    return inputList;
+  }
+  /**
+   * Method of preprocessing web logs, generating vocab similarity based on web logs
+   */
+  @Override
+  public void preprocess() {
+    LOG.info("*****************Web log preprocessing starts******************");
+    ArrayList<String> inputList = getFileList(config.get("logDir"));
     for(int i =0; i < inputList.size(); i++){
       timeSuffix = inputList.get(i);   // change timeSuffix dynamically
       config.put("TimeSuffix", timeSuffix);
@@ -108,38 +112,6 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
   }
-  
-
-  /**
-   * Method of web log ingest
-   */
-  public void logIngest() {
-    LOG.info("*****************Web log ingest starts******************");
-
-    File directory = new File(config.get("logDir"));
-
-    ArrayList<String> inputList = new ArrayList<>();
-    // get all the files from a directory
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
-
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
-      }
-    }
-
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
-      im.execute();
-    }
-
-    LOG.info("*****************Web log ingest ends******************");
-
-  }
-
 
   /**
    * Method of processing web log
@@ -162,5 +134,48 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   @Override
   public void output() {
   }
+
+  /**
+   * Method of web log ingest
+   */
+  public void logIngest() {
+    LOG.info("*****************Web log ingest starts******************");
+    ArrayList<String> inputList = getFileList(config.get("logDir"));
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
+      config.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      im.execute();
+    }
+    LOG.info("*****************Web log ingest ends******************");
+  }
+
+  /**
+   * Method of reconstructing user sessions from raw web logs
+   */
+  public void sessionRestruct() {
+    LOG.info("*****************Session reconstruction starts******************");
+    ArrayList<String> inputList = getFileList(config.get("logDir"));
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
+      config.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+      cd.execute();
+
+      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+      sg.execute();
+
+      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+      ss.execute();
+
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+      rr.execute();
+
+      endTime=System.currentTimeMillis();
+    }
+    LOG.info("*****************Session reconstruction ends******************");
+  }
+
+
 
 }
