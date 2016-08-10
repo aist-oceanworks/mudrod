@@ -26,20 +26,27 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to calculate term similarity based on click stream
+ */
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
-
   private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public ClickStreamAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of executing click stream analyzer
+   */
   @Override
   public Object execute() {
     LOG.info("*****************ClickStreamAnalyzer starts******************");

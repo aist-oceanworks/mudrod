@@ -33,7 +33,6 @@ public abstract class DiscoveryStepAbstract extends MudrodAbstract {
   public DiscoveryStepAbstract(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   /**

@@ -16,10 +16,10 @@ package esiptestbed.mudrod.ssearch.structure;
 import java.lang.reflect.Field;
 
 /**
- * Data structure class for search result
+ * Data structure class for search result 
+ * (may replace it with Map<String,Object>)
  */
 public class SResult {
-//may replace it with Map<String,Object>
   String shortName = null;
   String longName = null;
   String topic = null;

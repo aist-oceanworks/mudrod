@@ -74,8 +74,6 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
   }
 
   public int compareTo(Session o) {
-    // TODO Auto-generated method stub
-    // String compareEnd = o.end;
     fmt.parseDateTime(this.end);
     fmt.parseDateTime(o.end);
     // ascending order

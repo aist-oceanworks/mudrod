@@ -28,7 +28,6 @@ import au.com.bytecode.opencsv.CSVWriter;
  * in which a pair of documents is represented as the difference between their feature vectors.
  */
 public class DataGenerator {
-
   private static String mySourceDir;
   private static String myResultDir;
   private static boolean isMultFiles;

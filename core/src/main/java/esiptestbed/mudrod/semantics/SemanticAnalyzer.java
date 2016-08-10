@@ -34,7 +34,6 @@ public class SemanticAnalyzer extends MudrodAbstract {
   public SemanticAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName) {

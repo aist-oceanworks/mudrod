@@ -25,19 +25,27 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to calculate term similarity based on user history
+ */
 public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
-  
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(UserHistoryAnalyzer.class);
   
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public UserHistoryAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of executing user history analyzer
+   */
   @Override
   public Object execute() {
     LOG.info("*****************UserHistoryAnalyzer starts******************");

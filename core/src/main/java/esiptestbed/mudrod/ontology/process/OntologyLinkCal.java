@@ -68,7 +68,6 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
           .setType(config.get("ontologyLinkageType")).setSource(Mapping)
           .execute().actionGet();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -78,7 +77,6 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     es.deleteType(config.get("indexName"), config.get("ontologyLinkageType"));
     es.createBulkProcesser();
 
@@ -114,10 +112,8 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     } catch (IOException e) {
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } finally {
       if (br != null) {
@@ -135,7 +131,6 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

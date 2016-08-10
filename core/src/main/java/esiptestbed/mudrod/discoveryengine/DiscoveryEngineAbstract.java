@@ -34,7 +34,6 @@ implements Serializable {
   public DiscoveryEngineAbstract(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   /**

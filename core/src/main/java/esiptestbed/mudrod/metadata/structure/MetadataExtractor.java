@@ -38,7 +38,6 @@ import scala.Tuple2;
 public class MetadataExtractor implements Serializable {
 
   public MetadataExtractor() {
-    // TODO Auto-generated constructor stub
   }
 
   public JavaPairRDD<String, List<String>> loadMetadata(ESDriver es,

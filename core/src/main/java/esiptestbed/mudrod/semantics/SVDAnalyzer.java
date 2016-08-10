@@ -32,7 +32,6 @@ public class SVDAnalyzer extends SemanticAnalyzer {
   public SVDAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   public void GetSVDMatrix(String CSV_fileName, int svdDimention,
@@ -55,7 +54,6 @@ public class SVDAnalyzer extends SemanticAnalyzer {
       }
       MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

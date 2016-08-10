@@ -107,7 +107,6 @@ public class SessionExtractor implements Serializable {
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
           public List<String> call(List<String> v1, List<String> v2)
               throws Exception {
-            // TODO Auto-generated method stub
             List<String> list = new ArrayList<String>();
             list.addAll(v1);
             list.addAll(v2);

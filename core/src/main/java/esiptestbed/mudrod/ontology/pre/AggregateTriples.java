@@ -55,6 +55,9 @@ public class AggregateTriples extends DiscoveryStepAbstract {
     super(config, es, spark);
   }
 
+  /**
+   * Method of executing triple aggregation
+   */
   @Override
   public Object execute() {
     File file = new File(this.config.get("oceanTriples"));

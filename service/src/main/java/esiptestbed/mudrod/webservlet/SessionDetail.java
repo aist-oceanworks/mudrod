@@ -28,14 +28,12 @@ public class SessionDetail extends HttpServlet {
      * Default constructor. 
      */
     public SessionDetail() {
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		String SessionID = request.getParameter("SessionID");
 		String cleanupType = request.getParameter("CleanupType");
 		PrintWriter out = null;
@@ -68,7 +66,6 @@ public class SessionDetail extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 }

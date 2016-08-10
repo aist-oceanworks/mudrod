@@ -43,6 +43,9 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to integrate vocab similarity results from metadata, ontology, and web logs.
+ */
 public class LinkageIntegration extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(LinkageIntegration.class);
@@ -52,11 +55,20 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   private static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public LinkageIntegration(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * The data structure to store semantic triple.
+   */
   class LinkedTerm {
     String term = null;
     double weight = 0;
@@ -69,6 +81,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of executing integration step
+   */
   @Override
   public Object execute() {
     getIngeratedList("ocean wind", 11);
@@ -80,6 +95,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Method of getting integrated results
+   * @param input query string
+   * @return a hash map where the string is a related term, and double is the 
+   * similarity to the input query
+   */
   public Map<String, Double> appyMajorRule(String input) {
     termList = new ArrayList<>();
     Map<String, Double> termsMap = new HashMap<>();
@@ -118,6 +139,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
+  /**
+   * Method of getting integrated results
+   * @param input query string
+   * @param num the number of most related terms
+   * @return a string of related terms along with corresponding similarities
+   */
   public String getIngeratedList(String input, int num) {
     String output = "";
     Map<String, Double> sortedMap = appyMajorRule(input);
@@ -133,6 +160,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return output;
   }
 
+  /**
+   * Method of getting integrated results
+   * @param input query string
+   * @param num the number of most related terms
+   * @return a JSON object of related terms along with corresponding similarities
+   */
   public JsonObject getIngeratedListInJson(String input, int num) {
     Map<String, Double> sortedMap = appyMajorRule(input);
     int count = 0;
@@ -147,6 +180,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return mapToJson(input, trimmedMap);
   }
 
+  /**
+   * Method of aggregating terms from web logs, metadata, and ontology
+   * @param input query string
+   * @return a hash map where the string is a related term, and the list is 
+   * the similarities from different sources
+   */
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
       String input) {
     aggregateRelatedTerms(input, config.get("userHistoryLinkageType"));
@@ -157,6 +196,11 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return termList.stream().collect(Collectors.groupingBy(w -> w.term));
   }
 
+  /**
+   * Method of getting the weight from different sources
+   * @param model source name
+   * @return weight of the input source
+   */
   public int getModelweight(String model) {
     if (model.equals(config.get("userHistoryLinkageType"))) {
       return Integer.parseInt(config.get("userHistory_w"));
@@ -177,6 +221,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return 999999;
   }
 
+  /**
+   * Method of extracting the related term from a comma string
+   * @param str input string
+   * @param input query string
+   * @return related term contained in the input string
+   */
   public String extractRelated(String str, String input) {
     String[] strList = str.split(",");
     if (input.equals(strList[0])) {
@@ -186,6 +236,11 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of querying related terms from different sources/models except for ontology
+   * @param input input query
+   * @param model source name
+   */
   public void aggregateRelatedTerms(String input, String model) {
     SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
@@ -207,6 +262,11 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of querying related terms from ontology
+   * @param input input query
+   * @param model source name
+   */
   public void aggregateRelatedTermsSWEET(String input, String model) {
     SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
@@ -224,6 +284,11 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of sorting a map by value
+   * @param passedMap input map
+   * @return sorted map
+   */
   public Map<String, Double> sortMapByValue(Map<String, Double> passedMap) {
     List<String> mapKeys = new ArrayList<>(passedMap.keySet());
     List<Double> mapValues = new ArrayList<>(passedMap.values());
@@ -255,6 +320,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
+  /**
+   * Method of converting hashmap to JSON
+   * @param word input query
+   * @param wordweights a map from related terms to weights
+   * @return converted JSON object
+   */
   private JsonObject mapToJson(String word, Map<String, Double> wordweights) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();

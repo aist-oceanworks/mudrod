@@ -103,7 +103,6 @@ public class RequestUrl extends MudrodAbstract {
   }
 
   public String GetSearchInfo(String URL) throws UnsupportedEncodingException {
-    // String info = "";
     List<String> info = new ArrayList<String>();
     String keyword = "";
     Map<String, String> mapRequest = RequestUrl.URLRequest(URL);
@@ -120,8 +119,6 @@ public class RequestUrl extends MudrodAbstract {
           keyword = keyword.replace("%25", " ");
         }
 
-        // keyword = keyword.replaceAll("[-+.^:,*_]"," ").replaceAll("\\s+","
-        // ");
         keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
             .replaceAll("\\s+", " ").trim();
 
@@ -153,8 +150,6 @@ public class RequestUrl extends MudrodAbstract {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
                 && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
-              // info = info + URLDecoder.decode(values[i], "UTF-8").trim() +
-              // ",";
               String item = URLDecoder.decode(values[i], "UTF-8").trim();
               if (item.contains("%2b") || item.contains("%20")
                   || item.contains("%25")) {
@@ -180,10 +175,8 @@ public class RequestUrl extends MudrodAbstract {
     try {
       return es.customAnalyzing(config.get("indexName"), info_str);
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

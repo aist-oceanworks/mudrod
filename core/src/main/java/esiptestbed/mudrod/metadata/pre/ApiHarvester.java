@@ -37,19 +37,27 @@ import esiptestbed.mudrod.utils.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to harvest metadata from PO.DAAC
+ */
 public class ApiHarvester extends DiscoveryStepAbstract {
-
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ApiHarvester.class);
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public ApiHarvester(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * Method of executing metadata harvesting
+   */
   @Override
   public Object execute() {
     LOG.info("*****************Metadata harvesting starts******************");
@@ -65,6 +73,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Method of add the metadata mapping to Elasticsearch
+   */
   public void addMetadataMapping() {
     String mappingJson = 
         "{\r\n   \"dynamic_templates\": "
@@ -79,6 +90,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     .execute().actionGet();
   }
 
+  /**
+   * Method of importing metadata from local drive to Elasticsearch
+   */
   private void importToES() {
     File directory = new File(config.get("raw_metadataPath"));
     File[] fList = directory.listFiles();
@@ -103,6 +117,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of harvesting metadata from PO.DAAC
+   */
   private void harvestMetadatafromWeb() {
     int startIndex = 0;
     int doc_length = 0;
