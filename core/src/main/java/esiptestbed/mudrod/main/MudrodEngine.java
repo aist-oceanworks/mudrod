@@ -198,9 +198,9 @@ public class MudrodEngine {
       CommandLine line = parser.parse(options, args);
       String processingType;
       if (line.hasOption(LOG_INGEST)) {
-        processingType = line.getOptionValue(LOG_INGEST);
+        processingType = LOG_INGEST;
       } else {
-        processingType = line.getOptionValue(FULL_INGEST);
+        processingType = FULL_INGEST;
       }
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
       if(!dataDir.endsWith("/")){
