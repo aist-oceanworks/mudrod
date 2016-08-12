@@ -26,47 +26,63 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ClassName: MatrixGenerator <br/>
+ * Function: Generate term-metadata matrix from original metadata. Each row in
+ * the matrix is corresponding to a term, and each column is a metadata. <br/>
+ * Date: Aug 11, 2016 12:11:21 PM <br/>
+ *
+ * @author Yun
+ * @version
+ */
 public class MatrixGenerator extends DiscoveryStepAbstract {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
 
-  public MatrixGenerator(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
-  }
+	/**
+	 * Creates a new instance of MatrixGenerator.
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param spark the spark drive
+	 */
+	public MatrixGenerator(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
+	}
 
-  @Override
-  public Object execute() {
-    LOG.info("*****************Metadata matrix starts******************");
-    startTime = System.currentTimeMillis();
+	/**
+	 * Generate a csv which is a term-metadata matrix genetrated from original metadata.
+	 * @see esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract#execute()
+	 */
+	@Override
+	public Object execute() {
+		LOG.info("*****************Metadata matrix starts******************");
+		startTime = System.currentTimeMillis();
 
-    String metadataMatrixFile = config.get("metadataMatrix");
-    try {
-      MetadataExtractor extractor = new MetadataExtractor();
-      JavaPairRDD<String, List<String>> metadataTermsRDD = extractor
-          .loadMetadata(this.es, this.spark.sc, config.get("indexName"),
-              config.get("raw_metadataType"));
-      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD,
-          spark.sc);
-      MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
-          metadataMatrixFile);
+		String metadataMatrixFile = config.get("metadataMatrix");
+		try {
+			MetadataExtractor extractor = new MetadataExtractor();
+			JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc,
+					config.get("indexName"), config.get("raw_metadataType"));
+			LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD, spark.sc);
+			MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
+					metadataMatrixFile);
 
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-    endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata matrix ends******************Took {}s", (endTime - startTime) / 1000);
-    return null;
-  }
+		endTime = System.currentTimeMillis();
+		LOG.info("*****************Metadata matrix ends******************Took {}s", (endTime - startTime) / 1000);
+		return null;
+	}
 
-  @Override
-  public Object execute(Object o) {
-    return null;
-  }
+	@Override
+	public Object execute(Object o) {
+		return null;
+	}
 
 }
