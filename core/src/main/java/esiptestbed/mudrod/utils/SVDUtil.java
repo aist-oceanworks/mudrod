@@ -25,17 +25,40 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * ClassName: SVDUtil <br/>
+ * Function: Singular value decomposition<br/>
+ * Date: Aug 15, 2016 1:58:02 PM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class SVDUtil extends MudrodAbstract {
 
+	// wordRDD: terms extracted from all documents
 	JavaRDD<String> wordRDD;
+	// svdMatrix: svd matrix 
 	private RowMatrix svdMatrix;
+	// simMatrix: similarity matrix
 	private CoordinateMatrix simMatrix;
 
+	/**
+	 * Creates a new instance of SVDUtil.
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param spark the spark driver
+	 */
 	public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
 		super(config, es, spark);
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * buildSVDMatrix: build svd matrix from docment-terms pairs. <br/>
+	 * @param docwordRDD
+	 * @param svdDimension: Dimension of matrix after singular value decomposition
+	 * @return
+	 */
 	public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD, int svdDimension) {
 
 		RowMatrix svdMatrix = null;
@@ -52,6 +75,12 @@ public class SVDUtil extends MudrodAbstract {
 		return svdMatrix;
 	}
 
+	/**
+	 * buildSVDMatrix: build svd matrix from csv file. <br/>
+	 * @param tfidfCSVfile
+	 * @param svdDimension: Dimension of matrix after singular value decomposition
+	 * @return
+	 */
 	public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
 		RowMatrix svdMatrix = null;
 		JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark, tfidfCSVfile, 2);
@@ -70,11 +99,19 @@ public class SVDUtil extends MudrodAbstract {
 		return svdMatrix;
 	}
 
+	/**
+	 * CalSimilarity: calculate similarity
+	 */
 	public void CalSimilarity() {
 		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromMatrix(svdMatrix);
 		this.simMatrix = simMatrix;
 	}
 
+	/**
+	 * insertLinkageToES:insert linkage triples to elasticsearch
+	 * @param index index name
+	 * @param type linkage triple name
+	 */
 	public void insertLinkageToES(String index, String type) {
 		List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD, simMatrix);
 		try {
