@@ -34,103 +34,131 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.ClickStream;
 import scala.Tuple2;
 
+/**
+ * ClassName: SessionExtractor <br/>
+ * Function: Extract sessions details from reconstructed sessions. <br/>
+ * Date: Aug 15, 2016 1:34:35 PM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class SessionExtractor implements Serializable {
 
-  public SessionExtractor() {
-  }
+	public SessionExtractor() {
+	}
 
-  // load data from es
-  public JavaRDD<ClickStream> extractClickStreamFromES(
-      Map<String, String> config, ESDriver es, SparkDriver spark)
-          throws Exception {
-    List<ClickStream> QueryList = this.getClickStreamList(config, es);
-    JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(QueryList);
-    return clickstreamRDD;
-  }
+	// load data from es
+	/**
+	 * extractClickStreamFromES:Extract click streams from logs stored in Elasticsearch
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param spark the spark driver
+	 * @return
+	 */
+	public JavaRDD<ClickStream> extractClickStreamFromES(Map<String, String> config, ESDriver es, SparkDriver spark)
+			throws Exception {
+		List<ClickStream> QueryList = this.getClickStreamList(config, es);
+		JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(QueryList);
+		return clickstreamRDD;
+	}
 
-  protected List<ClickStream> getClickStreamList(Map<String, String> config,
-      ESDriver es) throws Exception {
-    ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
-        config.get("indexName"), config.get("Cleanup_type_prefix"));
-    List<ClickStream> result = new ArrayList<>();
-    for (int n = 0; n < cleanup_typeList.size(); n++) {
-      String cleanupType = cleanup_typeList.get(n);
-      List<String> sessionId_list = this.getSessions(config, es, cleanupType);
-      Session session = new Session(config, es);
-      int sessionNum = sessionId_list.size();
-      for (int i = 0; i < sessionNum; i++) {
-        List<ClickStream> datas = session.getClickStreamList(cleanupType,
-            sessionId_list.get(i));
-        result.addAll(datas);
-      }
-    }
+	/**
+	 * getClickStreamList:Extract click streams from logs stored in Elasticsearch. <br/>
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch driver
+	 * @return
+	 */
+	protected List<ClickStream> getClickStreamList(Map<String, String> config, ESDriver es) throws Exception {
+		ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(config.get("indexName"),
+				config.get("Cleanup_type_prefix"));
+		List<ClickStream> result = new ArrayList<>();
+		for (int n = 0; n < cleanup_typeList.size(); n++) {
+			String cleanupType = cleanup_typeList.get(n);
+			List<String> sessionId_list = this.getSessions(config, es, cleanupType);
+			Session session = new Session(config, es);
+			int sessionNum = sessionId_list.size();
+			for (int i = 0; i < sessionNum; i++) {
+				List<ClickStream> datas = session.getClickStreamList(cleanupType, sessionId_list.get(i));
+				result.addAll(datas);
+			}
+		}
 
-    return result;
-  }
+		return result;
+	}
 
-  // This function is reserved and not being used for now
-  public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile,
-      JavaSparkContext sc) {
-    JavaRDD<ClickStream> clickstreamRDD = sc.textFile(clickthroughFile)
-        .flatMap(new FlatMapFunction<String, ClickStream>() {
-          public Iterable<ClickStream> call(String line) throws Exception {
-            List<ClickStream> clickthroughs = (List<ClickStream>) ClickStream
-                .parseFromTextLine(line);
-            return clickthroughs;
-          }
-        });
-    return clickstreamRDD;
-  }
+	// This function is reserved and not being used for now
+	/**
+	 * loadClickStremFromTxt:Load click stream form txt file<br/>
+	 * @param clickthrough txt file
+	 * @param spark the spark driver
+	 * @return
+	 */
+	public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile, JavaSparkContext sc) {
+		JavaRDD<ClickStream> clickstreamRDD = sc.textFile(clickthroughFile)
+				.flatMap(new FlatMapFunction<String, ClickStream>() {
+					public Iterable<ClickStream> call(String line) throws Exception {
+						List<ClickStream> clickthroughs = (List<ClickStream>) ClickStream.parseFromTextLine(line);
+						return clickthroughs;
+					}
+				});
+		return clickstreamRDD;
+	}
 
-  public JavaPairRDD<String, List<String>> bulidDataQueryRDD(
-      JavaRDD<ClickStream> clickstreamRDD, int downloadWeight) {
-    JavaPairRDD<String, List<String>> dataQueryRDD = clickstreamRDD
-        .mapToPair(new PairFunction<ClickStream, String, List<String>>() {
-          public Tuple2<String, List<String>> call(ClickStream click)
-              throws Exception {
-            List<String> query = new ArrayList<String>();
-            // important! download behavior is given higher weights than viewing
-            // behavior
-            boolean download = click.isDownload();
-            int weight = 1;
-            if (download) {
-              weight = downloadWeight;
-            }
-            for (int i = 0; i < weight; i++) {
-              query.add(click.getKeyWords());
-            }
+	/**
+	 * bulidDataQueryRDD: convert click stream list to data set queries pairs.
+	 * @param clickstreamRDD: click stream data
+	 * @param downloadWeight: weight of download behavior
+	 * @return
+	 */
+	public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD,
+			int downloadWeight) {
+		JavaPairRDD<String, List<String>> dataQueryRDD = clickstreamRDD
+				.mapToPair(new PairFunction<ClickStream, String, List<String>>() {
+					public Tuple2<String, List<String>> call(ClickStream click) throws Exception {
+						List<String> query = new ArrayList<String>();
+						// important! download behavior is given higher weights
+						// than viewing
+						// behavior
+						boolean download = click.isDownload();
+						int weight = 1;
+						if (download) {
+							weight = downloadWeight;
+						}
+						for (int i = 0; i < weight; i++) {
+							query.add(click.getKeyWords());
+						}
 
-            return new Tuple2<String, List<String>>(click.getViewDataset(),
-                query);
-          }
-        })
-        .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
-          public List<String> call(List<String> v1, List<String> v2)
-              throws Exception {
-            // TODO Auto-generated method stub
-            List<String> list = new ArrayList<String>();
-            list.addAll(v1);
-            list.addAll(v2);
-            return list;
-          }
-        });
+						return new Tuple2<String, List<String>>(click.getViewDataset(), query);
+					}
+				}).reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
+					public List<String> call(List<String> v1, List<String> v2) throws Exception {
+						// TODO Auto-generated method stub
+						List<String> list = new ArrayList<String>();
+						list.addAll(v1);
+						list.addAll(v2);
+						return list;
+					}
+				});
 
-    return dataQueryRDD;
-  }
+		return dataQueryRDD;
+	}
 
-  protected List<String> getSessions(Map<String, String> config, ESDriver es,
-      String cleanup_type) throws Exception {
-    List<String> sessionID_list = new ArrayList<String>();
-    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-        .setTypes(cleanup_type).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0)
-        .addAggregation(
-            AggregationBuilders.terms("Sessions").field("SessionID").size(0))
-        .execute().actionGet();
-    Terms Sessions = sr.getAggregations().get("Sessions");
-    for (Terms.Bucket entry : Sessions.getBuckets()) {
-      sessionID_list.add(entry.getKey());
-    }
-    return sessionID_list;
-  }
+	/**
+	 * getSessions: Get sessions from logs
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param cleanup_type session type name 
+	 * @return
+	 */
+	protected List<String> getSessions(Map<String, String> config, ESDriver es, String cleanup_type) throws Exception {
+		List<String> sessionID_list = new ArrayList<String>();
+		SearchResponse sr = es.client.prepareSearch(config.get("indexName")).setTypes(cleanup_type)
+				.setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+				.addAggregation(AggregationBuilders.terms("Sessions").field("SessionID").size(0)).execute().actionGet();
+		Terms Sessions = sr.getAggregations().get("Sessions");
+		for (Terms.Bucket entry : Sessions.getBuckets()) {
+			sessionID_list.add(entry.getKey());
+		}
+		return sessionID_list;
+	}
 }

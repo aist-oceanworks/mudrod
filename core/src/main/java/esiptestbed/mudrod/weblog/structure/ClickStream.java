@@ -17,85 +17,146 @@ import java.io.Serializable;
 
 import org.codehaus.jettison.json.JSONObject;
 
+/**
+ * ClassName: ClickStream <br/>
+ * Function: user click stream data related operations. <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class ClickStream implements Serializable {
-  private String keywords;
-  private String viewDataset;
-  private String downloadDataset;
-  private String sessionID;
-  private String type;
+	// keywords: query words related to the click behaviour
+	private String keywords;
+	// viewDataset: the dataset name user viewed
+	private String viewDataset;
+	// downloadDataset: the dataset name user downloaded
+	private String downloadDataset;
+	// sessionID: session ID
+	private String sessionID;
+	// type: session type name
+	private String type;
 
-  public ClickStream(String keywords, String viewDataset, boolean download) {
-    this.keywords = keywords;
-    this.viewDataset = viewDataset;
-    this.downloadDataset = "";
-    if (download) {
-      this.downloadDataset = viewDataset;
-    }
-  }
+	/**
+	 * Creates a new instance of ClickStream.
+	 *
+	 * @param keywords the query user searched
+	 * @param viewDataset the dataset name user viewed
+	 * @param download: if user download the data set after viewing it, this parameter is true, otherwise, it is false. 
+	 */
+	public ClickStream(String keywords, String viewDataset, boolean download) {
+		this.keywords = keywords;
+		this.viewDataset = viewDataset;
+		this.downloadDataset = "";
+		if (download) {
+			this.downloadDataset = viewDataset;
+		}
+	}
 
-  public ClickStream() {
+	public ClickStream() {
 
-  }
+	}
 
-  public void setKeyWords(String query) {
-    this.keywords = query;
-  }
+	/**
+	 * setKeyWords: Set the query user searched. <br/>
+	 * @param query
+	 */
+	public void setKeyWords(String query) {
+		this.keywords = query;
+	}
 
-  public void setViewDataset(String dataset) {
-    this.viewDataset = dataset;
-  }
+	/**
+	 * setViewDataset:Set the data set name user viewed
+	 * @param dataset
+	 */
+	public void setViewDataset(String dataset) {
+		this.viewDataset = dataset;
+	}
 
-  public void setDownloadDataset(String dataset) {
-    this.downloadDataset = dataset;
-  }
+	/**
+	 * setDownloadDataset: Set the data set name user downloaded
+	 * @param dataset
+	 */
+	public void setDownloadDataset(String dataset) {
+		this.downloadDataset = dataset;
+	}
 
-  public String getKeyWords() {
-    return this.keywords;
-  }
+	/**
+	 * getKeyWords: Get the query user searched
+	 * @return data set name
+	 */
+	public String getKeyWords() {
+		return this.keywords;
+	}
 
-  public String getViewDataset() {
-    return this.viewDataset;
-  }
+	/**
+	 * getViewDataset: Get the data set user viewed
+	 * @return data set name
+	 */
+	public String getViewDataset() {
+		return this.viewDataset;
+	}
 
-  public Boolean isDownload() {
-    if (this.downloadDataset.equals("")) {
-      return false;
-    }
-    return true;
-  }
+	/**
+	 * isDownload: Show whether the data is downloaded in the session.
+	 * @return True or False
+	 */
+	public Boolean isDownload() {
+		if (this.downloadDataset.equals("")) {
+			return false;
+		}
+		return true;
+	}
 
-  public void setSessionId(String sessionID) {
-    this.sessionID = sessionID;
-  }
+	/**
+	 * setSessionId: Set ID of session
+	 * @param sessionID
+	 */
+	public void setSessionId(String sessionID) {
+		this.sessionID = sessionID;
+	}
 
-  public void setType(String type) {
-    this.type = type;
-  }
+	/**
+	 * setType: Set session type name
+	 * @param type
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
 
-  public String toString() {
-    return "query:" + keywords + "|| view dataset:" + viewDataset
-        + "|| download Dataset:" + downloadDataset;
-  }
+	/**
+	 * Output click stream info in string format
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return "query:" + keywords + "|| view dataset:" + viewDataset + "|| download Dataset:" + downloadDataset;
+	}
 
-  public String toJson() {
-    String jsonQuery = "{";
-    jsonQuery += "\"query\":\"" + this.keywords + "\",";
-    jsonQuery += "\"viewdataset\":\"" + this.viewDataset + "\",";
-    jsonQuery += "\"downloaddataset\":\"" + this.downloadDataset + "\",";
-    jsonQuery += "\"sessionId\":\"" + this.sessionID + "\",";
-    jsonQuery += "\"type\":\"" + this.type + "\"";
-    jsonQuery += "},";
-    return jsonQuery;
-  }
+	/**
+	 * toJson: Output click stream info in Json format
+	 */
+	public String toJson() {
+		String jsonQuery = "{";
+		jsonQuery += "\"query\":\"" + this.keywords + "\",";
+		jsonQuery += "\"viewdataset\":\"" + this.viewDataset + "\",";
+		jsonQuery += "\"downloaddataset\":\"" + this.downloadDataset + "\",";
+		jsonQuery += "\"sessionId\":\"" + this.sessionID + "\",";
+		jsonQuery += "\"type\":\"" + this.type + "\"";
+		jsonQuery += "},";
+		return jsonQuery;
+	}
 
-  public static ClickStream parseFromTextLine(String logline) throws Exception {
-    JSONObject jsonData = new JSONObject(logline);
-    ClickStream data = new ClickStream();
-    data.setKeyWords(jsonData.getString("query"));
-    data.setViewDataset(jsonData.getString("viewdataset"));
-    data.setDownloadDataset(jsonData.getString("downloaddataset"));
+	/**
+	 * parseFromTextLine: Convert string to click stream data
+	 * @param logline
+	 * @return {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+	 */
+	public static ClickStream parseFromTextLine(String logline) throws Exception {
+		JSONObject jsonData = new JSONObject(logline);
+		ClickStream data = new ClickStream();
+		data.setKeyWords(jsonData.getString("query"));
+		data.setViewDataset(jsonData.getString("viewdataset"));
+		data.setDownloadDataset(jsonData.getString("downloaddataset"));
 
-    return data;
-  }
-
+		return data;
+	}
 }

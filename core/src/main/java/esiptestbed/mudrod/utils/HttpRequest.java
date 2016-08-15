@@ -22,36 +22,44 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ClassName: HttpRequest <br/>
+ * Function: Http request tool. <br/>
+ * Date: Aug 12, 2016 12:41:57 PM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class HttpRequest {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
 
-  public HttpRequest() {
-  }
+	private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
 
-  public String getRequest(String requestUrl) {
-    String line = null;
-    try {
-      URL url = new URL(requestUrl);
+	public HttpRequest() {
+	}
 
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setDoOutput(true);
+	public String getRequest(String requestUrl) {
+		String line = null;
+		try {
+			URL url = new URL(requestUrl);
 
-      connection.setConnectTimeout(5000);
-      connection.setReadTimeout(5000);
-      int code = connection.getResponseCode();
-      if (code != HttpURLConnection.HTTP_OK) {
-        line = "{\"exception\":\"Service failed\"}";
-        LOG.info(line);
-      } else {
-        InputStream content = connection.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(content));
-        line = in.readLine();
-      }
-    } catch (Exception e) {
-      line = "{\"exception\":\"No service was found\"}";
-      LOG.error(line);
-    }
-    return line;
-  }
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);
+
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
+			int code = connection.getResponseCode();
+			if (code != HttpURLConnection.HTTP_OK) {
+				line = "{\"exception\":\"Service failed\"}";
+				LOG.info(line);
+			} else {
+				InputStream content = connection.getInputStream();
+				BufferedReader in = new BufferedReader(new InputStreamReader(content));
+				line = in.readLine();
+			}
+		} catch (Exception e) {
+			line = "{\"exception\":\"No service was found\"}";
+			LOG.error(line);
+		}
+		return line;
+	}
 }

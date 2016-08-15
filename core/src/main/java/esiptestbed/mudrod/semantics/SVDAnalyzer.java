@@ -27,36 +27,53 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.MatrixUtil;
 
+/**
+ * ClassName: SVDAnalyzer <br/>
+ * Function: Analyze semantic relationship through SVD method<br/>
+ * Date: Aug 12, 2016 12:49:26 PM <br/>
+ *
+ * @author Yun
+ * @version
+ */
 public class SVDAnalyzer extends SemanticAnalyzer {
 
-  public SVDAnalyzer(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
-  }
+	/**
+	 * Creates a new instance of SVDAnalyzer.
+	 *
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param sparkthe spark drive
+	 */
+	public SVDAnalyzer(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
+		// TODO Auto-generated constructor stub
+	}
 
-  public void GetSVDMatrix(String CSV_fileName, int svdDimention,
-      String svd_matrix_fileName) {
+	/**
+	 * GetSVDMatrix: Create SVD matrix csv file from original csv file. <br/>
+	 * 
+	 * @param CSV_fileName each row is a term, and each column is a document.
+	 * @param svdDimention Dimension of SVD matrix
+	 * @param svd_matrix_fileName CSV file name of SVD matrix
+	 */
+	public void GetSVDMatrix(String CSV_fileName, int svdDimention, String svd_matrix_fileName) {
 
-    try {
-      JavaPairRDD<String, Vector> importRDD = MatrixUtil
-          .loadVectorFromCSV(spark, CSV_fileName, 1);
-      JavaRDD<Vector> vectorRDD = importRDD.values();
-      RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
-      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
-          spark.sc);
-      RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix,
-          svdDimention);
+		try {
+			JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, 1);
+			JavaRDD<Vector> vectorRDD = importRDD.values();
+			RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
+			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
+			RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimention);
 
-      List<String> rowKeys = importRDD.keys().collect();
-      List<String> colKeys = new ArrayList<String>();
-      for (int i = 0; i < svdDimention; i++) {
-        colKeys.add("dimension" + i);
-      }
-      MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
+			List<String> rowKeys = importRDD.keys().collect();
+			List<String> colKeys = new ArrayList<String>();
+			for (int i = 0; i < svdDimention; i++) {
+				colKeys.add("dimension" + i);
+			}
+			MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

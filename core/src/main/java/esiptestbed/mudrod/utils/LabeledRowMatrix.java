@@ -17,14 +17,25 @@ import java.util.List;
 
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
+/**
+ * ClassName: LabeledRowMatrix <br/>
+ * Function: LabeledRowMatrix strut. <br/>
+ * Date: Aug 12, 2016 11:24:44 AM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class LabeledRowMatrix {
 
-  public List<String> words;
-  public List<String> docs;
-  public RowMatrix wordDocMatrix;	
+	// words: matrix row titles
+	public List<String> words;
+	// docs: matrix column titles
+	public List<String> docs;
+	// wordDocMatrix: a matrix in which each row is corresponding to a term and each column is a doc.
+	public RowMatrix wordDocMatrix;
 
-  public LabeledRowMatrix() {
-    // TODO Auto-generated constructor stub
-  }
+	public LabeledRowMatrix() {
+		// TODO Auto-generated constructor stub
+	}
 
 }

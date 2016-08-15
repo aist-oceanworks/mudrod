@@ -25,9 +25,22 @@ import com.google.gson.JsonParser;
 
 import esiptestbed.mudrod.utils.HttpRequest;
 
+/**
+ * ClassName: GeoIp <br/>
+ * Function: convert IP to geo location<br/>
+ * Date: Aug 15, 2016 1:28:52 PM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class GeoIp {
 
-  public Coordinates toLocation(String ip) {
+  /**
+ * toLocation: convert ip to location
+ * @param ip
+ * @return
+ */
+public Coordinates toLocation(String ip) {
     String url = "http://getcitydetails.geobytes.com/GetCityDetails?fqcn=" + ip;
     HttpRequest http = new HttpRequest();
     String response = http.getRequest(url);

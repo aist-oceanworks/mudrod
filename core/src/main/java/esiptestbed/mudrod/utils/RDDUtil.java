@@ -18,14 +18,26 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 
+/**
+ * ClassName: RDDUtil <br/>
+ * Function: Mudrod Spark RDD common methods <br/>
+ * Date: Aug 12, 2016 11:40:43 AM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class RDDUtil {
 
   public RDDUtil() {
     // TODO Auto-generated constructor stub
   }
 
-  public static JavaRDD<String> getAllWordsInDoc(
-      JavaPairRDD<String, List<String>> docwordRDD) {
+  /**
+ * getAllWordsInDoc: Extracted all unique terms from all docs. <br/>
+ * @param docword Pair RDD, each key is a doc, and value is term list extracted from that doc.
+ * @return unique term list
+ */
+public static JavaRDD<String> getAllWordsInDoc(JavaPairRDD<String, List<String>> docwordRDD) {
     JavaRDD<String> wordRDD = docwordRDD.values()
         .flatMap(new FlatMapFunction<List<String>, String>() {
           public Iterable<String> call(List<String> list) {

@@ -25,70 +25,101 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * ClassName: SVDUtil <br/>
+ * Function: Singular value decomposition<br/>
+ * Date: Aug 15, 2016 1:58:02 PM <br/>
+ *
+ * @author Yun
+ * @version 
+ */
 public class SVDUtil extends MudrodAbstract {
 
-  JavaRDD<String> wordRDD;
-  private RowMatrix svdMatrix;
-  private CoordinateMatrix simMatrix;
+	// wordRDD: terms extracted from all documents
+	JavaRDD<String> wordRDD;
+	// svdMatrix: svd matrix 
+	private RowMatrix svdMatrix;
+	// simMatrix: similarity matrix
+	private CoordinateMatrix simMatrix;
 
-  public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
-  }
+	/**
+	 * Creates a new instance of SVDUtil.
+	 * @param config the Mudrod configuration
+	 * @param es the Elasticsearch drive
+	 * @param spark the spark driver
+	 */
+	public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
+		super(config, es, spark);
+		// TODO Auto-generated constructor stub
+	}
 
-  public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD,
-      int svdDimension) {
+	/**
+	 * buildSVDMatrix: build svd matrix from docment-terms pairs. <br/>
+	 * @param docwordRDD
+	 * @param svdDimension: Dimension of matrix after singular value decomposition
+	 * @return
+	 */
+	public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD, int svdDimension) {
 
-    RowMatrix svdMatrix = null;
-    try {
-      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
-          spark.sc);
-      RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.wordDocMatrix,
-          spark.sc);
-      svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
-      this.svdMatrix = svdMatrix;
-      this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    return svdMatrix;
-  }
+		RowMatrix svdMatrix = null;
+		try {
+			LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
+			RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.wordDocMatrix, spark.sc);
+			svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
+			this.svdMatrix = svdMatrix;
+			this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return svdMatrix;
+	}
 
-  public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
-    RowMatrix svdMatrix = null;
-    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark,
-        tfidfCSVfile, 2);
-    JavaRDD<Vector> vectorRDD = tfidfRDD.values();
+	/**
+	 * buildSVDMatrix: build svd matrix from csv file. <br/>
+	 * @param tfidfCSVfile
+	 * @param svdDimension: Dimension of matrix after singular value decomposition
+	 * @return
+	 */
+	public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
+		RowMatrix svdMatrix = null;
+		JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark, tfidfCSVfile, 2);
+		JavaRDD<Vector> vectorRDD = tfidfRDD.values();
 
-    try {
-      svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
-      this.svdMatrix = svdMatrix;
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+		try {
+			svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
+			this.svdMatrix = svdMatrix;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-    this.wordRDD = tfidfRDD.keys();
+		this.wordRDD = tfidfRDD.keys();
 
-    return svdMatrix;
-  }
+		return svdMatrix;
+	}
 
-  public void CalSimilarity() {
-    CoordinateMatrix simMatrix = SimilarityUtil
-        .CalSimilarityFromMatrix(svdMatrix);
-    this.simMatrix = simMatrix;
-  }
+	/**
+	 * CalSimilarity: calculate similarity
+	 */
+	public void CalSimilarity() {
+		CoordinateMatrix simMatrix = SimilarityUtil.CalSimilarityFromMatrix(svdMatrix);
+		this.simMatrix = simMatrix;
+	}
 
-  public void insertLinkageToES(String index, String type) {
-    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD,
-        simMatrix);
-    try {
-      LinkageTriple.insertTriples(es, triples, index, type);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
+	/**
+	 * insertLinkageToES:insert linkage triples to elasticsearch
+	 * @param index index name
+	 * @param type linkage triple name
+	 */
+	public void insertLinkageToES(String index, String type) {
+		List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD, simMatrix);
+		try {
+			LinkageTriple.insertTriples(es, triples, index, type);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }
