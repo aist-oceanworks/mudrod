@@ -24,27 +24,53 @@ import java.util.concurrent.ExecutionException;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * Extends {@link siptestbed.mudrod.discoveryengine.DiscoveryStepAbstract} to
+ * add SWEET mappings for Ocean Triples obtained from the configuration <b>oceanTriples</b>
+ * key.
+ */
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
+  private static final Logger LOG = LoggerFactory.getLogger(OntologyLinkCal.class);
+
+  private static final String INDEX_NAME = "indexName";
+
+  private static final String ONT_TYPE = "ontologyLinkageType";
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * 
+   * @param config
+   * @param es
+   * @param spark
+   */
   public OntologyLinkCal(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
-    es.deleteAllByQuery(config.get("indexName"),
-        config.get("ontologyLinkageType"), QueryBuilders.matchAllQuery());
+    es.deleteAllByQuery(config.get(INDEX_NAME),
+        config.get(ONT_TYPE), QueryBuilders.matchAllQuery());
     addSWEETMapping();
   }
 
+  /**
+   * Create SWEET configuration mapping for Elasticsearch.
+   */
   public void addSWEETMapping() {
-    XContentBuilder Mapping;
+    XContentBuilder mapping;
     try {
-      Mapping = jsonBuilder().startObject()
-          .startObject(config.get("ontologyLinkageType"))
+      mapping = jsonBuilder().startObject()
+          .startObject(config.get(ONT_TYPE))
           .startObject("properties").startObject("concept_A")
           .field("type", "string").field("index", "not_analyzed").endObject()
           .startObject("concept_B").field("type", "string")
@@ -52,75 +78,54 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 
           .endObject().endObject().endObject();
 
-      es.client.admin().indices().preparePutMapping(config.get("indexName"))
-          .setType(config.get("ontologyLinkageType")).setSource(Mapping)
-          .execute().actionGet();
+      es.client.admin().indices().preparePutMapping(config.get(INDEX_NAME))
+      .setType(config.get(ONT_TYPE)).setSource(mapping)
+      .execute().actionGet();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOG.error("Error obtaining SWEET configuration mapping(s).", e);
     }
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
-    es.deleteType(config.get("indexName"), config.get("ontologyLinkageType"));
+    es.deleteType(config.get(INDEX_NAME), config.get(ONT_TYPE));
     es.createBulkProcesser();
 
-    BufferedReader br = null;
     String line = "";
     double weight = 0;
 
-    try {
-      br = new BufferedReader(new FileReader(config.get("oceanTriples")));
+    try (BufferedReader br = new BufferedReader(new FileReader(config.get("oceanTriples")))){
       while ((line = br.readLine()) != null) {
         String[] strList = line.toLowerCase().split(",");
-        if (strList[1].equals("subclassof")) {
+        if ("subclassof".equals(strList[1])) {
           weight = 0.75;
         } else {
           weight = 0.9;
         }
-
-        IndexRequest ir = new IndexRequest(config.get("indexName"),
-            config.get("ontologyLinkageType"))
-                .source(
-                    jsonBuilder().startObject()
-                        .field("concept_A",
-                            es.customAnalyzing(config.get("indexName"),
-                                strList[2]))
-                        .field("concept_B",
-                            es.customAnalyzing(config.get("indexName"),
-                                strList[0]))
-                        .field("weight", weight).endObject());
+        IndexRequest ir = new IndexRequest(config.get(INDEX_NAME),
+            config.get(ONT_TYPE))
+            .source(
+                jsonBuilder().startObject()
+                .field("concept_A",
+                    es.customAnalyzing(config.get(INDEX_NAME),
+                        strList[2]))
+                .field("concept_B",
+                    es.customAnalyzing(config.get(INDEX_NAME),
+                        strList[0]))
+                .field("weight", weight).endObject());
         es.bulkProcessor.add(ir);
-
       }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (IOException | InterruptedException | ExecutionException e) {
+      LOG.error("Error executing index request.", e);
     } finally {
-      if (br != null) {
-        try {
-          br.close();
-          es.destroyBulkProcessor();
-          es.refreshIndex();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
+      es.destroyBulkProcessor();
+      es.refreshIndex();
     }
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

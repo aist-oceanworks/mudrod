@@ -26,12 +26,13 @@
   <artifactId>mudrod-service</artifactId>
   <packaging>war</packaging>
   <name>Mudrod :: Service</name>
-  <description>Mudrod Frontend and WebService implementation.</description>
+  <description>Mudrod Frontend and WebServices implementations.</description>
 
   <properties>
     <!-- the following property is used in the bash script as well, don't 
       remove it! -->
     <jetty.version>9.3.11.M0</jetty.version>
+    <jena.version>3.1.0</jena.version>
   </properties>
 
   <dependencies>
@@ -40,6 +41,14 @@
       <groupId>esiptestbed</groupId>
       <artifactId>mudrod-core</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    
+    <!-- Misc Dependencies -->
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>apache-jena-libs</artifactId>
+      <type>pom</type>
+      <version>${jena.version}</version>
     </dependency>
 
     <!-- Logging Dependencies -->

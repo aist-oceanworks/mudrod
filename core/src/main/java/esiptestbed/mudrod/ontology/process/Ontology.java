@@ -11,45 +11,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.discoveryengine;
+package esiptestbed.mudrod.ontology.process;
 
-import java.util.Map;
-
-import esiptestbed.mudrod.driver.ESDriver;
-import esiptestbed.mudrod.driver.SparkDriver;
+import java.util.Iterator;
 
 /**
- * Extension point for interacting with Mudrod discovery services.
+ * @author lmcgibbn
+ *
  */
-public abstract class DiscoveryStepAbstract extends MudrodAbstract {
+public interface Ontology {
+  /** The name of the extension point. */
+  public static final String X_POINT_ID = Ontology.class.getName();
 
   /**
    * 
+   * @param urls
    */
-  private static final long serialVersionUID = 1L;
-
-  /**
-   * 
-   * @param config
-   * @param es
-   * @param spark
-   */
-  public DiscoveryStepAbstract(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
-  }
-
-  /**
-   * 
-   * @return
-   */
-  public abstract Object execute();
+  public void load(String[] urls);
 
   /**
    * 
    * @param o
+   */
+  public void merge(Ontology o);
+
+  /**
+   * 
+   * @param entitySearchTerm
    * @return
    */
-  public abstract Object execute(Object o);
+  public Iterator<String> subclasses(String entitySearchTerm);
 
+  /**
+   * 
+   * @param queryKeyPhrase
+   * @return
+   */
+  public Iterator<String> synonyms(String queryKeyPhrase);
 }
