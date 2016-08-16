@@ -52,18 +52,55 @@ public class OHCodeExtractor implements Serializable {
 		metadataType = config.get("recom_metadataType");
 	}
 
-	public Map<String, Vector> loadMetadataOHEncode(ESDriver es)
+	public List<String> loadMetadataOHEncode(ESDriver es)
 			throws Exception {
 
 		OHEncoder coder = new OHEncoder();
 		List<String> fields = coder.CategoricalVars;
-		fields.add("DatasetParameter-Term");
-		Map<String, Vector> metadataCode = this.loadFieldsOHEncode(es, fields);
+		//fields.add("DatasetParameter-Term");
+		List<String> metadataCode = this.loadFieldsOHEncode(es, fields);
 
 		return metadataCode;
 	}
+	
+	public List<String> loadFieldsOHEncode(ESDriver es, List<String> fields) {
 
-	public Map<String, Vector> loadFieldsOHEncode(ESDriver es, List<String> fields) {
+		List<String> metedataCode = new ArrayList<String>();
+		SearchResponse scrollResp = es.client.prepareSearch(indexName).setTypes(metadataType)
+				.setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+				.actionGet();
+
+		int fieldnum = fields.size();
+		OHEncoder coder = new OHEncoder();
+		while (true) {
+			for (SearchHit hit : scrollResp.getHits().getHits()) {
+				Map<String, Object> metadata = hit.getSource();
+				Map<String, Object> metadatacode;
+
+				String shortname = (String) metadata.get("Dataset-ShortName");
+				
+				String[] codeArr = new String[fieldnum];
+				for (int i = 0; i < fieldnum; i++) {
+					String field = fields.get(i);
+					String code = (String) metadata.get(field + "_code");
+					codeArr[i] = code;
+				}
+				String codeStr = String.join(" & ", codeArr);
+
+				metedataCode.add(shortname + ":" +  codeStr);
+			}
+
+			scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))
+					.execute().actionGet();
+			if (scrollResp.getHits().getHits().length == 0) {
+				break;
+			}
+		}
+
+		return metedataCode;
+	}
+
+	public Map<String, Vector> loadFieldsOHEncodeMap(ESDriver es, List<String> fields) {
 
 		Map<String, Vector> metedataCode = new HashMap<String, Vector>();
 		SearchResponse scrollResp = es.client.prepareSearch(indexName).setTypes(metadataType)
@@ -97,7 +134,7 @@ public class OHCodeExtractor implements Serializable {
 				}
 				Vector vec = Vectors.dense(codeArr);
 
-				metedataCode.put(shortname/*.toLowerCase()*/, vec);
+				metedataCode.put(shortname.toLowerCase(), vec);
 			}
 
 			scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))

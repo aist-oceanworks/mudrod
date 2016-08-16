@@ -9,6 +9,7 @@ import org.apache.spark.mllib.linalg.Vector;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.recommendation.structure.CodeSimCalculator;
 import esiptestbed.mudrod.recommendation.structure.OHCodeExtractor;
 import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
@@ -27,25 +28,44 @@ public class ContentBasedCF extends DiscoveryStepAbstract implements Serializabl
 		String MatrixCodeFileName = config.get("metadataOBCodeMatrix");
 		List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(MatrixCodeFileName, 0);
 		
-		List<LinkageTriple> lefttriples = this.filterTriples(triples);
-		analyzer.SaveToES(lefttriples, config.get("indexName"), config.get("metadataCodeSimType"));
+		//List<LinkageTriple> lefttriples = this.filterTriples(triples);
+		//analyzer.SaveToES(lefttriples, config.get("indexName"), config.get("metadataCodeSimType"));
 
 		return null;
 	}
 	
 	@Override
-	public Object execute() {
+	/*public Object execute() {
 		// TODO Auto-generated method stub
 		try {
 			SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
 			String MatrixCodeFileName = config.get("metadataOBCodeMatrix");
 			List<LinkageTriple> triples = analyzer.CalTermSimfromMatrix(MatrixCodeFileName, 0);
 			
-			List<LinkageTriple> lefttriples = this.filterTriples(triples);
-			analyzer.SaveToES(lefttriples, config.get("indexName"), config.get("metadataCodeSimType"), true);
+			//List<LinkageTriple> lefttriples = this.filterTriples(triples);
+			//analyzer.SaveToES(lefttriples, config.get("indexName"), config.get("metadataCodeSimType"), true);
 
 			LinkageTriple.standardTriples(es, config.get("indexName"), config.get("metadataCodeSimType"));
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}*/
+	
+	public Object execute() {
+		// TODO Auto-generated method stub
+		try {
+			CodeSimCalculator calculator = new CodeSimCalculator(config);
+			String MatrixCodeFileName = config.get("metadataOBCode");
+			List<LinkageTriple> triples = calculator.CalItemSimfromTxt(spark, MatrixCodeFileName);
+			
+			SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
+			//List<LinkageTriple> lefttriples = this.filterTriples(triples);
+			analyzer.SaveToES(triples, config.get("indexName"), config.get("metadataCodeSimType"), true);
+
+			LinkageTriple.standardTriples(es, config.get("indexName"), config.get("metadataCodeSimType"));
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -63,7 +83,7 @@ public class ContentBasedCF extends DiscoveryStepAbstract implements Serializabl
 		OHCodeExtractor extractor = new OHCodeExtractor(config);
 		List<String> fields = new ArrayList<String>();
 		fields.add("DatasetParameter-Term");
-		Map<String, Vector> metadataCode = extractor.loadFieldsOHEncode(es, fields);
+		Map<String, Vector> metadataCode = extractor.loadFieldsOHEncodeMap(es, fields);
 		
 		List<LinkageTriple> newtriples = new ArrayList<LinkageTriple>();
 		int tripleSize = triples.size();

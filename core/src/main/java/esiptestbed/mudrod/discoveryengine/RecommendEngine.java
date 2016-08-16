@@ -33,21 +33,21 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 	    
 	    DiscoveryStepAbstract obencoder = new TranformMetadata(this.config, this.es,
 		        this.spark);
-	    obencoder.execute();
+	    obencoder.execute();*/
 	  
-	    DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.config, this.es,
+	    /*DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.config, this.es,
 		        this.spark);
 	    obencoder.execute();*/
 	    
-	    DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.config, this.es,
+	    /*DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.config, this.es,
 		        this.spark);
-	    matrixGen.execute();
+	    matrixGen.execute();*/
 	    
 	    /*DiscoveryStepAbstract rateGen = new ItemRateGenerator(this.config, this.es,this.spark);
-	    rateGen.execute();
+	    rateGen.execute();*/
 	    
 	    DiscoveryStepAbstract rateMatrixGen = new ItemRateMatrixGenerator(this.config, this.es,this.spark);
-	    rateMatrixGen.execute();*/
+	    rateMatrixGen.execute();
 	    
 	    endTime = System.currentTimeMillis();
 	    System.out.println("*****************Recommendation preprocessing ends******************Took "+ (endTime - startTime) / 1000);
@@ -63,9 +63,9 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 		DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es, this.spark);
 		cbCF.execute();
 
-		DiscoveryStepAbstract itemBasedCF = new ItemBasedCF(this.config, this.es,
+		/*DiscoveryStepAbstract itemBasedCF = new ItemBasedCF(this.config, this.es,
 		        this.spark);
-		itemBasedCF.execute();
+		itemBasedCF.execute();*/
 
 		endTime = System.currentTimeMillis();
 		System.out.println("*****************Recommendation processing ends******************Took "+ (endTime - startTime) / 1000);

@@ -167,6 +167,7 @@ public class MudrodEngine {
       me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
       me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
       me.config.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
+      me.config.put("metadataOBCode", dataDir + "MetadataOBCode");
       
       me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
       me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");

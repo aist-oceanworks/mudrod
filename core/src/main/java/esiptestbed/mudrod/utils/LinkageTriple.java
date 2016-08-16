@@ -149,7 +149,7 @@ public class LinkageTriple implements Serializable {
 			}
 		}
 
-		es.createBulkProcesser();
+		es.destroyBulkProcessor();
 	}
 
 	private static double getMaxSimilarity(ESDriver es, String index, String type, String concept) {

@@ -48,51 +48,41 @@ public class OHEncoder {
 		CategoricalVarValueVecs = new HashMap<String, Map<String, Vector>>();
 		CategoricalVarWeights = new HashMap<String, Double>();
 
-		CategoricalVarWeights.put("DatasetParameter-Topic", 10.0);
-		CategoricalVarWeights.put("DatasetParameter-Term", 10.0);
-		CategoricalVarWeights.put("DatasetParameter-Category", 10.0);
-		CategoricalVarWeights.put("DatasetParameter-Variable", 10.0);
-
-		CategoricalVarWeights.put("Dataset-ProcessingLevel", 8.0);
-		CategoricalVarWeights.put("DatasetSource-Source-Type", 8.0);
-		CategoricalVarWeights.put("DatasetSource-Source-ShortName", 8.0);
-
-		CategoricalVarWeights.put("DatasetSource-Sensor-ShortName", 8.0);
-		CategoricalVarWeights.put("DatasetSource-Sensor-SwathWidth", 8.0);
-		CategoricalVarWeights.put("DatasetSource-Source-OrbitPeriod", 8.0);
-		CategoricalVarWeights.put("DatasetSource-Source-InclAngle", 8.0);
-
-		CategoricalVarWeights.put("DatasetRegion-Region", 1.0);
+		CategoricalVarWeights.put("DatasetParameter-Topic", 4.0);
+		CategoricalVarWeights.put("DatasetParameter-Term", 5.0);
+		CategoricalVarWeights.put("DatasetParameter-Category", 4.0);
+		CategoricalVarWeights.put("DatasetParameter-Variable", 5.0);
+		CategoricalVarWeights.put("Dataset-ProcessingLevel", 3.0);
+		CategoricalVarWeights.put("DatasetSource-Source-Type", 3.0);
+		CategoricalVarWeights.put("DatasetSource-Source-ShortName", 4.0);
+		CategoricalVarWeights.put("DatasetSource-Sensor-ShortName", 5.0);
+		CategoricalVarWeights.put("DatasetRegion-Region", 4.0);
 		CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
-		CategoricalVarWeights.put("DatasetCoverage-NorthLat", 1.0);
-		CategoricalVarWeights.put("DatasetCoverage-SouthLat", 1.0);
-		CategoricalVarWeights.put("DatasetCoverage-WestLon", 1.0);
-		CategoricalVarWeights.put("DatasetCoverage-EastLon", 1.0);
+		CategoricalVarWeights.put("DatasetCoverage-NorthLat", 3.0);
+		CategoricalVarWeights.put("DatasetCoverage-SouthLat", 3.0);
+		CategoricalVarWeights.put("DatasetCoverage-WestLon", 3.0);
+		CategoricalVarWeights.put("DatasetCoverage-EastLon", 3.0);
 		CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
 		CategoricalVarWeights.put("Dataset-HorizontalResolutionRange", 1.0);
-		CategoricalVarWeights.put("Dataset-LatitudeResolution", 1.0);
-		CategoricalVarWeights.put("Dataset-LongitudeResolution", 1.0);
-		CategoricalVarWeights.put("Dataset-SwathWidth", 1.0);
-		CategoricalVarWeights.put("Dataset-SatelliteSpatialResolution", 1.0);
-
-		CategoricalVarWeights.put("Dataset-AcrossTrackResolution", 1.0);
-		CategoricalVarWeights.put("Dataset-AlongTrackResolution", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalRepeat", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalResolution-Group", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalRepeatMin", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalResolutionRange", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalResolution", 1.0);
-		CategoricalVarWeights.put("Dataset-TemporalRepeatMax", 1.0);
-		CategoricalVarWeights.put("Dataset-DatasetCoverage-TimeSpan", 1.0);
-		CategoricalVarWeights.put("DatasetPolicy-DataLatency", 1.0);
+		CategoricalVarWeights.put("Dataset-LatitudeResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-LongitudeResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-SatelliteSpatialResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-AcrossTrackResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-AlongTrackResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-TemporalRepeat", 3.0);
+		CategoricalVarWeights.put("Dataset-TemporalResolution-Group", 3.0);
+		CategoricalVarWeights.put("Dataset-TemporalRepeatMin", 2.0);
+		CategoricalVarWeights.put("Dataset-TemporalResolutionRange", 2.0);
+		CategoricalVarWeights.put("Dataset-TemporalResolution", 3.0);
+		CategoricalVarWeights.put("Dataset-TemporalRepeatMax", 2.0);
+		CategoricalVarWeights.put("Dataset-DatasetCoverage-TimeSpan", 4.0);
+		CategoricalVarWeights.put("DatasetPolicy-DataLatency", 3.0);
 		CategoricalVarWeights.put("DatasetPolicy-DataFrequency", 1.0);
-
 		CategoricalVarWeights.put("DatasetPolicy-DataDuration", 1.0);
-		CategoricalVarWeights.put("DatasetPolicy-DataFormat", 1.0);
-		CategoricalVarWeights.put("DatasetPolicy-Availability", 1.0);
-		CategoricalVarWeights.put("Collection-ShortName", 1.0);
+		CategoricalVarWeights.put("DatasetPolicy-DataFormat", 4.0);
+		CategoricalVarWeights.put("DatasetPolicy-Availability", 4.0);
+		CategoricalVarWeights.put("Collection-ShortName", 3.0);
 		CategoricalVarWeights.put("Dataset-Provider-ShortName", 1.0);
-
 		CategoricalVars = new ArrayList(CategoricalVarWeights.keySet());
 	}
 

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
@@ -50,18 +51,18 @@ public class OHCodeMatrixGenerator extends DiscoveryStepAbstract {
 
     String metadataCodeMatrixFile = config.get("metadataOBCodeMatrix");
     try {
-      /*OHCodeExtractor extractor = new OHCodeExtractor();
-      JavaPairRDD<String,Vector> metadataVecRDD = extractor.loadOBCode(this.es, this.spark.sc, config.get("indexName"),config.get("recom_metadataType"));
-      RowMatrix wordDocMatrix = new RowMatrix(metadataVecRDD.values().rdd());
-      List<String> rowKeys = metadataVecRDD.keys().collect();
-      MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);*/
-      
+
       OHCodeExtractor extractor = new OHCodeExtractor(config);
-      Map<String, Vector>  metedataCodes = extractor.loadMetadataOHEncode(es);
-      List<Vector> vectors = new ArrayList(metedataCodes.values());
-      RowMatrix wordDocMatrix = new RowMatrix(spark.sc.parallelize(vectors).rdd());
-      List<String> rowKeys = new ArrayList(metedataCodes.keySet());
-      MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);
+      List<String>  metedataCodes = extractor.loadMetadataOHEncode(es);
+      
+      //List<Vector> vectors = new ArrayList(metedataCodes.values());
+      //RowMatrix wordDocMatrix = new RowMatrix(spark.sc.parallelize(vectors).rdd());
+      
+      //List<String> rowKeys = new ArrayList(metedataCodes.keySet());
+      //MatrixUtil.exportToCSV(wordDocMatrix, rowKeys, null,metadataCodeMatrixFile);
+      
+      JavaRDD<String> codeRDD = spark.sc.parallelize(metedataCodes);
+      codeRDD/*.coalesce(1,true)*/.saveAsTextFile(config.get("metadataOBCode"));
 
     } catch (Exception e) {
       e.printStackTrace();
