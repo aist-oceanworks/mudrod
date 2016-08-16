@@ -26,7 +26,7 @@ public class SResult {
   String description = null;
   String relase_date = null;
 
-  public long dateLong = 0;
+  public Double dateLong = null;
   public Double clicks = null;
   public Double relevance = null;
 
@@ -35,17 +35,26 @@ public class SResult {
   public Double releaseDate_score = 0.0;
   public Double click_score = 0.0;
   public Double allPop_score = 0.0;
+  public Double monthPop_score = 0.0;
+  public Double userPop_score = 0.0;
   
   public String version = null;
   public String processingLevel = null;
   public String latency = null;
   public String stopDateLong = null;
   public String stopDateFormat = null;
-  public Double spatialR = null;
+  public Double spatialR_Sat = null;
+  public Double spatialR_Grid = null;
   public String temporalR = null;
-  public Integer userPop = null;
-  public Integer allPop = null;
-  public Integer monthPop = null;
+  
+  public Double versionNum = null;
+  public Double proNum = null;
+  public Double allPop = null;
+  public Double monthPop = null;
+  public Double userPop = null;
+  
+  public Double prediction = 0.0;
+  public String label = null;
 
   /**
    * @param shortName short name of dataset
@@ -70,27 +79,35 @@ public class SResult {
   public static String getHeader(String delimiter){
      return "ShortName" + delimiter +
             
-             "final_score" + delimiter + 
+            // "final_score" + delimiter + 
              "term_score" + delimiter + 
              "click_score" + delimiter + 
-             "clicks" + delimiter +
+             //"clicks" + delimiter +
              "releaseDate_score" + delimiter + 
+            // "ReleaseDate(format)" + delimiter +
          
-            /*"Version"  + delimiter +
-            "Processing Level"  + delimiter +
-            "Latency(hrs)"  + delimiter +
+            //"Version"  + delimiter +
+            "VersionNum"  + delimiter +
+            //"Processing Level"  + delimiter +
+            "ProLevelNum"  + delimiter +
+            /*"SpatialR_Sat"  + delimiter +
+            "SpatialR_Grid"  + delimiter +*/
+            /*"Latency(hrs)"  + delimiter +
             "StopDate(long)"  + delimiter +
             "StopDate(format)"  + delimiter +
             "SpatialResolution(grid)"  + delimiter +
-            "TemporalResolution"  + delimiter +
-            "UserPopularity"  + delimiter +*/
-            "ReleaseDate(format)" + delimiter +
-            "AllPopularity"  + delimiter +
+            "TemporalResolution"  + delimiter +*/
             "AllPop_score"  + delimiter +
-           /* "MonthPopularity"  + delimiter +
-            "ReleaseDate(long)"  + delimiter +*/            
-            "Evaluation"  + delimiter +
-            "Comments"  + delimiter +
+           // "AllPopularity"  + delimiter +
+            
+            "MonthPop_score"  + delimiter +
+           // "MonthlyPopularity"  + delimiter +
+            
+            "UserPop_score"  + delimiter +
+           // "UserPopularity"  + delimiter + 
+            "Label"  + delimiter +
+           // "Evaluation"  + delimiter +
+           // "Comments"  + delimiter +
             "\n";
   }
  
@@ -102,25 +119,31 @@ public class SResult {
   public String toString(String delimiter ){
     return shortName + delimiter + 
         
-           final_score + delimiter + 
+           //final_score + delimiter + 
            term_score + delimiter + 
            click_score + delimiter + 
-           clicks + delimiter +
+           //clicks + delimiter +
            releaseDate_score + delimiter +
+           //relase_date + delimiter +
         
-          /* version + delimiter + 
-           processingLevel + delimiter + 
-           latency + delimiter + 
+           //version + delimiter + 
+           versionNum + delimiter +
+           //processingLevel + delimiter + 
+           proNum + delimiter + 
+           /*spatialR_Sat + delimiter + 
+           spatialR_Grid + delimiter + */
+           /*latency + delimiter + 
            stopDateLong + delimiter +
            stopDateFormat + delimiter +
            spatialR + delimiter + 
-           temporalR + delimiter + 
-           userPop + delimiter + */
-           relase_date + delimiter +
-           allPop + delimiter + 
+           temporalR + delimiter + */
            allPop_score + delimiter +
-           /*monthPop + delimiter + 
-           dateLong + delimiter + */
+          // allPop + delimiter + 
+           monthPop_score + delimiter +
+          // monthPop + delimiter +
+           userPop_score + delimiter +
+          // userPop + delimiter +
+           label + delimiter +
            "\n";
   }
 

@@ -79,7 +79,29 @@
 	    <artifactId>opencsv</artifactId>
 	    <version>2.3</version>
 	</dependency>
-    
+	
+	<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+	<dependency>
+	    <groupId>nz.ac.waikato.cms.weka</groupId>
+	    <artifactId>weka-stable</artifactId>
+	    <version>3.8.0</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/LibSVM -->
+	<dependency>
+	    <groupId>nz.ac.waikato.cms.weka</groupId>
+	    <artifactId>LibSVM</artifactId>
+	    <version>1.0.8</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/ordinalClassClassifier -->
+	<dependency>
+	    <groupId>nz.ac.waikato.cms.weka</groupId>
+	    <artifactId>ordinalClassClassifier</artifactId>
+	    <version>1.0.3</version>
+	</dependency>
+	
+	
   </dependencies>
 
   <build>
