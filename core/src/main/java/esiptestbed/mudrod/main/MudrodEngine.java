@@ -212,7 +212,7 @@ public class MudrodEngine {
         break;
       case FULL_INGEST:
         loadFullConfig(me, dataDir);
-        me.start();
+      //  me.start();
         me.startProcessing(); 
         break;
       default:
