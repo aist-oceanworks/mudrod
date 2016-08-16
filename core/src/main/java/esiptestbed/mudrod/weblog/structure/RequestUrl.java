@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,22 +21,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * ClassName: RequestUrl Function: request url relate operations Date: Aug 15,
+ * 2016 1:29:50 PM
+ *
+ * @author Yun
+ *
+ */
 public class RequestUrl extends MudrodAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestUrl.class);
 
+  /**
+   * Creates a new instance of RequestUrl.
+   *
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
   public RequestUrl(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
   }
 
+  /**
+   * UrlPage: Get url page from url link
+   *
+   * @param strURL
+   *          request url
+   * @return page name
+   */
   public static String UrlPage(String strURL) {
     String strPage = null;
     String[] arrSplit = null;
@@ -55,6 +79,12 @@ public class RequestUrl extends MudrodAbstract {
     return strPage;
   }
 
+  /**
+   * TruncateUrlPage: Get url params from url link
+   *
+   * @param strURL
+   * @return url params
+   */
   private static String TruncateUrlPage(String strURL) {
     String strAllParam = null;
     String[] arrSplit = null;
@@ -73,6 +103,13 @@ public class RequestUrl extends MudrodAbstract {
     return strAllParam;
   }
 
+  /**
+   * URLRequest: Get url params from url link in a map format
+   *
+   * @param URL
+   *          request url
+   * @return url params key value map
+   */
   public static Map<String, String> URLRequest(String URL) {
     Map<String, String> mapRequest = new HashMap<String, String>();
 
@@ -102,6 +139,15 @@ public class RequestUrl extends MudrodAbstract {
     return mapRequest;
   }
 
+  /**
+   * GetSearchInfo: Get search information from url link
+   *
+   * @param URL
+   *          request url
+   * @return search params
+   * @throws UnsupportedEncodingException
+   *           UnsupportedEncodingException
+   */
   public String GetSearchInfo(String URL) throws UnsupportedEncodingException {
     // String info = "";
     List<String> info = new ArrayList<String>();
@@ -120,7 +166,8 @@ public class RequestUrl extends MudrodAbstract {
           keyword = keyword.replace("%25", " ");
         }
 
-        // keyword = keyword.replaceAll("[-+.^:,*_]"," ").replaceAll("\\s+","
+        // keyword = keyword.replaceAll("[-+.^:,*_]","
+        // ").replaceAll("\\s+","
         // ");
         keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
             .replaceAll("\\s+", " ").trim();
@@ -153,7 +200,8 @@ public class RequestUrl extends MudrodAbstract {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
                 && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
-              // info = info + URLDecoder.decode(values[i], "UTF-8").trim() +
+              // info = info + URLDecoder.decode(values[i],
+              // "UTF-8").trim() +
               // ",";
               String item = URLDecoder.decode(values[i], "UTF-8").trim();
               if (item.contains("%2b") || item.contains("%20")
@@ -190,8 +238,14 @@ public class RequestUrl extends MudrodAbstract {
     return null;
   }
 
-  public static String GetSearchWord(String URL)
-      throws UnsupportedEncodingException {
+  /**
+   * GetSearchWord: Get search words from url link
+   *
+   * @param URL
+   *          request url
+   * @return query
+   */
+  public static String GetSearchWord(String URL) {
     String keyword = "";
 
     Map<String, String> mapRequest = RequestUrl.URLRequest(URL);
@@ -218,6 +272,15 @@ public class RequestUrl extends MudrodAbstract {
     return keyword;
   }
 
+  /**
+   * GetFilterInfo: Get filter params from url link
+   *
+   * @param URL
+   *          request url
+   * @return filter facet key pair map
+   * @throws UnsupportedEncodingException
+   *           UnsupportedEncodingException
+   */
   public static Map<String, String> GetFilterInfo(String URL)
       throws UnsupportedEncodingException {
     List<String> info = new ArrayList<String>();

@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,37 +31,78 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.weblog.structure.ClickStream;
 import scala.Tuple2;
 
+/**
+ * ClassName: SessionExtractor Function: Extract sessions details from
+ * reconstructed sessions. Date: Aug 15, 2016 1:34:35 PM
+ *
+ * @author Yun
+ *
+ */
 public class SessionExtractor implements Serializable {
 
   public SessionExtractor() {
   }
 
   // load data from es
+  /**
+   * extractClickStreamFromES:Extract click streams from logs stored in
+   * Elasticsearch
+   *
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   * @return clickstream list in JavaRDD format
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
   public JavaRDD<ClickStream> extractClickStreamFromES(
-      Map<String, String> config, ESDriver es, SparkDriver spark)
-          throws Exception {
-    List<ClickStream> QueryList = this.getClickStreamList(config, es);
+      Map<String, String> config, ESDriver es, SparkDriver spark) {
+    List<ClickStream> QueryList = null;
+    try {
+      QueryList = this.getClickStreamList(config, es);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
     JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(QueryList);
     return clickstreamRDD;
   }
 
+  /**
+   * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
+   *
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @return clickstream list
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
   protected List<ClickStream> getClickStreamList(Map<String, String> config,
-      ESDriver es) throws Exception {
+      ESDriver es) {
     ArrayList<String> cleanup_typeList = es.getTypeListWithPrefix(
         config.get("indexName"), config.get("Cleanup_type_prefix"));
     List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanup_typeList.size(); n++) {
       String cleanupType = cleanup_typeList.get(n);
-      List<String> sessionId_list = this.getSessions(config, es, cleanupType);
-      Session session = new Session(config, es);
-      int sessionNum = sessionId_list.size();
-      for (int i = 0; i < sessionNum; i++) {
-        List<ClickStream> datas = session.getClickStreamList(cleanupType,
-            sessionId_list.get(i));
-        result.addAll(datas);
+      List<String> sessionId_list;
+      try {
+        sessionId_list = this.getSessions(config, es, cleanupType);
+        Session session = new Session(config, es);
+        int sessionNum = sessionId_list.size();
+        for (int i = 0; i < sessionNum; i++) {
+          List<ClickStream> datas = session.getClickStreamList(cleanupType,
+              sessionId_list.get(i));
+          result.addAll(datas);
+        }
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
     }
 
@@ -69,10 +110,21 @@ public class SessionExtractor implements Serializable {
   }
 
   // This function is reserved and not being used for now
+  /**
+   * loadClickStremFromTxt:Load click stream form txt file
+   *
+   * @param clickthroughFile
+   *          txt file
+   * @param sc
+   *          the spark context
+   * @return clickstream list in JavaRDD format
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
   public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile,
       JavaSparkContext sc) {
     JavaRDD<ClickStream> clickstreamRDD = sc.textFile(clickthroughFile)
         .flatMap(new FlatMapFunction<String, ClickStream>() {
+          @Override
           public Iterable<ClickStream> call(String line) throws Exception {
             List<ClickStream> clickthroughs = (List<ClickStream>) ClickStream
                 .parseFromTextLine(line);
@@ -82,14 +134,25 @@ public class SessionExtractor implements Serializable {
     return clickstreamRDD;
   }
 
+  /**
+   * bulidDataQueryRDD: convert click stream list to data set queries pairs.
+   *
+   * @param clickstreamRDD:
+   *          click stream data
+   * @param downloadWeight:
+   *          weight of download behavior
+   * @return JavaPairRDD, key is short name of data set, and values are queries
+   */
   public JavaPairRDD<String, List<String>> bulidDataQueryRDD(
       JavaRDD<ClickStream> clickstreamRDD, int downloadWeight) {
     JavaPairRDD<String, List<String>> dataQueryRDD = clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, List<String>>() {
+          @Override
           public Tuple2<String, List<String>> call(ClickStream click)
               throws Exception {
             List<String> query = new ArrayList<String>();
-            // important! download behavior is given higher weights than viewing
+            // important! download behavior is given higher weights
+            // than viewing
             // behavior
             boolean download = click.isDownload();
             int weight = 1;
@@ -105,6 +168,7 @@ public class SessionExtractor implements Serializable {
           }
         })
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
+          @Override
           public List<String> call(List<String> v1, List<String> v2)
               throws Exception {
             // TODO Auto-generated method stub
@@ -118,8 +182,19 @@ public class SessionExtractor implements Serializable {
     return dataQueryRDD;
   }
 
+  /**
+   * getSessions: Get sessions from logs
+   *
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param cleanup_type
+   *          session type name
+   * @return list of session names
+   */
   protected List<String> getSessions(Map<String, String> config, ESDriver es,
-      String cleanup_type) throws Exception {
+      String cleanup_type) {
     List<String> sessionID_list = new ArrayList<String>();
     SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
         .setTypes(cleanup_type).setQuery(QueryBuilders.matchAllQuery())

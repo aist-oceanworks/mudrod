@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -42,12 +43,32 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import esiptestbed.mudrod.driver.SparkDriver;
 import scala.Tuple2;
 
+/**
+ * ClassName: MatrixUtil Function: Matrix tool Date: Aug 12, 2016 11:44:14 AM
+ *
+ * @author Yun
+ *
+ */
 public class MatrixUtil {
 
-  private MatrixUtil() {}
+  private MatrixUtil() {
+  }
 
-  public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension)
-      throws IOException {
+  /**
+   * buildSVDMatrix: Generate SVD matrix from TF-IDF matrix. Please make sure
+   * the TF-IDF matrix has been already built from the original documents.
+   *
+   * @param tfidfMatrix,
+   *          each row is a term and each column is a document name and each
+   *          cell is the TF-IDF value of the term in the corresponding
+   *          document.
+   * @param dimension
+   *          Column number of the SVD matrix
+   * @return RowMatrix, each row is a term and each column is a dimension in the
+   *         feature space, each cell is value of the term in the corresponding
+   *         dimension.
+   */
+  public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension) {
     SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix
         .computeSVD(dimension, true, 1.0E-9d);
     RowMatrix u = svd.U();
@@ -55,17 +76,39 @@ public class MatrixUtil {
     return u.multiply(Matrices.diag(s));
   }
 
-  public static RowMatrix buildSVDMatrix(JavaRDD<Vector> vecRDD, int dimension)
-      throws IOException {
+  /**
+   * buildSVDMatrix: Generate SVD matrix from Vector RDD.
+   *
+   * @param vecRDD
+   *          vectors of terms in feature space
+   * @param dimension
+   *          Column number of the SVD matrix
+   * @return RowMatrix, each row is a term and each column is a dimension in the
+   *         feature space, each cell is value of the term in the corresponding
+   *         dimension.
+   */
+  public static RowMatrix buildSVDMatrix(JavaRDD<Vector> vecRDD,
+      int dimension) {
     RowMatrix tfidfMatrix = new RowMatrix(vecRDD.rdd());
     SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix
         .computeSVD(dimension, true, 1.0E-9d);
     RowMatrix u = svd.U();
     Vector s = svd.s();
     return u.multiply(Matrices.diag(s));
-
   }
 
+  /**
+   * createTFIDFMatrix:Create TF-IDF matrix from word-doc matrix.
+   *
+   * @param wordDocMatrix,
+   *          each row is a term, each column is a document name and each cell
+   *          is number of the term in the corresponding document.
+   * @param sc
+   *          spark context
+   * @return RowMatrix, each row is a term and each column is a document name
+   *         and each cell is the TF-IDF value of the term in the corresponding
+   *         document.
+   */
   public static RowMatrix createTFIDFMatrix(RowMatrix wordDocMatrix,
       JavaSparkContext sc) {
     JavaRDD<Vector> newcountRDD = wordDocMatrix.rows().toJavaRDD();
@@ -74,20 +117,31 @@ public class MatrixUtil {
     return new RowMatrix(idf.rdd());
   }
 
+  /**
+   * createWordDocMatrix:Create matrix from doc-terms JavaPairRDD.
+   *
+   * @param uniqueDocRDD
+   *          doc-terms JavaPairRDD, in which each key is a doc name, and value
+   *          is term list extracted from that doc
+   * @param sc
+   *          spark context
+   * @return LabeledRowMatrix {@link esiptestbed.mudrod.utils.LabeledRowMatrix}
+   */
   public static LabeledRowMatrix createWordDocMatrix(
-      JavaPairRDD<String, List<String>> uniqueDocRDD, JavaSparkContext sc)
-          throws IOException {
+      JavaPairRDD<String, List<String>> uniqueDocRDD, JavaSparkContext sc) {
     // Index documents with unique IDs
-    JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values().zipWithIndex();
+    JavaPairRDD<List<String>, Long> corpus = uniqueDocRDD.values()
+        .zipWithIndex();
     // cal word-doc numbers
     JavaPairRDD<Tuple2<String, Long>, Double> worddoc_num_RDD = corpus
         .flatMapToPair(
             new PairFlatMapFunction<Tuple2<List<String>, Long>, Tuple2<String, Long>, Double>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 
+              @Override
               public Iterable<Tuple2<Tuple2<String, Long>, Double>> call(
                   Tuple2<List<String>, Long> docwords) throws Exception {
                 List<Tuple2<Tuple2<String, Long>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, Long>, Double>>();
@@ -104,10 +158,11 @@ public class MatrixUtil {
             })
         .reduceByKey(new Function2<Double, Double, Double>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
+          @Override
           public Double call(Double first, Double second) throws Exception {
             return first + second;
           }
@@ -117,13 +172,14 @@ public class MatrixUtil {
         .mapToPair(
             new PairFunction<Tuple2<Tuple2<String, Long>, Double>, String, Tuple2<List<Long>, List<Double>>>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 
+              @Override
               public Tuple2<String, Tuple2<List<Long>, List<Double>>> call(
                   Tuple2<Tuple2<String, Long>, Double> worddoc_num)
-                      throws Exception {
+                  throws Exception {
                 List<Long> docs = new ArrayList<Long>();
                 docs.add(worddoc_num._1._2);
                 List<Double> nums = new ArrayList<Double>();
@@ -139,10 +195,11 @@ public class MatrixUtil {
     JavaPairRDD<String, Vector> word_vectorRDD = word_docnum_RDD.reduceByKey(
         new Function2<Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
+          @Override
           public Tuple2<List<Long>, List<Double>> call(
               Tuple2<List<Long>, List<Double>> arg0,
               Tuple2<List<Long>, List<Double>> arg1) throws Exception {
@@ -153,13 +210,14 @@ public class MatrixUtil {
         }).mapToPair(
             new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 
+              @Override
               public Tuple2<String, Vector> call(
                   Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
-                      throws Exception {
+                  throws Exception {
                 // TODO Auto-generated method stub
                 int docsize = arg0._2._1.size();
                 int[] intArray = new int[docsize];
@@ -175,13 +233,26 @@ public class MatrixUtil {
 
     RowMatrix wordDocMatrix = new RowMatrix(word_vectorRDD.values().rdd());
 
-    LabeledRowMatrix labeledRowMatrix =  new LabeledRowMatrix();
+    LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
     labeledRowMatrix.wordDocMatrix = wordDocMatrix;
     labeledRowMatrix.words = word_vectorRDD.keys().collect();
     labeledRowMatrix.docs = uniqueDocRDD.keys().collect();
     return labeledRowMatrix;
   }
 
+  /**
+   * loadVectorFromCSV: Load term vector from csv file.
+   *
+   * @param spark
+   *          spark instance
+   * @param csvFileName
+   *          csv matrix file
+   * @param skipNum
+   *          the numbers of rows which should be skipped Ignore the top skip
+   *          number rows of the csv file
+   * @return JavaPairRDD, each key is a term, and value is the vector of the
+   *         term in feature space.
+   */
   public static JavaPairRDD<String, Vector> loadVectorFromCSV(SparkDriver spark,
       String csvFileName, int skipNum) {
     // skip the first two lines(header), important!
@@ -220,11 +291,18 @@ public class MatrixUtil {
         });
   }
 
+  /**
+   * buildIndexRowMatrix: Converst vectorRDD to indexed row matrix.
+   *
+   * @param vecs
+   *          Vector RDD
+   * @return IndexedRowMatrix
+   */
   public static IndexedRowMatrix buildIndexRowMatrix(JavaRDD<Vector> vecs) {
     JavaRDD<IndexedRow> indexrows = vecs.zipWithIndex()
         .map(new Function<Tuple2<Vector, Long>, IndexedRow>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -236,12 +314,32 @@ public class MatrixUtil {
     return new IndexedRowMatrix(indexrows.rdd());
   }
 
+  /**
+   * transposeMatrix:transpose matrix.
+   *
+   * @param indexedMatrix
+   *          spark indexed matrix
+   * @return rowmatrix, each row is corresponding to the column in the original
+   *         matrix and vice versa
+   */
   public static RowMatrix transposeMatrix(IndexedRowMatrix indexedMatrix) {
     return indexedMatrix.toCoordinateMatrix().transpose().toRowMatrix();
   }
 
+  /**
+   * exportToCSV: Output matrix to a csv file.
+   *
+   * @param matrix
+   *          spark row matrix
+   * @param rowKeys
+   *          matrix row names
+   * @param colKeys
+   *          matrix coloum names
+   * @param fileName
+   *          csv file name
+   */
   public static void exportToCSV(RowMatrix matrix, List<String> rowKeys,
-      List<String> colKeys, String fileName) throws IOException {
+      List<String> colKeys, String fileName) {
     int rownum = (int) matrix.numRows();
     int colnum = (int) matrix.numCols();
     List<Vector> rows = matrix.rows().toJavaRDD().collect();
@@ -250,27 +348,33 @@ public class MatrixUtil {
     if (file.exists()) {
       file.delete();
     }
-    file.createNewFile();
-
-    FileWriter fw = new FileWriter(file.getAbsoluteFile());
-    BufferedWriter bw = new BufferedWriter(fw);
-    String coltitle = " Num" + ",";
-    for (int j = 0; j < colnum; j++) {
-      coltitle += colKeys.get(j) + ",";
-    }
-    coltitle = coltitle.substring(0, coltitle.length() - 1);
-    bw.write(coltitle + "\n");
-
-    for (int i = 0; i < rownum; i++) {
-      double[] rowvlaue = rows.get(i).toArray();
-      String row = rowKeys.get(i) + ",";
+    try {
+      file.createNewFile();
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw);
+      String coltitle = " Num" + ",";
       for (int j = 0; j < colnum; j++) {
-        row += rowvlaue[j] + ",";
+        coltitle += colKeys.get(j) + ",";
       }
-      row = row.substring(0, row.length() - 1);
-      bw.write(row + "\n");
-    }
+      coltitle = coltitle.substring(0, coltitle.length() - 1);
+      bw.write(coltitle + "\n");
 
-    bw.close();
+      for (int i = 0; i < rownum; i++) {
+        double[] rowvlaue = rows.get(i).toArray();
+        String row = rowKeys.get(i) + ",";
+        for (int j = 0; j < colnum; j++) {
+          row += rowvlaue[j] + ",";
+        }
+        row = row.substring(0, row.length() - 1);
+        bw.write(row + "\n");
+      }
+
+      bw.close();
+
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+
+    }
   }
 }

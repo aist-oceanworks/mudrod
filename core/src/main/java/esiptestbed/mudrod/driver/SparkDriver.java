@@ -18,14 +18,26 @@ import java.io.Serializable;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 
+/**
+ * ClassName: SparkDriver 
+ * Function: spark driver. 
+ *
+ * @author Yun
+ 
+ */
 public class SparkDriver implements Serializable {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  public JavaSparkContext sc;
+  // sc:spark context
+public JavaSparkContext sc;
 
-  public SparkDriver() {
+  /**
+ * Creates a new instance of SparkDriver.
+ *
+ */
+public SparkDriver() {
     SparkConf conf = new SparkConf().setAppName("Testing")
         .setMaster("local[2]");
     sc = new JavaSparkContext(conf);

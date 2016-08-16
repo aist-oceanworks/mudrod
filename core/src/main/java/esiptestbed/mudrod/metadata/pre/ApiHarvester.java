@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,6 +24,9 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,17 +37,28 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.HttpRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * ClassName: ApiHarvester Function: Harvest metadata from PO.DAACweb service.
+ * Date: Aug 11, 2016 11:15:00 AM
+ *
+ * @author Yun
+ *
+ */
 public class ApiHarvester extends DiscoveryStepAbstract {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ApiHarvester.class);
 
+  /**
+   * Creates a new instance of ApiHarvester.
+   *
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   */
   public ApiHarvester(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -60,25 +74,33 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Metadata harvesting ends******************Took {}s", 
+    LOG.info(
+        "*****************Metadata harvesting ends******************Took {}s",
         (endTime - startTime) / 1000);
     return null;
   }
 
+  /**
+   * addMetadataMapping: Add mapping to index metadata in Elasticsearch. Please
+   * invoke this method before import metadata to Elasticsearch.
+   */
   public void addMetadataMapping() {
-    String mappingJson = 
-        "{\r\n   \"dynamic_templates\": "
-            + "[\r\n      "
-            + "{\r\n         \"strings\": "
-            + "{\r\n            \"match_mapping_type\": \"string\","
-            + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-            + "\r\n               \"analyzer\": \"english\"\r\n            }"
-            + "\r\n         }\r\n      }\r\n   ]\r\n}";
+    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
+        + "{\r\n         \"strings\": "
+        + "{\r\n            \"match_mapping_type\": \"string\","
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
+        + "\r\n               \"analyzer\": \"english\"\r\n            }"
+        + "\r\n         }\r\n      }\r\n   ]\r\n}";
     es.client.admin().indices().preparePutMapping(config.get("indexName"))
-    .setType(config.get("raw_metadataType")).setSource(mappingJson)
-    .execute().actionGet();
+        .setType(config.get("raw_metadataType")).setSource(mappingJson)
+        .execute().actionGet();
   }
 
+  /**
+   * importToES: Index metadata into elasticsearch from local file directory.
+   * Please make sure metadata have been harvest from web service before
+   * invoking this method.
+   */
   private void importToES() {
     File directory = new File(config.get("raw_metadataPath"));
     File[] fList = directory.listFiles();
@@ -103,6 +125,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * harvestMetadatafromWeb: Harvest metadata from PO.DAAC web service.
+   */
   private void harvestMetadatafromWeb() {
     int startIndex = 0;
     int doc_length = 0;
