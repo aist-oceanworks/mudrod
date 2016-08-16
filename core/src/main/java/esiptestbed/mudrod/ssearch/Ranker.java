@@ -27,18 +27,19 @@ import esiptestbed.mudrod.ssearch.ranking.Learner;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
- * Supports ability to calculating ranking score
+ * Supports the ability to calculating ranking score
  */
 public class Ranker extends MudrodAbstract {
   List<SResult> resultList = new ArrayList<SResult>();
   String learnerType = null;
   Learner le = null;
-
+  
   /**
-   * Constructor supporting a number of parameters documented below.
+* Constructor supporting a number of parameters documented below.
    * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
    * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
    * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   * @param learnerType the type of ML classifier
    */
   public Ranker(Map<String, String> config, ESDriver es, SparkDriver spark, String learnerType) {
     super(config, es, spark);
@@ -68,9 +69,20 @@ public class Ranker extends MudrodAbstract {
       }
       else if(learnerType.equals("pairwise"))
       {
-        double[] ins = {o2.term_score - o1.term_score, 
+        double[] ins = {o2.term_score - o1.term_score,
+            
+            o2.Dataset_LongName_score - o1.Dataset_LongName_score,
+            o2.Dataset_Metadata_score - o1.Dataset_Metadata_score,
+            o2.DatasetParameter_Term_score - o1.DatasetParameter_Term_score,
+            o2.DatasetSource_Source_LongName_score - o1.DatasetSource_Source_LongName_score,
+            o2.DatasetSource_Sensor_LongName_score - o1.DatasetSource_Sensor_LongName_score,
+            
             o2.click_score - o1.click_score, 
             o2.releaseDate_score - o1.releaseDate_score, 
+            
+            o2.version_score - o1.version_score, 
+            o2.processingL_score - o1.processingL_score, 
+            
             o2.allPop_score - o1.allPop_score, 
             o2.monthPop_score - o1.monthPop_score, 
             o2.userPop_score - o1.userPop_score, 
@@ -82,20 +94,6 @@ public class Ranker extends MudrodAbstract {
         }else{
           return 1;
         }
-      }
-      else if(learnerType.equals("ordinal"))
-      {
-      double[] ins1 = {o1.term_score, o1.click_score, 
-          o1.releaseDate_score, o1.allPop_score, 
-          o1.monthPop_score, o1.userPop_score, o1.prediction};
-      o1.final_score = le.classify(ins1);
-      
-      double[] ins2 = {o2.term_score, o2.click_score, 
-          o2.releaseDate_score, o2.allPop_score, 
-          o2.monthPop_score, o2.userPop_score, o2.prediction};
-      o2.final_score = le.classify(ins2);
-      
-      return Double.compare(o2.final_score, o1.final_score);
       }
       return 0;
     }
@@ -148,6 +146,13 @@ public class Ranker extends MudrodAbstract {
     return getNDForm(Math.sqrt(getVariance(attribute, resultList)));
   }
   
+  /**
+   * Method of calculating Z score
+   * @param val the value of an attribute
+   * @param mean the mean value of an attribute
+   * @param std the standard deviation of an attribute
+   * @return Z score
+   */
   private double getZscore(double val, double mean, double std)
   {
     if(std!=0)
@@ -183,7 +188,27 @@ public class Ranker extends MudrodAbstract {
       resultList.get(i).term_score = getZscore(resultList.get(i).relevance, 
           getMean("relevance", resultList), 
           getStdDev("relevance", resultList));
+            
+      resultList.get(i).Dataset_LongName_score = getZscore(resultList.get(i).Dataset_LongName, 
+          getMean("Dataset_LongName", resultList), 
+          getStdDev("Dataset_LongName", resultList));
       
+      resultList.get(i).Dataset_Metadata_score = getZscore(resultList.get(i).Dataset_Metadata, 
+          getMean("Dataset_Metadata", resultList), 
+          getStdDev("Dataset_Metadata", resultList));
+      
+      resultList.get(i).DatasetParameter_Term_score = getZscore(resultList.get(i).DatasetParameter_Term, 
+          getMean("DatasetParameter_Term", resultList), 
+          getStdDev("DatasetParameter_Term", resultList));
+      
+      resultList.get(i).DatasetSource_Source_LongName_score = getZscore(resultList.get(i).DatasetSource_Source_LongName, 
+          getMean("DatasetSource_Source_LongName", resultList), 
+          getStdDev("DatasetSource_Source_LongName", resultList));
+      
+      resultList.get(i).DatasetSource_Sensor_LongName_score = getZscore(resultList.get(i).DatasetSource_Sensor_LongName, 
+          getMean("DatasetSource_Sensor_LongName", resultList), 
+          getStdDev("DatasetSource_Sensor_LongName", resultList));
+           
       resultList.get(i).click_score = getZscore(resultList.get(i).clicks, 
           getMean("clicks", resultList), 
           getStdDev("clicks", resultList));
@@ -191,24 +216,26 @@ public class Ranker extends MudrodAbstract {
       resultList.get(i).releaseDate_score = getZscore(resultList.get(i).dateLong, 
           getMean("dateLong", resultList), 
           getStdDev("dateLong", resultList));
+      
+      resultList.get(i).version_score = getZscore(resultList.get(i).versionNum, 
+          getMean("versionNum", resultList), 
+          getStdDev("versionNum", resultList));
 
-      resultList.get(i).allPop_score = getZscore(resultList.get(i).allPop, 
-          getMean("allPop", resultList), 
-          getStdDev("allPop", resultList));
+      resultList.get(i).processingL_score = getZscore(resultList.get(i).proNum, 
+          getMean("proNum", resultList), 
+          getStdDev("proNum", resultList));
       
       resultList.get(i).monthPop_score = getZscore(resultList.get(i).monthPop, 
           getMean("monthPop", resultList), 
           getStdDev("monthPop", resultList));
       
+      resultList.get(i).allPop_score = getZscore(resultList.get(i).allPop, 
+          getMean("allPop", resultList), 
+          getStdDev("allPop", resultList));
+      
       resultList.get(i).userPop_score = getZscore(resultList.get(i).userPop, 
           getMean("userPop", resultList), 
           getStdDev("userPop", resultList));
-
-/*      resultList.get(i).final_score = getNDForm(resultList.get(i).term_score + 
-          0.25*resultList.get(i).click_score -
-          0.25*resultList.get(i).allPop_score +
-          0.75*resultList.get(i).releaseDate_score 
-          );*/
     }
 
     Collections.sort(resultList, new ResultComparator());

@@ -97,7 +97,6 @@ public class Dispatcher extends MudrodAbstract {
    * @return an semantic Elasticsearch query clause
    */
   public BoolQueryBuilder createSemQuery(String input, int num){
-    //Map<String, Double> selected_Map = getRelatedTerms(input, num);
     Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
     selected_Map.put(input, (double) 1);
 
@@ -106,32 +105,9 @@ public class Dispatcher extends MudrodAbstract {
     for (Entry<String, Double> entry : selected_Map.entrySet()){
       qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
           .boost(entry.getValue().floatValue())
-          .type(MultiMatchQueryBuilder.Type.PHRASE));
-          //.tieBreaker((float) 0.5)); // when set to 1.0, it would be equal to "most fields" query
+          .type(MultiMatchQueryBuilder.Type.PHRASE)
+          .tieBreaker((float) 0.5)); // when set to 1.0, it would be equal to "most fields" query
     }
-/*    for (Entry<String, Double> entry : selected_Map.entrySet()){
-      for(int i=0; i<fieldsList.length; i++)
-      {
-        float fieldweight = 0;
-        if(fieldsList[i].equals("Dataset-LongName")||fieldsList[i].equals("Dataset-ShortName"))
-        {
-          fieldweight = 5;
-        }else if(fieldsList[i].equals("Dataset-Metadata"))
-        {
-          fieldweight = 4;
-        }else if(fieldsList[i].equals("DatasetParameter-*"))
-        {
-          fieldweight = 3;
-        }
-        else if(fieldsList[i].equals("Dataset-Description"))
-        {
-          fieldweight = 1;
-        }
-      qb.should(QueryBuilders.matchQuery(fieldsList[i], entry.getKey())
-          .boost(entry.getValue().floatValue()*fieldweight)
-          .type(MatchQueryBuilder.Type.PHRASE));
-      }
-    }*/
     
     LOG.info(qb.toString());
     return qb;
@@ -145,7 +121,6 @@ public class Dispatcher extends MudrodAbstract {
    * @return
    */
   public QueryBuilder createQueryForClicks(String input, int num, String shortName){   
-    //Map<String, Double> selected_Map = getRelatedTerms(input, num);
     Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
     selected_Map.put(input, (double) 1);
 

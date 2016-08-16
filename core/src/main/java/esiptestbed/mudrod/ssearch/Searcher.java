@@ -109,6 +109,23 @@ public class Searcher extends MudrodAbstract {
     
     return proNum;
   }
+  
+  public Double exists(ArrayList<String> strList, String query)
+  {
+    Double val = 0.0;
+    if(strList!=null)
+    {
+      String str = String.join(", ", strList);
+      if(str!=null&&str.length()!=0)
+      {
+        if(str.toLowerCase().trim().contains(query))
+        {
+          val = 1.0;
+        }
+      }
+    }
+    return val;
+  }
 
   /**
    * Main method of semantic search
@@ -117,6 +134,7 @@ public class Searcher extends MudrodAbstract {
    * @param query regular query string
    * @return a list of search result
    */
+  @SuppressWarnings("unchecked")
   public List<SResult> searchByQuery(String index, String type, String query) 
   {
     boolean exists = es.node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
@@ -141,20 +159,34 @@ public class Searcher extends MudrodAbstract {
       Double relevance = Double.valueOf(NDForm.format(hit.getScore()));
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
-      @SuppressWarnings("unchecked")
+      Double Dataset_LongName = 0.0;
+      if(longName.toLowerCase().trim().contains(query))
+      {
+        Dataset_LongName = 1.0;
+      }
+
       ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
-      @SuppressWarnings("unchecked")
-      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
+      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
       Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
-      //more features
-      //String latency = (String) result.get("DatasetPolicy-DataLatency");
-      @SuppressWarnings("unchecked")
+      //////////////////////////////////////////////more features//////////////////////////////////
+      ArrayList<String> metaList = (ArrayList<String>) result.get("Dataset-Metadata");
+      Double Dataset_Metadata = exists(metaList, query);
+      
+      ArrayList<String> termList = (ArrayList<String>) result.get("DatasetParameter-Term");
+      Double DatasetParameter_Term = exists(termList, query);
+      
+      ArrayList<String> sourceList = (ArrayList<String>) result.get("DatasetSource-Source-LongName");
+      Double DatasetSource_Source_LongName = exists(sourceList, query);
+      
+      ArrayList<String> sensorList = (ArrayList<String>) result.get("DatasetSource-Sensor-LongName");
+      Double DatasetSource_Sensor_LongName = exists(sensorList, query);
+      
       ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
       String version=null;
       if(versionList!=null)
@@ -166,28 +198,8 @@ public class Searcher extends MudrodAbstract {
       }
 
       Double versionNum = getVersionNum(version);
-      /*String stopDateLong = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
-      if(stopDateLong.equals(""))
-      {
-        stopDateLong = String.valueOf(System.currentTimeMillis());
-      }
-      Date date1=new Date(Long.valueOf(stopDateLong).longValue());
-      String dateText1 = df2.format(date1);*/
-
       String processingLevel = (String) result.get("Dataset-ProcessingLevel"); 
       Double proNum = getProLevelNum(processingLevel);
-      /*Double spatialR_Sat = (Double) result.get("Dataset-SatelliteSpatialResolution");
-      if(spatialR_Sat == null)
-      {
-        spatialR_Sat = 0.0;
-      }
-      Double spatialR_Grid = (Double) result.get("Dataset-GridSpatialResolution");
-      if(spatialR_Grid == null)
-      {
-        spatialR_Grid = 0.0;
-      }
-      String temporalR = (String) result.get("Dataset-TemporalResolution");*/
-      //temporal resolution need to be discussed
 
       Double userPop = ((Integer) result.get("Dataset-UserPopularity")).doubleValue();
       Double allPop = ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue();
@@ -207,18 +219,18 @@ public class Searcher extends MudrodAbstract {
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
       SResult.set(re, "relevance", relevance);
+      
+      SResult.set(re, "Dataset_LongName", Dataset_LongName);
+      SResult.set(re, "Dataset_Metadata", Dataset_Metadata);
+      SResult.set(re, "DatasetParameter_Term", DatasetParameter_Term);
+      SResult.set(re, "DatasetSource_Source_LongName", DatasetSource_Source_LongName);
+      SResult.set(re, "DatasetSource_Sensor_LongName", DatasetSource_Sensor_LongName);
+      
       SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).doubleValue());     
       SResult.set(re, "version", version);
       SResult.set(re, "versionNum", versionNum);
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "proNum", proNum);
-      /*SResult.set(re, "stopDateLong", stopDateLong);
-      SResult.set(re, "stopDateFormat", dateText1);*/
-      
-      /*SResult.set(re, "spatialR_Sat", spatialR_Sat);
-      SResult.set(re, "spatialR_Grid", spatialR_Grid);
-      
-      SResult.set(re, "temporalR", temporalR);*/
       SResult.set(re, "userPop", userPop);
       SResult.set(re, "allPop", allPop);
       SResult.set(re, "monthPop", monthPop);
@@ -245,8 +257,6 @@ public class Searcher extends MudrodAbstract {
         }
       }
       SResult.set(re, "clicks", click_count);
-      /***************************************************************************/
-
       /****************************Set training label*******************************/
       FilterBuilder filter = FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter("query", query))
@@ -304,42 +314,5 @@ public class Searcher extends MudrodAbstract {
     JsonObject PDResults = new JsonObject();
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
-  }
-
-  public static void main(String[] args) throws IOException {
-    String learnerType = "pairwise";
-    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
-        "saline density", "noaa 11", "amsr", "pathfinder", "gravity"};
-    //String[] query_list = {"quikscat"};
-    MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
-    Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
-    for(String q:query_list)
-    {
-      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + q + "_" + learnerType + ".csv");
-      if (file.exists()) {
-        file.delete();
-      }
-
-      file.createNewFile();
-
-      FileWriter fw = new FileWriter(file.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw); 
-      //bw.write( "Query:"+ q + "\n");
-      bw.write(SResult.getHeader(","));
-
-      List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
-          mudrod.getConfig().get("raw_metadataType"), q);
-      Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null, learnerType);
-      List<SResult> li = rr.rank(resultList);
-      for(int i =0; i< li.size(); i++)
-      {
-        //System.out.println(li.get(i).toString(" "));
-        bw.write(li.get(i).toString(","));
-      }
-
-      bw.close();
-    }
-
-    mudrod.end();   
   }
 }

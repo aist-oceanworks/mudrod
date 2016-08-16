@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.ssearch.ranking;
 
 import java.util.Collections;
@@ -6,11 +19,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Supports ability to evaluating ranking results
+ */
 public class Evaluator {
   public Evaluator() {
-    // TODO Auto-generated constructor stub
   }
 
+  /**
+   * Method of calculating NDCG score
+   * @param list a list of integer with each integer element indicating 
+   * the performance at its position
+   * @param K the number of elements needed to be included in the calculation
+   * @return NDCG score
+   */
   public double getNDCG(int[] list, int K) {
     double dcg = this.getDCG(list, K);
     double idcg = this.getIDCG(list, K);
@@ -18,27 +40,28 @@ public class Evaluator {
     if (idcg > 0.0) {
       ndcg = dcg / idcg;
     }
-
     return ndcg;
   }
-
-  public double getAvePrecision(int[] list, int K) {
-    double precisions = 0.0;
-    for (int i = 0; i < K; i++) {
-      precisions += list[i] * this.getPosPrecision(list, i+1);
-    }
-
-    int rel_doc_num = this.getRelevantDocNum(list, K);
-    double ave_precision = precisions/rel_doc_num;
-    return ave_precision;
-  }
-
+  /**
+   * Method of getting the precision of a list at position K
+   * @param list a list of integer with each integer element indicating 
+   * the performance at its position
+   * @param K the number of elements needed to be included in the calculation
+   * @return precision at K
+   */
   private double getPosPrecision(int[] list, int K){
     int rel_doc_num = this.getRelevantDocNum(list, K);
     double precision = (double)rel_doc_num/(double)K;
     return precision;
   }
 
+  /**
+   * Method of getting the number of relevant element in a ranking results
+   * @param list a list of integer with each integer element indicating 
+   * the performance at its position
+   * @param K the number of elements needed to be included in the calculation
+   * @return the number of relevant element
+   */
   private int getRelevantDocNum(int[] list, int K){
     int size = list.length;
     if (size == 0 || K == 0) {
@@ -55,10 +78,16 @@ public class Evaluator {
         rel_num += 1;
       }
     }
-
     return rel_num; 
   }
 
+  /**
+   * Method of calculating DCG score from a list of ranking results
+   * @param list a list of integer with each integer element indicating 
+   * the performance at its position
+   * @param K the number of elements needed to be included in the calculation
+   * @return DCG score
+   */
   private double getDCG(int[] list, int K) {
     int size = list.length;
     if (size == 0 || K == 0) {
@@ -79,6 +108,13 @@ public class Evaluator {
     return dcg;
   }
 
+  /**
+   * Method of calculating ideal DCG score from a list of ranking results
+   * @param list a list of integer with each integer element indicating 
+   * the performance at its position
+   * @param K the number of elements needed to be included in the calculation
+   * @return IDCG score
+   */
   private double getIDCG(int[] list, int K) {
     Comparator<Integer> comparator = new Comparator<Integer>() {
       @Override
@@ -86,7 +122,6 @@ public class Evaluator {
         return o2.compareTo(o1);
       }
     };
-
     List<Integer> sortlist = IntStream.of(list).boxed().collect(Collectors.toList());;
     Collections.sort(sortlist, comparator);
     int[] sortedArr = sortlist.stream().mapToInt(i->i).toArray();
@@ -95,7 +130,6 @@ public class Evaluator {
   }
 
   public static void main(String[] args) {
-    // TODO Auto-generated method stub
     Evaluator eva = new Evaluator();
     int[] list = {3, 2, 3, 0, 1 ,2};
     System.out.println(eva.getNDCG(list, 6));

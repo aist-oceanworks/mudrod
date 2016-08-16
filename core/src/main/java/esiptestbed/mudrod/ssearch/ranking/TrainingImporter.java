@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.ssearch.ranking;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -17,8 +30,17 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
 
+/**
+ * Supports the ability to importing training set into Elasticsearch
+ */
 public class TrainingImporter extends MudrodAbstract {
 
+  /**
+   * Constructor supporting a number of parameters documented below.
+   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
+   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   */
   public TrainingImporter(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -27,6 +49,9 @@ public class TrainingImporter extends MudrodAbstract {
     addMapping();
   }
   
+  /**
+   * Method of adding mapping to traning set type
+   */
   public void addMapping() {
     XContentBuilder Mapping;
     try {
@@ -52,11 +77,16 @@ public class TrainingImporter extends MudrodAbstract {
     }
   }
   
-  public void importTrainingSet() throws IOException
+  /**
+   * Method of importing training set in to Elasticsearch
+   * @param dataFolder the path to the traing set
+   * @throws IOException
+   */
+  public void importTrainingSet(String dataFolder) throws IOException
   {
     es.createBulkProcesser();
     
-    File[] files = new File("C:/mudrodCoreTestData/rankingResults/NewEvaluation/New folder/training").listFiles();
+    File[] files = new File(dataFolder).listFiles();
     for (File file : files) {
       BufferedReader br = new BufferedReader(new FileReader(file.getAbsolutePath()));
       br.readLine();
@@ -85,10 +115,9 @@ public class TrainingImporter extends MudrodAbstract {
 
 
   public static void main(String[] args) throws IOException {
-    // TODO Auto-generated method stub
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     TrainingImporter ti = new TrainingImporter(mudrod.getConfig(), mudrod.getES(), null);
-    ti.importTrainingSet();
+    ti.importTrainingSet("pathtoyourFolder");
     mudrod.end();   
   }
 

@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.ssearch.ranking;
 
 import java.io.*;
@@ -142,6 +155,7 @@ public class DataGenerator {
         List<String> colList = new ArrayList<String>(); // create vector to store all values inside of a column, which is stored inside 2D vector
         for(int col = 0; col < arr[0].length - 1; col++) // Columns go until the next to last column 
         {
+          //System.out.println(col + " " + arr[row][col]);
           // Extract double value from each cell
           double x1 = Double.parseDouble(arr[row][col]);
           double x2 = Double.parseDouble(arr[row + i][col]);
@@ -331,8 +345,8 @@ public class DataGenerator {
   }
   
   public static void main(String[] args) {
-    DataGenerator dg = new DataGenerator("C:/mudrodCoreTestData/rankingResults/NewEvaluation/New folder/processed/processed data", 
-        "C:/mudrodCoreTestData/rankingResults/NewEvaluation/New folder/processed/inputDataForSVM.csv", 
+    DataGenerator dg = new DataGenerator("inputFolder", 
+        "outputfolder/inputDataForSVM.csv", 
         true);
     dg.process();
   }

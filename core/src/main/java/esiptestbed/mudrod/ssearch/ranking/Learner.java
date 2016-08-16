@@ -13,22 +13,32 @@
  */
 package esiptestbed.mudrod.ssearch.ranking;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 
+import esiptestbed.mudrod.main.MudrodEngine;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
+/**
+ * Supports the ability to importing classifier into memory
+ */
 public class Learner {
   private Classifier cls= null;
   private static final String POINTWISE = "pointwise";
   private static final String PAIRWISE = "pairwise";
-  private static final String ORDINALCLASSIFIER = "ordinal";
 
+  /**
+   * Constructor to load in weka classifier
+   * @param classifierName classifier type
+   */
   public Learner(String classifierName) {
-    String rootPath="C:/mudrodCoreTestData/rankingResults/NewEvaluation/"; 
+    String rootPath="C:/mudrodCoreTestData/rankingResults/model/"; 
     
     try {
       if(classifierName.equals(POINTWISE))
@@ -37,23 +47,37 @@ public class Learner {
       }
       else if(classifierName.equals(PAIRWISE))
       {
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"nonLinearSVM.model");
-      }
-      else if(classifierName.equals(ORDINALCLASSIFIER))
-      {
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"ordinalClassifierModel.model");
+        /*URL clsURL = Learner.class.getClassLoader().getResource("rankSVMmodel_new.model");
+        File file = new File(clsURL.toURI());
+        String clspath = file.getAbsolutePath();       
+        cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
+        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVMmodel_new.model");
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
+  /**
+   * Method of creating dataset which is necessary for further classification
+   * @return an empty instances
+   */
   public Instances createDataset(){
     ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 
     attributes.add(new Attribute("term_score"));
+    attributes.add(new Attribute("Dataset_LongName"));
+    attributes.add(new Attribute("Dataset_Metadata"));
+    attributes.add(new Attribute("DatasetParameter_Term"));
+    attributes.add(new Attribute("DatasetSource_Source_LongName"));
+    attributes.add(new Attribute("DatasetSource_Sensor_LongName"));
+    
     attributes.add(new Attribute("click_score"));
     attributes.add(new Attribute("releaseDate_score"));
+    
+    attributes.add(new Attribute("VersionNum_score"));
+    attributes.add(new Attribute("ProLevelNum_score"));
+    
     attributes.add(new Attribute("AllPop_score"));
     attributes.add(new Attribute("MonthPop_score"));
     attributes.add(new Attribute("UserPop_score"));    
@@ -65,6 +89,11 @@ public class Learner {
     return dataset;
   }
 
+  /**
+   * Method of classifying instance
+   * @param instance the instance that needs to be classified
+   * @return the class id
+   */
   public double classify(double[] instance)
   {
     Instances dataset = createDataset();
@@ -73,7 +102,6 @@ public class Learner {
       Instance inst = new DenseInstance(1.0, instance);
       dataset.add(inst);
       prediction = cls.classifyInstance(dataset.instance(0));
-      //System.out.println("Predicted: " + prediction);
     } catch (Exception e) {
       e.printStackTrace();
     }

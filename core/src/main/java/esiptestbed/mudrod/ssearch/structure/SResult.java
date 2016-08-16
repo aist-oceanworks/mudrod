@@ -17,7 +17,6 @@ import java.lang.reflect.Field;
 
 /**
  * Data structure class for search result 
- * (may replace it with Map<String,Object>)
  */
 public class SResult {
   String shortName = null;
@@ -33,10 +32,18 @@ public class SResult {
   public Double final_score = 0.0;
   public Double term_score = 0.0;
   public Double releaseDate_score = 0.0;
+  public Double version_score = 0.0;
+  public Double processingL_score = 0.0;
   public Double click_score = 0.0;
   public Double allPop_score = 0.0;
   public Double monthPop_score = 0.0;
   public Double userPop_score = 0.0;
+  
+  public Double Dataset_LongName_score = null;
+  public Double Dataset_Metadata_score = null;
+  public Double DatasetParameter_Term_score = null; 
+  public Double DatasetSource_Source_LongName_score = null;
+  public Double DatasetSource_Sensor_LongName_score = null;
   
   public String version = null;
   public String processingLevel = null;
@@ -52,6 +59,12 @@ public class SResult {
   public Double allPop = null;
   public Double monthPop = null;
   public Double userPop = null;
+  
+  public Double Dataset_LongName = null;
+  public Double Dataset_Metadata = null;
+  public Double DatasetParameter_Term = null; 
+  public Double DatasetSource_Source_LongName = null;
+  public Double DatasetSource_Sensor_LongName = null;
   
   public Double prediction = 0.0;
   public String label = null;
@@ -77,37 +90,25 @@ public class SResult {
    * @return header
    */
   public static String getHeader(String delimiter){
-     return "ShortName" + delimiter +
-            
-            // "final_score" + delimiter + 
+     return  "ShortName" + delimiter +           
              "term_score" + delimiter + 
+             
+             "Dataset_LongName" + delimiter + 
+             "Dataset_Metadata" + delimiter + 
+             "DatasetParameter_Term" + delimiter + 
+             "DatasetSource_Source_LongName" + delimiter + 
+             "DatasetSource_Sensor_LongName" + delimiter +
+             
              "click_score" + delimiter + 
-             //"clicks" + delimiter +
              "releaseDate_score" + delimiter + 
-            // "ReleaseDate(format)" + delimiter +
          
-            //"Version"  + delimiter +
-            "VersionNum"  + delimiter +
-            //"Processing Level"  + delimiter +
-            "ProLevelNum"  + delimiter +
-            /*"SpatialR_Sat"  + delimiter +
-            "SpatialR_Grid"  + delimiter +*/
-            /*"Latency(hrs)"  + delimiter +
-            "StopDate(long)"  + delimiter +
-            "StopDate(format)"  + delimiter +
-            "SpatialResolution(grid)"  + delimiter +
-            "TemporalResolution"  + delimiter +*/
+            "VersionNum_score"  + delimiter +
+            "ProLevelNum_score"  + delimiter +
             "AllPop_score"  + delimiter +
-           // "AllPopularity"  + delimiter +
             
-            "MonthPop_score"  + delimiter +
-           // "MonthlyPopularity"  + delimiter +
-            
+            "MonthPop_score"  + delimiter +           
             "UserPop_score"  + delimiter +
-           // "UserPopularity"  + delimiter + 
-            "Label"  + delimiter +
-           // "Evaluation"  + delimiter +
-           // "Comments"  + delimiter +
+            "Label"  + 
             "\n";
   }
  
@@ -118,32 +119,23 @@ public class SResult {
    */
   public String toString(String delimiter ){
     return shortName + delimiter + 
-        
-           //final_score + delimiter + 
            term_score + delimiter + 
+           
+           Dataset_LongName_score + delimiter + 
+           Dataset_Metadata_score + delimiter + 
+           DatasetParameter_Term_score + delimiter + 
+           DatasetSource_Source_LongName_score + delimiter + 
+           DatasetSource_Sensor_LongName_score + delimiter +
+           
            click_score + delimiter + 
-           //clicks + delimiter +
            releaseDate_score + delimiter +
-           //relase_date + delimiter +
-        
-           //version + delimiter + 
-           versionNum + delimiter +
-           //processingLevel + delimiter + 
-           proNum + delimiter + 
-           /*spatialR_Sat + delimiter + 
-           spatialR_Grid + delimiter + */
-           /*latency + delimiter + 
-           stopDateLong + delimiter +
-           stopDateFormat + delimiter +
-           spatialR + delimiter + 
-           temporalR + delimiter + */
+           version_score + delimiter +
+           processingL_score + delimiter + 
            allPop_score + delimiter +
-          // allPop + delimiter + 
            monthPop_score + delimiter +
-          // monthPop + delimiter +
            userPop_score + delimiter +
-          // userPop + delimiter +
-           label + delimiter +
+
+           label + 
            "\n";
   }
 
