@@ -14,17 +14,21 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 public abstract class DiscoveryEngineAbstract extends MudrodAbstract
     implements Serializable {
-  public DiscoveryEngineAbstract(Map<String, String> config, ESDriver es,
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  public DiscoveryEngineAbstract(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
+    super(props, es, spark);
   }
 
   public abstract void preprocess();

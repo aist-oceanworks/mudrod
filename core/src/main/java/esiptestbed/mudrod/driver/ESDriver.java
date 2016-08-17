@@ -17,6 +17,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -40,11 +43,12 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -60,48 +64,41 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import esiptestbed.mudrod.main.MudrodConstants;
+import esiptestbed.mudrod.main.MudrodEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Driver implementation for all Elasticsearch functionality.
+ */
 public class ESDriver implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
-  /**
-   * 
-   */
   private static final long serialVersionUID = 1L;
-  public Client client = null;
-  public Node node = null;
-  public BulkProcessor bulkProcessor = null;
+  private transient Client client = null;
+  private transient Node node = null;
+  private transient BulkProcessor bulkProcessor = null;
 
-  public ESDriver(String clusterName){
-    node =
-        nodeBuilder()
-        .settings(ImmutableSettings.settingsBuilder().put("http.enabled", false))
-        .clusterName(clusterName)
-        .client(true)
-        .node();
-
-    client = node.client();
+  /**
+   * Default constructor for this class.
+   * To load client configuration call substantiated constructor.
+   */
+  public ESDriver(){
+    //Default constructor, to load configuration call
   }
 
-  public ESDriver(Map<String, String> config){
-    Settings settings = System.getProperty("file.separator").equals("/") ? ImmutableSettings.settingsBuilder()
-        .put("http.enabled", "false")
-        .put("transport.tcp.port", config.get("ES_Transport_TCP_Port"))
-        .put("discovery.zen.ping.multicast.enabled", "false")
-        .put("discovery.zen.ping.unicast.hosts", config.get("ES_unicast_hosts"))
-        .build() : ImmutableSettings.settingsBuilder()
-        .put("http.enabled", false)
-        .build();;
-
-        node =
-            nodeBuilder()
-            .settings(settings)
-            .clusterName(config.get("clusterName"))
-            .client(true)
-            .node();
-        client = node.client();
+  /**
+   * Substantiated constructor which accepts a {@link java.util.Properties}
+   * @param props a populated properties object.
+   */
+  public ESDriver(Properties props){
+    try {
+      client = makeClient(props);
+    } catch (IOException e) {
+      LOG.error("Error whilst constructing Elastcisearch client.", e);
+    }
   }
 
   public void createBulkProcesser(){
@@ -135,22 +132,22 @@ public class ESDriver implements Serializable {
       bulkProcessor = null;
       refreshIndex();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      LOG.error("Error destroying the Bulk Processor.", e);
     }
   }
 
-  public void putMapping(String indexName, String settings_json, String mapping_json) throws IOException{
+  public void putMapping(String indexName, String settingsJson, String mappingJson) throws IOException{
 
     boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
     if(exists){
       return;
     }
 
-    client.admin().indices().prepareCreate(indexName).setSettings(ImmutableSettings.settingsBuilder().loadFromSource(settings_json)).execute().actionGet();
+    client.admin().indices().prepareCreate(indexName).setSettings(Settings.builder().loadFromSource(settingsJson)).execute().actionGet();
     client.admin().indices()
     .preparePutMapping(indexName)
     .setType("_default_")
-    .setSource(mapping_json)
+    .setSource(mappingJson)
     .execute().actionGet();
   }
 
@@ -213,23 +210,21 @@ public class ESDriver implements Serializable {
     this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
   }
 
-  public ArrayList<String> getTypeListWithPrefix(String index, String typePrefix)
+  public ArrayList<String> getTypeListWithPrefix(Object object, Object object2)
   {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
-      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
-      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
+      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(object.toString())).get();
+      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(object.toString());
       for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
-        if(c.key.startsWith(typePrefix))
+        if(c.key.startsWith(object2.toString()))
         {
           typeList.add(c.key);
         }
       }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
+    } catch (InterruptedException | ExecutionException e) {
+      LOG.error("Error whilst obtaining type list from Elasticsearch mappings.", e);
     }
     return typeList;
   }
@@ -248,7 +243,7 @@ public class ESDriver implements Serializable {
         .execute()
         .actionGet();
 
-    Gson gson = new Gson();		
+    Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
     DecimalFormat twoDForm = new DecimalFormat("#.##");
 
@@ -264,7 +259,7 @@ public class ESDriver implements Serializable {
       @SuppressWarnings("unchecked")
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
-      Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
+      Date date=new Date(Long.parseLong(longdate.get(0)));
       SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
       String dateText = df2.format(date);
 
@@ -275,15 +270,15 @@ public class ESDriver implements Serializable {
       file.addProperty("Topic", topic);
       file.addProperty("Abstract", content);
       file.addProperty("Release Date", dateText);
-      fileList.add(file);       	
+      fileList.add(file);
 
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
 
-    JsonObject PDResults = new JsonObject();
-    PDResults.add("PDResults", fileListElement);
+    JsonObject pdResults = new JsonObject();
+    pdResults.add("PDResults", fileListElement);
     LOG.info("Search results returned. \n");
-    return PDResults.toString();
+    return pdResults.toString();
   }
 
   public List<String> autoComplete(String index, String chars){
@@ -325,8 +320,49 @@ public class ESDriver implements Serializable {
     node.client().admin().indices().prepareRefresh().execute().actionGet();
   }
 
+  /** 
+   * Generates a TransportClient or NodeClient
+   * @return a constructed {@link org.elasticsearch.client.Client}
+   */
+  protected Client makeClient(Properties props) throws IOException {
+    String clusterName = props.getProperty(MudrodConstants.ES_CLUSTER);
+    String hostsString = props.getProperty(MudrodConstants.ES_UNICAST_HOSTS);
+    String[] hosts = hostsString.split(",");
+    String portStr = props.getProperty(MudrodConstants.ES_TRANSPORT_TCP_PORT);
+    int port = Integer.parseInt(portStr);
+
+    Settings.Builder settingsBuilder = Settings.settingsBuilder();
+
+    // Set the cluster name and build the settings
+    if (StringUtils.isNotBlank(clusterName))
+      settingsBuilder.put("cluster.name", clusterName);
+
+    Settings settings = settingsBuilder.build();
+
+    Client client = null;
+
+    // Prefer TransportClient
+    if (hosts != null && port > 1) {
+      TransportClient transportClient = TransportClient.builder().settings(settings).build();
+      for (String host: hosts)
+        transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+      client = transportClient;
+    } else if (clusterName != null) {
+      node = nodeBuilder().settings(settings).client(true).node();
+      client = node.client();
+    }
+
+    return client;
+  }
+
+  /**
+   * Main method used to invoke the ESDriver implementation.
+   * @param args no arguments are required to invoke the 
+   * {@link Driver implementation for all Elasticsearch functionality}
+   */
   public static void main(String[] args) {
-    ESDriver es = new ESDriver("cody");
+    MudrodEngine mudrodEngine = new MudrodEngine();
+    ESDriver es = new ESDriver(mudrodEngine.loadConfig());
     es.getTypeListWithPrefix("podaacsession", "sessionstats");
   }
 

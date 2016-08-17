@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.semantics;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -29,8 +29,7 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.SimilarityUtil;
 
 /**
- * ClassName: SemanticAnalyzer Function: Semantic analyzer Date: Aug 12, 2016
- * 12:42:55 PM
+ * ClassName: SemanticAnalyzer Function: Semantic analyzer
  *
  * @author Yun
  * 
@@ -40,52 +39,49 @@ public class SemanticAnalyzer extends MudrodAbstract {
   /**
    * Creates a new instance of SemanticAnalyzer.
    *
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark drive
    */
-  public SemanticAnalyzer(Map<String, String> config, ESDriver es,
+  public SemanticAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
+    super(props, es, spark);
   }
 
   /**
    * CalTermSimfromMatrix: Calculate term similarity from matrix.
    *
-   * @param CSV_fileName
+   * @param csvFileName
    *          csv file of matrix, each row is a term, and each column is a
    *          dimension in feature space
    * @return Linkage triple list
    */
-  public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName) {
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        CSV_fileName, 1);
+        csvFileName, 1);
     CoordinateMatrix simMatrix = SimilarityUtil
         .CalSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
-    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD,
+    return SimilarityUtil.MatrixtoTriples(rowKeyRDD,
         simMatrix);
-
-    return triples;
   }
 
   /**
    * SaveToES: Save linkage triples to Elasticsearch.
    *
-   * @param triple_List
+   * @param tripleList
    *          linkage triple list
    * @param index
    *          index name
    * @param type
    *          linkage triple type name
    */
-  public void SaveToES(List<LinkageTriple> triple_List, String index,
+  public void saveToES(List<LinkageTriple> tripleList, String index,
       String type) {
-    LinkageTriple.insertTriples(es, triple_List, index, type);
+    LinkageTriple.insertTriples(es, tripleList, index, type);
   }
 }

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -42,16 +43,16 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * Creates a new instance of RequestUrl.
    *
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark drive
    */
-  public RequestUrl(Map<String, String> config, ESDriver es,
+  public RequestUrl(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   /**
@@ -223,10 +224,10 @@ public class RequestUrl extends MudrodAbstract {
       }
     }
 
-    String info_str = String.join(",", info);
+    String infoStr = String.join(",", info);
 
     try {
-      return es.customAnalyzing(config.get("indexName"), info_str);
+      return es.customAnalyzing(props.getProperty("indexName"), infoStr);
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -245,10 +246,10 @@ public class RequestUrl extends MudrodAbstract {
    *          request url
    * @return query
    */
-  public static String GetSearchWord(String URL) {
+  public static String GetSearchWord(String url) {
     String keyword = "";
 
-    Map<String, String> mapRequest = RequestUrl.URLRequest(URL);
+    Map<String, String> mapRequest = RequestUrl.URLRequest(url);
     if (mapRequest.get("search") != null) {
       try {
         keyword = mapRequest.get("search");
@@ -281,13 +282,13 @@ public class RequestUrl extends MudrodAbstract {
    * @throws UnsupportedEncodingException
    *           UnsupportedEncodingException
    */
-  public static Map<String, String> GetFilterInfo(String URL)
+  public static Map<String, String> GetFilterInfo(String url)
       throws UnsupportedEncodingException {
-    List<String> info = new ArrayList<String>();
-    Map<String, String> filterValues = new HashMap<String, String>();
+    List<String> info = new ArrayList<>();
+    Map<String, String> filterValues = new HashMap<>();
 
     String keyword = "";
-    Map<String, String> mapRequest = RequestUrl.URLRequest(URL);
+    Map<String, String> mapRequest = RequestUrl.URLRequest(url);
     if (mapRequest.get("search") != null) {
       try {
         keyword = mapRequest.get("search");
@@ -314,10 +315,10 @@ public class RequestUrl extends MudrodAbstract {
     }
 
     if (mapRequest.get("ids") != null && mapRequest.get("values") != null) {
-      String id_raw = URLDecoder.decode(mapRequest.get("ids"), "UTF-8");
-      String value_raw = URLDecoder.decode(mapRequest.get("values"), "UTF-8");
-      String[] ids = id_raw.split(":");
-      String[] values = value_raw.split(":");
+      String idRaw = URLDecoder.decode(mapRequest.get("ids"), "UTF-8");
+      String valueRaw = URLDecoder.decode(mapRequest.get("values"), "UTF-8");
+      String[] ids = idRaw.split(":");
+      String[] values = valueRaw.split(":");
 
       int a = ids.length;
       int b = values.length;

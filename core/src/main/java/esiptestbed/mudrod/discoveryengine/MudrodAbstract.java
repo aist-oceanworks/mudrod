@@ -15,8 +15,7 @@ package esiptestbed.mudrod.discoveryengine;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -34,21 +33,23 @@ public abstract class MudrodAbstract implements Serializable {
    * 
    */
   private static final long serialVersionUID = 1L;
-  protected Map<String, String> config = new HashMap<>();
+  private static final String TIME_SUFFIX = "TimeSuffix";
+  protected Properties props = new Properties();
   protected ESDriver es = null;
   protected SparkDriver spark = null;
-  protected long startTime, endTime;
-  public String HTTP_type = null;
-  public String FTP_type = null;
-  public String Cleanup_type = null;
-  public String SessionStats = null;
+  protected long startTime;
+  protected long endTime;
+  public String httpType = null;
+  public String ftpType = null;
+  public String cleanupType = null;
+  public String sessionStats = null;
 
   public final String settingsJson = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
   public final String mappingJson = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
   private int printLevel = 0;
 
-  public MudrodAbstract(Map<String, String> config, ESDriver es, SparkDriver spark){
-    this.config = config;
+  public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark){
+    this.props = props;
     this.es = es;
     this.spark = spark;
     this.initMudrod();
@@ -56,17 +57,17 @@ public abstract class MudrodAbstract implements Serializable {
 
   protected void initMudrod(){
     try {
-      es.putMapping(config.get("indexName"), settingsJson, mappingJson);
+      es.putMapping(props.getProperty("indexName"), settingsJson, mappingJson);
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Error entering Elasticsearch Mappings!", e);
     }
 
-    HTTP_type = config.get("HTTP_type_prefix") + config.get("TimeSuffix");
-    FTP_type = config.get("FTP_type_prefix") + config.get("TimeSuffix");
-    Cleanup_type = config.get("Cleanup_type_prefix") + config.get("TimeSuffix");
-    SessionStats = config.get("SessionStats_prefix") + config.get("TimeSuffix");
+    httpType = props.getProperty("HTTP_type_prefix") + props.getProperty(TIME_SUFFIX);
+    ftpType = props.getProperty("FTP_type_prefix") + props.getProperty(TIME_SUFFIX);
+    cleanupType = props.getProperty("Cleanup_type_prefix") + props.getProperty(TIME_SUFFIX);
+    sessionStats = props.getProperty("SessionStats_prefix") + props.getProperty(TIME_SUFFIX);
 
-    printLevel = Integer.parseInt(config.get("loglevel"));
+    printLevel = Integer.parseInt(props.getProperty("loglevel"));
   }
 
   public void print(String log, int level){
@@ -80,7 +81,7 @@ public abstract class MudrodAbstract implements Serializable {
     return this.es;
   }
 
-  public Map<String, String> getConfig(){
-    return this.config;
+  public Properties getConfig(){
+    return this.props;
   }
 }

@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Licensed under the Apache License, Version 2.0 (the "License"); you 
-  may not use this file except in compliance with the License. You may obtain 
-  a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless 
-  required by applicable law or agreed to in writing, software distributed 
-  under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
-  OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
-  the specific language governing permissions and limitations under the License. -->
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+-->
 <Config>
-  <para name="loglevel">1</para> <!-- 1: engine, 2: step, 3: substep -->
+  <para name="loglevel">1</para>
 
-  <!-- para name="logDir">C:/AIST LOG FILES/</para -->
   <para name="httpPrefix">access_log.</para>
   <para name="ftpPrefix">vsftpd.log.</para>
 
   <para name="metadataurl">null</para>
-
-  <!-- para name="ontologyInputDir">./src/main/java/esiptestbed/tmp/SWEET_ocean/ 
-    </para> <para name="oceanTriples">./src/main/java/esiptestbed/tmp/Ocean_triples.csv 
-    </para> <para name="userHistoryMatrix">./src/main/java/esiptestbed/tmp/UserHistoryMatrix.csv 
-    </para> <para name="clickstreamMatrix">./src/main/java/esiptestbed/tmp/ClickstreamMatrix.csv 
-    </para> <para name="metadataMatrix">./src/main/java/esiptestbed/tmp/MetadataMatrix.csv 
-    </para> <para name="clickstreamSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/clickstreamSVDMatrix_tmp.csv 
-    </para> <para name="metadataSVDMatrix_tmp">./src/main/java/esiptestbed/tmp/metadataSVDMatrix_tmp.csv 
-    </para -->
 
   <para name="clusterName">elasticsearch</para>
   <para name="ES_Transport_TCP_Port">9300-9400</para>

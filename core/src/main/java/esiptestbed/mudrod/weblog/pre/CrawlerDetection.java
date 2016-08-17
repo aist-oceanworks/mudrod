@@ -16,6 +16,7 @@ package esiptestbed.mudrod.weblog.pre;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,38 +50,34 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
+  public static final String GOOGLE_BOT = "gsa-crawler (Enterprise; T4-JPDGU3TRCQAXZ; earthdata-sa@lists.nasa.gov,srinivasa.s.tummala@nasa.gov)";
+  public static final String GOOGLE_BOT_21 = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+  public static final String BING_BOT = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
+  public static final String YAHOO_BOT = "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)";
+  public static final String ROGER_BOT = "rogerbot/1.0 (http://www.moz.com/dp/rogerbot, rogerbot-crawler@moz.com)";
+  public static final String YACY_BOT = "yacybot (/global; amd64 Windows Server 2008 R2 6.1; java 1.8.0_31; Europe/de) http://yacy.net/bot.html";
+  public static final String YANDEX_BOT = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)";
+  public static final String GOOGLE_IMAGE = "Googlebot-Image/1.0";
+  public static final String RANDOMBOT_1 = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+  public static final String NO_AGENT_BOT = "-";
+  public static final String PERL_BOT = "libwww-perl/";
+  public static final String APACHE_HHTP = "Apache-HttpClient/";
+  public static final String JAVA_CLIENT = "Java/";
+  public static final String CURL = "curl/";
 
-  public CrawlerDetection(Map<String, String> config, ESDriver es,
+  public CrawlerDetection(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
-
-  public static final String GoogleBot = "gsa-crawler (Enterprise; T4-JPDGU3TRCQAXZ; earthdata-sa@lists.nasa.gov,srinivasa.s.tummala@nasa.gov)";
-  public static final String GoogleBot21 = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
-  public static final String BingBot = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
-  public static final String YahooBot = "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)";
-  public static final String RogerBot = "rogerbot/1.0 (http://www.moz.com/dp/rogerbot, rogerbot-crawler@moz.com)";
-  public static final String YacyBot = "yacybot (/global; amd64 Windows Server 2008 R2 6.1; java 1.8.0_31; Europe/de) http://yacy.net/bot.html";
-  public static final String YandexBot = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)";
-  public static final String GoogleImage = "Googlebot-Image/1.0";
-  public static final String RandomBot1 = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
-  public static final String NoAgentBot = "-";
-
-  public static final String PerlBot = "libwww-perl/";
-  public static final String ApacheHTTP = "Apache-HttpClient/";
-  public static final String JavaHTTP = "Java/";
-  public static final String cURL = "curl/";
 
   @Override
   public Object execute() {
     LOG.info("*****************Crawler detection starts******************");
     startTime = System.currentTimeMillis();
     try {
-      CheckByRate();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
+      checkByRate();
+    } catch (InterruptedException | IOException e) {
+      LOG.error("Erro checking for crawler detection based upon rate and frequency metric.", e);
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
@@ -88,14 +85,14 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     return null;
   }
 
-  public boolean CheckKnownCrawler(String agent) {
-    if (agent.equals(GoogleBot) || agent.equals(GoogleBot21)
-        || agent.equals(BingBot) || agent.equals(YahooBot)
-        || agent.equals(RogerBot) || agent.equals(YacyBot)
-        || agent.equals(YandexBot) || agent.equals(GoogleImage)
-        || agent.equals(RandomBot1) || agent.equals(NoAgentBot)
-        || agent.contains(PerlBot) || agent.contains(ApacheHTTP)
-        || agent.contains(JavaHTTP) || agent.contains(cURL)) {
+  public boolean checkKnownCrawler(String agent) {
+    if (agent.equals(GOOGLE_BOT) || agent.equals(GOOGLE_BOT_21)
+        || agent.equals(BING_BOT) || agent.equals(YAHOO_BOT)
+        || agent.equals(ROGER_BOT) || agent.equals(YACY_BOT)
+        || agent.equals(YANDEX_BOT) || agent.equals(GOOGLE_IMAGE)
+        || agent.equals(RANDOMBOT_1) || agent.equals(NO_AGENT_BOT)
+        || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP)
+        || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
       return true;
     } else {
       return false;
@@ -103,47 +100,47 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   }
 
-  public void CheckByRate() throws InterruptedException, IOException {
+  public void checkByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();
 
-    int rate = Integer.parseInt(config.get("sendingrate"));
-    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-        .setTypes(HTTP_type).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    SearchResponse sr = es.client.prepareSearch(props.getProperty("indexName"))
+        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
         .execute().actionGet();
-    Terms Users = sr.getAggregations().get("Users");
+    Terms users = sr.getAggregations().get("Users");
 
     int user_count = 0;
 
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
-    for (Terms.Bucket entry : Users.getBuckets()) {
-      FilterBuilder filter_search = FilterBuilders.boolFilter()
+    for (Terms.Bucket entry : users.getBuckets()) {
+      FilterBuilder filterSearch = FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter("IP", entry.getKey()));
-      QueryBuilder query_search = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
+      QueryBuilder querySearch = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
 
       SearchResponse checkRobot = es.client
-          .prepareSearch(config.get("indexName")).setTypes(HTTP_type, FTP_type)
-          .setQuery(query_search).setSize(0)
+          .prepareSearch(props.getProperty("indexName")).setTypes(httpType, ftpType)
+          .setQuery(querySearch).setSize(0)
           .addAggregation(AggregationBuilders.dateHistogram("by_minute")
-              .field("Time").interval((DateHistogram.Interval.MINUTE))
+              .field("Time").interval(DateHistogram.Interval.MINUTE)
               .order(DateHistogram.Order.COUNT_DESC))
           .execute().actionGet();
 
       DateHistogram agg = checkRobot.getAggregations().get("by_minute");
 
       List<? extends Bucket> botList = agg.getBuckets();
-      long max_count = botList.get(0).getDocCount();
-      if (max_count >= rate) { // variable one
+      long maxCount = botList.get(0).getDocCount();
+      if (maxCount >= rate) {
       } else {
         user_count++;
         DateTime dt1 = null;
         int toLast = 0;
         SearchResponse scrollResp = es.client
-            .prepareSearch(config.get("indexName"))
-            .setTypes(HTTP_type, FTP_type).setScroll(new TimeValue(60000))
-            .setQuery(query_search).setSize(100).execute().actionGet();
+            .prepareSearch(props.getProperty("indexName"))
+            .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
+            .setQuery(querySearch).setSize(100).execute().actionGet();
         while (true) {
           for (SearchHit hit : scrollResp.getHits().getHits()) {
             Map<String, Object> result = hit.getSource();
@@ -174,8 +171,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
               toLast = Math.abs(Seconds.secondsBetween(dt1, dt2).getSeconds());
             }
             result.put("ToLast", toLast);
-            IndexRequest ir = new IndexRequest(config.get("indexName"),
-                Cleanup_type).source(result);
+            IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+                cleanupType).source(result);
 
             es.bulkProcessor.add(ir);
             dt1 = dt2;

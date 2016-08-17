@@ -15,7 +15,7 @@ package esiptestbed.mudrod.discoveryengine;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -39,8 +39,10 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
-  public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
-    super(config, es, spark);
+
+  public WeblogDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark){
+    super(props, es, spark);
+    LOG.info("Started Mudrod Weblog Discovery Engine.");
   }
 
   public String timeSuffix = null;
@@ -49,7 +51,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void preprocess() {
     LOG.info("*****************Web log preprocessing starts******************");
 
-    File directory = new File(config.get("logDir"));
+    File directory = new File(props.getProperty("logDir"));
 
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
@@ -57,30 +59,30 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     for (File file : fList) {
       if (file.isFile()) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
+        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
       }
     }
 
     for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
+      timeSuffix = inputList.get(i);
+      props.getProperty("TimeSuffix", timeSuffix);
       startTime=System.currentTimeMillis();
       LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
 
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
 
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
       cd.execute();
 
-      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es, this.spark);
       sg.execute();
 
-      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
       ss.execute();
 
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
       rr.execute();
 
       endTime=System.currentTimeMillis();
@@ -89,20 +91,20 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
           (endTime-startTime)/1000, inputList.get(i));
     }
 
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
     hg.execute();
 
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es, this.spark);
     cg.execute();
 
     LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
   }
-  
+
   public void logIngest() {
     LOG.info("*****************Web log ingest starts******************");
 
-    File directory = new File(config.get("logDir"));
+    File directory = new File(props.getProperty("logDir"));
 
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
@@ -110,15 +112,15 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     for (File file : fList) {
       if (file.isFile()) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
+        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
       }
     }
 
     for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      timeSuffix = inputList.get(i);
+      props.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
     }
 
@@ -132,10 +134,10 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Web log processing starts******************");
     startTime=System.currentTimeMillis();
 
-    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.props, this.es, this.spark);
     svd.execute();
 
-    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.props, this.es, this.spark);
     ua.execute();
 
     endTime=System.currentTimeMillis();

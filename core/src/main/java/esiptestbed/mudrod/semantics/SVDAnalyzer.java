@@ -15,7 +15,7 @@ package esiptestbed.mudrod.semantics;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -38,45 +38,44 @@ public class SVDAnalyzer extends SemanticAnalyzer {
   /**
    * Creates a new instance of SVDAnalyzer.
    *
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark drive
    */
-  public SVDAnalyzer(Map<String, String> config, ESDriver es,
+  public SVDAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
+    super(props, es, spark);
   }
 
   /**
    * GetSVDMatrix: Create SVD matrix csv file from original csv file.
    *
-   * @param CSV_fileName
+   * @param csvFileName
    *          each row is a term, and each column is a document.
    * @param svdDimention
    *          Dimension of SVD matrix
-   * @param svd_matrix_fileName
+   * @param svdMatrixFileName
    *          CSV file name of SVD matrix
    */
-  public void GetSVDMatrix(String CSV_fileName, int svdDimention,
-      String svd_matrix_fileName) {
+  public void getSVDMatrix(String csvFileName, int svdDimention,
+      String svdMatrixFileName) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        CSV_fileName, 1);
+        csvFileName, 1);
     JavaRDD<Vector> vectorRDD = importRDD.values();
     RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
-    RowMatrix TFIDFMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
+    RowMatrix tfidfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
         spark.sc);
-    RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimention);
+    RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(tfidfMatrix, svdDimention);
 
     List<String> rowKeys = importRDD.keys().collect();
-    List<String> colKeys = new ArrayList<String>();
+    List<String> colKeys = new ArrayList<>();
     for (int i = 0; i < svdDimention; i++) {
       colKeys.add("dimension" + i);
     }
-    MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svd_matrix_fileName);
+    MatrixUtil.exportToCSV(svdMatrix, rowKeys, colKeys, svdMatrixFileName);
   }
 }

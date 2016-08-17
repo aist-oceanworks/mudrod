@@ -15,7 +15,7 @@ package esiptestbed.mudrod.metadata.process;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -30,13 +30,12 @@ import org.slf4j.LoggerFactory;
  * ClassName: MetadataAnalyzer 
  * Function: Calculate semantic relationship of vocabularies extracted from
  * metadata. 
- * Date: Aug 12, 2016 10:31:27 AM 
  *
  * @author Yun
 
  */
 public class MetadataAnalyzer extends DiscoveryStepAbstract
-    implements Serializable {
+implements Serializable {
 
   /**
    * 
@@ -48,16 +47,16 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract
   /**
    * Creates a new instance of MetadataAnalyzer.
    * 
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark drive
    */
-  public MetadataAnalyzer(Map<String, String> config, ESDriver es,
+  public MetadataAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -77,18 +76,18 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract
       LOG.info("*****************Metadata Analyzer starts******************");
       startTime = System.currentTimeMillis();
 
-      SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
-      int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
-      String metadataMatrixFile = config.get("metadataMatrix");
-      String svdMatrixFileName = config.get("metadataSVDMatrix_tmp");
+      SVDAnalyzer analyzer = new SVDAnalyzer(props, es, spark);
+      int svdDimension = Integer.parseInt(props.getProperty("metadataSVDDimension"));
+      String metadataMatrixFile = props.getProperty("metadataMatrix");
+      String svdMatrixFileName = props.getProperty("metadataSVDMatrix_tmp");
 
-      analyzer.GetSVDMatrix(metadataMatrixFile, svdDimension,
+      analyzer.getSVDMatrix(metadataMatrixFile, svdDimension,
           svdMatrixFileName);
       List<LinkageTriple> triples = analyzer
-          .CalTermSimfromMatrix(svdMatrixFileName);
+          .calTermSimfromMatrix(svdMatrixFileName);
 
-      analyzer.SaveToES(triples, config.get("indexName"),
-          config.get("metadataLinkageType"));
+      analyzer.saveToES(triples, props.getProperty("indexName"),
+          props.getProperty("metadataLinkageType"));
 
     } catch (Exception e) {
       e.printStackTrace();
