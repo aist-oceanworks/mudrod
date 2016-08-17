@@ -78,7 +78,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       bw.write("Num" + ",");
 
       // step 1: write first row of csv
-      SearchResponse sr = es.client.prepareSearch(props.getProperty("indexName"))
+      SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
           .setTypes(cleanupTypeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0))
@@ -89,14 +89,14 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
         if (entry.getDocCount() > Integer
             .parseInt(props.getProperty("mini_userHistory"))) { // filter out less
           // active users/ips
-          ipList.add(entry.getKey());
+          ipList.add(entry.getKey().toString());
         }
       }
 
       bw.write(String.join(",", ipList) + "\n");
 
       // step 2: step the rest rows of csv
-      SearchResponse sr2 = es.client.prepareSearch(props.getProperty("indexName"))
+      SearchResponse sr2 = es.getClient().prepareSearch(props.getProperty("indexName"))
           //.setTypes(cleanupTypeList.toArray(new String[0]))
           .setTypes(cleanupTypeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
@@ -115,7 +115,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : ipAgg.getBuckets()) {
 
-            ipMap.put(IP.getKey(), 1);
+            ipMap.put(IP.getKey().toString(), 1);
           }
           for (int i = 0; i < ipList.size(); i++) {
             if (ipMap.containsKey(ipList.get(i))) {

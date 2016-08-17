@@ -86,7 +86,7 @@ public class LinkageTriple implements Serializable {
                 Double.parseDouble(df.format(triples.get(i).weight)))
             .endObject());
 
-        es.bulkProcessor.add(ir);
+        es.getBulkProcessor().add(ir);
       } catch (NumberFormatException | IOException e) {
 
         // TODO Auto-generated catch block

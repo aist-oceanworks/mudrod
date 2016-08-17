@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.joda.time.Seconds;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
@@ -223,7 +223,7 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
    */
   private SessionTree getSessionTree(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
-    SearchResponse response = es.client.prepareSearch(props.getProperty("indexName"))
+    SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(cleanuptype)
         .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
@@ -260,7 +260,7 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
    */
   private JsonElement getRequests(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
-    SearchResponse response = es.client.prepareSearch(props.getProperty("indexName"))
+    SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(cleanuptype)
         .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();

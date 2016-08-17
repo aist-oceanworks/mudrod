@@ -22,28 +22,34 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.Seconds;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Bucket;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract} implementation
+ * which detects a known list of Web crawlers which may may be present within, and 
+ * pollute various logs acting as input to Mudrod.
+ */
 public class CrawlerDetection extends DiscoveryStepAbstract {
   /**
    * 
@@ -65,8 +71,14 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   public static final String JAVA_CLIENT = "Java/";
   public static final String CURL = "curl/";
 
-  public CrawlerDetection(Properties props, ESDriver es,
-      SparkDriver spark) {
+  /**
+   * Paramterized constructor to instantiate a configured instance of 
+   * {@link esiptestbed.mudrod.weblog.pre.CrawlerDetection}
+   * @param props populated {@link java.util.Properties} object
+   * @param es {@link esiptestbed.mudrod.driver.ESDriver} object to use in crawler detection preprocessing.
+   * @param spark {@link esiptestbed.mudrod.driver.SparkDriver} object to use in crawler detection preprocessing.
+   */
+  public CrawlerDetection(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -104,40 +116,42 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     es.createBulkProcesser();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
-    SearchResponse sr = es.client.prepareSearch(props.getProperty("indexName"))
+    SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
         .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
         .execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
 
-    int user_count = 0;
+    int userCount = 0;
 
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
     for (Terms.Bucket entry : users.getBuckets()) {
-      FilterBuilder filterSearch = FilterBuilders.boolFilter()
-          .must(FilterBuilders.termFilter("IP", entry.getKey()));
-      QueryBuilder querySearch = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+      QueryBuilder filterSearch = QueryBuilders.boolQuery()
+          .must(QueryBuilders.termQuery("IP", entry.getKey()));
+      QueryBuilder querySearch = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
 
-      SearchResponse checkRobot = es.client
+      AggregationBuilder aggregation = AggregationBuilders
+          .dateHistogram("by_minute")
+          .field("Time")
+          .interval(DateHistogramInterval.MINUTE)
+          .order(Order.COUNT_DESC);
+      SearchResponse checkRobot = es.getClient()
           .prepareSearch(props.getProperty("indexName")).setTypes(httpType, ftpType)
           .setQuery(querySearch).setSize(0)
-          .addAggregation(AggregationBuilders.dateHistogram("by_minute")
-              .field("Time").interval(DateHistogram.Interval.MINUTE)
-              .order(DateHistogram.Order.COUNT_DESC))
+          .addAggregation(aggregation)
           .execute().actionGet();
 
-      DateHistogram agg = checkRobot.getAggregations().get("by_minute");
+      Histogram agg = checkRobot.getAggregations().get("by_minute");
 
-      List<? extends Bucket> botList = agg.getBuckets();
+      List<? extends Histogram.Bucket> botList = agg.getBuckets();
       long maxCount = botList.get(0).getDocCount();
       if (maxCount >= rate) {
       } else {
-        user_count++;
+        userCount++;
         DateTime dt1 = null;
         int toLast = 0;
-        SearchResponse scrollResp = es.client
+        SearchResponse scrollResp = es.getClient()
             .prepareSearch(props.getProperty("indexName"))
             .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
             .setQuery(querySearch).setSize(100).execute().actionGet();
@@ -174,11 +188,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
             IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
                 cleanupType).source(result);
 
-            es.bulkProcessor.add(ir);
+            es.getBulkProcessor().add(ir);
             dt1 = dt2;
           }
 
-          scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
           if (scrollResp.getHits().getHits().length == 0) {
             break;
@@ -187,10 +201,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
       }
     }
-
     es.destroyBulkProcessor();
-
-    LOG.info("User count: {}", Integer.toString(user_count));
+    LOG.info("User count: {}", Integer.toString(userCount));
   }
 
   @Override

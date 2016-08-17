@@ -31,11 +31,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import scala.Tuple2;
 
 /**
  * ClassName: SessionExtractor Function: Extract sessions details from
- * reconstructed sessions. Date: Aug 15, 2016 1:34:35 PM
+ * reconstructed sessions.
  *
  * @author Yun
  *
@@ -45,7 +46,6 @@ public class SessionExtractor implements Serializable {
   public SessionExtractor() {
   }
 
-  // load data from es
   /**
    * extractClickStreamFromES:Extract click streams from logs stored in
    * Elasticsearch
@@ -67,9 +67,7 @@ public class SessionExtractor implements Serializable {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
-    JavaRDD<ClickStream> clickstreamRDD = spark.sc.parallelize(queryList);
-    return clickstreamRDD;
+    return spark.sc.parallelize(queryList);
   }
 
   /**
@@ -85,7 +83,8 @@ public class SessionExtractor implements Serializable {
   protected List<ClickStream> getClickStreamList(Properties props,
       ESDriver es) {
     ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
-        props.get("indexName"), props.get("Cleanup_type_prefix"));
+        props.getProperty(MudrodConstants.ES_INDEX_NAME), 
+        props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX));
     List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanupTypeList.size(); n++) {
       String cleanupType = cleanupTypeList.get(n);
@@ -198,14 +197,14 @@ public class SessionExtractor implements Serializable {
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
-   * @param cleanup_type
+   * @param cleanupType
    *          session type name
    * @return list of session names
    */
   protected List<String> getSessions(Properties props, ESDriver es,
       String cleanupType) {
     List<String> sessionIDList = new ArrayList<>();
-    SearchResponse sr = es.client.prepareSearch(props.getProperty("indexName"))
+    SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
         .setTypes(cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0)
         .addAggregation(
@@ -213,7 +212,7 @@ public class SessionExtractor implements Serializable {
         .execute().actionGet();
     Terms sessions = sr.getAggregations().get("Sessions");
     for (Terms.Bucket entry : sessions.getBuckets()) {
-      sessionIDList.add(entry.getKey());
+      sessionIDList.add(entry.getKey().toString());
     }
     return sessionIDList;
   }

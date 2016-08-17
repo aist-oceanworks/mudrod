@@ -25,13 +25,11 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.Seconds;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -88,7 +86,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
     MetricsAggregationBuilder<?> statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr = es.client.prepareSearch(props.getProperty("indexName"))
+    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(0).subAggregation(statsAgg))
@@ -126,12 +124,12 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         String keywords = "";
         String views = "";
         String downloads = "";
-        FilterBuilder filter_search = FilterBuilders.boolFilter()
-            .must(FilterBuilders.termFilter("SessionID", entry.getKey()));
+        QueryBuilder filter_search = QueryBuilders.boolQuery()
+            .must(QueryBuilders.termQuery("SessionID", entry.getKey()));
         QueryBuilder query_search = QueryBuilders
             .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
 
-        SearchResponse scrollResp = es.client
+        SearchResponse scrollResp = es.getClient()
             .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
             .setScroll(new TimeValue(60000)).setQuery(query_search).setSize(100)
             .execute().actionGet();
@@ -155,16 +153,16 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
               RequestUrl requestURL = new RequestUrl(this.props, this.es,
                   null);
-              String info = requestURL.GetSearchInfo(request) + ",";
+              String info = requestURL.getSearchInfo(request) + ",";
 
               if (!info.equals(",")) {
                 if (keywords.equals("")) {
                   keywords = keywords + info;
                 } else {
                   String[] items = info.split(",");
-                  String[] keyword_list = keywords.split(",");
+                  String[] keywordList = keywords.split(",");
                   for (int m = 0; m < items.length; m++) {
-                    if (!Arrays.asList(keyword_list).contains(items[m])) {
+                    if (!Arrays.asList(keywordList).contains(items[m])) {
                       keywords = keywords + items[m] + ",";
                     }
                   }
@@ -177,7 +175,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
               if (findDataset(request) != null) {
                 String view = findDataset(request);
 
-                if (views.equals("")) {
+                if ("".equals(views)) {
                   views = view;
                 } else {
                   if (views.contains(view)) {
@@ -188,18 +186,18 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                 }
               }
             }
-            if (logType.equals("ftp")) {
+            if ("ftp".equals(logType)) {
               ftpRequest_count++;
               String download = "";
-              String request_lowercase = request.toLowerCase();
-              if (request_lowercase.endsWith(".jpg") == false
-                  && request_lowercase.endsWith(".pdf") == false
-                  && request_lowercase.endsWith(".txt") == false
-                  && request_lowercase.endsWith(".gif") == false) {
+              String requestLowercase = request.toLowerCase();
+              if (requestLowercase.endsWith(".jpg") == false
+                  && requestLowercase.endsWith(".pdf") == false
+                  && requestLowercase.endsWith(".txt") == false
+                  && requestLowercase.endsWith(".gif") == false) {
                 download = request;
               }
 
-              if (downloads.equals("")) {
+              if ("".equals(downloads)) {
                 downloads = download;
               } else {
                 if (downloads.contains(download)) {
@@ -212,7 +210,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
           }
 
-          scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
           // Break condition: No hits are returned
           if (scrollResp.getHits().getHits().length == 0) {
@@ -257,7 +255,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                   // .field("Coordinates", loc.latlon)
                   .endObject());
 
-          es.bulkProcessor.add(ir);
+          es.getBulkProcessor().add(ir);
         }
       }
     }

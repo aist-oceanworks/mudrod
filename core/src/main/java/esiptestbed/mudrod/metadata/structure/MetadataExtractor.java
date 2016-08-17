@@ -84,7 +84,7 @@ public class MetadataExtractor implements Serializable {
       String type) {
 
     List<PODAACMetadata> metadatas = new ArrayList<PODAACMetadata>();
-    SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type)
+    SearchResponse scrollResp = es.getClient().prepareSearch(index).setTypes(type)
         .setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000))
         .setSize(100).execute().actionGet();
 
@@ -114,7 +114,7 @@ public class MetadataExtractor implements Serializable {
         }
         metadatas.add(metadata);
       }
-      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;

@@ -202,7 +202,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   }
 
   public void aggregateRelatedTerms(String input, String model) {
-    SearchResponse usrhis = es.client.prepareSearch(props.getProperty(INDEX_NAME))
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
 
@@ -223,7 +223,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   }
 
   public void aggregateRelatedTermsSWEET(String input, String model) {
-    SearchResponse usrhis = es.client.prepareSearch(props.getProperty(INDEX_NAME))
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
     LOG.info("\n************************ {} results***************************", model);

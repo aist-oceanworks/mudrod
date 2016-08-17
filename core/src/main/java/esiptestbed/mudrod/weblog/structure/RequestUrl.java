@@ -30,14 +30,14 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
- * ClassName: RequestUrl Function: request url relate operations Date: Aug 15,
- * 2016 1:29:50 PM
+ * ClassName: RequestUrl Function: request url relate operations
  *
  * @author Yun
  *
  */
 public class RequestUrl extends MudrodAbstract {
 
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RequestUrl.class);
 
   /**
@@ -62,19 +62,15 @@ public class RequestUrl extends MudrodAbstract {
    *          request url
    * @return page name
    */
-  public static String UrlPage(String strURL) {
+  public static String urlPage(String strURL) {
     String strPage = null;
     String[] arrSplit = null;
 
-    strURL = strURL.trim().toLowerCase();
+    String newURL = strURL.trim().toLowerCase();
 
-    arrSplit = strURL.split("[?]");
-    if (strURL.length() > 0) {
-      if (arrSplit.length > 1) {
-        if (arrSplit[0] != null) {
-          strPage = arrSplit[0];
-        }
-      }
+    arrSplit = newURL.split("[?]");
+    if (newURL.length() > 0 && arrSplit.length > 1 && arrSplit[0] != null) {
+      strPage = arrSplit[0];
     }
 
     return strPage;
@@ -86,7 +82,7 @@ public class RequestUrl extends MudrodAbstract {
    * @param strURL
    * @return url params
    */
-  private static String TruncateUrlPage(String strURL) {
+  private static String truncateUrlPage(String strURL) {
     String strAllParam = null;
     String[] arrSplit = null;
 
@@ -111,12 +107,12 @@ public class RequestUrl extends MudrodAbstract {
    *          request url
    * @return url params key value map
    */
-  public static Map<String, String> URLRequest(String URL) {
+  public static Map<String, String> uRLRequest(String URL) {
     Map<String, String> mapRequest = new HashMap<String, String>();
 
     String[] arrSplit = null;
 
-    String strUrlParam = TruncateUrlPage(URL);
+    String strUrlParam = truncateUrlPage(URL);
     if (strUrlParam == null) {
       return mapRequest;
     }
@@ -149,11 +145,10 @@ public class RequestUrl extends MudrodAbstract {
    * @throws UnsupportedEncodingException
    *           UnsupportedEncodingException
    */
-  public String GetSearchInfo(String URL) throws UnsupportedEncodingException {
-    // String info = "";
+  public String getSearchInfo(String URL) throws UnsupportedEncodingException {
     List<String> info = new ArrayList<String>();
     String keyword = "";
-    Map<String, String> mapRequest = RequestUrl.URLRequest(URL);
+    Map<String, String> mapRequest = RequestUrl.uRLRequest(URL);
     if (mapRequest.get("search") != null) {
       try {
         keyword = mapRequest.get("search");
@@ -201,9 +196,6 @@ public class RequestUrl extends MudrodAbstract {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
                 && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
-              // info = info + URLDecoder.decode(values[i],
-              // "UTF-8").trim() +
-              // ",";
               String item = URLDecoder.decode(values[i], "UTF-8").trim();
               if (item.contains("%2b") || item.contains("%20")
                   || item.contains("%25")) {
@@ -242,14 +234,14 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * GetSearchWord: Get search words from url link
    *
-   * @param URL
+   * @param url
    *          request url
    * @return query
    */
-  public static String GetSearchWord(String url) {
+  public static String getSearchWord(String url) {
     String keyword = "";
 
-    Map<String, String> mapRequest = RequestUrl.URLRequest(url);
+    Map<String, String> mapRequest = RequestUrl.uRLRequest(url);
     if (mapRequest.get("search") != null) {
       try {
         keyword = mapRequest.get("search");
@@ -276,19 +268,19 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * GetFilterInfo: Get filter params from url link
    *
-   * @param URL
+   * @param url
    *          request url
    * @return filter facet key pair map
    * @throws UnsupportedEncodingException
    *           UnsupportedEncodingException
    */
-  public static Map<String, String> GetFilterInfo(String url)
+  public static Map<String, String> getFilterInfo(String url)
       throws UnsupportedEncodingException {
     List<String> info = new ArrayList<>();
     Map<String, String> filterValues = new HashMap<>();
 
     String keyword = "";
-    Map<String, String> mapRequest = RequestUrl.URLRequest(url);
+    Map<String, String> mapRequest = RequestUrl.uRLRequest(url);
     if (mapRequest.get("search") != null) {
       try {
         keyword = mapRequest.get("search");

@@ -55,7 +55,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param config:
+   * @param props:
    *          the Mudrod configuration
    * @param es:
    *          the Elasticsearch drive
@@ -78,7 +78,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param config:
+   * @param props:
    *          the Mudrod configuration
    * @param es:
    *          the Elasticsearch drive
@@ -215,7 +215,7 @@ public class SessionTree extends MudrodAbstract {
       RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
       String viewquery = "";
       try {
-        viewquery = requestURL.GetSearchInfo(viewnode.getRequest());
+        viewquery = requestURL.getSearchInfo(viewnode.getRequest());
       } catch (UnsupportedEncodingException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

@@ -95,15 +95,15 @@ public class ESDriver implements Serializable {
    */
   public ESDriver(Properties props){
     try {
-      client = makeClient(props);
+      setClient(makeClient(props));
     } catch (IOException e) {
       LOG.error("Error whilst constructing Elastcisearch client.", e);
     }
   }
 
   public void createBulkProcesser(){
-    bulkProcessor = BulkProcessor.builder(
-        client,
+    setBulkProcessor(BulkProcessor.builder(
+        getClient(),
         new BulkProcessor.Listener() {
           public void beforeBulk(long executionId,
               BulkRequest request) {} 
@@ -123,13 +123,13 @@ public class ESDriver implements Serializable {
         .setBulkActions(1000) 
         .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
         .setConcurrentRequests(1) 
-        .build();
+        .build());
   }
 
   public void destroyBulkProcessor(){
     try {
-      bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
-      bulkProcessor = null;
+      getBulkProcessor().awaitClose(20, TimeUnit.MINUTES);
+      setBulkProcessor(null);
       refreshIndex();
     } catch (InterruptedException e) {
       LOG.error("Error destroying the Bulk Processor.", e);
@@ -138,13 +138,13 @@ public class ESDriver implements Serializable {
 
   public void putMapping(String indexName, String settingsJson, String mappingJson) throws IOException{
 
-    boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+    boolean exists = getClient().admin().indices().prepareExists(indexName).execute().actionGet().isExists();
     if(exists){
       return;
     }
 
-    client.admin().indices().prepareCreate(indexName).setSettings(Settings.builder().loadFromSource(settingsJson)).execute().actionGet();
-    client.admin().indices()
+    getClient().admin().indices().prepareCreate(indexName).setSettings(Settings.builder().loadFromSource(settingsJson)).execute().actionGet();
+    getClient().admin().indices()
     .preparePutMapping(indexName)
     .setType("_default_")
     .setSource(mappingJson)
@@ -156,7 +156,7 @@ public class ESDriver implements Serializable {
     for(int i = 0; i<strList.length;i++)
     {
       String tmp = "";
-      AnalyzeResponse r = client.admin().indices()
+      AnalyzeResponse r = getClient().admin().indices()
           .prepareAnalyze(strList[i]).setIndex(indexName).setAnalyzer("cody")
           .execute().get();
       for (AnalyzeToken token : r.getTokens()) {
@@ -182,7 +182,7 @@ public class ESDriver implements Serializable {
 
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcesser();
-    SearchResponse scrollResp = client.prepareSearch(index)
+    SearchResponse scrollResp = getClient().prepareSearch(index)
         .setSearchType(SearchType.SCAN)
         .setTypes(type)
         .setScroll(new TimeValue(60000))
@@ -193,10 +193,10 @@ public class ESDriver implements Serializable {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         DeleteRequest deleteRequest = new DeleteRequest(index, type, hit.getId());
-        bulkProcessor.add(deleteRequest);
+        getBulkProcessor().add(deleteRequest);
       }
 
-      scrollResp = client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
@@ -215,7 +215,7 @@ public class ESDriver implements Serializable {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
-      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(object.toString())).get();
+      res = getClient().admin().indices().getMappings(new GetMappingsRequest().indices(object.toString())).get();
       ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(object.toString());
       for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
         if(c.key.startsWith(object2.toString()))
@@ -236,7 +236,7 @@ public class ESDriver implements Serializable {
     }
 
     QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
-    SearchResponse response = client.prepareSearch(index)
+    SearchResponse response = getClient().prepareSearch(index)
         .setTypes(Type)		        
         .setQuery(qb)
         .setSize(500)
@@ -296,7 +296,7 @@ public class ESDriver implements Serializable {
     suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));  
 
     SuggestRequestBuilder suggestRequestBuilder =
-        client.prepareSuggest(index).addSuggestion(suggestionsBuilder);
+        getClient().prepareSuggest(index).addSuggestion(suggestionsBuilder);
 
 
     SuggestResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
@@ -322,6 +322,8 @@ public class ESDriver implements Serializable {
 
   /** 
    * Generates a TransportClient or NodeClient
+   * @param props a populated {@link java.util.Properties} object
+   * @throws IOException if there is an error building the {@link org.elasticsearch.client.Client}
    * @return a constructed {@link org.elasticsearch.client.Client}
    */
   protected Client makeClient(Properties props) throws IOException {
@@ -357,13 +359,40 @@ public class ESDriver implements Serializable {
 
   /**
    * Main method used to invoke the ESDriver implementation.
-   * @param args no arguments are required to invoke the 
-   * {@link Driver implementation for all Elasticsearch functionality}
+   * @param args no arguments are required to invoke the Driver.
    */
   public static void main(String[] args) {
     MudrodEngine mudrodEngine = new MudrodEngine();
     ESDriver es = new ESDriver(mudrodEngine.loadConfig());
     es.getTypeListWithPrefix("podaacsession", "sessionstats");
+  }
+
+  /**
+   * @return the client
+   */
+  public Client getClient() {
+    return client;
+  }
+
+  /**
+   * @param client the client to set
+   */
+  public void setClient(Client client) {
+    this.client = client;
+  }
+
+  /**
+   * @return the bulkProcessor
+   */
+  public BulkProcessor getBulkProcessor() {
+    return bulkProcessor;
+  }
+
+  /**
+   * @param bulkProcessor the bulkProcessor to set
+   */
+  public void setBulkProcessor(BulkProcessor bulkProcessor) {
+    this.bulkProcessor = bulkProcessor;
   }
 
 }

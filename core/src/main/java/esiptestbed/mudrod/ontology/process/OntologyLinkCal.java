@@ -51,7 +51,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 
           .endObject().endObject().endObject();
 
-      es.client.admin().indices().preparePutMapping(props.getProperty("indexName"))
+      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
       .setType(props.getProperty("ontologyLinkageType")).setSource(Mapping)
       .execute().actionGet();
     } catch (IOException e) {
@@ -89,7 +89,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
                     es.customAnalyzing(props.getProperty("indexName"),
                         strList[0]))
                 .field("weight", weight).endObject());
-        es.bulkProcessor.add(ir);
+        es.getBulkProcessor().add(ir);
 
       }
 

@@ -15,9 +15,7 @@ package esiptestbed.mudrod.main;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -41,9 +39,6 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.org.apache.bcel.internal.generic.ReturnaddressType;
-
 /**
  * Main entry point for Running the Mudrod system.
  * Invocation of this class is tightly linked to the primary Mudrod 
@@ -61,16 +56,28 @@ public class MudrodEngine {
   private static final String LOG_DIR = "logDir";
 
   /**
-   * Public constructor for this class, loads a default config.xml.
+   * Public constructor for this class.
    */
   public MudrodEngine() {
-    loadConfig();
+    //default constructor
   }
 
+  /**
+   * Start the {@link esiptestbed.mudrod.driver.ESDriver}. 
+   * Should only be called after call to
+   * {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   * @return fully provisioned {@link esiptestbed.mudrod.driver.ESDriver}
+   */
   public ESDriver startESDriver() {
     return new ESDriver(props);
   }
 
+  /**
+   * Start the {@link esiptestbed.mudrod.driver.SparkDriver}. 
+   * Should only be called after call to
+   * {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   * @return fully provisioned {@link esiptestbed.mudrod.driver.SparkDriver}
+   */
   public SparkDriver startSparkDriver() {
     return new SparkDriver();
   }

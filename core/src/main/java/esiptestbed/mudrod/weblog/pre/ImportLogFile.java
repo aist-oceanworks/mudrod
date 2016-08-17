@@ -151,8 +151,8 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param protocol whether to process 'http' or 'FTP'
    * @param index the index name to write logs to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    * @throws IOException if there is an error reading anything from the fileName provided.
    */
   public void readLogFile(String fileName, String protocol, String index, String type) throws IOException{
@@ -185,8 +185,8 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param log a single log line
    * @param index the index name we wish to persist the log line to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    */
   public void parseSingleLineFTP(String log, String index, String type){
     String ip = log.split(" +")[6];
@@ -217,7 +217,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
             .field("Request", request)
             .field("Bytes", Long.parseLong(bytes))
             .endObject());
-        es.bulkProcessor.add(ir);
+        es.getBulkProcessor().add(ir);
       } catch (NumberFormatException e) {
         LOG.error("Error whilst processing numbers", e);
       } catch (IOException e) {
@@ -232,8 +232,8 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param log a single log line
    * @param index the index name we wish to persist the log line to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    */
   public void parseSingleLineHTTP(String log, String index, String type){
     matcher = p.matcher(log);
@@ -290,7 +290,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
           .field("Browser", matcher.group(9))
           .endObject());
 
-      es.bulkProcessor.add(ir);
+      es.getBulkProcessor().add(ir);
     } catch (NumberFormatException e) {
       LOG.error("Error whilst processing numbers", e);
     } catch (IOException e) {

@@ -91,7 +91,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
         + "\r\n               \"analyzer\": \"english\"\r\n            }"
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
-    es.client.admin().indices().preparePutMapping(props.getProperty("indexName"))
+    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
         .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
         .execute().actionGet();
   }
@@ -114,7 +114,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           JsonElement item = parser.parse(jsonTxt);
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               props.getProperty("raw_metadataType")).source(item.toString());
-          es.bulkProcessor.add(ir);
+          es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();
         }
