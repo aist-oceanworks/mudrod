@@ -45,6 +45,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spark.version>1.6.2</spark.version>
     <findbugs.version>3.0.4</findbugs.version>
+    <xml.maven.version>1.0.1</xml.maven.version>
   </properties>
   
   <scm>
@@ -126,6 +127,60 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>${findbugs.version}</version>
+        <executions>
+          <execution>
+            <id>findbug</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <findbugsXmlOutputDirectory>
+                ${project.build.directory}/findbugs
+          </findbugsXmlOutputDirectory>
+          <failOnError>false</failOnError>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <version>${xml.maven.version}</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${project.build.directory}/findbugs</dir>
+              <outputDir>${project.build.directory}/findbugs</outputDir>
+              <stylesheet>fancy-hist.xsl</stylesheet>
+              <!--<stylesheet>default.xsl</stylesheet>-->
+              <!--<stylesheet>plain.xsl</stylesheet>-->
+              <!--<stylesheet>fancy.xsl</stylesheet>-->
+              <!--<stylesheet>summary.xsl</stylesheet>-->
+              <fileMappers>
+                <fileMapper
+                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                  <targetExtension>.html</targetExtension>
+                </fileMapper>
+              </fileMappers>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>3.0.1</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -150,7 +205,7 @@
             </excludes>
           </configuration>
         </plugin>
-        <plugin>
+        <!--plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
           <version>${findbugs.version}</version>
@@ -161,7 +216,7 @@
             <includeTests>true</includeTests>
             <maxRank>16</maxRank>
           </configuration>
-        </plugin>
+        </plugin-->
       </plugins>
     </pluginManagement>
   </build>
