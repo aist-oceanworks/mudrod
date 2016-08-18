@@ -23,6 +23,7 @@
   
   <name>Mudrod :: Parent</name>
   <url>https://github.com/mudrod/mudrod.git</url>
+  <description>MUDROD: Mining and Utilizing Dataset Relevancy from Oceanographic Datasets to Improve Data Discovery and Access. MUDROD is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).</description>
   
   <licenses>
     <license>
