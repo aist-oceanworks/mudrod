@@ -14,8 +14,6 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
-  notify:
-    require_ci_to_pass: yes
 
   status:
     project: yes
