@@ -1,8 +1,10 @@
 # MUDROD
 ## Mining and Utilizing Dataset Relevancy from Oceanographic Datasets to Improve Data Discovery and Access
 
+<a href="http://www.apache.org/licenses/LICENSE-2.0">
+  <img src="https://img.shields.io/badge/license-Apache%202-4EB1BA.svg" />
+</a>
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
-[![Coverage Status](https://coveralls.io/repos/github/mudrod/mudrod/badge.svg?branch=master)](https://coveralls.io/github/mudrod/mudrod?branch=master)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
 [![codecov](https://codecov.io/gh/mudrod/mudrod/branch/master/graph/badge.svg)](https://codecov.io/gh/mudrod/mudrod)
 
