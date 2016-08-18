@@ -46,6 +46,7 @@
     <spark.version>1.6.2</spark.version>
     <findbugs.version>3.0.4</findbugs.version>
     <xml.maven.version>1.0.1</xml.maven.version>
+    <jacoo.version>0.7.6.201602180812</jacoo.version>
   </properties>
   
   <scm>
@@ -102,18 +103,10 @@
           <revisionOnScmFailure>??????</revisionOnScmFailure>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-        <configuration>
-          <timestampFormat>EpochMillis</timestampFormat>
-        </configuration>
-      </plugin>
-      <plugin>
+      <!--plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.6.201602180812</version>
+        <version>${jacoo.version}</version>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -129,7 +122,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
@@ -188,6 +181,32 @@
             <version>3.0.1</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <reuseForks>true</reuseForks>
+          <argLine>${argLine} -Xmx2048m</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <reuseForks>true</reuseForks>
+          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M ${itCoverageAgent}</argLine>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -268,6 +287,48 @@
             </plugin>
           </plugins>
         </pluginManagement>
+      </build>
+    </profile>
+    <profile>
+      <id>test-coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.6.3.201306030806</version>
+            <configuration>
+              <destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>
+              <datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>
+            </configuration>
+            <executions>
+              <execution>
+                <id>prepare-unit-tests</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <!-- prepare agent for measuring integration tests -->
+              <execution>
+                <id>prepare-integration-tests</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <propertyName>itCoverageAgent</propertyName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>jacoco-site</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>
