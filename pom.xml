@@ -43,6 +43,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <spark.version>1.6.2</spark.version>
+    <findbugs.version>3.0.4</findbugs.version>
   </properties>
   
   <scm>
@@ -120,6 +121,11 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs.version}</version>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
@@ -141,6 +147,18 @@
               <exclude>**/META-INF/**</exclude>
               <exclude>**/resources/**</exclude>
             </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>${findbugs.version}</version>
+          <configuration>
+            <xmlOutput>true</xmlOutput>
+            <effort>Max</effort>
+            <failOnError>true</failOnError>
+            <includeTests>true</includeTests>
+            <maxRank>16</maxRank>
           </configuration>
         </plugin>
       </plugins>
