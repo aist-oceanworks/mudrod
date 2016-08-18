@@ -53,7 +53,7 @@ public class Dispatcher extends MudrodAbstract {
    * Method of getting semantically most related terms by number
    * @param input regular input query
    * @param num the number of most related terms
-   * @return
+   * @return a map from term to similarity
    */
   public Map<String, Double> getRelatedTerms(String input, int num) {
     LinkageIntegration li = new LinkageIntegration(this.config,
@@ -74,7 +74,7 @@ public class Dispatcher extends MudrodAbstract {
    * Method of getting semantically most related terms by similarity threshold
    * @param input regular input query
    * @param T value of threshold, raning from 0 to 1
-   * @return
+   * @return a map from term to similarity
    */
   public Map<String, Double> getRelatedTermsByT(String input, double T) {
     LinkageIntegration li = new LinkageIntegration(this.config,
@@ -94,13 +94,19 @@ public class Dispatcher extends MudrodAbstract {
    * Method of creating semantic query based on Threshold
    * @param input regular query
    * @param num the number of most related terms
-   * @return an semantic Elasticsearch query clause
+   * @return a multiMatch query builder
    */
-  public BoolQueryBuilder createSemQuery(String input, int num){
-    Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
+  public BoolQueryBuilder createSemQuery(String input, double T){
+    Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
     selected_Map.put(input, (double) 1);
 
-    String fieldsList[] = {"Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*"};
+    //String fieldsList[] = {"Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "Dataset-Description", "DatasetParameter-*"};
+    String fieldsList[] = {
+        "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", 
+        "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", 
+        "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", 
+        "DatasetSource-Sensor-ShortName-Full"
+    };
     BoolQueryBuilder qb = new BoolQueryBuilder();
     for (Entry<String, Double> entry : selected_Map.entrySet()){
       qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
@@ -116,12 +122,12 @@ public class Dispatcher extends MudrodAbstract {
   /**
    * Method of creating semantic query based on Threshold, and dataset shortname
    * @param input regular query
-   * @param num the number of most related terms
+   * @param T value of threshold, raning from 0 to 1
    * @param shortName dataset shortName
-   * @return
+   * @return a "should" query builder
    */
-  public QueryBuilder createQueryForClicks(String input, int num, String shortName){   
-    Map<String, Double> selected_Map = getRelatedTermsByT(input, 0.8);
+  public QueryBuilder createQueryForClicks(String input, double T, String shortName){   
+    Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
     selected_Map.put(input, (double) 1);
 
     BoolFilterBuilder bf = new BoolFilterBuilder();

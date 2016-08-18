@@ -46,8 +46,7 @@ import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
- * @author Yongyao
- *
+ * Supports ability to performance semantic search with a given query
  */
 public class Searcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
@@ -63,6 +62,11 @@ public class Searcher extends MudrodAbstract {
     super(config, es, spark);
   }
 
+  /**
+   * Method of extracting version number from version string
+   * @param version version string
+   * @return version number
+   */
   public Double getVersionNum(String version)
   {
     if(version==null){
@@ -90,6 +94,11 @@ public class Searcher extends MudrodAbstract {
     return versionNum;
   }
   
+  /**
+   * Method of converting processing level string into a number
+   * @param pro processing level string
+   * @return processing level number
+   */
   public Double getProLevelNum(String pro){
     if(pro==null){
       return 1.0;
@@ -110,6 +119,12 @@ public class Searcher extends MudrodAbstract {
     return proNum;
   }
   
+  /**
+   * Method of checking if query exists in a certain attribute
+   * @param strList attribute value in the form of ArrayList
+   * @param query query string
+   * @return 1 means query exists, 0 otherwise
+   */
   public Double exists(ArrayList<String> strList, String query)
   {
     Double val = 0.0;
@@ -143,8 +158,8 @@ public class Searcher extends MudrodAbstract {
     }
 
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);   
-    BoolQueryBuilder qb = dp.createSemQuery(query, 2);
-    Map<String, Double> selected_Map = dp.getRelatedTerms(query, 2);
+    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0);
+    Map<String, Double> selected_Map = dp.getRelatedTermsByT(query, 1.0);
     List<SResult> resultList = new ArrayList<SResult>();
 
     SearchResponse response = es.client.prepareSearch(index)
@@ -314,5 +329,40 @@ public class Searcher extends MudrodAbstract {
     JsonObject PDResults = new JsonObject();
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
+  }
+  
+  public static void main(String[] args) throws IOException {
+    String learnerType = "pairwise";
+    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+        "saline density", "pathfinder", "gravity"};
+    //String[] query_list = {"quikscat"};
+    MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
+    Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
+    for(String q:query_list)
+    {
+      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + q + "_" + learnerType + ".csv");
+      if (file.exists()) {
+        file.delete();
+      }
+
+      file.createNewFile();
+
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw); 
+      bw.write(SResult.getHeader(","));
+
+      List<SResult> resultList = sr.searchByQuery(mudrod.getConfig().get("indexName"), 
+          mudrod.getConfig().get("raw_metadataType"), q);
+      Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null, learnerType);
+      List<SResult> li = rr.rank(resultList);
+      for(int i =0; i< li.size(); i++)
+      {
+        bw.write(li.get(i).toString(","));
+      }
+
+      bw.close();
+    }
+
+    mudrod.end();   
   }
 }

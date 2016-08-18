@@ -17,8 +17,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import esiptestbed.mudrod.main.MudrodEngine;
+import libsvm.svm_model;
+import libsvm.svm_node;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -52,6 +55,7 @@ public class Learner {
         String clspath = file.getAbsolutePath();       
         cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
         cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVMmodel_new.model");
+        
       }
     } catch (Exception e) {
       e.printStackTrace();

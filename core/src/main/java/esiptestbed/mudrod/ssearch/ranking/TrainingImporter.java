@@ -117,7 +117,7 @@ public class TrainingImporter extends MudrodAbstract {
   public static void main(String[] args) throws IOException {
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     TrainingImporter ti = new TrainingImporter(mudrod.getConfig(), mudrod.getES(), null);
-    ti.importTrainingSet("pathtoyourFolder");
+    ti.importTrainingSet("C:/mudrodCoreTestData/rankingResults/training/training_data_v2");
     mudrod.end();   
   }
 

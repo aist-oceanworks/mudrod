@@ -212,13 +212,21 @@ public class MudrodEngine {
   public static void main(String[] args) {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest with the WeblogDiscoveryEngine only");
+    
+    //preprocessing + processing
     Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
-    Option processingOpt = new Option("p", Processing, false, "begin processing with preprocessing results Mudrod workflow");
-
-    Option sessionReconOpt = new Option("s", Session_Recon, false, "begin session reconstruction Mudrod workflow");
+    //processing only, assuming that preprocessing results is in logDir
+    Option processingOpt = new Option("p", Processing, false, "begin processing with preprocessing results");
+    
+    //import raw web log into Elasticsearch
+    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest without any processing only");
+    //preprocessing web log, assuming web log has already been imported
+    Option sessionReconOpt = new Option("s", Session_Recon, false, "begin session reconstruction");
+    //calculate vocab similarity from session reconstrution results
     Option vocabSimFromOpt = new Option("v", Vocab_Sim_From_LOG, false, "begin similarity calulation from web log Mudrod workflow");
-    Option addMetaOntoOpt = new Option("a", Add_Meta_Onto, false, "begin adding metadata and ontology results Mudrod workflow");
+    //add metadata and ontology preprocessing and processing results into web log vocab similarity
+    Option addMetaOntoOpt = new Option("a", Add_Meta_Onto, false, "begin adding metadata and ontology results");
+    
     // argument options
     Option logDirOpt = Option.builder(LOG_DIR).required(true).numberOfArgs(1)
         .hasArg(true).desc("the log directory to be processed by Mudrod").argName(LOG_DIR).build();
