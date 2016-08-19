@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,6 +23,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
 import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
@@ -32,9 +34,6 @@ import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MudrodEngine {
 
@@ -71,8 +70,7 @@ public class MudrodEngine {
 
       for (int i = 0; i < paraList.size(); i++) {
         Element paraNode = paraList.get(i);
-        config.put(paraNode.getAttributeValue("name"),
-            paraNode.getTextTrim());
+        config.put(paraNode.getAttributeValue("name"), paraNode.getTextTrim());
       }
     } catch (JDOMException e) {
       e.printStackTrace();
@@ -83,24 +81,23 @@ public class MudrodEngine {
   }
 
   public void start() {
-    /*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es, spark);
-    wd.preprocess();
-    wd.process();
+    /*
+     * DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es,
+     * spark); wd.preprocess(); wd.process();
+     * 
+     * DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es,
+     * spark); od.preprocess(); od.process();
+     * 
+     * DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es,
+     * spark); md.preprocess(); md.process();
+     * 
+     * LinkageIntegration li = new LinkageIntegration(config, es, spark);
+     * li.execute();
+     */
 
-    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es, spark);
-    od.preprocess();
-    od.process();
-
-    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es, spark);
-    md.preprocess();
-    md.process();
-
-    LinkageIntegration li = new LinkageIntegration(config, es, spark);
-    li.execute();*/
-    
-	DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
-	//recom.preprocess();
-	recom.process();
+    DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
+    recom.preprocess();
+    recom.process();
   }
 
   public void startProcessing() {
@@ -123,10 +120,10 @@ public class MudrodEngine {
     WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
     wd.logIngest();
   }
-  
+
   public void startSessionReconstruction() {
-	WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
-	wd.sessionReconstruction();
+    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
+    wd.sessionReconstruction();
   }
 
   public void end() {
@@ -140,52 +137,53 @@ public class MudrodEngine {
     }
 
     String processingType = args[0];
-    String dataDir = args[1].replace("\\", "/");;
-    if(!dataDir.endsWith("/")){
+    String dataDir = args[1].replace("\\", "/");
+    ;
+    if (!dataDir.endsWith("/")) {
       dataDir += "/";
     }
 
     MudrodEngine me = new MudrodEngine();
     me.config.put("logDir", dataDir);
 
-    if(processingType.equals("LogIngest"))
-    {
-      me.startLogIngest();    
-    }
-    
-    if(processingType.equals("SessionBuild"))
-    {
-      me.startSessionReconstruction();    
+    if (processingType.equals("LogIngest")) {
+      me.startLogIngest();
     }
 
-    if(processingType.equals("All")||processingType.equals("Processing"))
-    {
+    if (processingType.equals("SessionBuild")) {
+      me.startSessionReconstruction();
+    }
+
+    if (processingType.equals("All") || processingType.equals("Processing")) {
       me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
       me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
 
       me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
       me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
       me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
-      me.config.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
+      me.config.put("metadataOBCodeMatrix",
+          dataDir + "MetadataOBCodeMatrix.csv");
       me.config.put("metadataOBCode", dataDir + "MetadataOBCode");
-      
-      me.config.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
-      me.config.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+
+      me.config.put("clickstreamSVDMatrix_tmp",
+          dataDir + "clickstreamSVDMatrix_tmp.csv");
+      me.config.put("metadataSVDMatrix_tmp",
+          dataDir + "metadataSVDMatrix_tmp.csv");
 
       me.config.put("raw_metadataPath", dataDir + "RawMetadata");
       me.config.put("user_item_rate", dataDir + "user_item_rate");
       me.config.put("user_item_rate_pre", dataDir + "user_item_rate_pre");
       me.config.put("mb_predictionMatrix", dataDir + "MBPredictionMatrix.csv");
-      
-      me.config.put("user_based_item_optMatrix", dataDir + "User_based_item_optMatrix.csv");
 
-      if(processingType.equals("All"))
-        me.start(); 
+      me.config.put("user_based_item_optMatrix",
+          dataDir + "User_based_item_optMatrix.csv");
 
-      if(processingType.equals("Processing"))
-        me.startProcessing(); 
+      if (processingType.equals("All"))
+        me.start();
+
+      if (processingType.equals("Processing"))
+        me.startProcessing();
     }
-
 
     me.end();
   }
