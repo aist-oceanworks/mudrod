@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -18,13 +18,9 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
-import org.apache.spark.mllib.linalg.Vector;
-import org.apache.spark.mllib.linalg.Vectors;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -36,140 +32,199 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortOrder;
+
 import esiptestbed.mudrod.driver.ESDriver;
 
+/**
+ * ClassName: LinkageTriple Function: Vocabulary linkage operations Date: Aug
+ * 12, 2016 11:20:45 AM
+ *
+ * @author Yun
+ */
 public class LinkageTriple implements Serializable {
 
-	public long keyAId;
-	public long keyBId;
-	public double weight;
-	public String keyA;
-	public String keyB;
-	public static DecimalFormat df = new DecimalFormat("#.00");
+  // keyAId: ID of term A
+  public long keyAId;
+  // keyBId: ID of term B
+  public long keyBId;
+  // weight: The relationship between term A and Term B
+  public double weight;
+  // keyA: TermA
+  public String keyA;
+  // keyB: TermB
+  public String keyB;
+  // df: Format number
+  public static DecimalFormat df = new DecimalFormat("#.00");
 
-	public LinkageTriple() {
-		// TODO Auto-generated constructor stub
-	}
+  public LinkageTriple() {
+    // TODO Auto-generated constructor stub
+  }
 
-	public String toString() {
-		return keyA + "," + keyB + ":" + weight;
-	}
+  /**
+   * TODO Output linkage triples in string format.
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return keyA + "," + keyB + ":" + weight;
+  }
 
-	public static void insertTriples(ESDriver es, List<LinkageTriple> triples, String index, String type)
-			throws IOException {
-		/*
-		 * es.deleteType(index, type); es.createBulkProcesser(); int size =
-		 * triples.size(); for (int i = 0; i < size; i++) { IndexRequest ir =
-		 * new IndexRequest(index, type).source(
-		 * jsonBuilder().startObject().field("keywords", triples.get(i).keyA +
-		 * "," + triples.get(i).keyB) .field("weight",
-		 * Double.parseDouble(df.format(triples.get(i).weight))).endObject());
-		 * es.bulkProcessor.add(ir); } es.destroyBulkProcessor();
-		 */
+  public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
+      String index, String type) throws IOException {
+    /*
+     * es.deleteType(index, type); es.createBulkProcesser(); int size =
+     * triples.size(); for (int i = 0; i < size; i++) { IndexRequest ir =
+     * new IndexRequest(index, type).source(
+     * jsonBuilder().startObject().field("keywords", triples.get(i).keyA +
+     * "," + triples.get(i).keyB) .field("weight",
+     * Double.parseDouble(df.format(triples.get(i).weight))).endObject());
+     * es.bulkProcessor.add(ir); } es.destroyBulkProcessor();
+     */
 
-		LinkageTriple.insertTriples(es, triples, index, type, false);
-	}
+    LinkageTriple.insertTriples(es, triples, index, type, false, false);
+  }
 
-	public static void insertTriples(ESDriver es, List<LinkageTriple> triples, String index, String type,
-			Boolean bTriple) throws IOException {
-		es.deleteType(index, type);
-		if (bTriple) {
-			LinkageTriple.addMapping(es, index, type);
-		}
+  /**
+   * insertTriples: Insert linkage triples into Elasticsearch.
+   *
+   * @param es
+   *          an Elasticsearch client node instance
+   * @param triples
+   *          linkage triple list
+   * @param index
+   *          index name
+   * @param type
+   *          triple type name
+   */
+  public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
+      String index, String type, Boolean bTriple, boolean bSymmetry)
+      throws IOException {
+    es.deleteType(index, type);
+    if (bTriple) {
+      LinkageTriple.addMapping(es, index, type);
+    }
 
-		es.createBulkProcesser();
-		int size = triples.size();
-		for (int i = 0; i < size; i++) {
+    es.createBulkProcesser();
+    int size = triples.size();
+    for (int i = 0; i < size; i++) {
 
-			XContentBuilder jsonBuilder = jsonBuilder().startObject();
-			if (bTriple) {
-				jsonBuilder.field("concept_A", triples.get(i).keyA);
-				jsonBuilder.field("concept_B", triples.get(i).keyB);
-			} else {
-				jsonBuilder.field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB);
-			}
+      XContentBuilder jsonBuilder = jsonBuilder().startObject();
+      if (bTriple) {
 
-			jsonBuilder.field("weight", Double.parseDouble(df.format(triples.get(i).weight)));
+        jsonBuilder.field("concept_A", triples.get(i).keyA);
+        jsonBuilder.field("concept_B", triples.get(i).keyB);
 
-			IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
-			es.bulkProcessor.add(ir);
-		}
-		es.destroyBulkProcessor();
-	}
+      } else {
+        jsonBuilder.field("keywords",
+            triples.get(i).keyA + "," + triples.get(i).keyB);
+      }
 
-	public static void addMapping(ESDriver es, String index, String type) {
-		XContentBuilder Mapping;
-		try {
-			Mapping = jsonBuilder().startObject().startObject(type).startObject("properties").startObject("concept_A")
-					.field("type", "string").field("index", "not_analyzed").endObject().startObject("concept_B")
-					.field("type", "string").field("index", "not_analyzed").endObject()
+      jsonBuilder.field("weight",
+          Double.parseDouble(df.format(triples.get(i).weight)));
 
-					.endObject().endObject().endObject();
+      IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
+      es.bulkProcessor.add(ir);
 
-			es.client.admin().indices().preparePutMapping(index).setType(type).setSource(Mapping).execute().actionGet();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+      if (bTriple && bSymmetry) {
+        XContentBuilder symmetryJsonBuilder = jsonBuilder().startObject();
+        symmetryJsonBuilder.field("concept_A", triples.get(i).keyB);
+        symmetryJsonBuilder.field("concept_B", triples.get(i).keyA);
 
-	public static void standardTriples(ESDriver es, String index, String type) throws IOException {
-		es.createBulkProcesser();
+        symmetryJsonBuilder.field("weight",
+            Double.parseDouble(df.format(triples.get(i).weight)));
 
-		SearchResponse sr = es.client.prepareSearch(index).setTypes(type).setQuery(QueryBuilders.matchAllQuery())
-				.setSize(0).addAggregation(AggregationBuilders.terms("concepts").field("concept_A").size(0)).execute()
-				.actionGet();
-		Terms concepts = sr.getAggregations().get("concepts");
+        IndexRequest symmetryir = new IndexRequest(index, type)
+            .source(symmetryJsonBuilder);
+        es.bulkProcessor.add(symmetryir);
+      }
+    }
+    es.destroyBulkProcessor();
+  }
 
-		for (Terms.Bucket entry : concepts.getBuckets()) {
-			String concept = entry.getKey();
-			double maxSim = LinkageTriple.getMaxSimilarity(es, index, type, concept);
-			if (maxSim == 1.0) {
-				continue;
-			}
+  public static void addMapping(ESDriver es, String index, String type) {
+    XContentBuilder Mapping;
+    try {
+      Mapping = jsonBuilder().startObject().startObject(type)
+          .startObject("properties").startObject("concept_A")
+          .field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("concept_B").field("type", "string")
+          .field("index", "not_analyzed").endObject()
 
-			SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type).setScroll(new TimeValue(60000))
-					.setQuery(QueryBuilders.termQuery("concept_A", concept)).addSort("weight", SortOrder.DESC)
-					.setSize(100).execute().actionGet();
+          .endObject().endObject().endObject();
 
-			while (true) {
-				for (SearchHit hit : scrollResp.getHits().getHits()) {
-					Map<String, Object> metadata = hit.getSource();
-					double sim = (double) metadata.get("weight");
-					double newSim = sim / maxSim;
-					UpdateRequest ur = es.genUpdateRequest(index, type, hit.getId(), "weight", Double.parseDouble(df.format(newSim)));
-					es.bulkProcessor.add(ur);
-				}
+      es.client.admin().indices().preparePutMapping(index).setType(type)
+          .setSource(Mapping).execute().actionGet();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
 
-				scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))
-						.execute().actionGet();
-				if (scrollResp.getHits().getHits().length == 0) {
-					break;
-				}
-			}
-		}
+  public static void standardTriples(ESDriver es, String index, String type)
+      throws IOException {
+    es.createBulkProcesser();
 
-		es.destroyBulkProcessor();
-	}
+    SearchResponse sr = es.client.prepareSearch(index).setTypes(type)
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(
+            AggregationBuilders.terms("concepts").field("concept_A").size(0))
+        .execute().actionGet();
+    Terms concepts = sr.getAggregations().get("concepts");
 
-	private static double getMaxSimilarity(ESDriver es, String index, String type, String concept) {
+    for (Terms.Bucket entry : concepts.getBuckets()) {
+      String concept = entry.getKey();
+      double maxSim = LinkageTriple.getMaxSimilarity(es, index, type, concept);
+      if (maxSim == 1.0) {
+        continue;
+      }
 
-		double maxSim = 1.0;
-		SearchRequestBuilder builder = es.client.prepareSearch(index).setTypes(type)
-				.setQuery(QueryBuilders.termQuery("concept_A", concept)).addSort("weight", SortOrder.DESC).setSize(1);
+      SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type)
+          .setScroll(new TimeValue(60000))
+          .setQuery(QueryBuilders.termQuery("concept_A", concept))
+          .addSort("weight", SortOrder.DESC).setSize(100).execute().actionGet();
 
-		SearchResponse usrhis = builder.execute().actionGet();
-		SearchHit[] hits = usrhis.getHits().getHits();
-		if (hits.length == 1) {
-			SearchHit hit = hits[0];
-			Map<String, Object> result = hit.getSource();
-			maxSim = (double) result.get("weight");
-		}
-		
-		if(maxSim == 0.0){
-			maxSim = 1.0;
-		}
+      while (true) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> metadata = hit.getSource();
+          double sim = (double) metadata.get("weight");
+          double newSim = sim / maxSim;
+          UpdateRequest ur = es.genUpdateRequest(index, type, hit.getId(),
+              "weight", Double.parseDouble(df.format(newSim)));
+          es.bulkProcessor.add(ur);
+        }
 
-		return maxSim;
-	}
+        scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+      }
+    }
+
+    es.destroyBulkProcessor();
+  }
+
+  private static double getMaxSimilarity(ESDriver es, String index, String type,
+      String concept) {
+
+    double maxSim = 1.0;
+    SearchRequestBuilder builder = es.client.prepareSearch(index).setTypes(type)
+        .setQuery(QueryBuilders.termQuery("concept_A", concept))
+        .addSort("weight", SortOrder.DESC).setSize(1);
+
+    SearchResponse usrhis = builder.execute().actionGet();
+    SearchHit[] hits = usrhis.getHits().getHits();
+    if (hits.length == 1) {
+      SearchHit hit = hits[0];
+      Map<String, Object> result = hit.getSource();
+      maxSim = (double) result.get("weight");
+    }
+
+    if (maxSim == 0.0) {
+      maxSim = 1.0;
+    }
+
+    return maxSim;
+  }
 }

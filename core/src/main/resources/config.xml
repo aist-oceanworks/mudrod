@@ -68,5 +68,7 @@
   <para name="metadataCodeSimType">MetadataCodeSim</para>
   <para name="metadataModelBasedSimType">MetadataMBSim</para>
   <para name="metadataItemBasedSimType">MetadataIBSim</para>
+  <para name="metadataSessionBasedSimType">MetadataSBSim</para>
+<para name="metadataTopicSimType">MetadataTBSim</para>
 
 </Config>

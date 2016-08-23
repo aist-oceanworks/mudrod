@@ -13,12 +13,23 @@
  */
 package esiptestbed.mudrod.recommendation.pre;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
@@ -39,6 +50,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
   private static final Logger LOG = LoggerFactory
       .getLogger(TranformMetadata.class);
 
+  private String indexName;
   private List<String> CategoricalVars;
   private Map<String, Map<String, String>> CategoricalVarValueFacets;
 
@@ -49,6 +61,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
       SparkDriver spark) {
     super(config, es, spark);
 
+    indexName = config.get("indexName");
     metadataType = config.get("recom_metadataType");
     CategoricalVarValueFacets = new HashMap<String, Map<String, String>>();
     CategoricalVars = new ArrayList<String>();
@@ -58,13 +71,27 @@ public class TranformMetadata extends DiscoveryStepAbstract {
     CategoricalVars.add("DatasetCoverage-SouthLat");
     CategoricalVars.add("DatasetCoverage-WestLon");
     CategoricalVars.add("DatasetCoverage-EastLon");
+
   }
 
   @Override
   public Object execute() {
     // TODO Auto-generated method stub
-    this.TransformVars();
-    this.TranformAllMetadata();
+    LOG.info(
+        "*****************Mapping metadata variable value starts******************");
+
+    startTime = System.currentTimeMillis();
+    // this.TransformVars();
+    // this.TranformAllMetadata();
+
+    this.TermExtractorAllMetadata(es);
+
+    endTime = System.currentTimeMillis();
+    es.refreshIndex();
+
+    LOG.info(
+        "*****************Mapping metadata variable value ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 
@@ -175,7 +202,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
     for (int i = 0; i < CategoryNum; i++) {
       String var = CategoricalVars.get(i);
       Map<String, String> valueVecs = this.TranformVar(var);
-      System.out.println(var + " ： " + valueVecs.toString());
+      // System.out.println(var + " ： " + valueVecs.toString());
       CategoricalVarValueFacets.put(var, valueVecs);
     }
   }
@@ -211,7 +238,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
       for (int i = 0; i < size; i++) {
         valueGroup.put(values.get(i), values.get(i).substring(0, 1));
       }
-      System.out.println(valueGroup);
+      // System.out.println(valueGroup);
       break;
     case "DatasetCoverage-NorthLat":
     case "DatasetCoverage-SouthLat":
@@ -241,4 +268,284 @@ public class TranformMetadata extends DiscoveryStepAbstract {
 
     return valueGroup;
   }
+
+  public void TermExtractorAllMetadata(ESDriver es) {
+
+    es.createBulkProcesser();
+
+    /* SearchResponse scrollResp = es.client.prepareSearch(indexName)
+        .setTypes(metadataType).setScroll(new TimeValue(60000))
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+        .actionGet();
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        Map<String, Object> metadata = hit.getSource();
+        Map<String, Object> extractedTermMap = new HashMap<String, Object>();
+        try {
+
+          String dataset = (String) metadata.get("Dataset-ShortName");
+          String dataAbstract = (String) metadata.get("Dataset-Description");
+          String longname = (String) metadata.get("Dataset-LongName");
+
+          if (metadata.containsKey("extractedTerms")) {
+
+            String extractedTerm = (String) metadata.get("extractedTerms");
+            if (!extractedTerm.equals("")) {
+              continue;
+            }
+
+          }
+
+          String oriShorname = dataset.replaceAll("-", " ").replaceAll("_",
+              " ");
+          dataAbstract = es.customAnalyzing(indexName, dataAbstract);
+          dataAbstract = dataAbstract.replaceAll("\"", "");
+          String oriTxt = longname + " " + dataAbstract + " " + oriShorname;
+          String extractedTerm = termExtractor(dataset, oriTxt);
+          extractedTermMap.put("extractedTerms", extractedTerm);
+          UpdateRequest ur = es.genUpdateRequest(indexName, metadataType,
+              hit.getId(), extractedTermMap);
+          es.bulkProcessor.add(ur);
+        } catch (Exception e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
+      }
+
+      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
+    }*/
+
+    SearchResponse scrollResp = es.client.prepareSearch(indexName)
+        .setTypes(metadataType).setScroll(new TimeValue(60000))
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(200).execute()
+        .actionGet();
+
+    for (SearchHit hit : scrollResp.getHits().getHits()) {
+      Map<String, Object> metadata = hit.getSource();
+      Map<String, Object> extractedTermMap = new HashMap<String, Object>();
+      try {
+
+        String dataset = (String) metadata.get("Dataset-ShortName");
+        String dataAbstract = (String) metadata.get("Dataset-Description");
+        String longname = (String) metadata.get("Dataset-LongName");
+
+        if (metadata.containsKey("extractedTerms")) {
+
+          String extractedTerms = (String) metadata.get("extractedTerms");
+
+          // System.out.println(extractedTerms);
+          if (!extractedTerms.equals("")) {
+            continue;
+          }
+        }
+
+        String oriShorname = dataset.replaceAll("-", " ").replaceAll("_", " ");
+        dataAbstract = es.customAnalyzing(indexName, dataAbstract);
+        dataAbstract = dataAbstract.replaceAll("\"", "");
+        String oriTxt = longname + " " + dataAbstract + " " + oriShorname;
+        String extractedTerm = termExtractor(dataset, oriTxt);
+
+        System.out.println(dataset);
+        System.out.println(extractedTerm);
+
+        extractedTermMap.put("extractedTerms", extractedTerm);
+        UpdateRequest ur = es.genUpdateRequest(indexName, metadataType,
+            hit.getId(), extractedTermMap);
+
+        es.bulkProcessor.add(ur);
+      } catch (Exception e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+
+    }
+
+    /*SearchResponse sr = es.client.prepareSearch(indexName)
+        .setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery())
+        .setSize(0).addAggregation(AggregationBuilders.terms("Values")
+            .field("DatasetParameter-Term").size(0))
+        .execute().actionGet();
+    Terms dataterms = sr.getAggregations().get("Values");
+    
+    int sessionCount = 0;
+    for (Terms.Bucket entry : dataterms.getBuckets()) {
+    
+      FilterBuilder filter_search = FilterBuilders.boolFilter().must(
+          FilterBuilders.termFilter("DatasetParameter-Term", entry.getKey()));
+      QueryBuilder query_search = QueryBuilders
+          .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
+    
+      SearchResponse scrollResp = es.client
+          .prepareSearch(config.get("indexName")).setTypes(this.metadataType)
+          .setScroll(new TimeValue(60000)).setQuery(query_search).setSize(100)
+          .execute().actionGet();
+    
+      List<String> abstracts = new ArrayList<String>();
+      String abstractStr = "";
+      while (true) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> metadata = hit.getSource();
+          Map<String, Object> extractedTermMap = new HashMap<String, Object>();
+          try {
+    
+            String dataset = (String) metadata.get("Dataset-ShortName");
+            String dataAbstract = (String) metadata.get("Dataset-Description");
+            String longname = (String) metadata.get("Dataset-LongName");
+    
+            String oriShorname = dataset.replaceAll("-", " ").replaceAll("_",
+                " ");
+            dataAbstract = es.customAnalyzing(indexName, dataAbstract);
+            dataAbstract = dataAbstract.replaceAll("\"", "");
+            String oriTxt = longname + " " + dataAbstract + " " + oriShorname;
+    
+            abstractStr += oriTxt + " ";
+            abstracts.add(oriTxt);
+          } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
+        }
+    
+        scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+    
+      }
+    
+      // String terms = this.termExtractor("test", abstractStr);
+      System.out.println(abstractStr);
+    }*/
+
+    /* SearchResponse scrollResp = es.client.prepareSearch(indexName)
+        .setTypes(metadataType).setScroll(new TimeValue(60000))
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+        .actionGet();
+
+    String abstractStr = "";
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        Map<String, Object> metadata = hit.getSource();
+        Map<String, Object> extractedTermMap = new HashMap<String, Object>();
+        try {
+
+          String dataset = (String) metadata.get("Dataset-ShortName");
+          String dataAbstract = (String) metadata.get("Dataset-Description");
+          String longname = (String) metadata.get("Dataset-LongName");
+
+          String oriShorname = dataset.replaceAll("-", " ").replaceAll("_",
+              " ");
+          dataAbstract = es.customAnalyzing(indexName, dataAbstract);
+          dataAbstract = dataAbstract.replaceAll("\"", "");
+          String oriTxt = longname + " " + dataAbstract + " " + oriShorname;
+          abstractStr += oriTxt + " ";
+          System.out.println(abstractStr);
+        } catch (Exception e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
+      }
+
+      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
+    }
+    System.out.println("test");
+    System.out.println(abstractStr);*/
+    // es.destroyBulkProcessor();
+  }
+
+  public String termExtractor(String dataset, String dataAbstract) {
+    HttpClient httpclient = HttpClients.createDefault();
+    String terms = "";
+    try {
+
+      URIBuilder builder = new URIBuilder(
+          "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases");
+
+      URI uri = builder.build();
+      HttpPost request = new HttpPost(uri);
+      request.setHeader("Content-Type", "application/json");
+      request.setHeader("Ocp-Apim-Subscription-Key",
+          "d596e61cc18441699430bff400ea12b0");
+
+      // Request body
+      String requestPara = "{\"documents\": [{\"language\": \"en\", \"id\": \""
+          + dataset + "\",\"text\":\"" + dataAbstract + "\"}]}";
+
+      // System.out.println(requestPara);
+      StringEntity reqEntity = new StringEntity(requestPara);
+      request.setEntity(reqEntity);
+
+      HttpResponse response = httpclient.execute(request);
+      HttpEntity entity = response.getEntity();
+
+      if (entity != null) {
+        String result = EntityUtils.toString(entity);
+        System.out.println(result);
+        JSONObject jsonObj = new JSONObject(result);
+        JSONArray docs = jsonObj.getJSONArray("documents");
+        JSONObject keyPhrases = (JSONObject) docs.get(0);
+        JSONArray termArr = keyPhrases.getJSONArray("keyPhrases");
+        terms = termArr.toString();
+        terms = terms.substring(1, terms.length() - 1).replace("\"", "");
+        // System.out.println(terms);
+      }
+
+    } catch (Exception e) {
+      System.out.println(dataset + ":" + e.getMessage());
+    }
+
+    return terms;
+  }
+
+  public void RemoveTermExtractor(ESDriver es) {
+
+    es.createBulkProcesser();
+
+    SearchResponse scrollResp = es.client.prepareSearch(indexName)
+        .setTypes(metadataType).setScroll(new TimeValue(60000))
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+        .actionGet();
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        Map<String, Object> metadata = hit.getSource();
+        Map<String, Object> extractedTermMap = new HashMap<String, Object>();
+        try {
+
+          String dataset = (String) metadata.get("Dataset-ShortName");
+          String dataAbstract = (String) metadata.get("Dataset-Description");
+          String longname = (String) metadata.get("Dataset-LongName");
+
+          if (metadata.containsKey("extractedTerms")) {
+
+            extractedTermMap.put("extractedTerms", "");
+            UpdateRequest ur = es.genUpdateRequest(indexName, metadataType,
+                hit.getId(), extractedTermMap);
+            es.bulkProcessor.add(ur);
+          }
+
+        } catch (Exception e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        }
+      }
+
+      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
+    }
+
+    es.destroyBulkProcessor();
+  }
+
 }

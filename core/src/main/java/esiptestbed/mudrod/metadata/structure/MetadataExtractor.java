@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -13,14 +13,11 @@
  */
 package esiptestbed.mudrod.metadata.structure;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -35,22 +32,56 @@ import org.elasticsearch.search.SearchHit;
 import esiptestbed.mudrod.driver.ESDriver;
 import scala.Tuple2;
 
+/**
+ * ClassName: MetadataExtractor Function: TODO ADD FUNCTION. Reason: TODO ADD
+ * REASON(可选). Date: Aug 12, 2016 10:40:59 AM
+ *
+ * @author Yun
+ *
+ */
 public class MetadataExtractor implements Serializable {
 
   public MetadataExtractor() {
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * loadMetadata:Load all metadata from Elasticsearch and convert them to
+   * pairRDD Please make sure metadata has been already harvested from web
+   * service and stored in Elasticsearch.
+   *
+   * @param es
+   *          an Elasticsearch client node instance
+   * @param sc
+   *          spark context
+   * @param index
+   *          index name of log processing application
+   * @param type
+   *          metadata type name
+   * @return PairRDD, in each pair key is metadata short name and value is term
+   *         list extracted from metadata variables.
+   */
   public JavaPairRDD<String, List<String>> loadMetadata(ESDriver es,
-      JavaSparkContext sc, String index, String type) throws Exception {
+      JavaSparkContext sc, String index, String type) {
     List<PODAACMetadata> metadatas = this.loadMetadataFromES(es, index, type);
     JavaPairRDD<String, List<String>> metadataTermsRDD = this
         .buildMetadataRDD(es, sc, index, metadatas);
     return metadataTermsRDD;
   }
 
+  /**
+   * loadMetadataFromES: Load all metadata from Elasticsearch.
+   *
+   * @param es
+   *          an Elasticsearch client node instance
+   * @param index
+   *          index name of log processing application
+   * @param type
+   *          metadata type name
+   * @return metadata list
+   */
   protected List<PODAACMetadata> loadMetadataFromES(ESDriver es, String index,
-      String type) throws Exception {
+      String type) {
 
     List<PODAACMetadata> metadatas = new ArrayList<PODAACMetadata>();
     SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type)
@@ -69,17 +100,19 @@ public class MetadataExtractor implements Serializable {
             .get("DatasetParameter-Variable");
         List<String> longname = (List<String>) result
             .get("DatasetProject-Project-LongName");
-        PODAACMetadata metadata = new PODAACMetadata(shortname, longname,
-            es.customAnalyzing(index, topic), es.customAnalyzing(index, term),
-            es.customAnalyzing(index, variable),
-            es.customAnalyzing(index, keyword));
-        metadatas.add(metadata);
+        PODAACMetadata metadata = null;
+        try {
+          metadata = new PODAACMetadata(shortname, longname,
+              es.customAnalyzing(index, topic), es.customAnalyzing(index, term),
+              es.customAnalyzing(index, variable),
+              es.customAnalyzing(index, keyword));
+        } catch (InterruptedException | ExecutionException e) {
 
-        /*
-         * Please look at these fields! "Dataset-Metadata", "Dataset-ShortName",
-         * "Dataset-LongName", "Dataset-Description", "DatasetParameter-*",
-         * "DatasetSource-*"
-         */
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+
+        }
+        metadatas.add(metadata);
       }
       scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
@@ -91,11 +124,26 @@ public class MetadataExtractor implements Serializable {
     return metadatas;
   }
 
+  /**
+   * buildMetadataRDD: Convert metadata list to JavaPairRDD
+   *
+   * @param es
+   *          an Elasticsearch client node instance
+   * @param sc
+   *          spark context
+   * @param index
+   *          index name of log processing application
+   * @param metadatas
+   *          metadata list
+   * @return PairRDD, in each pair key is metadata short name and value is term
+   *         list extracted from metadata variables.
+   */
   protected JavaPairRDD<String, List<String>> buildMetadataRDD(ESDriver es,
       JavaSparkContext sc, String index, List<PODAACMetadata> metadatas) {
     JavaRDD<PODAACMetadata> metadataRDD = sc.parallelize(metadatas);
     JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD
         .mapToPair(new PairFunction<PODAACMetadata, String, List<String>>() {
+          @Override
           public Tuple2<String, List<String>> call(PODAACMetadata metadata)
               throws Exception {
             return new Tuple2<String, List<String>>(metadata.getShortName(),
@@ -103,6 +151,7 @@ public class MetadataExtractor implements Serializable {
           }
         })
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
+          @Override
           public List<String> call(List<String> v1, List<String> v2)
               throws Exception {
             // TODO Auto-generated method stub

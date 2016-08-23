@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,20 +14,37 @@
 package esiptestbed.mudrod.utils;
 
 import java.util.List;
+
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 
+/**
+ * ClassName: RDDUtil Function: Mudrod Spark RDD common methods Date: Aug 12,
+ * 2016 11:40:43 AM
+ *
+ * @author Yun
+ * 
+ */
 public class RDDUtil {
 
   public RDDUtil() {
     // TODO Auto-generated constructor stub
   }
 
+  /**
+   * getAllWordsInDoc: Extracted all unique terms from all docs.
+   *
+   * @param docwordRDD
+   *          Pair RDD, each key is a doc, and value is term list extracted from
+   *          that doc.
+   * @return unique term list
+   */
   public static JavaRDD<String> getAllWordsInDoc(
       JavaPairRDD<String, List<String>> docwordRDD) {
     JavaRDD<String> wordRDD = docwordRDD.values()
         .flatMap(new FlatMapFunction<List<String>, String>() {
+          @Override
           public Iterable<String> call(List<String> list) {
             return list;
           }

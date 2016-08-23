@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -13,20 +13,28 @@
  */
 package esiptestbed.mudrod.weblog.structure;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import esiptestbed.mudrod.utils.HttpRequest;
 
+/**
+ * ClassName: GeoIp Function: convert IP to geo location Date: Aug 15, 2016
+ * 1:28:52 PM
+ *
+ * @author Yun
+ * 
+ */
 public class GeoIp {
 
+  /**
+   * toLocation: convert ip to location
+   * 
+   * @param ip
+   *          ip address
+   * @return coordinates
+   */
   public Coordinates toLocation(String ip) {
     String url = "http://getcitydetails.geobytes.com/GetCityDetails?fqcn=" + ip;
     HttpRequest http = new HttpRequest();

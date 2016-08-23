@@ -46,7 +46,7 @@ public class OHEncoder {
     CategoricalVarValueVecs = new HashMap<String, Map<String, Vector>>();
     CategoricalVarWeights = new HashMap<String, Double>();
 
-    CategoricalVarWeights.put("DatasetParameter-Topic", 4.0);
+    /*CategoricalVarWeights.put("DatasetParameter-Topic", 4.0);
     CategoricalVarWeights.put("DatasetParameter-Term", 5.0);
     CategoricalVarWeights.put("DatasetParameter-Category", 4.0);
     CategoricalVarWeights.put("DatasetParameter-Variable", 5.0);
@@ -76,6 +76,46 @@ public class OHEncoder {
     CategoricalVarWeights.put("Dataset-DatasetCoverage-TimeSpan", 4.0);
     CategoricalVarWeights.put("DatasetPolicy-DataLatency", 3.0);
     CategoricalVarWeights.put("DatasetPolicy-DataFrequency", 1.0);
+    CategoricalVarWeights.put("DatasetPolicy-DataDuration", 1.0);
+    CategoricalVarWeights.put("DatasetPolicy-DataFormat", 4.0);
+    CategoricalVarWeights.put("DatasetPolicy-Availability", 4.0);
+    CategoricalVarWeights.put("Collection-ShortName", 3.0);
+    CategoricalVarWeights.put("Dataset-Provider-ShortName", 1.0);*/
+
+    CategoricalVarWeights.put("DatasetParameter-Topic", 3.0);
+    CategoricalVarWeights.put("DatasetParameter-Term", 4.0);
+    CategoricalVarWeights.put("DatasetParameter-Category", 5.0);
+    CategoricalVarWeights.put("DatasetParameter-Variable", 5.0);
+    CategoricalVarWeights.put("Dataset-ProcessingLevel_facet", 5.0);
+    CategoricalVarWeights.put("DatasetSource-Source-Type", 4.0);
+    CategoricalVarWeights.put("DatasetSource-Source-ShortName", 4.0);
+    CategoricalVarWeights.put("DatasetSource-Sensor-ShortName", 5.0);
+    CategoricalVarWeights.put("DatasetSource-Sensor-SwathWidth", 3.0);
+
+    CategoricalVarWeights.put("DatasetRegion-Region", 4.0);
+    CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
+    CategoricalVarWeights.put("DatasetCoverage-NorthLat_facet", 3.0);
+    CategoricalVarWeights.put("DatasetCoverage-SouthLat_facet", 3.0);
+    CategoricalVarWeights.put("DatasetCoverage-WestLon_facet", 3.0);
+    CategoricalVarWeights.put("DatasetCoverage-EastLon_facet", 3.0);
+    CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
+    CategoricalVarWeights.put("Dataset-HorizontalResolutionRange", 1.0);
+    CategoricalVarWeights.put("Dataset-LatitudeResolution", 4.0);
+    CategoricalVarWeights.put("Dataset-LongitudeResolution", 4.0);
+    CategoricalVarWeights.put("Dataset-SwathWidth", 4.0);
+
+    CategoricalVarWeights.put("Dataset-SatelliteSpatialResolution", 3.0);
+    CategoricalVarWeights.put("Dataset-AcrossTrackResolution", 4.0);
+    CategoricalVarWeights.put("Dataset-AlongTrackResolution", 4.0);
+    CategoricalVarWeights.put("Dataset-TemporalRepeat", 3.0);
+    CategoricalVarWeights.put("Dataset-TemporalResolution-Group", 2.0);
+    CategoricalVarWeights.put("Dataset-TemporalRepeatMin", 2.0);
+    CategoricalVarWeights.put("Dataset-TemporalResolutionRange", 2.0);
+    CategoricalVarWeights.put("Dataset-TemporalResolution", 3.0);
+    CategoricalVarWeights.put("Dataset-TemporalRepeatMax", 2.0);
+    CategoricalVarWeights.put("Dataset-DatasetCoverage-TimeSpan", 4.0);
+    CategoricalVarWeights.put("DatasetPolicy-DataLatency", 3.0);
+    CategoricalVarWeights.put("DatasetPolicy-DataFrequency", 3.0);
     CategoricalVarWeights.put("DatasetPolicy-DataDuration", 1.0);
     CategoricalVarWeights.put("DatasetPolicy-DataFormat", 4.0);
     CategoricalVarWeights.put("DatasetPolicy-Availability", 4.0);
@@ -159,7 +199,7 @@ public class OHEncoder {
       double[] codeArr = vec.toArray();
       /*
        * double[] codeArr = codeArr1; // test
-       * 
+       *
        * for (int k = 0; k < codeArr1.length; k++) { codeArr[k] = codeArr[k] *
        * CategoricalVarWeights.get(var); }
        */

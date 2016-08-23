@@ -65,19 +65,23 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     String type = config.get("metadataCodeSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
 
-    type = config.get("metadataItemBasedSimType");
+    type = config.get("metadataTopicSimType");
+    // type = config.get("metadataSessionBasedSimType");
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
+
+    type = config.get("metadataSessionBasedSimType");
+    Map<String, Double> sortedSBSimMap = getRelatedData(type, input, num + 5);
 
     Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
 
     /*
      * for (String name : sortedOBSimMap.keySet()) { hybirdSimMap.put(name,
      * sortedOBSimMap.get(name) * 0.5); }
-     * 
+     *
      * for (String name : sortedMBSimMap.keySet()) { if (hybirdSimMap.get(name)
      * != null) { double sim = hybirdSimMap.get(name) + 0.5 *
      * sortedMBSimMap.get(name);
-     * 
+     *
      * hybirdSimMap.put(name, Double.parseDouble(df.format(sim))); } else {
      * double sim = sortedMBSimMap.get(name) * 0.5; hybirdSimMap.put(name,
      * Double.parseDouble(df.format(sim))); } }
@@ -93,6 +97,16 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
         double sim = sortedMBSimMap.get(name);
+        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
+      }
+    }
+
+    for (String name : sortedSBSimMap.keySet()) {
+      if (hybirdSimMap.get(name) != null) {
+        double sim = hybirdSimMap.get(name) + sortedSBSimMap.get(name);
+        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
+      } else {
+        double sim = sortedSBSimMap.get(name);
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       }
     }

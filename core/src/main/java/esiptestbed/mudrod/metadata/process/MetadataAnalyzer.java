@@ -26,14 +26,35 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializable {
+/**
+ * ClassName: MetadataAnalyzer 
+ * Function: Calculate semantic relationship of vocabularies extracted from
+ * metadata. 
+ * Date: Aug 12, 2016 10:31:27 AM 
+ *
+ * @author Yun
+
+ */
+public class MetadataAnalyzer extends DiscoveryStepAbstract
+    implements Serializable {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MetadataAnalyzer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MetadataAnalyzer.class);
 
+  /**
+   * Creates a new instance of MetadataAnalyzer.
+   * 
+   * @param config
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
   public MetadataAnalyzer(Map<String, String> config, ESDriver es,
       SparkDriver spark) {
     super(config, es, spark);
@@ -44,6 +65,12 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
     return null;
   }
 
+  /**
+   * Calculate semantic relationship of vocabularies from a csv file which is a
+   * term-metadata matrix.
+   * 
+   * @see esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract#execute()
+   */
   @Override
   public Object execute() {
     try {
@@ -69,7 +96,9 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Metadata Analyzer ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info(
+        "*****************Metadata Analyzer ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 }
