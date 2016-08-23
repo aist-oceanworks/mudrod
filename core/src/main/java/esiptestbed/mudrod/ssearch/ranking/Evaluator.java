@@ -49,7 +49,16 @@ public class Evaluator {
    * @param K the number of elements needed to be included in the calculation
    * @return precision at K
    */
-  private double getPosPrecision(int[] list, int K){
+  public double getPrecision(int[] list, int K){
+    int size = list.length;
+    if (size == 0 || K == 0) {
+      return 0;
+    }
+
+    if (K > size) {
+      K = size;
+    }
+    
     int rel_doc_num = this.getRelevantDocNum(list, K);
     double precision = (double)rel_doc_num/(double)K;
     return precision;
@@ -74,8 +83,8 @@ public class Evaluator {
 
     int rel_num = 0;
     for (int i = 0; i < K; i++) {
-      if(list[i]> 0){
-        rel_num += 1;
+      if(list[i]> 3){ // 3 refers to "OK"
+        rel_num++;
       }
     }
     return rel_num; 

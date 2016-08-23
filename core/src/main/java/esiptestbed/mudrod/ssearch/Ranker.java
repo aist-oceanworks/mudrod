@@ -33,9 +33,9 @@ public class Ranker extends MudrodAbstract {
   List<SResult> resultList = new ArrayList<SResult>();
   String learnerType = null;
   Learner le = null;
-  
+
   /**
-* Constructor supporting a number of parameters documented below.
+   * Constructor supporting a number of parameters documented below.
    * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
    * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
    * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
@@ -53,52 +53,35 @@ public class Ranker extends MudrodAbstract {
   public class ResultComparator implements Comparator<SResult> {
     @Override
     public int compare(SResult o1, SResult o2) {
-      if(learnerType.equals("pointwise"))
+      /*if(learnerType.equals("pointwise"))
       {
-      double[] ins1 = {o1.term_score, o1.click_score, 
-          o1.releaseDate_score, o1.allPop_score, 
-          o1.monthPop_score, o1.userPop_score, o1.prediction};
-      o1.final_score = le.classify(ins1);
-      
-      double[] ins2 = {o2.term_score, o2.click_score, 
-          o2.releaseDate_score, o2.allPop_score, 
-          o2.monthPop_score, o2.userPop_score, o2.prediction};
-      o2.final_score = le.classify(ins2);
-      
-      return Double.compare(o2.final_score, o1.final_score);
-      }
-      else if(learnerType.equals("pairwise"))
-      {
-        double[] ins = {o2.term_score - o1.term_score,
-            
-            o2.Dataset_LongName_score - o1.Dataset_LongName_score,
-            o2.Dataset_Metadata_score - o1.Dataset_Metadata_score,
-            o2.DatasetParameter_Term_score - o1.DatasetParameter_Term_score,
-            o2.DatasetSource_Source_LongName_score - o1.DatasetSource_Source_LongName_score,
-            o2.DatasetSource_Sensor_LongName_score - o1.DatasetSource_Sensor_LongName_score,
-            
-            o2.click_score - o1.click_score, 
-            o2.releaseDate_score - o1.releaseDate_score, 
-            
-            o2.version_score - o1.version_score, 
-            o2.processingL_score - o1.processingL_score, 
-            
-            o2.allPop_score - o1.allPop_score, 
-            o2.monthPop_score - o1.monthPop_score, 
-            o2.userPop_score - o1.userPop_score, 
-            o2.prediction - o1.prediction};
-        double prediction = le.classify(ins);
-        if(prediction == 1.0)  //prediction would be 0, 1 corresponding to -1, 1
-        {
-          return 0;
-        }else{
-          return 1;
-        }
-      }
-      return 0;
+        double[] ins1 = {o1.term_score, 
+            o1.releaseDate_score,
+            o1.version_score, 
+            o1.processingL_score,
+            o1.allPop_score, 
+            o1.monthPop_score, 
+            o1.userPop_score, 
+            o1.prediction};
+        o1.final_score = le.classify(ins1);
+
+        double[] ins2 = {o2.term_score,
+            o2.releaseDate_score, 
+            o1.version_score, 
+            o1.processingL_score,
+            o2.allPop_score, 
+            o2.monthPop_score, 
+            o2.userPop_score, 
+            o2.prediction};
+        o2.final_score = le.classify(ins2);
+
+        return Double.compare(o2.final_score, o1.final_score);
+      }*/
+
+      return o2.below.compareTo(o1.below);
     }
   }
-  
+
   /**
    * Method of calculating mean value
    * @param attribute the attribute name that need to be calculated on
@@ -110,7 +93,7 @@ public class Ranker extends MudrodAbstract {
     double sum = 0.0;
     for(SResult a : resultList)
     { 
-        sum += (double)SResult.get(a, attribute);    
+      sum += (double)SResult.get(a, attribute);    
     }
     return getNDForm(sum/resultList.size());
   }
@@ -134,7 +117,7 @@ public class Ranker extends MudrodAbstract {
 
     return getNDForm(temp/resultList.size());
   }
-  
+
   /**
    * Method of calculating standard variance
    * @param attribute the attribute name that need to be calculated on
@@ -145,7 +128,7 @@ public class Ranker extends MudrodAbstract {
   {
     return getNDForm(Math.sqrt(getVariance(attribute, resultList)));
   }
-  
+
   /**
    * Method of calculating Z score
    * @param val the value of an attribute
@@ -185,61 +168,59 @@ public class Ranker extends MudrodAbstract {
   {
     for(int i=0; i< resultList.size(); i++)
     {
-      resultList.get(i).term_score = getZscore(resultList.get(i).relevance, 
-          getMean("relevance", resultList), 
-          getStdDev("relevance", resultList));
-            
-      resultList.get(i).Dataset_LongName_score = getZscore(resultList.get(i).Dataset_LongName, 
-          getMean("Dataset_LongName", resultList), 
-          getStdDev("Dataset_LongName", resultList));
-      
-      resultList.get(i).Dataset_Metadata_score = getZscore(resultList.get(i).Dataset_Metadata, 
-          getMean("Dataset_Metadata", resultList), 
-          getStdDev("Dataset_Metadata", resultList));
-      
-      resultList.get(i).DatasetParameter_Term_score = getZscore(resultList.get(i).DatasetParameter_Term, 
-          getMean("DatasetParameter_Term", resultList), 
-          getStdDev("DatasetParameter_Term", resultList));
-      
-      resultList.get(i).DatasetSource_Source_LongName_score = getZscore(resultList.get(i).DatasetSource_Source_LongName, 
-          getMean("DatasetSource_Source_LongName", resultList), 
-          getStdDev("DatasetSource_Source_LongName", resultList));
-      
-      resultList.get(i).DatasetSource_Sensor_LongName_score = getZscore(resultList.get(i).DatasetSource_Sensor_LongName, 
-          getMean("DatasetSource_Sensor_LongName", resultList), 
-          getStdDev("DatasetSource_Sensor_LongName", resultList));
-           
-      resultList.get(i).click_score = getZscore(resultList.get(i).clicks, 
-          getMean("clicks", resultList), 
-          getStdDev("clicks", resultList));
-      
-      resultList.get(i).releaseDate_score = getZscore(resultList.get(i).dateLong, 
-          getMean("dateLong", resultList), 
-          getStdDev("dateLong", resultList));
-      
-      resultList.get(i).version_score = getZscore(resultList.get(i).versionNum, 
-          getMean("versionNum", resultList), 
-          getStdDev("versionNum", resultList));
+      for(int m =0; m <SResult.rlist.length; m++)
+      {
+        String att = SResult.rlist[m].split("_")[0];
+        double val = SResult.get(resultList.get(i), att);
+        double mean = getMean(att, resultList);
+        double std = getStdDev(att, resultList);
+        double score = getZscore(val, mean, std);
+        String score_id = SResult.rlist[m];
+        SResult.set(resultList.get(i), score_id, score);
+      }
+    }
 
-      resultList.get(i).processingL_score = getZscore(resultList.get(i).proNum, 
-          getMean("proNum", resultList), 
-          getStdDev("proNum", resultList));
-      
-      resultList.get(i).monthPop_score = getZscore(resultList.get(i).monthPop, 
-          getMean("monthPop", resultList), 
-          getStdDev("monthPop", resultList));
-      
-      resultList.get(i).allPop_score = getZscore(resultList.get(i).allPop, 
-          getMean("allPop", resultList), 
-          getStdDev("allPop", resultList));
-      
-      resultList.get(i).userPop_score = getZscore(resultList.get(i).userPop, 
-          getMean("userPop", resultList), 
-          getStdDev("userPop", resultList));
+    // using collection.sort directly would cause an "not transitive" error
+    // this is because the training model is not a overfitting model
+    for(int j=0; j< resultList.size(); j++)
+    {
+      for(int k=0; k< resultList.size(); k++)
+      {
+        if(k!=j)
+        {
+          resultList.get(j).below += comp (resultList.get(j), resultList.get(k));
+        }
+      }
     }
 
     Collections.sort(resultList, new ResultComparator());
     return resultList;
+  }
+
+  /**
+   * Method of compare two search resutls
+   * @param o1 search result 1
+   * @param o2 search result 2
+   * @return 1 if o1>o2, 0 otherwise
+   */
+  public int comp(SResult o1, SResult o2)
+  {
+    List<Double> instList = new ArrayList<Double>();
+    for(int i =0; i <SResult.rlist.length; i++)
+    {
+      double o2_score = SResult.get(o2, SResult.rlist[i]);
+      double o1_score = SResult.get(o1, SResult.rlist[i]);
+      instList.add(o2_score - o1_score);
+    }
+    instList.add(o2.prediction - o1.prediction);
+    double[] ins = instList.stream().mapToDouble(i->i).toArray();
+    double prediction = le.classify(ins);
+    if(prediction == 1.0)  
+    {
+      return 1;
+    }else{
+      return 0;
+    }
   }
 
 }

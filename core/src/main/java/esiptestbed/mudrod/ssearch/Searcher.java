@@ -43,6 +43,7 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.ranking.Evaluator;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
@@ -86,10 +87,10 @@ public class Searcher extends MudrodAbstract {
     }else
     {
       versionNum = Double.parseDouble(version);
-      if(versionNum > 2000)
+      /*if(versionNum >=5)
       {
-        versionNum = 4.0;
-      }
+        versionNum = 20.0;
+      }*/
     }
     return versionNum;
   }
@@ -117,6 +118,15 @@ public class Searcher extends MudrodAbstract {
     }
     
     return proNum;
+  }
+  
+  public Double getPop(Double pop)
+  {
+    if(pop>1000)
+    {
+      pop=1000.0;
+    }
+    return pop;
   }
   
   /**
@@ -174,11 +184,11 @@ public class Searcher extends MudrodAbstract {
       Double relevance = Double.valueOf(NDForm.format(hit.getScore()));
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
-      Double Dataset_LongName = 0.0;
+      /*Double Dataset_LongName = 0.0;
       if(longName.toLowerCase().trim().contains(query))
       {
         Dataset_LongName = 1.0;
-      }
+      }*/
 
       ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
       String topic = String.join(", ", topicList);
@@ -190,7 +200,7 @@ public class Searcher extends MudrodAbstract {
       String dateText = df2.format(date);
 
       //////////////////////////////////////////////more features//////////////////////////////////
-      ArrayList<String> metaList = (ArrayList<String>) result.get("Dataset-Metadata");
+      /*ArrayList<String> metaList = (ArrayList<String>) result.get("Dataset-Metadata");
       Double Dataset_Metadata = exists(metaList, query);
       
       ArrayList<String> termList = (ArrayList<String>) result.get("DatasetParameter-Term");
@@ -200,7 +210,7 @@ public class Searcher extends MudrodAbstract {
       Double DatasetSource_Source_LongName = exists(sourceList, query);
       
       ArrayList<String> sensorList = (ArrayList<String>) result.get("DatasetSource-Sensor-LongName");
-      Double DatasetSource_Sensor_LongName = exists(sensorList, query);
+      Double DatasetSource_Sensor_LongName = exists(sensorList, query);*/
       
       ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
       String version=null;
@@ -216,43 +226,34 @@ public class Searcher extends MudrodAbstract {
       String processingLevel = (String) result.get("Dataset-ProcessingLevel"); 
       Double proNum = getProLevelNum(processingLevel);
 
-      Double userPop = ((Integer) result.get("Dataset-UserPopularity")).doubleValue();
-      Double allPop = ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue();
-      Double monthPop = ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue();
-      if(userPop>1000)
-      {
-        userPop=1000.0;
-      }
-      if(allPop>1000)
-      {
-        allPop=1000.0;
-      }
-      if(monthPop>1000)
-      {
-        monthPop=1000.0;
-      }
+      Double userPop = getPop(((Integer) result.get("Dataset-UserPopularity")).doubleValue());
+      Double allPop = getPop(((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
+      Double monthPop = getPop(((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
-      SResult.set(re, "relevance", relevance);
       
-      SResult.set(re, "Dataset_LongName", Dataset_LongName);
+      Double versionFactor = Math.log(versionNum + 1);
+      SResult.set(re, "term", relevance);
+      SResult.set(re, "termAndv", relevance + versionFactor);
+      
+      /*SResult.set(re, "Dataset_LongName", Dataset_LongName);
       SResult.set(re, "Dataset_Metadata", Dataset_Metadata);
       SResult.set(re, "DatasetParameter_Term", DatasetParameter_Term);
       SResult.set(re, "DatasetSource_Source_LongName", DatasetSource_Source_LongName);
-      SResult.set(re, "DatasetSource_Sensor_LongName", DatasetSource_Sensor_LongName);
+      SResult.set(re, "DatasetSource_Sensor_LongName", DatasetSource_Sensor_LongName);*/
       
-      SResult.set(re, "dateLong", Long.valueOf(longdate.get(0)).doubleValue());     
+      SResult.set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());     
       SResult.set(re, "version", version);
       SResult.set(re, "versionNum", versionNum);
       SResult.set(re, "processingLevel", processingLevel);
-      SResult.set(re, "proNum", proNum);
+      SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);
       SResult.set(re, "allPop", allPop);
       SResult.set(re, "monthPop", monthPop);
 
       /***************************set click count*********************************/
       //important to convert shortName to lowercase
-      QueryBuilder qb_clicks = dp.createQueryForClicks(query, 2, shortName.toLowerCase()); 
+/*      QueryBuilder qb_clicks = dp.createQueryForClicks(query, 2, shortName.toLowerCase()); 
       SearchResponse clicks_res = es.client.prepareSearch(index)
           .setTypes(config.get("clickstreamMatrixType"))            
           .setQuery(qb_clicks)
@@ -271,7 +272,7 @@ public class Searcher extends MudrodAbstract {
           click_count += click_frequency * query_weight;
         }
       }
-      SResult.set(re, "clicks", click_count);
+      SResult.set(re, "clicks", click_count);*/
       /****************************Set training label*******************************/
       FilterBuilder filter = FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter("query", query))
@@ -331,11 +332,31 @@ public class Searcher extends MudrodAbstract {
     return PDResults.toString();
   }
   
+  public int getRankNum(String str)
+  {
+    switch (str) {
+    case "Excellent":
+      return 5;
+    case "Good":
+      return 4;
+    case "OK":
+      return 3;
+    case "Bad":
+      return 2;
+    case "Terrible":
+      return 1;
+    default:
+      break;
+    }
+    return 0;
+  }
+  
   public static void main(String[] args) throws IOException {
     String learnerType = "pairwise";
     String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
         "saline density", "pathfinder", "gravity"};
-    //String[] query_list = {"quikscat"};
+    //String[] query_list = {"ocean temperature"};
+    Evaluator eva = new Evaluator();
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
     for(String q:query_list)
@@ -355,10 +376,15 @@ public class Searcher extends MudrodAbstract {
           mudrod.getConfig().get("raw_metadataType"), q);
       Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null, learnerType);
       List<SResult> li = rr.rank(resultList);
+      int[] rank_array = new int[li.size()];
       for(int i =0; i< li.size(); i++)
       {
         bw.write(li.get(i).toString(","));
+        rank_array[i] = sr.getRankNum(li.get(i).label);
       }
+      double precision = eva.getPrecision(rank_array, 200);
+      double ndcg = eva.getNDCG(rank_array, 200);     
+      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);
 
       bw.close();
     }

@@ -173,6 +173,12 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
       endTime=System.currentTimeMillis();
     }
+    
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+    hg.execute();
+
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+    cg.execute();
     LOG.info("*****************Session reconstruction ends******************");
   }
 

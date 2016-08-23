@@ -17,6 +17,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
@@ -345,8 +347,8 @@ public class DataGenerator {
   }
   
   public static void main(String[] args) {
-    DataGenerator dg = new DataGenerator("inputFolder", 
-        "outputfolder/inputDataForSVM.csv", 
+    DataGenerator dg = new DataGenerator("C:/mudrodCoreTestData/rankingResults/test/dataforSVM", 
+        "C:/mudrodCoreTestData/rankingResults/test/inputDataForSVM.csv", 
         true);
     dg.process();
   }

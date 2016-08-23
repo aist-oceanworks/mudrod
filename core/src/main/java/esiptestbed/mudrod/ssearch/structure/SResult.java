@@ -19,25 +19,25 @@ import java.lang.reflect.Field;
  * Data structure class for search result 
  */
 public class SResult {
+  public static final String rlist[] = {"term_score", "releaseDate_score", "versionNum_score", "processingL_score", 
+      "allPop_score", "monthPop_score", "userPop_score"/*, "termAndv_score"*/};
   String shortName = null;
   String longName = null;
   String topic = null;
   String description = null;
   String relase_date = null;
 
-  public Double dateLong = null;
-  public Double clicks = null;
-  public Double relevance = null;
-
   public Double final_score = 0.0;
   public Double term_score = 0.0;
   public Double releaseDate_score = 0.0;
-  public Double version_score = 0.0;
+  public Double versionNum_score = 0.0;
   public Double processingL_score = 0.0;
   public Double click_score = 0.0;
   public Double allPop_score = 0.0;
   public Double monthPop_score = 0.0;
   public Double userPop_score = 0.0;
+  public Double termAndv_score = 0.0;
+  public Integer below = 0;
   
   public Double Dataset_LongName_score = null;
   public Double Dataset_Metadata_score = null;
@@ -54,11 +54,15 @@ public class SResult {
   public Double spatialR_Grid = null;
   public String temporalR = null;
   
+  public Double releaseDate = null;
+  public Double click = null;
+  public Double term = null;
   public Double versionNum = null;
-  public Double proNum = null;
+  public Double processingL = null;
   public Double allPop = null;
   public Double monthPop = null;
   public Double userPop = null;
+  public Double termAndv = null;
   
   public Double Dataset_LongName = null;
   public Double Dataset_Metadata = null;
@@ -90,26 +94,13 @@ public class SResult {
    * @return header
    */
   public static String getHeader(String delimiter){
-     return  "ShortName" + delimiter +           
-             "term_score" + delimiter + 
-             
-             "Dataset_LongName" + delimiter + 
-             "Dataset_Metadata" + delimiter + 
-             "DatasetParameter_Term" + delimiter + 
-             "DatasetSource_Source_LongName" + delimiter + 
-             "DatasetSource_Sensor_LongName" + delimiter +
-             
-             "click_score" + delimiter + 
-             "releaseDate_score" + delimiter + 
-         
-            "VersionNum_score"  + delimiter +
-            "ProLevelNum_score"  + delimiter +
-            "AllPop_score"  + delimiter +
-            
-            "MonthPop_score"  + delimiter +           
-            "UserPop_score"  + delimiter +
-            "Label"  + 
-            "\n";
+    String str = "";
+    for(int i =0; i <rlist.length; i++)
+    {
+      str += rlist[i] + delimiter;
+    }
+    str = str + "label" + "\n";
+    return "ShortName" + delimiter + str;
   }
  
   /**
@@ -117,26 +108,15 @@ public class SResult {
    * @param delimiter the delimiter used to separate strings
    * @return search result as string
    */
-  public String toString(String delimiter ){
-    return shortName + delimiter + 
-           term_score + delimiter + 
-           
-           Dataset_LongName_score + delimiter + 
-           Dataset_Metadata_score + delimiter + 
-           DatasetParameter_Term_score + delimiter + 
-           DatasetSource_Source_LongName_score + delimiter + 
-           DatasetSource_Sensor_LongName_score + delimiter +
-           
-           click_score + delimiter + 
-           releaseDate_score + delimiter +
-           version_score + delimiter +
-           processingL_score + delimiter + 
-           allPop_score + delimiter +
-           monthPop_score + delimiter +
-           userPop_score + delimiter +
-
-           label + 
-           "\n";
+  public String toString(String delimiter){
+    String str = "";
+    for(int i =0; i <rlist.length; i++)
+    {
+      double score = get(this, rlist[i]);
+      str += score + delimiter;
+    }
+    str = str + label + "\n";
+    return shortName + delimiter + str;
   }
 
   /**

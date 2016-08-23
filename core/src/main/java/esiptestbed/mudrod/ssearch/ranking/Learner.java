@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.structure.SResult;
 import libsvm.svm_model;
 import libsvm.svm_node;
 import weka.classifiers.Classifier;
@@ -46,7 +47,7 @@ public class Learner {
     try {
       if(classifierName.equals(POINTWISE))
       {
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"linearRegressionModel.model");
+        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"linearRegression.model");
       }
       else if(classifierName.equals(PAIRWISE))
       {
@@ -54,8 +55,7 @@ public class Learner {
         File file = new File(clsURL.toURI());
         String clspath = file.getAbsolutePath();       
         cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVMmodel_new.model");
-        
+        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_7att_no_termAndv.model");       
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -68,28 +68,13 @@ public class Learner {
    */
   public Instances createDataset(){
     ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-
-    attributes.add(new Attribute("term_score"));
-    attributes.add(new Attribute("Dataset_LongName"));
-    attributes.add(new Attribute("Dataset_Metadata"));
-    attributes.add(new Attribute("DatasetParameter_Term"));
-    attributes.add(new Attribute("DatasetSource_Source_LongName"));
-    attributes.add(new Attribute("DatasetSource_Sensor_LongName"));
-    
-    attributes.add(new Attribute("click_score"));
-    attributes.add(new Attribute("releaseDate_score"));
-    
-    attributes.add(new Attribute("VersionNum_score"));
-    attributes.add(new Attribute("ProLevelNum_score"));
-    
-    attributes.add(new Attribute("AllPop_score"));
-    attributes.add(new Attribute("MonthPop_score"));
-    attributes.add(new Attribute("UserPop_score"));    
+    for(int i =0; i <SResult.rlist.length; i++)
+    {
+      attributes.add(new Attribute(SResult.rlist[i]));
+    }  
     attributes.add(new Attribute("Label"));
-
     Instances dataset = new Instances("train_dataset", attributes, 0);
     dataset.setClassIndex(dataset.numAttributes() - 1);
-
     return dataset;
   }
 

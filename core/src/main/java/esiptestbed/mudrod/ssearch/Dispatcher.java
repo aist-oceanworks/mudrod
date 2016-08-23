@@ -116,6 +116,7 @@ public class Dispatcher extends MudrodAbstract {
     }
     
     LOG.info(qb.toString());
+    //System.out.println(qb.toString());
     return qb;
   }
 
