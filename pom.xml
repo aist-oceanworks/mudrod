@@ -39,6 +39,45 @@
     <name>George Mason University</name>
     <url>https://www2.gmu.edu/</url>
   </organization>
+
+  <developers>
+    <developer>
+      <id>lewismc</id>
+      <name>Lewis John McGibbney</name>
+      <email>lewis[dot]j[dot]mcgibbney[at]jpl[dot]nasa[dot]gov</email>
+      <roles>
+        <role>Committer</role>
+      </roles>
+      <organization>NASA Jet Propulsion Laboratory</organization>
+    </developer>
+    <developer>
+      <id>Yongyao</id>
+      <name>Yongyao Jiang</name>
+      <email>J[dot]yongyao11[at]gmail[dot]com</email>
+      <roles>
+        <role>Committer</role>
+      </roles>
+      <organization>NSF Spatiotemporal Innovation Center, George Mason University</organization>
+    </developer>
+    <developer>
+      <id>quintinali</id>
+      <name>Yun Li</name>
+      <email>yli38[at]gmu[dot]edu</email>
+      <roles>
+        <role>Committer</role>
+      </roles>
+      <organization>NSF Spatiotemporal Innovation Center, George Mason University</organization>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>Github Issues</system>
+    <url>https://github.com/mudrod/mudrod/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>TravisCI</system>
+    <url>https://travis-ci.org/mudrod/mudrod</url>
+  </ciManagement>
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
