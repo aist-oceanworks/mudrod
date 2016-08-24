@@ -14,12 +14,18 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * This is the most generic class of Mudrod
  */
 public abstract class MudrodAbstract implements Serializable {
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(MudrodAbstract.class);
   /**
    * 
@@ -44,8 +50,8 @@ public abstract class MudrodAbstract implements Serializable {
   public String cleanupType = null;
   public String sessionStats = null;
 
-  public final String settingsJson = "{\r\n   \"index\": {\r\n      \"number_of_replicas\": 0,\r\n      \"refresh_interval\": \"-1\"\r\n   },\r\n   \"analysis\": {\r\n      \"filter\": {\r\n         \"cody_stop\": {\r\n            \"type\": \"stop\",\r\n            \"stopwords\": \"_english_\"\r\n         },\r\n         \"cody_stemmer\": {\r\n            \"type\": \"stemmer\",\r\n            \"language\": \"light_english\"\r\n         }\r\n      },\r\n      \"analyzer\": {\r\n         \"cody\": {\r\n            \"tokenizer\": \"standard\",\r\n            \"filter\": [\r\n               \"lowercase\",\r\n               \"cody_stop\",\r\n               \"cody_stemmer\"\r\n            ]\r\n         },\r\n         \"csv\": {\r\n            \"type\": \"pattern\",\r\n            \"pattern\": \",\"\r\n         }\r\n      }\r\n   }\r\n}";
-  public final String mappingJson = "{\r\n      \"_default_\": {\r\n         \"properties\": {\r\n            \"keywords\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"views\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"downloads\": {\r\n               \"type\": \"string\",\r\n               \"index_analyzer\": \"csv\"\r\n            },\r\n            \"RequestUrl\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"IP\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Browser\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionURL\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Referer\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"SessionID\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Response\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Request\": {\r\n               \"type\": \"string\",\r\n               \"index\": \"not_analyzed\"\r\n            },\r\n            \"Coordinates\": {\r\n               \"type\": \"geo_point\"\r\n            }\r\n         }\r\n      }\r\n   }";
+  private static final String ES_SETTINGS = "elastic_settings.json";
+  private static final String ES_MAPPINGS = "elastic_mappings.json";
   private int printLevel = 0;
 
   public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark){
@@ -56,8 +62,25 @@ public abstract class MudrodAbstract implements Serializable {
   }
 
   protected void initMudrod(){
+    InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
+    InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
+    JSONObject settingsJSON = null;
+    JSONObject mappingJSON = null;
+
     try {
-      this.es.putMapping(props.getProperty("indexName"), settingsJson, mappingJson);
+      settingsJSON = new JSONObject(IOUtils.toString(settingsStream, Charset.defaultCharset()));
+    } catch (JSONException | IOException e1) {
+      e1.printStackTrace();
+    }
+
+    try {
+      mappingJSON = new JSONObject(IOUtils.toString(mappingsStream, Charset.defaultCharset()));
+    } catch (JSONException | IOException e1) {
+      e1.printStackTrace();
+    }
+
+    try {
+      this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
