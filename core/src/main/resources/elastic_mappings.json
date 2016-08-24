@@ -3,15 +3,15 @@
       "properties":{
          "keywords":{
             "type":"string",
-            "index_analyzer":"csv"
+            "analyzer":"csv"
          },
          "views":{
             "type":"string",
-            "index_analyzer":"csv"
+            "analyzer":"csv"
          },
          "downloads":{
             "type":"string",
-            "index_analyzer":"csv"
+            "analyzer":"csv"
          },
          "RequestUrl":{
             "type":"string",

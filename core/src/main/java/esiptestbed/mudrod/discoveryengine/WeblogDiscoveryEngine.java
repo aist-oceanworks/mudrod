@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
@@ -111,9 +112,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     File[] fList = directory.listFiles();
     for (File file : fList) {
       if (file.isFile()) {
-
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
-        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
+        // don't do anything with files, we are only interested in logs which are kept within directories.
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+        inputList.add(file.getName().replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
       }
     }
 
