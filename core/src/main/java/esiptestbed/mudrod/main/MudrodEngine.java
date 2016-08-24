@@ -86,8 +86,9 @@ public class MudrodEngine {
   /**
    * Load the configuration provided at
    * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+   * @return a populated configuration {@link java.util.Map}
    */
-  public void loadConfig() {
+  public Map<String, String> loadConfig() {
     SAXBuilder saxBuilder = new SAXBuilder();
     InputStream configStream = MudrodEngine.class.getClassLoader()
         .getResourceAsStream("config.xml");
@@ -108,6 +109,7 @@ public class MudrodEngine {
     } catch (IOException e) {
       LOG.error("Error whilst retrieving and reading 'config.xml' resource!", e);
     }
+    return config;
 
   }
 
