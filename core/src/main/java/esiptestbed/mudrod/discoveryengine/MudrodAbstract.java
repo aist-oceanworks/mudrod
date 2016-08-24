@@ -57,7 +57,7 @@ public abstract class MudrodAbstract implements Serializable {
 
   protected void initMudrod(){
     try {
-      es.putMapping(props.getProperty("indexName"), settingsJson, mappingJson);
+      this.es.putMapping(props.getProperty("indexName"), settingsJson, mappingJson);
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }

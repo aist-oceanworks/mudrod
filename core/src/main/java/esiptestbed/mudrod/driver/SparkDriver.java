@@ -30,7 +30,6 @@ public class SparkDriver implements Serializable {
    * 
    */
   private static final long serialVersionUID = 1L;
-  // sc:spark context
 public JavaSparkContext sc;
 
   /**

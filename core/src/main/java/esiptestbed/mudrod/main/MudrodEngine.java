@@ -36,6 +36,7 @@ import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
+import scala.reflect.internal.Trees.This;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,7 +221,10 @@ public class MudrodEngine {
       }
 
       MudrodEngine me = new MudrodEngine();
+      me.loadConfig();
       me.props.put(LOG_DIR, dataDir);
+      me.es = new ESDriver(me.getConfig());
+      me.spark = new SparkDriver();
 
       switch (processingType) {
       case LOG_INGEST:
