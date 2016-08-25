@@ -313,11 +313,11 @@ public class ESDriver implements Serializable {
   }
 
   public void close(){
-    node.close();
+    client.close();
   }
 
   public void refreshIndex(){
-    node.client().admin().indices().prepareRefresh().execute().actionGet();
+    client.admin().indices().prepareRefresh().execute().actionGet();
   }
 
   /** 
@@ -342,7 +342,7 @@ public class ESDriver implements Serializable {
     Settings settings = settingsBuilder.build();
 
     Client client = null;
-
+    
     // Prefer TransportClient
     if (hosts != null && port > 1) {
       TransportClient transportClient = TransportClient.builder().settings(settings).build();
