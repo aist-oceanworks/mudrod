@@ -54,17 +54,6 @@
       .ui-helper-hidden-accessible {
       display: none;
       }
-      
-      /* #related ul {
-		    list-style: circle;
-	  }
-		
-	  #related ul li {
-		    display: inline-block;
-		    max-width: 30px;
-		    text-align: left;
-		    color: #000;
-	  } */
 </style>
 </head>
   <body>
@@ -85,12 +74,16 @@
     </nav>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-9 main">
-          <h4 class="page-header"><a href="./">Index</a> > metadata</h4>
+        <div class="col-sm-14 main">
+          <h4 class="page-header"><a href="./">Semantic search</a> > Metadata details</h4>
           <div class="col-sm-9  row" id = "resultPanels">
               <table id="ResultsTable" class="table"></table>
           </div>
-          <div class="col-sm-3 row"  id="related">
+          <div class="col-sm-3 row"  id= "hybird">
+           <h4 style="margin-left:8px">You may be interested in</h4>
+           <ul id="hybirdul">
+          </div>
+           <!--  <div class="col-sm-3 row"  id="related">
            <h4>Similar datasets</h4>
            <ul id="linkedul">
            </ul>
@@ -98,11 +91,7 @@
           <div class="col-sm-3 row"  id="interested">
            <h4 style="width:400px">People who viewed this dataset also viewed</h4>
            <ul id="relatedul">
-          </div>
-          <div class="col-sm-3 row"  id= "hybird">
-           <h4 style="width:400px">Hybrid recommendation</h4>
-           <ul id="hybirdul">
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -123,7 +112,8 @@
   var shortname = getURLParameter('shortname');
   $(document).ready(function(){
 	 loadMetaData(shortname);
-	 loadRecomData(shortname);
+	 //loadRecomData(shortname);
+	 loadHybirdRecomData(shortname);
   });
   
   function loadRecomData(shortname) {
@@ -205,7 +195,6 @@
   function loadMetaData(shortname) {
 		if (shortname != "") {
 			$("#dataset").show();
-			//$("#searchLoading").show();
 			$.ajax({
 				url : "DatasetDetail",
 				data : {
@@ -242,7 +231,16 @@
 					}, {
 						'title' : 'Topic',
 						'field' : 'Topic',
-					}, {
+					},  {
+						'title' : 'Category',
+						'field' : 'DatasetParameter-Category',
+					} , {
+						'title' : 'Variable',
+						'field' : 'DatasetParameter-Variable',
+					} , {
+						'title' : 'Term',
+						'field' : 'DatasetParameter-Term',
+					} ,{
 						'title' : 'Release Date',
 						'field' : 'Release Date',
 
@@ -282,18 +280,8 @@
 					} , {
 						'title' : 'DataLatency',
 						'field' : 'DatasetPolicy-DataLatency',
-					} , {
-						'title' : 'Category',
-						'field' : 'DatasetParameter-Category',
-					} , {
-						'title' : 'Variable',
-						'field' : 'DatasetParameter-Variable',
-					} , {
-						'title' : 'Term',
-						'field' : 'DatasetParameter-Term',
 					} 
 					]
-
 				};
 
 				$('#ResultsTable').bootstrapTable(layout);
