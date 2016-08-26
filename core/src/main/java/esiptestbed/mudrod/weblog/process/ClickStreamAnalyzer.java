@@ -14,13 +14,12 @@
 package esiptestbed.mudrod.weblog.process;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
-import esiptestbed.mudrod.ssearch.ClickstreamImporter;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
 import org.slf4j.Logger;
@@ -30,18 +29,17 @@ import org.slf4j.LoggerFactory;
  * Supports ability to calculate term similarity based on click stream
  */
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
-  private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
 
   /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
+   * 
    */
-  public ClickStreamAnalyzer(Map<String, String> config, ESDriver es,
+  private static final long serialVersionUID = 1L;
+
+  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
+
+  public ClickStreamAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   /**
@@ -53,21 +51,17 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     try {
-      SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
-      svd.GetSVDMatrix(config.get("clickstreamMatrix"),
-          Integer.parseInt(config.get("clickstreamSVDDimension")),
-          config.get("clickstreamSVDMatrix_tmp"));
+      SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
+      svd.getSVDMatrix(props.getProperty("clickstreamMatrix"),
+          Integer.parseInt(props.getProperty("clickstreamSVDDimension")),
+          props.getProperty("clickstreamSVDMatrix_tmp"));
       List<LinkageTriple> tripleList = svd
-          .CalTermSimfromMatrix(config.get("clickstreamSVDMatrix_tmp"));
-      svd.SaveToES(tripleList, config.get("indexName"),
-          config.get("clickStreamLinkageType"));
+          .calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
+      svd.saveToES(tripleList, props.getProperty("indexName"),
+          props.getProperty("clickStreamLinkageType"));
     } catch (Exception e) {
       e.printStackTrace();
     }
-    
-    //Store click stream in ES for the ranking use
-    ClickstreamImporter cs = new ClickstreamImporter(config, es, spark);
-    cs.importfromCSVtoES();      
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

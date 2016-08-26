@@ -15,7 +15,7 @@ package esiptestbed.mudrod.metadata.process;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -26,17 +26,37 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializable {
+/**
+ * ClassName: MetadataAnalyzer 
+ * Function: Calculate semantic relationship of vocabularies extracted from
+ * metadata. 
+ *
+ * @author Yun
+
+ */
+public class MetadataAnalyzer extends DiscoveryStepAbstract
+implements Serializable {
 
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MetadataAnalyzer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MetadataAnalyzer.class);
 
-  public MetadataAnalyzer(Map<String, String> config, ESDriver es,
+  /**
+   * Creates a new instance of MetadataAnalyzer.
+   * 
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
+  public MetadataAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -44,24 +64,30 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
     return null;
   }
 
+  /**
+   * Calculate semantic relationship of vocabularies from a csv file which is a
+   * term-metadata matrix.
+   * 
+   * @see esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract#execute()
+   */
   @Override
   public Object execute() {
     try {
       LOG.info("*****************Metadata Analyzer starts******************");
       startTime = System.currentTimeMillis();
 
-      SVDAnalyzer analyzer = new SVDAnalyzer(config, es, spark);
-      int svdDimension = Integer.parseInt(config.get("metadataSVDDimension"));
-      String metadataMatrixFile = config.get("metadataMatrix");
-      String svdMatrixFileName = config.get("metadataSVDMatrix_tmp");
+      SVDAnalyzer analyzer = new SVDAnalyzer(props, es, spark);
+      int svdDimension = Integer.parseInt(props.getProperty("metadataSVDDimension"));
+      String metadataMatrixFile = props.getProperty("metadataMatrix");
+      String svdMatrixFileName = props.getProperty("metadataSVDMatrix_tmp");
 
-      analyzer.GetSVDMatrix(metadataMatrixFile, svdDimension,
+      analyzer.getSVDMatrix(metadataMatrixFile, svdDimension,
           svdMatrixFileName);
       List<LinkageTriple> triples = analyzer
-          .CalTermSimfromMatrix(svdMatrixFileName);
+          .calTermSimfromMatrix(svdMatrixFileName);
 
-      analyzer.SaveToES(triples, config.get("indexName"),
-          config.get("metadataLinkageType"));
+      analyzer.saveToES(triples, props.getProperty("indexName"),
+          props.getProperty("metadataLinkageType"));
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -69,7 +95,9 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Metadata Analyzer ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info(
+        "*****************Metadata Analyzer ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 }

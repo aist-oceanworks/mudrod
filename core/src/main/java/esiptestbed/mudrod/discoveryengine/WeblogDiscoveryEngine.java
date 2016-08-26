@@ -15,10 +15,11 @@ package esiptestbed.mudrod.discoveryengine;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
@@ -36,65 +37,56 @@ import org.slf4j.LoggerFactory;
  * Supports to preprocess and process web log
  */
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
+
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
-  public String timeSuffix = null;
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
-    super(config, es, spark);
+  public WeblogDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark){
+    super(props, es, spark);
+    LOG.info("Started Mudrod Weblog Discovery Engine.");
   }
 
-  /**
-   * Get log file list from a directory
-   * @param path folder directory
-   * @return a list of log files
-   */
-  public ArrayList<String> getFileList(String path){
-    File directory = new File(path);
+  public String timeSuffix = null;
+
+  @Override
+  public void preprocess() {
+    LOG.info("*****************Web log preprocessing starts******************");
+
+    File directory = new File(props.getProperty("logDir"));
+
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
     File[] fList = directory.listFiles();
     for (File file : fList) {
       if (file.isFile()) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
+        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
       }
     }
-    return inputList;
-  }
-  /**
-   * Method of preprocessing web logs, generating vocab similarity based on web logs
-   */
-  @Override
-  public void preprocess() {
-    LOG.info("*****************Web log preprocessing starts******************");
-    ArrayList<String> inputList = getFileList(config.get("logDir"));
+
     for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
+      timeSuffix = inputList.get(i);
+      props.put("TimeSuffix", timeSuffix);
       startTime=System.currentTimeMillis();
       LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
 
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
 
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
       cd.execute();
 
-      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es, this.spark);
       sg.execute();
 
-      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
       ss.execute();
 
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
       rr.execute();
 
       endTime=System.currentTimeMillis();
@@ -103,28 +95,53 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
           (endTime-startTime)/1000, inputList.get(i));
     }
 
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
     hg.execute();
 
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es, this.spark);
     cg.execute();
 
     LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
   }
 
-  /**
-   * Method of processing web log
-   */
+  public void logIngest() {
+    LOG.info("*****************Web log ingest starts******************");
+
+    File directory = new File(props.getProperty("logDir"));
+
+    ArrayList<String> inputList = new ArrayList<>();
+    // get all the files from a directory
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile()) {
+        // don't do anything with files, we are only interested in logs which are kept within directories.
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+        inputList.add(file.getName().replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
+      }
+    }
+
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);
+      props.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
+      im.execute();
+    }
+
+    LOG.info("*****************Web log ingest ends******************");
+
+  }
+
+
   @Override
   public void process() {
     LOG.info("*****************Web log processing starts******************");
     startTime=System.currentTimeMillis();
 
-    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.props, this.es, this.spark);
     svd.execute();
 
-    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.props, this.es, this.spark);
     ua.execute();
 
     endTime=System.currentTimeMillis();

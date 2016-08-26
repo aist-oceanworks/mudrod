@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +44,9 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
   private static final String TIME_SUFFIX = "TimeSuffix";
 
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
 
   String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] "
@@ -55,12 +58,12 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
   /**
    * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
+   * @param props a {@link java.util.Map} containing K,V of type String, String respectively.
    * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
    * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
    */
-  public ImportLogFile(Map<String, String> config, ESDriver es, SparkDriver spark) {
-    super(config, es, spark);
+  public ImportLogFile(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   @Override
@@ -74,10 +77,6 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     return null;
   }
 
-  @Override
-  public Object execute(Object o) {
-    return null;
-  }
   /**
    * Utility function to aid String to Number formatting such that three letter
    * months such as 'Jan' are converted to the Gregorian integer equivalent.
@@ -120,26 +119,26 @@ public class ImportLogFile extends DiscoveryStepAbstract{
   public void readFile(){
     es.createBulkProcesser();
 
-    String httplogpath = config.get("logDir") + 
-        config.get("httpPrefix") + 
-        config.get(TIME_SUFFIX) + 
+    String httplogpath = props.getProperty("logDir") + 
+        props.getProperty("httpPrefix") + 
+        props.getProperty(TIME_SUFFIX) + 
         "/" + 
-        config.get("httpPrefix") + 
-        config.get(TIME_SUFFIX);
+        props.getProperty("httpPrefix") + 
+        props.getProperty(TIME_SUFFIX);
 
-    String ftplogpath = config.get("logDir") + 
-        config.get("ftpPrefix") + 
-        config.get(TIME_SUFFIX) +
+    String ftplogpath = props.getProperty("logDir") + 
+        props.getProperty("ftpPrefix") + 
+        props.getProperty(TIME_SUFFIX) +
         "/" + 
-        config.get("ftpPrefix") + 
-        config.get(TIME_SUFFIX);
+        props.getProperty("ftpPrefix") + 
+        props.getProperty(TIME_SUFFIX);
 
     try {
-      ReadLogFile(httplogpath, "http", config.get("indexName"), this.HTTP_type);
-      ReadLogFile(ftplogpath, "FTP", config.get("indexName"), this.FTP_type);
+      readLogFile(httplogpath, "http", props.getProperty("indexName"), this.httpType);
+      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"), this.ftpType);
 
     } catch (IOException e) {
-      LOG.error("Error while reading log file.", e);
+      LOG.error("Error whilst reading log file.", e);
     } 
     es.destroyBulkProcessor();
 
@@ -152,11 +151,11 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param protocol whether to process 'http' or 'FTP'
    * @param index the index name to write logs to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    * @throws IOException if there is an error reading anything from the fileName provided.
    */
-  public void ReadLogFile(String fileName, String protocol, String index, String type) throws IOException{
+  public void readLogFile(String fileName, String protocol, String index, String type) throws IOException{
     BufferedReader br = new BufferedReader(new FileReader(fileName));
     int count =0;
     try {
@@ -164,9 +163,9 @@ public class ImportLogFile extends DiscoveryStepAbstract{
       while (line != null) {
         if("FTP".equals(protocol))
         {
-          ParseSingleLineFTP(line, index, type);
+          parseSingleLineFTP(line, index, type);
         }else{
-          ParseSingleLineHTTP(line, index, type);
+          parseSingleLineHTTP(line, index, type);
         }
         line = br.readLine();
         count++;
@@ -186,10 +185,10 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param log a single log line
    * @param index the index name we wish to persist the log line to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    */
-  public void ParseSingleLineFTP(String log, String index, String type){
+  public void parseSingleLineFTP(String log, String index, String type){
     String ip = log.split(" +")[6];
 
     String time = log.split(" +")[1] + ":"+log.split(" +")[2] +":"+log.split(" +")[3]+":"+log.split(" +")[4];
@@ -218,7 +217,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
             .field("Request", request)
             .field("Bytes", Long.parseLong(bytes))
             .endObject());
-        es.bulkProcessor.add(ir);
+        es.getBulkProcessor().add(ir);
       } catch (NumberFormatException e) {
         LOG.error("Error whilst processing numbers", e);
       } catch (IOException e) {
@@ -233,10 +232,10 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * @param log a single log line
    * @param index the index name we wish to persist the log line to
    * @param type either one of 
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#FTP_type} or
-   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#HTTP_type}
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType} or
+   *    {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
    */
-  public void ParseSingleLineHTTP(String log, String index, String type){
+  public void parseSingleLineHTTP(String log, String index, String type){
     matcher = p.matcher(log);
     if (!matcher.matches() || 
         NUM_FIELDS != matcher.groupCount()) {
@@ -259,19 +258,23 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
     String request = matcher.group(5).toLowerCase();
     String agent = matcher.group(9);
-    CrawlerDetection crawlerDe = new CrawlerDetection(this.config, this.es, this.spark);
-    if(crawlerDe.CheckKnownCrawler(agent)) {
-      //do nothing we don't wish to process crawler agents
-    } else {
+    CrawlerDetection crawlerDe = new CrawlerDetection(this.props, this.es, this.spark);
+    if(!crawlerDe.checkKnownCrawler(agent)) 
+    {
+      boolean tag = false;
       String[] mimeTypes = {".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", 
           ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/"};
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
-          //do nothing we don't wish to process those mimeTypes above
-        }else{
-          IndexRequest ir = null;
-          executeBulkRequest(ir, index, type, matcher, date, bytes);
+          tag = true;
+          break;
         }
+      }
+      
+      if(tag == false)
+      {
+        IndexRequest ir = null;
+        executeBulkRequest(ir, index, type, matcher, date, bytes);
       }
     }
   }
@@ -291,11 +294,16 @@ public class ImportLogFile extends DiscoveryStepAbstract{
           .field("Browser", matcher.group(9))
           .endObject());
 
-      es.bulkProcessor.add(ir);
+      es.getBulkProcessor().add(ir);
     } catch (NumberFormatException e) {
       LOG.error("Error whilst processing numbers", e);
     } catch (IOException e) {
       LOG.error("IOError whilst adding to the bulk processor.", e);
     }
+  }
+
+  @Override
+  public Object execute(Object o) {
+    return null;
   }
 }

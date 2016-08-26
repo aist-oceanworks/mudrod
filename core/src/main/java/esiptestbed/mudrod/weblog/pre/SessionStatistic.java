@@ -18,19 +18,18 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.Seconds;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -52,18 +51,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SessionStatistic extends DiscoveryStepAbstract {
+
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(SessionStatistic.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public SessionStatistic(Map<String, String> config, ESDriver es,
+  public SessionStatistic(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -95,12 +92,12 @@ public class SessionStatistic extends DiscoveryStepAbstract {
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcesser();
-    String inputType = this.Cleanup_type;
-    String outputType = this.SessionStats;
+    String inputType = this.cleanupType;
+    String outputType = this.sessionStats;
 
     MetricsAggregationBuilder<?> statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
+    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(0).subAggregation(statsAgg))
@@ -138,13 +135,13 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         String keywords = "";
         String views = "";
         String downloads = "";
-        FilterBuilder filter_search = FilterBuilders.boolFilter()
-            .must(FilterBuilders.termFilter("SessionID", entry.getKey()));
+        QueryBuilder filter_search = QueryBuilders.boolQuery()
+            .must(QueryBuilders.termQuery("SessionID", entry.getKey()));
         QueryBuilder query_search = QueryBuilders
             .filteredQuery(QueryBuilders.matchAllQuery(), filter_search);
 
-        SearchResponse scrollResp = es.client
-            .prepareSearch(config.get("indexName")).setTypes(inputType)
+        SearchResponse scrollResp = es.getClient()
+            .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
             .setScroll(new TimeValue(60000)).setQuery(query_search).setSize(100)
             .execute().actionGet();
 
@@ -165,18 +162,18 @@ public class SessionStatistic extends DiscoveryStepAbstract {
             if (request.contains(datasetlist)) {
               searchDataListRequest_count++;
 
-              RequestUrl requestURL = new RequestUrl(this.config, this.es,
+              RequestUrl requestURL = new RequestUrl(this.props, this.es,
                   null);
-              String info = requestURL.GetSearchInfo(request) + ",";
+              String info = requestURL.getSearchInfo(request) + ",";
 
               if (!info.equals(",")) {
                 if (keywords.equals("")) {
                   keywords = keywords + info;
                 } else {
                   String[] items = info.split(",");
-                  String[] keyword_list = keywords.split(",");
+                  String[] keywordList = keywords.split(",");
                   for (int m = 0; m < items.length; m++) {
-                    if (!Arrays.asList(keyword_list).contains(items[m])) {
+                    if (!Arrays.asList(keywordList).contains(items[m])) {
                       keywords = keywords + items[m] + ",";
                     }
                   }
@@ -189,7 +186,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
               if (findDataset(request) != null) {
                 String view = findDataset(request);
 
-                if (views.equals("")) {
+                if ("".equals(views)) {
                   views = view;
                 } else {
                   if (views.contains(view)) {
@@ -200,18 +197,18 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                 }
               }
             }
-            if (logType.equals("ftp")) {
+            if ("ftp".equals(logType)) {
               ftpRequest_count++;
               String download = "";
-              String request_lowercase = request.toLowerCase();
-              if (request_lowercase.endsWith(".jpg") == false
-                  && request_lowercase.endsWith(".pdf") == false
-                  && request_lowercase.endsWith(".txt") == false
-                  && request_lowercase.endsWith(".gif") == false) {
+              String requestLowercase = request.toLowerCase();
+              if (requestLowercase.endsWith(".jpg") == false
+                  && requestLowercase.endsWith(".pdf") == false
+                  && requestLowercase.endsWith(".txt") == false
+                  && requestLowercase.endsWith(".gif") == false) {
                 download = request;
               }
 
-              if (downloads.equals("")) {
+              if ("".equals(downloads)) {
                 downloads = download;
               } else {
                 if (downloads.contains(download)) {
@@ -221,10 +218,12 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                 }
               }
             }
+
           }
 
-          scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+          scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
+          // Break condition: No hits are returned
           if (scrollResp.getHits().getHits().length == 0) {
             break;
           }
@@ -236,18 +235,16 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
         if (searchDataListRequest_count != 0
             && searchDataListRequest_count <= Integer
-            .parseInt(config.get("searchf"))
+            .parseInt(props.getProperty("searchf"))
             && searchDataRequest_count != 0
-            && searchDataRequest_count <= Integer.parseInt(config.get("viewf"))
-            && ftpRequest_count <= Integer.parseInt(config.get("downloadf"))) {
-          // GeoIp converter = new GeoIp();
-          // Coordinates loc = converter.toLocation(IP);
-          String sessionURL = config.get("SessionPort") + config.get("SessionUrl")
-              + "?sessionid=" + entry.getKey() + "&sessionType="
-              + outputType + "&requestType=" + inputType;
+            && searchDataRequest_count <= Integer.parseInt(props.getProperty("viewf"))
+            && ftpRequest_count <= Integer.parseInt(props.getProperty("downloadf"))) {
+          String sessionURL = props.getProperty("SessionPort") + props.getProperty("SessionUrl")
+          + "?sessionid=" + entry.getKey() + "&sessionType="
+          + outputType + "&requestType=" + inputType;
           session_count++;
 
-          IndexRequest ir = new IndexRequest(config.get("indexName"),
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               outputType).source(
                   jsonBuilder().startObject().field("SessionID", entry.getKey())
                   .field("SessionURL", sessionURL)
@@ -261,7 +258,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                       searchDataListRequest_byKeywords_count)
                   .field("searchDataRequest_count", searchDataRequest_count)
                   .field("keywords",
-                      es.customAnalyzing(config.get("indexName"), keywords))
+                      es.customAnalyzing(props.getProperty("indexName"), keywords))
                   .field("views", views).field("downloads", downloads)
                   .field("request_rate", request_rate).field("Comments", "")
                   .field("Validation", 0).field("Produceby", 0)
@@ -269,7 +266,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                   // .field("Coordinates", loc.latlon)
                   .endObject());
 
-          es.bulkProcessor.add(ir);
+          es.getBulkProcessor().add(ir);
         }
       }
     }
@@ -290,6 +287,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     } else {
       pattern2 = " ";
     }
+
     Pattern p = Pattern
         .compile(Pattern.quote(pattern1) + "(.*?)" + Pattern.quote(pattern2));
     Matcher m = p.matcher(request);

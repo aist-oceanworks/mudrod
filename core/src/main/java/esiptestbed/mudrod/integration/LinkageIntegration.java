@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -55,15 +56,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   private static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public LinkageIntegration(Map<String, String> config, ESDriver es,
+  public LinkageIntegration(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   /**
@@ -107,7 +102,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     Map<String, Double> sortedMap = new HashMap<>();
     try {
       Map<String, List<LinkedTerm>> map = aggregateRelatedTermsFromAllmodel(
-          es.customAnalyzing(config.get(INDEX_NAME), input));
+          es.customAnalyzing(props.getProperty(INDEX_NAME), input));
 
       for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {
         List<LinkedTerm> list = entry.getValue();
@@ -188,34 +183,29 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    */
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
       String input) {
-    aggregateRelatedTerms(input, config.get("userHistoryLinkageType"));
-    aggregateRelatedTerms(input, config.get("clickStreamLinkageType"));
-    aggregateRelatedTerms(input, config.get("metadataLinkageType"));
-    aggregateRelatedTermsSWEET(input, config.get("ontologyLinkageType"));
+    aggregateRelatedTerms(input, props.getProperty("userHistoryLinkageType"));
+    aggregateRelatedTerms(input, props.getProperty("clickStreamLinkageType"));
+    aggregateRelatedTerms(input, props.getProperty("metadataLinkageType"));
+    aggregateRelatedTermsSWEET(input, props.getProperty("ontologyLinkageType"));
 
     return termList.stream().collect(Collectors.groupingBy(w -> w.term));
   }
 
-  /**
-   * Method of getting the weight from different sources
-   * @param model source name
-   * @return weight of the input source
-   */
   public int getModelweight(String model) {
-    if (model.equals(config.get("userHistoryLinkageType"))) {
-      return Integer.parseInt(config.get("userHistory_w"));
+    if (model.equals(props.getProperty("userHistoryLinkageType"))) {
+      return Integer.parseInt(props.getProperty("userHistory_w"));
     }
 
-    if (model.equals(config.get("clickStreamLinkageType"))) {
-      return Integer.parseInt(config.get("clickStream_w"));
+    if (model.equals(props.getProperty("clickStreamLinkageType"))) {
+      return Integer.parseInt(props.getProperty("clickStream_w"));
     }
 
-    if (model.equals(config.get("metadataLinkageType"))) {
-      return Integer.parseInt(config.get("metadata_w"));
+    if (model.equals(props.getProperty("metadataLinkageType"))) {
+      return Integer.parseInt(props.getProperty("metadata_w"));
     }
 
-    if (model.equals(config.get("ontologyLinkageType"))) {
-      return Integer.parseInt(config.get("ontology_w"));
+    if (model.equals(props.getProperty("ontologyLinkageType"))) {
+      return Integer.parseInt(props.getProperty("ontology_w"));
     }
 
     return 999999;
@@ -236,15 +226,10 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
-  /**
-   * Method of querying related terms from different sources/models except for ontology
-   * @param input input query
-   * @param model source name
-   */
   public void aggregateRelatedTerms(String input, String model) {
-    SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();  //get the 10 most relate terms
+        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
 
     LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
@@ -262,13 +247,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
-  /**
-   * Method of querying related terms from ontology
-   * @param input input query
-   * @param model source name
-   */
   public void aggregateRelatedTermsSWEET(String input, String model) {
-    SearchResponse usrhis = es.client.prepareSearch(config.get(INDEX_NAME))
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
     LOG.info("\n************************ {} results***************************", model);

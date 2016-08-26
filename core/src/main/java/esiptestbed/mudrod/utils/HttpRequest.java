@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,8 +22,16 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ClassName: HttpRequest 
+ * Function: Http request tool. 
+ * Date: Aug 12, 2016 12:41:57 PM 
+ *
+ * @author Yun
+
+ */
 public class HttpRequest {
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
 
   public HttpRequest() {

@@ -13,7 +13,7 @@
  */
 package esiptestbed.mudrod.discoveryengine;
 
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -27,18 +27,15 @@ import org.slf4j.LoggerFactory;
  * Supports to preprocess and process ontology
  */
 public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
+  
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(OntologyDiscoveryEngine.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public OntologyDiscoveryEngine(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public OntologyDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   /**
@@ -48,8 +45,7 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Ontology preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract at = new AggregateTriples(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract at = new AggregateTriples(this.props, this.es, this.spark);
     at.execute();
 
     endTime = System.currentTimeMillis();
@@ -64,7 +60,7 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Ontology processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract ol = new OntologyLinkCal(this.config, this.es,
+    DiscoveryStepAbstract ol = new OntologyLinkCal(this.props, this.es, this.spark);
         this.spark);
     ol.execute();
 

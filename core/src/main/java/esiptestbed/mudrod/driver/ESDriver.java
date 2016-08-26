@@ -17,6 +17,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -40,11 +43,12 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.suggest.SuggestRequestBuilder;
 import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.hppc.cursors.ObjectObjectCursor;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -60,65 +64,46 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import esiptestbed.mudrod.main.MudrodConstants;
+import esiptestbed.mudrod.main.MudrodEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Supports Elasticsearch related functions
- *
+ * Driver implementation for all Elasticsearch functionality.
  */
 public class ESDriver implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   private static final long serialVersionUID = 1L;
-  public Client client = null;
-  public Node node = null;
-  public BulkProcessor bulkProcessor = null;
+  private transient Client client = null;
+  private transient Node node = null;
+  private transient BulkProcessor bulkProcessor = null;
 
   /**
-   * Start an Elasticsearch client by cluster name
-   * @param clusterName name of Elasticsearch cluster
+   * Default constructor for this class.
+   * To load client configuration call substantiated constructor.
    */
-  public ESDriver(String clusterName){
-    node =
-        nodeBuilder()
-        .settings(ImmutableSettings.settingsBuilder().put("http.enabled", false))
-        .clusterName(clusterName)
-        .client(true)
-        .node();
-
-    client = node.client();
+  public ESDriver(){
+    //Default constructor, to load configuration call
   }
 
   /**
-   * Start an Elasticsearch client by cluster name
-   * @param config MUDROD config map
+   * Substantiated constructor which accepts a {@link java.util.Properties}
+   * @param props a populated properties object.
    */
-  public ESDriver(Map<String, String> config){
-    Settings settings = System.getProperty("file.separator").equals("/") ? ImmutableSettings.settingsBuilder()
-        .put("http.enabled", "false")
-        .put("transport.tcp.port", config.get("ES_Transport_TCP_Port"))
-        .put("discovery.zen.ping.multicast.enabled", "false")
-        .put("discovery.zen.ping.unicast.hosts", config.get("ES_unicast_hosts"))
-        .build() : ImmutableSettings.settingsBuilder()
-        .put("http.enabled", false)
-        .build();;
-
-        node =
-            nodeBuilder()
-            .settings(settings)
-            .clusterName(config.get("clusterName"))
-            .client(true)
-            .node();
-        client = node.client();
+  public ESDriver(Properties props){
+    try {
+      setClient(makeClient(props));
+    } catch (IOException e) {
+      LOG.error("Error whilst constructing Elastcisearch client.", e);
+    }
   }
 
-  /**
-   * Method of creating a bulk processor
-   */
   public void createBulkProcesser(){
-    bulkProcessor = BulkProcessor.builder(
-        client,
+    setBulkProcessor(BulkProcessor.builder(
+        getClient(),
         new BulkProcessor.Listener() {
           public void beforeBulk(long executionId,
               BulkRequest request) {} 
@@ -138,7 +123,7 @@ public class ESDriver implements Serializable {
         .setBulkActions(1000) 
         .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB)) 
         .setConcurrentRequests(1) 
-        .build();
+        .build());
   }
 
   /**
@@ -146,33 +131,26 @@ public class ESDriver implements Serializable {
    */
   public void destroyBulkProcessor(){
     try {
-      bulkProcessor.awaitClose(20, TimeUnit.MINUTES);
-      bulkProcessor = null;
+      getBulkProcessor().awaitClose(20, TimeUnit.MINUTES);
+      setBulkProcessor(null);
       refreshIndex();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      LOG.error("Error destroying the Bulk Processor.", e);
     }
   }
 
-  /**
-   * Method of setting Elasticsearch schema by setting and mapping JSON object
-   * @param indexName name of Elasticsearch index
-   * @param settings_json setting in JSON format
-   * @param mapping_json mapping in JSON format
-   * @throws IOException
-   */
-  public void putMapping(String indexName, String settings_json, String mapping_json) throws IOException{
+  public void putMapping(String indexName, String settingsJson, String mappingJson) throws IOException{
 
-    boolean exists = client.admin().indices().prepareExists(indexName).execute().actionGet().isExists();
+    boolean exists = getClient().admin().indices().prepareExists(indexName).execute().actionGet().isExists();
     if(exists){
       return;
     }
 
-    client.admin().indices().prepareCreate(indexName).setSettings(ImmutableSettings.settingsBuilder().loadFromSource(settings_json)).execute().actionGet();
-    client.admin().indices()
+    getClient().admin().indices().prepareCreate(indexName).setSettings(Settings.builder().loadFromSource(settingsJson)).execute().actionGet();
+    getClient().admin().indices()
     .preparePutMapping(indexName)
     .setType("_default_")
-    .setSource(mapping_json)
+    .setSource(mappingJson)
     .execute().actionGet();
   }
 
@@ -189,7 +167,7 @@ public class ESDriver implements Serializable {
     for(int i = 0; i<strList.length;i++)
     {
       String tmp = "";
-      AnalyzeResponse r = client.admin().indices()
+      AnalyzeResponse r = getClient().admin().indices()
           .prepareAnalyze(strList[i]).setIndex(indexName).setAnalyzer("cody")
           .execute().get();
       for (AnalyzeToken token : r.getTokens()) {
@@ -229,7 +207,7 @@ public class ESDriver implements Serializable {
    */
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcesser();
-    SearchResponse scrollResp = client.prepareSearch(index)
+    SearchResponse scrollResp = getClient().prepareSearch(index)
         .setSearchType(SearchType.SCAN)
         .setTypes(type)
         .setScroll(new TimeValue(60000))
@@ -240,10 +218,10 @@ public class ESDriver implements Serializable {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         DeleteRequest deleteRequest = new DeleteRequest(index, type, hit.getId());
-        bulkProcessor.add(deleteRequest);
+        getBulkProcessor().add(deleteRequest);
       }
 
-      scrollResp = client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
@@ -273,48 +251,70 @@ public class ESDriver implements Serializable {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
-      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
-      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
+      res = getClient().admin().indices().getMappings(new GetMappingsRequest().indices(object.toString())).get();
+      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(object.toString());
       for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
-        if(c.key.startsWith(typePrefix))
+        if(c.key.startsWith(object2.toString()))
         {
           typeList.add(c.key);
         }
       }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
+    } catch (InterruptedException | ExecutionException e) {
+      LOG.error("Error whilst obtaining type list from Elasticsearch mappings.", e);
     }
     return typeList;
   }
-  
-  /**
-   * Method of checking if a type exists in an index or not
-   * @param index The name of index
-   * @param type The name of type
-   * @return 1 if it exists, 0 otherwise
-   */
-  public boolean checkTypeExist(String index, String type)
-  {
-    GetMappingsResponse res;
-    try {
-      res = client.admin().indices().getMappings(new GetMappingsRequest().indices(index)).get();
-      ImmutableOpenMap<String, MappingMetaData> mapping  = res.mappings().get(index);
-      for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
-        if(c.key.equals(type))
-        {
-          return true;
-        }
-      }
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+
+  public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
+    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+    if(!exists){
+      return null;
     }
-    return false;     
+
+    QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
+    SearchResponse response = getClient().prepareSearch(index)
+        .setTypes(Type)		        
+        .setQuery(qb)
+        .setSize(500)
+        .execute()
+        .actionGet();
+
+    Gson gson = new Gson();
+    List<JsonObject> fileList = new ArrayList<>();
+    DecimalFormat twoDForm = new DecimalFormat("#.##");
+
+    for (SearchHit hit : response.getHits().getHits()) {
+      Map<String,Object> result = hit.getSource();
+      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
+      String shortName = (String) result.get("Dataset-ShortName");
+      String longName = (String) result.get("Dataset-LongName");
+      @SuppressWarnings("unchecked")
+      ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
+      String topic = String.join(", ", topicList);
+      String content = (String) result.get("Dataset-Description");
+      @SuppressWarnings("unchecked")
+      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
+
+      Date date=new Date(Long.parseLong(longdate.get(0)));
+      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+      String dateText = df2.format(date);
+
+      JsonObject file = new JsonObject();
+      file.addProperty("Relevance", relevance);
+      file.addProperty("Short Name", shortName);
+      file.addProperty("Long Name", longName);
+      file.addProperty("Topic", topic);
+      file.addProperty("Abstract", content);
+      file.addProperty("Release Date", dateText);
+      fileList.add(file);
+
+    }
+    JsonElement fileListElement = gson.toJsonTree(fileList);
+
+    JsonObject pdResults = new JsonObject();
+    pdResults.add("PDResults", fileListElement);
+    LOG.info("Search results returned. \n");
+    return pdResults.toString();
   }
 
   /**
@@ -338,7 +338,7 @@ public class ESDriver implements Serializable {
     suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));  
 
     SuggestRequestBuilder suggestRequestBuilder =
-        client.prepareSuggest(index).addSuggestion(suggestionsBuilder);
+        getClient().prepareSuggest(index).addSuggestion(suggestionsBuilder);
 
 
     SuggestResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
@@ -351,20 +351,90 @@ public class ESDriver implements Serializable {
       suggestList.add(next.getText().string());
     }
     return suggestList;
+
   }
 
-  /**
-   * Method of closing Elasticsearch client
-   */
   public void close(){
-    node.close();
+    client.close();
+  }
+
+  public void refreshIndex(){
+    client.admin().indices().prepareRefresh().execute().actionGet();
+  }
+
+  /** 
+   * Generates a TransportClient or NodeClient
+   * @param props a populated {@link java.util.Properties} object
+   * @throws IOException if there is an error building the {@link org.elasticsearch.client.Client}
+   * @return a constructed {@link org.elasticsearch.client.Client}
+   */
+  protected Client makeClient(Properties props) throws IOException {
+    String clusterName = props.getProperty(MudrodConstants.ES_CLUSTER);
+    String hostsString = props.getProperty(MudrodConstants.ES_UNICAST_HOSTS);
+    String[] hosts = hostsString.split(",");
+    String portStr = props.getProperty(MudrodConstants.ES_TRANSPORT_TCP_PORT);
+    int port = Integer.parseInt(portStr);
+
+    Settings.Builder settingsBuilder = Settings.settingsBuilder();
+
+    // Set the cluster name and build the settings
+    if (StringUtils.isNotBlank(clusterName))
+      settingsBuilder.put("cluster.name", clusterName);
+
+    Settings settings = settingsBuilder.build();
+
+    Client client = null;
+    
+    // Prefer TransportClient
+    if (hosts != null && port > 1) {
+      TransportClient transportClient = TransportClient.builder().settings(settings).build();
+      for (String host: hosts)
+        transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+      client = transportClient;
+    } else if (clusterName != null) {
+      node = nodeBuilder().settings(settings).client(true).node();
+      client = node.client();
+    }
+
+    return client;
   }
 
   /**
-   * Method of refreshing Elasticsearch storage
+   * Main method used to invoke the ESDriver implementation.
+   * @param args no arguments are required to invoke the Driver.
    */
-  public void refreshIndex(){
-    node.client().admin().indices().prepareRefresh().execute().actionGet();
+  public static void main(String[] args) {
+    MudrodEngine mudrodEngine = new MudrodEngine();
+    ESDriver es = new ESDriver(mudrodEngine.loadConfig());
+    es.getTypeListWithPrefix("podaacsession", "sessionstats");
+  }
+
+  /**
+   * @return the client
+   */
+  public Client getClient() {
+    return client;
+  }
+
+  /**
+   * @param client the client to set
+   */
+  public void setClient(Client client) {
+    this.client = client;
+  }
+
+  /**
+   * @return the bulkProcessor
+   */
+  public BulkProcessor getBulkProcessor() {
+    return bulkProcessor;
+  }
+
+  /**
+   * @param bulkProcessor the bulkProcessor to set
+   */
+  public void setBulkProcessor(BulkProcessor bulkProcessor) {
+    this.bulkProcessor = bulkProcessor;
   }
 
 }

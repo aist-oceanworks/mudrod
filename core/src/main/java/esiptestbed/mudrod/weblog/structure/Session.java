@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,14 +17,17 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.joda.time.Seconds;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -33,89 +36,201 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
+/**
+ * ClassName: Session Function: Session operations.
+ *
+ * @author Yun
+ *
+ */
 public class Session extends MudrodAbstract implements Comparable<Session> {
+  private static final Logger LOG = LoggerFactory.getLogger(Session.class);
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  // start: start time of session
   private String start;
+  // end: end time of session
   private String end;
+  // id: original session ID
   private String id;
+  // newid: new session ID
   private String newid = null;
+  // fmt: time formatter
   private DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-  private String type;// es type
+  // type: session type name in Elasticsearch
+  private String type;
 
-  public Session(Map<String, String> config, ESDriver es, String Start,
+  /**
+   * Creates a new instance of Session.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param start
+   *          start time of session
+   * @param end
+   *          end time of session
+   * @param id
+   *          session ID
+   */
+  public Session(Properties props, ESDriver es, String start,
       String end, String id) {
-    super(config, es, null);
+    super(props, es, null);
     this.start = start;
     this.end = end;
     this.id = id;
   }
 
-  public Session(Map<String, String> config, ESDriver es) {
-    super(config, es, null);
+  /**
+   * Creates a new instance of Session.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   */
+  public Session(Properties props, ESDriver es) {
+    super(props, es, null);
   }
 
+  /**
+   * getID: Get original session ID
+   *
+   * @return session id
+   */
   public String getID() {
     return id;
   }
 
+  /**
+   * getNewID: Get new session ID
+   *
+   * @return new session id
+   */
   public String getNewID() {
     return newid;
   }
 
+  /**
+   * setNewID: Set new session ID
+   *
+   * @param str:
+   *          session ID
+   * @return new session id
+   */
   public String setNewID(String str) {
     return newid = str;
   }
 
+  /**
+   * getStartTime:Get start time of current session
+   *
+   * @return start time of session
+   */
   public String getStartTime() {
     return start;
   }
 
+  /**
+   * getEndTime:Get end time of current session
+   *
+   * @return end time of session
+   */
   public String getEndTime() {
     return end;
   }
 
+  /**
+   * Compare current session with another session
+   *
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  @Override
   public int compareTo(Session o) {
     fmt.parseDateTime(this.end);
     fmt.parseDateTime(o.end);
     // ascending order
-    int result = Seconds
-        .secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end))
-        .getSeconds();
-    return result;
+    return Seconds.secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end)).getSeconds();
+    
   }
 
-  // used for session tree reconstruct
-  public JsonObject getSessionDetail(String cleanuptype, String SessionID)
-      throws UnsupportedEncodingException {
-    JsonObject SessionResults = new JsonObject();
+  /**
+   * getSessionDetail:Get detail of current session, which is used for session
+   * tree reconstruct
+   *
+   * @param cleanuptype:
+   *          Session type name in Elasticsearch
+   * @param sessionID:
+   *          Session ID
+   * @return Session details in Json format
+   */
+  public JsonObject getSessionDetail(String cleanuptype, String sessionID) {
+    JsonObject sessionResults = new JsonObject();
     Gson gson = new Gson();
     // for session tree
-    SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
-    JsonObject jsonTree = tree.TreeToJson(tree.root);
-    SessionResults.add("treeData", jsonTree);
-    // for request
-    JsonElement jsonRequest = this.getRequests(cleanuptype, SessionID);
-    SessionResults.add("RequestList", jsonRequest);
+    SessionTree tree = null;
+    JsonElement jsonRequest = null;
+    try {
+      tree = this.getSessionTree(cleanuptype, sessionID);
+      JsonObject jsonTree = tree.TreeToJson(tree.root);
+      sessionResults.add("treeData", jsonTree);
 
-    return SessionResults;
+      jsonRequest = this.getRequests(cleanuptype, sessionID);
+      sessionResults.add("RequestList", jsonRequest);
+    } catch (UnsupportedEncodingException e) {
+      LOG.error("Encoding error detected.", e);
+
+    }
+
+    return sessionResults;
   }
 
+  /**
+   * getClickStreamList: Extracted click stream list from current session.
+   *
+   * @param cleanuptype:
+   *          Session type name in Elasticsearch
+   * @param sessionID:
+   *          Session ID
+   * @return Click stram data list
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
   public List<ClickStream> getClickStreamList(String cleanuptype,
-      String SessionID) throws UnsupportedEncodingException {
-    SessionTree tree = this.getSessionTree(cleanuptype, SessionID);
+      String sessionID) {
+    SessionTree tree = null;
+    try {
+      tree = this.getSessionTree(cleanuptype, sessionID);
+    } catch (UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
     List<ClickStream> clickthroughs = tree.getClickStreamList();
     return clickthroughs;
   }
 
-  private SessionTree getSessionTree(String cleanuptype, String SessionID)
+  /**
+   * getSessionTree: Convert current session to a tree structure
+   *
+   * @param cleanuptype:
+   *          Session type name in Elasticsearch
+   * @param sessionID:
+   *          Session ID
+   * @return Session Tree
+   *         {@link esiptestbed.mudrod.weblog.structure.SessionTree}
+   */
+  private SessionTree getSessionTree(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
-    SearchResponse response = es.client.prepareSearch(config.get("indexName"))
+    SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(cleanuptype)
-        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
     int size = response.getHits().getHits().length;
 
     Gson gson = new Gson();
-    SessionTree tree = new SessionTree(this.config, this.es, SessionID,
+    SessionTree tree = new SessionTree(this.props, this.es, sessionID,
         cleanuptype);
     int seq = 1;
     for (SearchHit hit : response.getHits().getHits()) {
@@ -134,16 +249,25 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
     return tree;
   }
 
-  private JsonElement getRequests(String cleanuptype, String SessionID)
+  /**
+   * getRequests: Get all request in current session
+   *
+   * @param cleanuptype:
+   *          Session type name in Elasticsearch
+   * @param sessionID:
+   *          Session ID
+   * @return all requests in Json format
+   */
+  private JsonElement getRequests(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
-    SearchResponse response = es.client.prepareSearch(config.get("indexName"))
+    SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName"))
         .setTypes(cleanuptype)
-        .setQuery(QueryBuilders.termQuery("SessionID", SessionID)).setSize(100)
+        .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
     int size = response.getHits().getHits().length;
 
     Gson gson = new Gson();
-    List<JsonObject> requestList = new ArrayList<JsonObject>();
+    List<JsonObject> requestList = new ArrayList<>();
     int seq = 1;
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();

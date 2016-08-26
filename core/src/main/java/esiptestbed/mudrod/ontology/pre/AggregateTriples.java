@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Document;
@@ -44,15 +44,9 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public AggregateTriples(Map<String, String> config, ESDriver es,
+  public AggregateTriples(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   /**
@@ -60,7 +54,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    File file = new File(this.config.get("oceanTriples"));
+    File file = new File(this.props.getProperty("oceanTriples"));
     if (file.exists()) {
       file.delete();
     }
@@ -78,7 +72,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
-    File[] files = new File(this.config.get("ontologyInputDir")).listFiles();
+    File[] files = new File(this.props.getProperty("ontologyInputDir")).listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
       if ("owl".equals(ext)) {

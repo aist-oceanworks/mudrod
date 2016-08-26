@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.weblog.pre;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -33,18 +33,16 @@ import org.slf4j.LoggerFactory;
  * Supports ability to extract click stream data based on session processing results
  */
 public class ClickStreamGenerator extends DiscoveryStepAbstract {
+  
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ClickStreamGenerator.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public ClickStreamGenerator(Map<String, String> config, ESDriver es,
+  public ClickStreamGenerator(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -52,12 +50,12 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
     LOG.info("*****************ClickStreamGenerator starts******************");
     startTime = System.currentTimeMillis();
 
-    String clickstremMatrixFile = config.get("clickstreamMatrix");
+    String clickstremMatrixFile = props.getProperty("clickstreamMatrix");
     try {
       SessionExtractor extractor = new SessionExtractor();
       JavaRDD<ClickStream> clickstreamRDD = extractor
-          .extractClickStreamFromES(this.config, this.es, this.spark);
-      int weight = Integer.parseInt(config.get("downloadWeight"));
+          .extractClickStreamFromES(this.props, this.es, this.spark);
+      int weight = Integer.parseInt(props.getProperty("downloadWeight"));
       JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor
           .bulidDataQueryRDD(clickstreamRDD, weight);
       LabeledRowMatrix wordDocMatrix = MatrixUtil

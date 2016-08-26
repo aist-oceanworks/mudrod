@@ -12,6 +12,6 @@
  * limitations under the License.
  */
 /**
- * Main entry point for Running the Mudrod system.
+ * Tests for the esiptestbed.mudrod.webservlet package
  */
-package esiptestbed.mudrod.main;
+package esiptestbed.mudrod.webservlet;

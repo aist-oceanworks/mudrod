@@ -11,34 +11,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.driver;
+package esiptestbed.mudrod.main;
 
-import java.io.Serializable;
+import static org.junit.Assert.*;
 
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaSparkContext;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
- * ClassName: SparkDriver 
- * Function: spark driver. 
- *
- * @author Yun
- 
+ * Unit tests for {@link esiptestbed.mudrod.main.MudrodEngine}
  */
-public class SparkDriver implements Serializable {
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
-public JavaSparkContext sc;
+public class TestMudrodEngine {
 
   /**
- * Creates a new instance of SparkDriver.
- *
- */
-public SparkDriver() {
-    SparkConf conf = new SparkConf().setAppName("Testing")
-        .setMaster("local[2]");
-    sc = new JavaSparkContext(conf);
+   * @throws java.lang.Exception
+   */
+  @Before
+  public void setUp() throws Exception {
   }
+
+  /**
+   * @throws java.lang.Exception
+   */
+  @After
+  public void tearDown() throws Exception {
+  }
+
+  @Test
+  @Ignore("Skip until unit testing strategy has been discussed.")
+  public final void test() {
+    fail("Not yet implemented"); // TODO
+  }
+
 }

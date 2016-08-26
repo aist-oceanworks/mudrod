@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,7 +16,10 @@ package esiptestbed.mudrod.weblog.structure;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -25,32 +28,68 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * ClassName: SessionTree Function: Convert request list in a session to a tree
+ *
+ * @author Yun
+ *
+ */
 public class SessionTree extends MudrodAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(SessionTree.class);
+  // size: node numbers in the session tree
   public int size = 0;
+  // root: root node of session tree
   protected SessionNode root = null;
+  // binsert: indicates inserting a node or not
   public boolean binsert = false;
+  // tmpnode: tempt node
   public SessionNode tmpnode;
+  // latestDatasetnode: the latest inserted node whose key is "dataset"
   public SessionNode latestDatasetnode;
+  // sessionID: session ID
   private String sessionID;
+  // cleanupType: session type in Elasticsearch
   private String cleanupType;
 
-  public SessionTree(Map<String, String> config, ESDriver es,
+  /**
+   * Creates a new instance of SessionTree.
+   *
+   * @param props:
+   *          the Mudrod configuration
+   * @param es:
+   *          the Elasticsearch drive
+   * @param rootData:
+   *          root node of the tree
+   * @param sessionID:
+   *          session ID
+   * @param cleanupType:
+   *          session type
+   */
+  public SessionTree(Properties props, ESDriver es,
       SessionNode rootData, String sessionID, String cleanupType) {
-    super(config, es, null);
+    super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     tmpnode = root;
     this.sessionID = sessionID;
     this.cleanupType = cleanupType;
   }
 
-  public SessionTree(Map<String, String> config, ESDriver es, String sessionID,
+  /**
+   * Creates a new instance of SessionTree.
+   *
+   * @param props:
+   *          the Mudrod configuration
+   * @param es:
+   *          the Elasticsearch drive
+   * @param sessionID:
+   *          session ID
+   * @param cleanupType:
+   *          session type
+   */
+  public SessionTree(Properties props, ESDriver es, String sessionID,
       String cleanupType) {
-    super(config, es, null);
+    super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     root.setParent(root);
     tmpnode = root;
@@ -58,6 +97,13 @@ public class SessionTree extends MudrodAbstract {
     this.cleanupType = cleanupType;
   }
 
+  /**
+   * insert: insert a node into the session tree.
+   *
+   * @param node
+   *          {@link esiptestbed.mudrod.weblog.structure.SessionNode}
+   * @return session node
+   */
   public SessionNode insert(SessionNode node) {
     // begin with datasetlist
     if (node.getKey().equals("datasetlist")) {
@@ -93,6 +139,12 @@ public class SessionTree extends MudrodAbstract {
     return node;
   }
 
+  /**
+   * printTree: Print session tree
+   *
+   * @param node
+   *          root node of the session tree
+   */
   public void printTree(SessionNode node) {
     LOG.info("node: {} \n", node.getRequest());
     if (node.children.size() != 0) {
@@ -102,6 +154,13 @@ public class SessionTree extends MudrodAbstract {
     }
   }
 
+  /**
+   * TreeToJson: Convert the session tree to Json object
+   *
+   * @param node
+   *          node of the session tree
+   * @return tree content in Json format
+   */
   public JsonObject TreeToJson(SessionNode node) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();
@@ -134,8 +193,12 @@ public class SessionTree extends MudrodAbstract {
     return json;
   }
 
-  public List<ClickStream> getClickStreamList()
-      throws UnsupportedEncodingException {
+  /**
+   * getClickStreamList: Get click stream list in the session
+   *
+   * @return {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  public List<ClickStream> getClickStreamList() {
 
     List<ClickStream> clickthroughs = new ArrayList<>();
     List<SessionNode> viewnodes = this.getViewNodes(this.root);
@@ -149,8 +212,14 @@ public class SessionTree extends MudrodAbstract {
         continue;
       }
 
-      RequestUrl requestURL = new RequestUrl(this.config, this.es, null);
-      String viewquery = requestURL.GetSearchInfo(viewnode.getRequest());
+      RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
+      String viewquery = "";
+      try {
+        viewquery = requestURL.getSearchInfo(viewnode.getRequest());
+      } catch (UnsupportedEncodingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
       String dataset = viewnode.getDatasetId();
       boolean download = false;
@@ -178,19 +247,13 @@ public class SessionTree extends MudrodAbstract {
     return clickthroughs;
   }
 
-  private SessionNode insert(String key, String value) {
-    SessionNode entry = new SessionNode();
-    entry.key = key;
-    entry.value = value;
-    if (root == null) {
-      root = entry;
-    } else {
-      insertHelper(entry, root);
-    }
-    size++;
-    return entry;
-  }
-
+  /**
+   * searchParentNode:Get parent node of a session node
+   *
+   * @param node
+   *          {@link esiptestbed.mudrod.weblog.structure.SessionNode}
+   * @return node {@link esiptestbed.mudrod.weblog.structure.SessionNode}
+   */
   private SessionNode searchParentNode(SessionNode node) {
 
     String tmpnodeKey = tmpnode.getKey();
@@ -220,17 +283,27 @@ public class SessionTree extends MudrodAbstract {
     return tmpnode;
   }
 
-  private SessionNode findLatestRefer(SessionNode start, String refer) {
+  /**
+   * findLatestRefer: Find parent node whose visiting url is equal to the refer
+   * url of a session node
+   *
+   * @param node:
+   *          {@link esiptestbed.mudrod.weblog.structure.SessionNode}
+   * @param refer:
+   *          request url
+   * @return
+   */
+  private SessionNode findLatestRefer(SessionNode node, String refer) {
     while (true) {
-      if (start.getKey().equals("root")) {
+      if (node.getKey().equals("root")) {
         return null;
       }
-      start = start.getParent();
-      if (refer.equals(start.getRequest())) {
-        return start;
+      node = node.getParent();
+      if (refer.equals(node.getRequest())) {
+        return node;
       }
 
-      SessionNode tmp = this.iterChild(start, refer);
+      SessionNode tmp = this.iterChild(node, refer);
       if (tmp == null) {
         continue;
       } else {
@@ -239,6 +312,13 @@ public class SessionTree extends MudrodAbstract {
     }
   }
 
+  /**
+   * iterChild:
+   *
+   * @param start
+   * @param refer
+   * @return
+   */
   private SessionNode iterChild(SessionNode start, String refer) {
     List<SessionNode> children = start.getChildren();
     SessionNode tmp = null;
@@ -258,6 +338,13 @@ public class SessionTree extends MudrodAbstract {
     return null;
   }
 
+  /**
+   * check:
+   *
+   * @param children
+   * @param str
+   * @return
+   */
   private boolean check(List<SessionNode> children, String str) {
     for (int i = 0; i < children.size(); i++) {
       if (children.get(i).key.equals(str)) {
@@ -267,6 +354,13 @@ public class SessionTree extends MudrodAbstract {
     return false;
   }
 
+  /**
+   * insertHelperChildren:
+   *
+   * @param entry
+   * @param children
+   * @return
+   */
   private boolean insertHelperChildren(SessionNode entry,
       List<SessionNode> children) {
     for (int i = 0; i < children.size(); i++) {
@@ -279,6 +373,13 @@ public class SessionTree extends MudrodAbstract {
 
   }
 
+  /**
+   * insertHelper:
+   *
+   * @param entry
+   * @param node
+   * @return
+   */
   private boolean insertHelper(SessionNode entry, SessionNode node) {
     if (entry.key.equals("datasetlist") || entry.key.equals("dataset")) {
       if (node.key.equals("datasetlist")) {
@@ -319,6 +420,12 @@ public class SessionTree extends MudrodAbstract {
     return false;
   }
 
+  /**
+   * getViewNodes: Get a session node's child nodes whose key is "dataset".
+   *
+   * @param node
+   * @return a list of session node
+   */
   private List<SessionNode> getViewNodes(SessionNode node) {
 
     List<SessionNode> viewnodes = new ArrayList<SessionNode>();

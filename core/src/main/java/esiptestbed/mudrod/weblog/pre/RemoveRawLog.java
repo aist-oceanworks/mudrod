@@ -13,7 +13,7 @@
  */
 package esiptestbed.mudrod.weblog.pre;
 
-import java.util.Map;
+import java.util.Properties;
 
 import org.elasticsearch.index.query.QueryBuilders;
 
@@ -28,27 +28,25 @@ import org.slf4j.LoggerFactory;
  * Supports ability to remove raw logs after processing is finished
  */
 public class RemoveRawLog extends DiscoveryStepAbstract {
+  
+  /**
+   * 
+   */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RemoveRawLog.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public RemoveRawLog(Map<String, String> config, ESDriver es,
+  public RemoveRawLog(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
   public Object execute() {
     LOG.info("*****************Clean raw log starts******************");
     startTime = System.currentTimeMillis();
-    es.deleteAllByQuery(config.get("indexName"), HTTP_type,
+    es.deleteAllByQuery(props.getProperty("indexName"), httpType,
         QueryBuilders.matchAllQuery());
-    es.deleteAllByQuery(config.get("indexName"), FTP_type,
+    es.deleteAllByQuery(props.getProperty("indexName"), ftpType,
         QueryBuilders.matchAllQuery());
     endTime = System.currentTimeMillis();
     es.refreshIndex();

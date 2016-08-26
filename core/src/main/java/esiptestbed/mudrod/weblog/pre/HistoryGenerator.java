@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -41,15 +42,9 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(HistoryGenerator.class);
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
-  public HistoryGenerator(Map<String, String> config, ESDriver es,
+  public HistoryGenerator(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -69,7 +64,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
    */
   public void GenerateBinaryMatrix() {
     try {
-      File file = new File(config.get("userHistoryMatrix"));
+      File file = new File(props.getProperty("userHistoryMatrix"));
       if (file.exists()) {
         file.delete();
       }
@@ -80,52 +75,53 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       BufferedWriter bw = new BufferedWriter(fw);
 
       ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
-          config.get("indexName"), config.get("SessionStats_prefix"));
+          props.getProperty("indexName"), props.getProperty("SessionStats_prefix"));
 
       bw.write("Num" + ",");
 
       // step 1: write first row of csv
-      SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-    	  .setTypes(cleanupTypeList.toArray(new String[0]))
+      SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
+          .setTypes(cleanupTypeList.toArray(new String[0]))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(0))
           .execute().actionGet();
-      Terms IPs = sr.getAggregations().get("IPs");
+      Terms ips = sr.getAggregations().get("IPs");
       List<String> ipList = new ArrayList<>();
-      for (Terms.Bucket entry : IPs.getBuckets()) {
+      for (Terms.Bucket entry : ips.getBuckets()) {
         if (entry.getDocCount() > Integer
-            .parseInt(config.get("mini_userHistory"))) { // filter out less
+            .parseInt(props.getProperty("mini_userHistory"))) { // filter out less
           // active users/ips
-          ipList.add(entry.getKey());
+          ipList.add(entry.getKey().toString());
         }
       }
 
       bw.write(String.join(",", ipList) + "\n");
 
       // step 2: step the rest rows of csv
-      SearchResponse sr_2 = es.client.prepareSearch(config.get("indexName"))
-    	  .setTypes(cleanupTypeList.toArray(new String[0]))
-    	  .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+      SearchResponse sr2 = es.getClient().prepareSearch(props.getProperty("indexName"))
+          //.setTypes(cleanupTypeList.toArray(new String[0]))
+          .setTypes(cleanupTypeList.toArray(new String[0]))
+          .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("KeywordAgg")
               .field("keywords").size(0).subAggregation(
                   AggregationBuilders.terms("IPAgg").field("IP").size(0)))
           .execute().actionGet();
-      Terms keywords = sr_2.getAggregations().get("KeywordAgg");
+      Terms keywords = sr2.getAggregations().get("KeywordAgg");
       for (Terms.Bucket keyword : keywords.getBuckets()) {
-        Map<String, Integer> IP_map = new HashMap<String, Integer>();
-        Terms IPAgg = keyword.getAggregations().get("IPAgg");
+        Map<String, Integer> ipMap = new HashMap<>();
+        Terms ipAgg = keyword.getAggregations().get("IPAgg");
 
-        int distinct_user = IPAgg.getBuckets().size();
-        if (distinct_user > Integer.parseInt(config.get("mini_userHistory")))
+        int distinctUser = ipAgg.getBuckets().size();
+        if (distinctUser > Integer.parseInt(props.getProperty("mini_userHistory")))
         {
           bw.write(keyword.getKey() + ",");
-          for (Terms.Bucket IP : IPAgg.getBuckets()) {
+          for (Terms.Bucket IP : ipAgg.getBuckets()) {
 
-            IP_map.put(IP.getKey(), 1);
+            ipMap.put(IP.getKey().toString(), 1);
           }
           for (int i = 0; i < ipList.size(); i++) {
-            if (IP_map.containsKey(ipList.get(i))) {
-              bw.write(IP_map.get(ipList.get(i)) + ",");
+            if (ipMap.containsKey(ipList.get(i))) {
+              bw.write(ipMap.get(ipList.get(i)) + ",");
             } else {
               bw.write("0,");
             }
