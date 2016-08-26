@@ -10,7 +10,7 @@
 package esiptestbed.mudrod.recommendation.pre;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 
@@ -35,10 +35,10 @@ import esiptestbed.mudrod.weblog.structure.SessionExtractor;
  */
 public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
-  public SessionCooccurenceMatrix(Map<String, String> config, ESDriver es,
+  public SessionCooccurenceMatrix(Properties props, ESDriver es,
       SparkDriver spark) {
 
-    super(config, es, spark);
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
 
   }
@@ -50,11 +50,11 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
         "*****************Dataset session_based similarity Generator starts******************");
     startTime = System.currentTimeMillis();
 
-    ItemSimCalculator simCal = new ItemSimCalculator(config);
+    ItemSimCalculator simCal = new ItemSimCalculator(props);
 
     SessionExtractor extractor = new SessionExtractor();
     JavaPairRDD<String, List<String>> sessionDatasetRDD = extractor
-        .bulidSessionItermRDD(config, es, spark);
+        .bulidSessionItermRDD(props, es, spark);
 
     JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = simCal
         .filterData(es, sessionDatasetRDD);
@@ -63,7 +63,7 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
     MatrixUtil.exportToCSV(datasetSessionMatrix.wordDocMatrix,
         datasetSessionMatrix.words, datasetSessionMatrix.docs,
-        config.get("session_item_Matrix"));
+        props.getProperty("session_item_Matrix"));
 
     endTime = System.currentTimeMillis();
     System.out.println(

@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -43,9 +44,9 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     }
   }
 
-  public HybirdRecommendation(Map<String, String> config, ESDriver es,
+  public HybirdRecommendation(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
   }
 
@@ -62,14 +63,14 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
   }
 
   public JsonObject getRecomDataInJson(String input, int num) {
-    String type = config.get("metadataCodeSimType");
+    String type = props.getProperty("metadataCodeSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
 
-    type = config.get("metadataTopicSimType");
+    type = props.getProperty("metadataTopicSimType");
     // type = config.get("metadataSessionBasedSimType");
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
 
-    type = config.get("metadataSessionBasedSimType");
+    type = props.getProperty("metadataSessionBasedSimType");
     Map<String, Double> sortedSBSimMap = getRelatedData(type, input, num + 5);
 
     Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
@@ -168,8 +169,8 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
   public List<LinkedTerm> getRelatedDataFromES(String type, String input,
       int num) {
 
-    SearchRequestBuilder builder = es.client
-        .prepareSearch(config.get(INDEX_NAME)).setTypes(type)
+    SearchRequestBuilder builder = es.getClient()
+        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
         .setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(num);
 

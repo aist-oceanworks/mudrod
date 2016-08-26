@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Document;
@@ -45,14 +45,14 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
 
-  public AggregateTriples(Map<String, String> config, ESDriver es,
+  public AggregateTriples(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
   public Object execute() {
-    File file = new File(this.config.get("oceanTriples"));
+    File file = new File(this.props.getProperty("oceanTriples"));
     if (file.exists()) {
       file.delete();
     }
@@ -70,7 +70,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
-    File[] files = new File(this.config.get("ontologyInputDir")).listFiles();
+    File[] files = new File(this.props.getProperty("ontologyInputDir")).listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
       if ("owl".equals(ext)) {

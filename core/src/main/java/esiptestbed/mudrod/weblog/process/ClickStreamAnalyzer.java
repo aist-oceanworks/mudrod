@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.weblog.process;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -34,9 +34,9 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
 
-  public ClickStreamAnalyzer(Map<String, String> config, ESDriver es,
+  public ClickStreamAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -45,14 +45,14 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     try {
-      SVDAnalyzer svd = new SVDAnalyzer(config, es, spark);
-      svd.GetSVDMatrix(config.get("clickstreamMatrix"),
-          Integer.parseInt(config.get("clickstreamSVDDimension")),
-          config.get("clickstreamSVDMatrix_tmp"));
+      SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
+      svd.getSVDMatrix(props.getProperty("clickstreamMatrix"),
+          Integer.parseInt(props.getProperty("clickstreamSVDDimension")),
+          props.getProperty("clickstreamSVDMatrix_tmp"));
       List<LinkageTriple> tripleList = svd
-          .CalTermSimfromMatrix(config.get("clickstreamSVDMatrix_tmp"));
-      svd.SaveToES(tripleList, config.get("indexName"),
-          config.get("clickStreamLinkageType"));
+          .calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
+      svd.saveToES(tripleList, props.getProperty("indexName"),
+          props.getProperty("clickStreamLinkageType"));
     } catch (Exception e) {
       e.printStackTrace();
     }

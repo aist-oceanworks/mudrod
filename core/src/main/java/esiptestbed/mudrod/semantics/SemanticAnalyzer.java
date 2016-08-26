@@ -15,7 +15,7 @@ package esiptestbed.mudrod.semantics;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -30,8 +30,7 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.utils.SimilarityUtil;
 
 /**
- * ClassName: SemanticAnalyzer Function: Semantic analyzer Date: Aug 12, 2016
- * 12:42:55 PM
+ * ClassName: SemanticAnalyzer Function: Semantic analyzer
  *
  * @author Yun
  *
@@ -41,58 +40,49 @@ public class SemanticAnalyzer extends MudrodAbstract {
   /**
    * Creates a new instance of SemanticAnalyzer.
    *
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark drive
    */
-  public SemanticAnalyzer(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
+  public SemanticAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   /**
    * CalTermSimfromMatrix: Calculate term similarity from matrix.
    *
-   * @param CSV_fileName
+   * @param csvFileName
    *          csv file of matrix, each row is a term, and each column is a
    *          dimension in feature space
    * @return Linkage triple list
    */
-  public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName) {
-
-    /*
-     * JavaPairRDD<String, Vector> importRDD =
-     * MatrixUtil.loadVectorFromCSV(spark, CSV_fileName, 1);
-     * CoordinateMatrix simMatrix = SimilarityUtil
-     * .CalSimilarityFromVector(importRDD.values()); JavaRDD<String>
-     * rowKeyRDD = importRDD.keys(); List<LinkageTriple> triples =
-     * SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
-     * 
-     * return triples;
-     */
-
-    return this.CalTermSimfromMatrix(CSV_fileName, 1);
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName) {
+    return this.calTermSimfromMatrix(csvFileName, 1);
   }
 
-  public List<LinkageTriple> CalTermSimfromMatrix(String CSV_fileName,
+  /**
+   * CalTermSimfromMatrix: Calculate term similarity from matrix.
+   *
+   * @param csvFileName
+   *          csv file of matrix, each row is a term, and each column is a
+   *          dimension in feature space
+   * @return Linkage triple list
+   */
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
       int skipRow) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        CSV_fileName, skipRow);
+        csvFileName, skipRow);
     CoordinateMatrix simMatrix = SimilarityUtil
         .CalSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
-    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(rowKeyRDD,
-        simMatrix);
-
-    return triples;
+    return SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
   }
 
-  public void SaveToES(List<LinkageTriple> triple_List, String index,
+  public void saveToES(List<LinkageTriple> triple_List, String index,
       String type) {
     try {
       LinkageTriple.insertTriples(es, triple_List, index, type);
@@ -104,21 +94,23 @@ public class SemanticAnalyzer extends MudrodAbstract {
   /**
    * SaveToES: Save linkage triples to Elasticsearch.
    *
-   * @param triple_List
+   * @param tripleList
    *          linkage triple list
    * @param index
    *          index name
    * @param type
    *          linkage triple type name
    */
-  public void SaveToES(List<LinkageTriple> triple_List, String index,
+  public void saveToES(List<LinkageTriple> tripleList, String index,
       String type, boolean bTriple, boolean bSymmetry) {
     try {
-      LinkageTriple.insertTriples(es, triple_List, index, type, bTriple,
+      LinkageTriple.insertTriples(es, tripleList, index, type, bTriple,
           bSymmetry);
     } catch (IOException e) {
+
+      // TODO Auto-generated catch block
       e.printStackTrace();
+
     }
   }
-
 }

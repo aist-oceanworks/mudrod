@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.recommendation.pre;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.slf4j.Logger;
@@ -34,9 +34,9 @@ public class OHCodeMatrixGenerator extends DiscoveryStepAbstract {
   private static final Logger LOG = LoggerFactory
       .getLogger(OHCodeMatrixGenerator.class);
 
-  public OHCodeMatrixGenerator(Map<String, String> config, ESDriver es,
+  public OHCodeMatrixGenerator(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -45,14 +45,14 @@ public class OHCodeMatrixGenerator extends DiscoveryStepAbstract {
         "*****************Metadata OHEncode matrix starts******************");
     startTime = System.currentTimeMillis();
 
-    String metadataCodeMatrixFile = config.get("metadataOBCodeMatrix");
+    String metadataCodeMatrixFile = props.getProperty("metadataOBCodeMatrix");
     try {
 
-      OHCodeExtractor extractor = new OHCodeExtractor(config);
+      OHCodeExtractor extractor = new OHCodeExtractor(props);
       List<String> metedataCodes = extractor.loadMetadataOHEncode(es);
 
       JavaRDD<String> codeRDD = spark.sc.parallelize(metedataCodes);
-      codeRDD.saveAsTextFile(config.get("metadataOBCode"));
+      codeRDD.saveAsTextFile(props.getProperty("metadataOBCode"));
 
     } catch (Exception e) {
       e.printStackTrace();

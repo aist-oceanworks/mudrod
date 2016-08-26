@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -43,8 +44,8 @@ public class RecomData extends DiscoveryStepAbstract {
     }
   }
 
-  public RecomData(Map<String, String> config, ESDriver es, SparkDriver spark) {
-    super(config, es, spark);
+  public RecomData(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
   }
 
@@ -62,13 +63,13 @@ public class RecomData extends DiscoveryStepAbstract {
 
   public JsonObject getRecomDataInJson(String input, int num) {
     // String type = config.get("metadataCodeSimType");
-    String type = config.get("metadataSessionBasedSimType");
+    String type = props.getProperty("metadataSessionBasedSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
     JsonElement linkedJson = mapToJson(sortedOBSimMap, num);
 
     // type = config.get("metadataItemBasedSimType");
     // type = config.get("metadataSessionBasedSimType");
-    type = config.get("metadataTopicSimType");
+    type = props.getProperty("metadataTopicSimType");
 
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
     JsonElement relatedJson = mapToJson(sortedMBSimMap, num);
@@ -154,8 +155,8 @@ public class RecomData extends DiscoveryStepAbstract {
 
     // String customInput = input.toLowerCase();
     //
-    SearchRequestBuilder builder = es.client
-        .prepareSearch(config.get(INDEX_NAME)).setTypes(type)
+    SearchRequestBuilder builder = es.getClient()
+        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
         .setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(num);
 

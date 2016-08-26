@@ -13,18 +13,16 @@
  */
 package esiptestbed.mudrod.discoveryengine;
 
-import java.io.Serializable;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 
-  public DiscoveryStepAbstract(Map<String, String> config, ESDriver es,
+  public DiscoveryStepAbstract(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
-    // TODO Auto-generated constructor stub
+    super(props, es, spark);
   }
 
   public abstract Object execute();

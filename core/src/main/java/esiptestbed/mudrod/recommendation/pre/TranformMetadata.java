@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.action.search.SearchResponse;
@@ -46,12 +47,11 @@ public class TranformMetadata extends DiscoveryStepAbstract {
   private String metadataType;
   private String VAR_NOT_EXIST = "varNotExist";
 
-  public TranformMetadata(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public TranformMetadata(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
 
-    indexName = config.get("indexName");
-    metadataType = config.get("recom_metadataType");
+    indexName = props.getProperty("indexName");
+    metadataType = props.getProperty("recom_metadataType");
     CategoricalVarValueFacets = new HashMap<String, Map<String, String>>();
     CategoricalVars = new ArrayList<String>();
 
@@ -91,26 +91,26 @@ public class TranformMetadata extends DiscoveryStepAbstract {
   private void TranformAllMetadata() {
     es.createBulkProcesser();
 
-    SearchResponse scrollResp = es.client.prepareSearch(config.get("indexName"))
-        .setTypes(metadataType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
-        .actionGet();
+    SearchResponse scrollResp = es.getClient()
+        .prepareSearch(props.getProperty("indexName")).setTypes(metadataType)
+        .setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
+        .setSize(100).execute().actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
         Map<String, Object> metadatacode;
         try {
           metadatacode = TranformMetadata(metadata);
-          UpdateRequest ur = es.genUpdateRequest(config.get("indexName"),
+          UpdateRequest ur = es.genUpdateRequest(props.getProperty("indexName"),
               metadataType, hit.getId(), metadatacode);
-          es.bulkProcessor.add(ur);
+          es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
 
-      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
@@ -130,7 +130,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
       // System.out.println(var);
       String groups = null;
       if (metadata.get(var) != null && metadata.get(var) != "") {
-        String value = es.customAnalyzing(config.get("indexName"), "csv",
+        String value = es.customAnalyzing(props.getProperty("indexName"), "csv",
             metadata.get(var).toString());
         groups = getValueGroups(var, value);
       } else {
@@ -196,8 +196,9 @@ public class TranformMetadata extends DiscoveryStepAbstract {
 
   private Map<String, String> TranformVar(String varName) {
 
-    SearchResponse sr = es.client.prepareSearch(config.get("indexName"))
-        .setTypes(config.get("recom_metadataType"))
+    SearchResponse sr = es.getClient()
+        .prepareSearch(props.getProperty("indexName"))
+        .setTypes(props.getProperty("recom_metadataType"))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(
             AggregationBuilders.terms("Values").field(varName).size(0))
@@ -215,7 +216,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
     List<String> values = new ArrayList<String>();
     Map<String, String> valueGroup = new HashMap<String, String>();
     for (Terms.Bucket entry : VarValues.getBuckets()) {
-      String value = entry.getKey();
+      String value = (String) entry.getKey();
       values.add(value);
     }
 

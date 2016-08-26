@@ -16,7 +16,7 @@ package esiptestbed.mudrod.weblog.structure;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 
 /**
  * ClassName: SessionTree Function: Convert request list in a session to a tree
- * Date: Aug 12, 2016 1:36:00 PM
  *
  * @author Yun
  *
@@ -56,7 +55,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param config:
+   * @param props:
    *          the Mudrod configuration
    * @param es:
    *          the Elasticsearch drive
@@ -67,9 +66,9 @@ public class SessionTree extends MudrodAbstract {
    * @param cleanupType:
    *          session type
    */
-  public SessionTree(Map<String, String> config, ESDriver es,
+  public SessionTree(Properties props, ESDriver es,
       SessionNode rootData, String sessionID, String cleanupType) {
-    super(config, es, null);
+    super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     tmpnode = root;
     this.sessionID = sessionID;
@@ -79,7 +78,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param config:
+   * @param props:
    *          the Mudrod configuration
    * @param es:
    *          the Elasticsearch drive
@@ -88,9 +87,9 @@ public class SessionTree extends MudrodAbstract {
    * @param cleanupType:
    *          session type
    */
-  public SessionTree(Map<String, String> config, ESDriver es, String sessionID,
+  public SessionTree(Properties props, ESDriver es, String sessionID,
       String cleanupType) {
-    super(config, es, null);
+    super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     root.setParent(root);
     tmpnode = root;
@@ -213,10 +212,10 @@ public class SessionTree extends MudrodAbstract {
         continue;
       }
 
-      RequestUrl requestURL = new RequestUrl(this.config, this.es, null);
+      RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
       String viewquery = "";
       try {
-        viewquery = requestURL.GetSearchInfo(viewnode.getRequest());
+        viewquery = requestURL.getSearchInfo(viewnode.getRequest());
       } catch (UnsupportedEncodingException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.weblog.process;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -33,9 +33,9 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(UserHistoryAnalyzer.class);
   
-  public UserHistoryAnalyzer(Map<String, String> config, ESDriver es,
+  public UserHistoryAnalyzer(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -43,11 +43,11 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
     LOG.info("*****************UserHistoryAnalyzer starts******************");
     startTime = System.currentTimeMillis();
 
-    SemanticAnalyzer sa = new SemanticAnalyzer(config, es, spark);
+    SemanticAnalyzer sa = new SemanticAnalyzer(props, es, spark);
     List<LinkageTriple> tripleList = sa
-        .CalTermSimfromMatrix(config.get("userHistoryMatrix"));
-    sa.SaveToES(tripleList, config.get("indexName"),
-        config.get("userHistoryLinkageType"));
+        .calTermSimfromMatrix(props.getProperty("userHistoryMatrix"));
+    sa.saveToES(tripleList, props.getProperty("indexName"),
+        props.getProperty("userHistoryLinkageType"));
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

@@ -13,7 +13,7 @@
  */
 package esiptestbed.mudrod.discoveryengine;
 
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -31,17 +31,15 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(OntologyDiscoveryEngine.class);
 
-  public OntologyDiscoveryEngine(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public OntologyDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   public void preprocess() {
     LOG.info("*****************Ontology preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract at = new AggregateTriples(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract at = new AggregateTriples(this.props, this.es, this.spark);
     at.execute();
 
     endTime = System.currentTimeMillis();
@@ -53,8 +51,7 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     LOG.info("*****************Ontology processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract ol = new OntologyLinkCal(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract ol = new OntologyLinkCal(this.props, this.es, this.spark);
     ol.execute();
 
     endTime = System.currentTimeMillis();

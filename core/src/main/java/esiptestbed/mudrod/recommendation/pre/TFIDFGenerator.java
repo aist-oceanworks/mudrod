@@ -10,7 +10,7 @@
 package esiptestbed.mudrod.recommendation.pre;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 
@@ -34,10 +34,9 @@ import esiptestbed.mudrod.utils.MatrixUtil;
  */
 public class TFIDFGenerator extends DiscoveryStepAbstract {
 
-  public TFIDFGenerator(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
+  public TFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
 
-    super(config, es, spark);
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
 
   }
@@ -45,14 +44,14 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
   @Override
   public Object execute() {
 
-    LDAModel lda = new LDAModel(config);
+    LDAModel lda = new LDAModel(props);
     try {
       JavaPairRDD<String, List<String>> metadataVecs = lda.loadData(es, spark);
       LabeledRowMatrix dataTopicMatrix = lda.getTFIDF(metadataVecs, spark,
-          config.get("metadata_topic"));
+          props.getProperty("metadata_topic"));
       MatrixUtil.exportToCSV(dataTopicMatrix.wordDocMatrix,
           dataTopicMatrix.words, dataTopicMatrix.docs,
-          config.get("metadata_topic_matrix"));
+          props.getProperty("metadata_topic_matrix"));
 
     } catch (Exception e) {
 

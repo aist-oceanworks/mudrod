@@ -13,7 +13,7 @@
  */
 package esiptestbed.mudrod.weblog.pre;
 
-import java.util.Map;
+import java.util.Properties;
 
 import org.elasticsearch.index.query.QueryBuilders;
 
@@ -32,18 +32,18 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RemoveRawLog.class);
 
-  public RemoveRawLog(Map<String, String> config, ESDriver es,
+  public RemoveRawLog(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
   public Object execute() {
     LOG.info("*****************Clean raw log starts******************");
     startTime = System.currentTimeMillis();
-    es.deleteAllByQuery(config.get("indexName"), HTTP_type,
+    es.deleteAllByQuery(props.getProperty("indexName"), httpType,
         QueryBuilders.matchAllQuery());
-    es.deleteAllByQuery(config.get("indexName"), FTP_type,
+    es.deleteAllByQuery(props.getProperty("indexName"), ftpType,
         QueryBuilders.matchAllQuery());
     endTime = System.currentTimeMillis();
     es.refreshIndex();

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -41,9 +42,9 @@ public class LDAModel implements Serializable {
 
   public List<String> variables;
 
-  public LDAModel(Map<String, String> config) {
-    indexName = config.get("indexName");
-    metadataType = config.get("recom_metadataType");
+  public LDAModel(Properties props) {
+    indexName = props.getProperty("indexName");
+    metadataType = props.getProperty("recom_metadataType");
 
     variables = new ArrayList<String>();
     variables.add("DatasetParameter-Term");
@@ -78,7 +79,7 @@ public class LDAModel implements Serializable {
   public List<Tuple2<String, List<String>>> loadMetadataFromES(ESDriver es)
       throws Exception {
 
-    SearchResponse scrollResp = es.client.prepareSearch(indexName)
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery())
         .setScroll(new TimeValue(60000)).setSize(100).execute().actionGet();
 
@@ -108,7 +109,7 @@ public class LDAModel implements Serializable {
         datasetsTokens.add(new Tuple2(shortName, tokens));
       }
 
-      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;

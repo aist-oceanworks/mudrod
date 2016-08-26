@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -35,10 +36,10 @@ public class ItemSimCalculator implements Serializable {
   private String indexName;
   private String metadataType;
 
-  public ItemSimCalculator(Map<String, String> config) {
+  public ItemSimCalculator(Properties props) {
     // TODO Auto-generated constructor stub
-    indexName = config.get("indexName");
-    metadataType = config.get("recom_metadataType");
+    indexName = props.getProperty("indexName");
+    metadataType = props.getProperty("recom_metadataType");
   }
 
   public JavaPairRDD<String, List<String>> prepareData(JavaSparkContext sc,
@@ -137,7 +138,7 @@ public class ItemSimCalculator implements Serializable {
   private Map<String, String> getMetadataNameMap(ESDriver es) {
 
     Map<String, String> shortnameMap = new HashMap<String, String>();
-    SearchResponse scrollResp = es.client.prepareSearch(indexName)
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
@@ -148,7 +149,7 @@ public class ItemSimCalculator implements Serializable {
         shortnameMap.put(shortName.toLowerCase(), shortName);
       }
 
-      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;

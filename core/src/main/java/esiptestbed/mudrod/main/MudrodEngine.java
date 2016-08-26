@@ -15,9 +15,8 @@ package esiptestbed.mudrod.main;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -33,10 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
+import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
+import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.RecommendEngine;
 import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.integration.LinkageIntegration;
 
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
@@ -47,7 +49,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 public class MudrodEngine {
 
   private static final Logger LOG = LoggerFactory.getLogger(MudrodEngine.class);
-  private Map<String, String> config = new HashMap<>();
+  private Properties props = new Properties();
   private ESDriver es = null;
   private SparkDriver spark = null;
   private static final String LOG_INGEST = "logIngest";
@@ -55,22 +57,41 @@ public class MudrodEngine {
   private static final String LOG_DIR = "logDir";
 
   /**
-   * Public constructor for this class, loads a default config.xml.
+   * Public constructor for this class.
    */
   public MudrodEngine() {
-    loadConfig();
-    es = new ESDriver(config);
-    spark = new SparkDriver();
+    // default constructor
   }
 
   /**
-   * Retreive the Mudrod configuration as a {@link java.util.Map} containing K,
-   * V of type String.
+   * Start the {@link esiptestbed.mudrod.driver.ESDriver}. Should only be called
+   * after call to {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
    *
-   * @return a configuration {@link java.util.Map}
+   * @return fully provisioned {@link esiptestbed.mudrod.driver.ESDriver}
    */
-  public Map<String, String> getConfig() {
-    return config;
+  public ESDriver startESDriver() {
+    return new ESDriver(props);
+  }
+
+  /**
+   * Start the {@link esiptestbed.mudrod.driver.SparkDriver}. Should only be
+   * called after call to
+   * {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   *
+   * @return fully provisioned {@link esiptestbed.mudrod.driver.SparkDriver}
+   */
+  public SparkDriver startSparkDriver() {
+    return new SparkDriver();
+  }
+
+  /**
+   * Retreive the Mudrod configuration as a Properties Map containing K, V of
+   * type String.
+   *
+   * @return a {@link java.util.Properties} object
+   */
+  public Properties getConfig() {
+    return props;
   }
 
   /**
@@ -85,8 +106,10 @@ public class MudrodEngine {
   /**
    * Load the configuration provided at <a href=
    * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+   *
+   * @return a populated {@link java.util.Properties} object.
    */
-  public void loadConfig() {
+  public Properties loadConfig() {
     SAXBuilder saxBuilder = new SAXBuilder();
     InputStream configStream = MudrodEngine.class.getClassLoader()
         .getResourceAsStream("config.xml");
@@ -99,15 +122,14 @@ public class MudrodEngine {
 
       for (int i = 0; i < paraList.size(); i++) {
         Element paraNode = paraList.get(i);
-        config.put(paraNode.getAttributeValue("name"), paraNode.getTextTrim());
+        props.put(paraNode.getAttributeValue("name"), paraNode.getTextTrim());
       }
-    } catch (JDOMException e) {
+    } catch (JDOMException | IOException e) {
       LOG.error(
-          "Exception whilst processing XML contained within 'config.xml'!", e);
-    } catch (IOException e) {
-      LOG.error("Error whilst retrieving and reading 'config.xml' resource!",
+          "Exception whilst retreiving or processing XML contained within 'config.xml'!",
           e);
     }
+    return getConfig();
 
   }
 
@@ -118,23 +140,24 @@ public class MudrodEngine {
    * integration.
    */
   public void start() {
-    /*
-     * DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es,
-     * spark); wd.preprocess(); wd.process();
-     *
-     * DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es,
-     * spark); od.preprocess(); od.process();
-     *
-     * DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es,
-     * spark); md.preprocess(); md.process();
-     *
-     * LinkageIntegration li = new LinkageIntegration(config, es, spark);
-     * li.execute();
-     */
+    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.preprocess();
+    wd.process();
 
-    DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
+    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
+    od.preprocess();
+    od.process();
+
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+
+    LinkageIntegration li = new LinkageIntegration(props, es, spark);
+    li.execute();
+
+    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
-    // recom.process();
+    recom.process();
   }
 
   /**
@@ -144,21 +167,21 @@ public class MudrodEngine {
    * integration.
    */
   public void startProcessing() {
-    /*
-     * DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(config, es,
-     * spark); wd.process();
-     *
-     * DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(config, es,
-     * spark); od.preprocess(); od.process();
-     *
-     * DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(config, es,
-     * spark); md.preprocess(); md.process();
-     *
-     * LinkageIntegration li = new LinkageIntegration(config, es, spark);
-     * li.execute();
-     */
+    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.process();
 
-    DiscoveryEngineAbstract recom = new RecommendEngine(config, es, spark);
+    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
+    od.preprocess();
+    od.process();
+
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+
+    LinkageIntegration li = new LinkageIntegration(props, es, spark);
+    li.execute();
+
+    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
   }
@@ -168,15 +191,14 @@ public class MudrodEngine {
    * {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
    */
   public void startLogIngest() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
+    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.logIngest();
   }
 
-  public void startSessionReconstruction() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(config, es, spark);
-    wd.sessionReconstruction();
-  }
-
+  /**
+   * Close the connection to the {@link esiptestbed.mudrod.driver.ESDriver}
+   * instance.
+   */
   public void end() {
     es.close();
   }
@@ -223,7 +245,10 @@ public class MudrodEngine {
       }
 
       MudrodEngine me = new MudrodEngine();
-      me.config.put(LOG_DIR, dataDir);
+      me.loadConfig();
+      me.props.put(LOG_DIR, dataDir);
+      me.es = new ESDriver(me.getConfig());
+      me.spark = new SparkDriver();
 
       switch (processingType) {
       case LOG_INGEST:
@@ -231,7 +256,6 @@ public class MudrodEngine {
         break;
       case FULL_INGEST:
         loadFullConfig(me, dataDir);
-        // me.start();
         me.startProcessing();
         break;
       default:
@@ -253,31 +277,23 @@ public class MudrodEngine {
   }
 
   private static void loadFullConfig(MudrodEngine me, String dataDir) {
-    me.config.put("ontologyInputDir", dataDir + "SWEET_ocean/");
-    me.config.put("oceanTriples", dataDir + "Ocean_triples.csv");
-    me.config.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
-    me.config.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
-    me.config.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
-    me.config.put("clickstreamSVDMatrix_tmp",
+    me.props.put("ontologyInputDir", dataDir + "SWEET_ocean/");
+    me.props.put("oceanTriples", dataDir + "Ocean_triples.csv");
+    me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
+    me.props.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
+    me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
+    me.props.put("clickstreamSVDMatrix_tmp",
         dataDir + "clickstreamSVDMatrix_tmp.csv");
-    me.config.put("metadataSVDMatrix_tmp",
+    me.props.put("metadataSVDMatrix_tmp",
         dataDir + "metadataSVDMatrix_tmp.csv");
-    me.config.put("raw_metadataPath", dataDir + "RawMetadata");
+    me.props.put("raw_metadataPath", dataDir + "RawMetadata");
 
-    me.config.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
-    me.config.put("metadataOBCode", dataDir + "MetadataOBCode");
-    me.config.put("user_item_rate", dataDir + "user_item_rate");
-    me.config.put("user_item_rate_pre", dataDir + "user_item_rate_pre");
-
-    me.config.put("user_based_item_optMatrix",
-        dataDir + "User_based_item_optMatrix.csv");
-
-    me.config.put("session_item_opt", dataDir + "session_item_opt");
-    me.config.put("session_item_Matrix",
+    me.props.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
+    me.props.put("metadataOBCode", dataDir + "MetadataOBCode");
+    me.props.put("session_item_Matrix",
         dataDir + "session_based_item_Matrix.csv");
-    me.config.put("metadata_topic", dataDir + "metadata_topic");
-    me.config.put("metadata_topic_matrix",
+    me.props.put("metadata_topic", dataDir + "metadata_topic");
+    me.props.put("metadata_topic_matrix",
         dataDir + "metadata_topic_matrix.csv");
-
   }
 }

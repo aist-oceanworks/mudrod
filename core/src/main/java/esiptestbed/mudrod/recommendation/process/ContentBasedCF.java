@@ -2,7 +2,7 @@ package esiptestbed.mudrod.recommendation.process;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +20,9 @@ public class ContentBasedCF extends DiscoveryStepAbstract
   private static final Logger LOG = LoggerFactory
       .getLogger(ContentBasedCF.class);
 
-  public ContentBasedCF(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
+  public ContentBasedCF(Properties props, ESDriver es, SparkDriver spark) {
     // TODO Auto-generated constructor stub
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -34,14 +33,14 @@ public class ContentBasedCF extends DiscoveryStepAbstract
     startTime = System.currentTimeMillis();
 
     try {
-      CodeSimCalculator calculator = new CodeSimCalculator(config);
-      String MatrixCodeFileName = config.get("metadataOBCode");
+      CodeSimCalculator calculator = new CodeSimCalculator(props);
+      String MatrixCodeFileName = props.getProperty("metadataOBCode");
       List<LinkageTriple> triples = calculator.CalItemSimfromTxt(spark,
           MatrixCodeFileName);
 
-      SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
-      analyzer.SaveToES(triples, config.get("indexName"),
-          config.get("metadataCodeSimType"), true, false);
+      SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
+      analyzer.saveToES(triples, props.getProperty("indexName"),
+          props.getProperty("metadataCodeSimType"), true, false);
 
     } catch (Exception e) {
       // TODO Auto-generated catch block

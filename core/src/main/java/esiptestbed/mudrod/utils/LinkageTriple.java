@@ -72,16 +72,6 @@ public class LinkageTriple implements Serializable {
 
   public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
       String index, String type) throws IOException {
-    /*
-     * es.deleteType(index, type); es.createBulkProcesser(); int size =
-     * triples.size(); for (int i = 0; i < size; i++) { IndexRequest ir =
-     * new IndexRequest(index, type).source(
-     * jsonBuilder().startObject().field("keywords", triples.get(i).keyA +
-     * "," + triples.get(i).keyB) .field("weight",
-     * Double.parseDouble(df.format(triples.get(i).weight))).endObject());
-     * es.bulkProcessor.add(ir); } es.destroyBulkProcessor();
-     */
-
     LinkageTriple.insertTriples(es, triples, index, type, false, false);
   }
 
@@ -124,7 +114,7 @@ public class LinkageTriple implements Serializable {
           Double.parseDouble(df.format(triples.get(i).weight)));
 
       IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
-      es.bulkProcessor.add(ir);
+      es.getBulkProcessor().add(ir);
 
       if (bTriple && bSymmetry) {
         XContentBuilder symmetryJsonBuilder = jsonBuilder().startObject();
@@ -136,7 +126,7 @@ public class LinkageTriple implements Serializable {
 
         IndexRequest symmetryir = new IndexRequest(index, type)
             .source(symmetryJsonBuilder);
-        es.bulkProcessor.add(symmetryir);
+        es.getBulkProcessor().add(symmetryir);
       }
     }
     es.destroyBulkProcessor();
@@ -153,7 +143,7 @@ public class LinkageTriple implements Serializable {
 
           .endObject().endObject().endObject();
 
-      es.client.admin().indices().preparePutMapping(index).setType(type)
+      es.getClient().admin().indices().preparePutMapping(index).setType(type)
           .setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       // TODO Auto-generated catch block
@@ -165,7 +155,7 @@ public class LinkageTriple implements Serializable {
       throws IOException {
     es.createBulkProcesser();
 
-    SearchResponse sr = es.client.prepareSearch(index).setTypes(type)
+    SearchResponse sr = es.getClient().prepareSearch(index).setTypes(type)
         .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(
             AggregationBuilders.terms("concepts").field("concept_A").size(0))
@@ -173,14 +163,14 @@ public class LinkageTriple implements Serializable {
     Terms concepts = sr.getAggregations().get("concepts");
 
     for (Terms.Bucket entry : concepts.getBuckets()) {
-      String concept = entry.getKey();
+      String concept = (String) entry.getKey();
       double maxSim = LinkageTriple.getMaxSimilarity(es, index, type, concept);
       if (maxSim == 1.0) {
         continue;
       }
 
-      SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type)
-          .setScroll(new TimeValue(60000))
+      SearchResponse scrollResp = es.getClient().prepareSearch(index)
+          .setTypes(type).setScroll(new TimeValue(60000))
           .setQuery(QueryBuilders.termQuery("concept_A", concept))
           .addSort("weight", SortOrder.DESC).setSize(100).execute().actionGet();
 
@@ -191,10 +181,11 @@ public class LinkageTriple implements Serializable {
           double newSim = sim / maxSim;
           UpdateRequest ur = es.genUpdateRequest(index, type, hit.getId(),
               "weight", Double.parseDouble(df.format(newSim)));
-          es.bulkProcessor.add(ur);
+          es.getBulkProcessor().add(ur);
         }
 
-        scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+        scrollResp = es.getClient()
+            .prepareSearchScroll(scrollResp.getScrollId())
             .setScroll(new TimeValue(600000)).execute().actionGet();
         if (scrollResp.getHits().getHits().length == 0) {
           break;
@@ -209,8 +200,8 @@ public class LinkageTriple implements Serializable {
       String concept) {
 
     double maxSim = 1.0;
-    SearchRequestBuilder builder = es.client.prepareSearch(index).setTypes(type)
-        .setQuery(QueryBuilders.termQuery("concept_A", concept))
+    SearchRequestBuilder builder = es.getClient().prepareSearch(index)
+        .setTypes(type).setQuery(QueryBuilders.termQuery("concept_A", concept))
         .addSort("weight", SortOrder.DESC).setSize(1);
 
     SearchResponse usrhis = builder.execute().actionGet();

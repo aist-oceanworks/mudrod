@@ -10,7 +10,7 @@
 package esiptestbed.mudrod.recommendation.process;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +37,9 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
   private static final Logger LOG = LoggerFactory
       .getLogger(sessionBasedCF.class);
 
-  public sessionBasedCF(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
+  public sessionBasedCF(Properties props, ESDriver es, SparkDriver spark) {
 
-    super(config, es, spark);
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
 
   }
@@ -53,12 +52,12 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
 
     // TODO Auto-generated method stub
     try {
-      String session_metadatFile = config.get("session_item_Matrix");
-      ItemSimCalculator simcal = new ItemSimCalculator(config);
+      String session_metadatFile = props.getProperty("session_item_Matrix");
+      ItemSimCalculator simcal = new ItemSimCalculator(props);
       List<LinkageTriple> triples = simcal.CalItemSimfromMatrix(spark,
           session_metadatFile, 1);
-      LinkageTriple.insertTriples(es, triples, config.get("indexName"),
-          config.get("metadataSessionBasedSimType"), true, false);
+      LinkageTriple.insertTriples(es, triples, props.getProperty("indexName"),
+          props.getProperty("metadataSessionBasedSimType"), true, false);
 
     } catch (Exception e) {
       // TODO Auto-generated catch block

@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,10 +15,14 @@ package esiptestbed.mudrod.discoveryengine;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
@@ -29,18 +33,19 @@ import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
-  public WeblogDiscoveryEngine(Map<String, String> config, ESDriver es, SparkDriver spark){
-    super(config, es, spark);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(WeblogDiscoveryEngine.class);
+
+  public WeblogDiscoveryEngine(Properties props, ESDriver es,
+      SparkDriver spark) {
+    super(props, es, spark);
+    LOG.info("Started Mudrod Weblog Discovery Engine.");
   }
 
   public String timeSuffix = null;
@@ -49,7 +54,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void preprocess() {
     LOG.info("*****************Web log preprocessing starts******************");
 
-    File directory = new File(config.get("logDir"));
+    File directory = new File(props.getProperty("logDir"));
 
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
@@ -57,151 +62,176 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     for (File file : fList) {
       if (file.isFile()) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+          && file.getName().contains(props.getProperty("httpPrefix"))) {
+        inputList
+            .add(file.getName().replace(props.getProperty("httpPrefix"), ""));
       }
     }
 
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      startTime=System.currentTimeMillis();
-      LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
+    for (int i = 0; i < inputList.size(); i++) {
+      timeSuffix = inputList.get(i);
+      props.put("TimeSuffix", timeSuffix);
+      startTime = System.currentTimeMillis();
+      LOG.info(
+          "*****************Web log preprocessing starts****************** {}",
+          inputList.get(i));
 
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+          this.spark);
       im.execute();
 
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
+          this.spark);
       cd.execute();
 
-      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es,
+          this.spark);
       sg.execute();
 
-      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es,
+          this.spark);
       ss.execute();
 
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
+          this.spark);
       rr.execute();
 
-      endTime=System.currentTimeMillis();
+      endTime = System.currentTimeMillis();
 
-      LOG.info("*****************Web log preprocessing ends******************Took {}s {}", 
-          (endTime-startTime)/1000, inputList.get(i));
+      LOG.info(
+          "*****************Web log preprocessing ends******************Took {}s {}",
+          (endTime - startTime) / 1000, inputList.get(i));
     }
 
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es,
+        this.spark);
     hg.execute();
 
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es,
+        this.spark);
     cg.execute();
 
-    LOG.info("*****************Web log preprocessing (user history and clickstream finished) ends******************");
+    LOG.info(
+        "*****************Web log preprocessing (user history and clickstream finished) ends******************");
 
   }
-  
+
   public void logIngest() {
     LOG.info("*****************Web log ingest starts******************");
 
-    File directory = new File(config.get("logDir"));
+    File directory = new File(props.getProperty("logDir"));
 
     ArrayList<String> inputList = new ArrayList<>();
     // get all the files from a directory
     File[] fList = directory.listFiles();
     for (File file : fList) {
       if (file.isFile()) {
-
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(config.get("httpPrefix"))) {
-        inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+        // don't do anything with files, we are only interested in logs which
+        // are kept within directories.
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+          && file.getName()
+              .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+        inputList.add(file.getName()
+            .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
       }
     }
 
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
+    for (int i = 0; i < inputList.size(); i++) {
+      timeSuffix = inputList.get(i);
+      props.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+          this.spark);
       im.execute();
     }
 
     LOG.info("*****************Web log ingest ends******************");
 
   }
-  
+
   public void sessionReconstruction() {
-		LOG.info("*****************Log session reconstruction starts******************");
+    LOG.info(
+        "*****************Log session reconstruction starts******************");
 
-		//which method　is right? using configuration files or data already stored in Elasticsearch?
-		/*File directory = new File(config.get("logDir"));
-		ArrayList<String> inputList = new ArrayList<>();
-		// get all the files from a directory
-		File[] fList = directory.listFiles();
-		for (File file : fList) {
-			if (file.isFile()) {
+    // which method is right? using configuration files or data already stored
+    // in Elasticsearch?
+    /*File directory = new File(config.get("logDir"));
+    ArrayList<String> inputList = new ArrayList<>();
+    // get all the files from a directory
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+    	if (file.isFile()) {
+    
+    	} else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+    			&& file.getName().contains(config.get("httpPrefix"))) {
+    		inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
+    	}
+    }
+    
+    for (int i = 0; i < inputList.size(); i++) {
+    	timeSuffix = inputList.get(i); // change timeSuffix dynamically
+    	config.put("TimeSuffix", timeSuffix);
+    
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+        cd.execute();
+    
+        DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+        sg.execute();
+    
+        DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
+        ss.execute();
+    
+        DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+        rr.execute();
+    }*/
 
-			} else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
-					&& file.getName().contains(config.get("httpPrefix"))) {
-				inputList.add(file.getName().replace(config.get("httpPrefix"), ""));
-			}
-		}
+    ArrayList<String> rawHttpTypeList = es.getTypeListWithPrefix(
+        props.getProperty("indexName"), props.getProperty("HTTP_type_prefix"));
 
-		for (int i = 0; i < inputList.size(); i++) {
-			timeSuffix = inputList.get(i); // change timeSuffix dynamically
-			config.put("TimeSuffix", timeSuffix);
-			
-		  DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
-	      cd.execute();
+    String http_prefix = props.getProperty("HTTP_type_prefix");
+    int size = rawHttpTypeList.size();
+    for (int i = 0; i < size; i++) {
 
-	      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
-	      sg.execute();
+      timeSuffix = rawHttpTypeList.get(i).replace(http_prefix, ""); // change
+                                                                    // timeSuffix
+                                                                    // dynamically
+      props.setProperty("TimeSuffix", timeSuffix);
 
-	      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
-	      ss.execute();
+      /* DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
+        cd.execute();
+      
+        DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
+        sg.execute();*/
 
-	      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-	      rr.execute();	
-		}*/
-		
-		ArrayList<String> rawHttpTypeList = es.getTypeListWithPrefix(
-		          config.get("indexName"), config.get("HTTP_type_prefix"));
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es,
+          this.spark);
+      ss.execute();
 
-		String http_prefix = config.get("HTTP_type_prefix");
-		int size = rawHttpTypeList.size();
-		for(int i=0; i<size; i++){
-			
-		  timeSuffix = rawHttpTypeList.get(i).replace(http_prefix, ""); // change timeSuffix dynamically
-		  config.put("TimeSuffix", timeSuffix);
-		  
-			
-		 /* DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
-	      cd.execute();
+      /*DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
+      rr.execute();	*/
+    }
 
-	      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
-	      sg.execute();*/
-
-	      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
-	      ss.execute();
-
-	      /*DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-	      rr.execute();	*/
-		}
-
-		LOG.info("*****************Log session reconstruction ends******************");
-	}
-  
-
+    LOG.info(
+        "*****************Log session reconstruction ends******************");
+  }
 
   @Override
   public void process() {
     LOG.info("*****************Web log processing starts******************");
-    startTime=System.currentTimeMillis();
+    startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.props, this.es,
+        this.spark);
     svd.execute();
 
-    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.config, this.es, this.spark);
+    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.props, this.es,
+        this.spark);
     ua.execute();
 
-    endTime=System.currentTimeMillis();
-    LOG.info("*****************Web log processing ends******************Took {}s", (endTime-startTime)/1000);
+    endTime = System.currentTimeMillis();
+    LOG.info(
+        "*****************Web log processing ends******************Took {}s",
+        (endTime - startTime) / 1000);
   }
 
   @Override

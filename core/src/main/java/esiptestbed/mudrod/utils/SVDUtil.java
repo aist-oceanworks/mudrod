@@ -15,7 +15,7 @@ package esiptestbed.mudrod.utils;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -53,9 +53,8 @@ public class SVDUtil extends MudrodAbstract {
    * @param spark
    *          the spark driver
    */
-  public SVDUtil(Map<String, String> config, ESDriver es, SparkDriver spark) {
+  public SVDUtil(Properties config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   /**

@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you 
- * may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,10 +20,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,20 +37,16 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.HttpRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ApiHarvester extends DiscoveryStepAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ApiHarvester.class);
 
-  public ApiHarvester(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public ApiHarvester(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   @Override
@@ -60,27 +59,29 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Metadata harvesting ends******************Took {}s", 
+    LOG.info(
+        "*****************Metadata harvesting ends******************Took {}s",
         (endTime - startTime) / 1000);
     return null;
   }
 
   public void addMetadataMapping() {
-    String mappingJson = 
-        "{\r\n   \"dynamic_templates\": "
-            + "[\r\n      "
-            + "{\r\n         \"strings\": "
-            + "{\r\n            \"match_mapping_type\": \"string\","
-            + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-            + "\r\n               \"analyzer\": \"csv\"\r\n            }"
-            + "\r\n         }\r\n      }\r\n   ]\r\n}";
-    es.client.admin().indices().preparePutMapping(config.get("indexName"))
-    .setType(config.get("recom_metadataType")).setSource(mappingJson)
-    .execute().actionGet();
+    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
+        + "{\r\n         \"strings\": "
+        + "{\r\n            \"match_mapping_type\": \"string\","
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
+        + "\r\n               \"analyzer\": \"csv\"\r\n            }"
+        + "\r\n         }\r\n      }\r\n   ]\r\n}";
+
+    es.getClient().admin().indices()
+        .preparePutMapping(props.getProperty("indexName"))
+        .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
+        .execute().actionGet();
+
   }
 
   private void importToES() {
-    File directory = new File(config.get("raw_metadataPath"));
+    File directory = new File(props.getProperty("raw_metadataPath"));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -90,9 +91,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           String jsonTxt = IOUtils.toString(is);
           JsonParser parser = new JsonParser();
           JsonElement item = parser.parse(jsonTxt);
-          IndexRequest ir = new IndexRequest(config.get("indexName"),
-              config.get("recom_metadataType")).source(item.toString());
-          es.bulkProcessor.add(ir);
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+              props.getProperty("recom_metadataType")).source(item.toString());
+          es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -121,7 +122,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
       doc_length = docs.size();
 
-      File file = new File(config.get("raw_metadataPath"));
+      File file = new File(props.getProperty("raw_metadataPath"));
       if (!file.exists()) {
         if (file.mkdir()) {
           LOG.info("Directory is created!");
@@ -134,7 +135,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
         int docId = startIndex + i;
         File itemfile = new File(
-            config.get("raw_metadataPath") + "/" + docId + ".json");
+            props.getProperty("raw_metadataPath") + "/" + docId + ".json");
         try {
           itemfile.createNewFile();
           FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());

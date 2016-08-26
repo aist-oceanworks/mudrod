@@ -10,7 +10,7 @@
 package esiptestbed.mudrod.recommendation.process;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -31,10 +31,9 @@ import esiptestbed.mudrod.utils.LinkageTriple;
  */
 public class TopicBasedCF extends DiscoveryStepAbstract {
 
-  public TopicBasedCF(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
+  public TopicBasedCF(Properties props, ESDriver es, SparkDriver spark) {
 
-    super(config, es, spark);
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
   }
 
@@ -42,12 +41,12 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
   public Object execute() {
 
     try {
-      String topicMatrixFile = config.get("metadata_topic_matrix");
-      SemanticAnalyzer analyzer = new SemanticAnalyzer(config, es, spark);
+      String topicMatrixFile = props.getProperty("metadata_topic_matrix");
+      SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
       List<LinkageTriple> triples = analyzer
-          .CalTermSimfromMatrix(topicMatrixFile, 1);
-      analyzer.SaveToES(triples, config.get("indexName"),
-          config.get("metadataTopicSimType"), true, true);
+          .calTermSimfromMatrix(topicMatrixFile, 1);
+      analyzer.saveToES(triples, props.getProperty("indexName"),
+          props.getProperty("metadataTopicSimType"), true, true);
 
     } catch (Exception e) {
       // TODO Auto-generated catch block

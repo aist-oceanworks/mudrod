@@ -20,7 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
@@ -52,16 +52,16 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of ApiHarvester.
    *
-   * @param config
+   * @param props
    *          the Mudrod configuration
    * @param es
    *          the Elasticsearch drive
    * @param spark
    *          the spark driver
    */
-  public ApiHarvester(Map<String, String> config, ESDriver es,
+  public ApiHarvester(Properties props, ESDriver es,
       SparkDriver spark) {
-    super(config, es, spark);
+    super(props, es, spark);
   }
 
   @Override
@@ -91,8 +91,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
         + "\r\n               \"analyzer\": \"english\"\r\n            }"
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
-    es.client.admin().indices().preparePutMapping(config.get("indexName"))
-        .setType(config.get("raw_metadataType")).setSource(mappingJson)
+    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
+        .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
         .execute().actionGet();
   }
 
@@ -102,7 +102,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoking this method.
    */
   private void importToES() {
-    File directory = new File(config.get("raw_metadataPath"));
+    File directory = new File(props.getProperty("raw_metadataPath"));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -112,9 +112,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           String jsonTxt = IOUtils.toString(is);
           JsonParser parser = new JsonParser();
           JsonElement item = parser.parse(jsonTxt);
-          IndexRequest ir = new IndexRequest(config.get("indexName"),
-              config.get("raw_metadataType")).source(item.toString());
-          es.bulkProcessor.add(ir);
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+              props.getProperty("raw_metadataType")).source(item.toString());
+          es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -146,7 +146,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
       doc_length = docs.size();
 
-      File file = new File(config.get("raw_metadataPath"));
+      File file = new File(props.getProperty("raw_metadataPath"));
       if (!file.exists()) {
         if (file.mkdir()) {
           LOG.info("Directory is created!");
@@ -159,7 +159,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
         int docId = startIndex + i;
         File itemfile = new File(
-            config.get("raw_metadataPath") + "/" + docId + ".json");
+            props.getProperty("raw_metadataPath") + "/" + docId + ".json");
         try {
           itemfile.createNewFile();
           FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
@@ -182,7 +182,6 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

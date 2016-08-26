@@ -14,7 +14,7 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -33,17 +33,15 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(MetadataDiscoveryEngine.class);
 
-  public MetadataDiscoveryEngine(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public MetadataDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
   }
 
   public void preprocess() {
     LOG.info("*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es, this.spark);
     harvester.execute();
 
     endTime = System.currentTimeMillis();
@@ -55,12 +53,10 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
     LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract matrix = new MatrixGenerator(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es, this.spark);
     matrix.execute();
 
-    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.config, this.es,
-        this.spark);
+    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.props, this.es, this.spark);
     svd.execute();
 
     endTime = System.currentTimeMillis();

@@ -1,6 +1,6 @@
 package esiptestbed.mudrod.discoveryengine;
 
-import java.util.Map;
+import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -10,9 +10,8 @@ import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
-  public RecommendEngine(Map<String, String> config, ESDriver es,
-      SparkDriver spark) {
-    super(config, es, spark);
+  public RecommendEngine(Properties props, ESDriver es, SparkDriver spark) {
+    super(props, es, spark);
     // TODO Auto-generated constructor stub
   }
 
@@ -31,11 +30,11 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.es, this.spark);
     transformer.execute();*/
 
-    DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.config, this.es,
+    DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.props, this.es,
         this.spark);
     obencoder.execute();
 
-    DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.config,
+    DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.props,
         this.es, this.spark);
     matrixGen.execute();
 
@@ -65,7 +64,7 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         "*****************Recommendation processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract cbCF = new ContentBasedCF(this.config, this.es,
+    DiscoveryStepAbstract cbCF = new ContentBasedCF(this.props, this.es,
         this.spark);
     cbCF.execute();
 

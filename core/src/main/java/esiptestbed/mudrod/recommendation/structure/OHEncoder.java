@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.spark.mllib.linalg.Vector;
@@ -29,9 +30,9 @@ public class OHEncoder {
 
   private String VAR_NOT_EXIST = "varNotExist";
 
-  public OHEncoder(Map<String, String> config) {
-    indexName = config.get("indexName");
-    metadataType = config.get("recom_metadataType");
+  public OHEncoder(Properties props) {
+    indexName = props.getProperty("indexName");
+    metadataType = props.getProperty("recom_metadataType");
 
     this.inital();
   }
@@ -128,7 +129,7 @@ public class OHEncoder {
 
     es.createBulkProcesser();
 
-    SearchResponse scrollResp = es.client.prepareSearch(indexName)
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
@@ -140,14 +141,14 @@ public class OHEncoder {
           metadatacode = OHEncodeMetadata(es, metadata);
           UpdateRequest ur = es.genUpdateRequest(indexName, metadataType,
               hit.getId(), metadatacode);
-          es.bulkProcessor.add(ur);
+          es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
 
-      scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
           .setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
@@ -244,7 +245,7 @@ public class OHEncoder {
 
   private Map<String, Vector> OHEncodeVar(ESDriver es, String varName) {
 
-    SearchResponse sr = es.client.prepareSearch(indexName)
+    SearchResponse sr = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0)
         .addAggregation(
@@ -256,7 +257,7 @@ public class OHEncoder {
     int valueNum = VarValues.getBuckets().size();
     int pos = 0;
     for (Terms.Bucket entry : VarValues.getBuckets()) {
-      String value = entry.getKey();
+      String value = (String) entry.getKey();
       Vector sv = Vectors.sparse(valueNum, new int[] { pos },
           new double[] { 1 });
       pos += 1;
