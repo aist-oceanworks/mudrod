@@ -247,6 +247,11 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of querying related terms from ontology
+   * @param input input query
+   * @param model source name
+   */
   public void aggregateRelatedTermsSWEET(String input, String model) {
     SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))

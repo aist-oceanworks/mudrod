@@ -103,6 +103,14 @@ public class MudrodEngine {
   public ESDriver getES() {
     return this.es;
   }
+  
+  /**
+   * Set the Elasticsearch driver for MUDROD
+   * @param es an ES driver instance
+   */
+  public void setES(ESDriver es) {
+    this.es = es;
+  }
 
   /**
    * Load the configuration provided at

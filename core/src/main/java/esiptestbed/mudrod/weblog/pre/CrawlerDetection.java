@@ -97,6 +97,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Check known crawler through crawler agent name list
+   * @param agent name of a log line
+   * @return 1 if the log is initiated by crawler, 0 otherwise
+   */
   public boolean checkKnownCrawler(String agent) {
     if (agent.equals(GOOGLE_BOT) || agent.equals(GOOGLE_BOT_21)
         || agent.equals(BING_BOT) || agent.equals(YAHOO_BOT)
@@ -112,6 +117,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   }
 
+  /**
+   * Check crawler by request sending rate, which is read from configruation file
+   * @throws InterruptedException
+   * @throws IOException
+   */
   public void checkByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();
 

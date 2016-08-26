@@ -13,8 +13,6 @@
   governing permissions and limitations under the License. 
 -->
 <Config>
-  <para name="loglevel">1</para>
-
   <para name="httpPrefix">access_log.</para>
   <para name="ftpPrefix">vsftpd.log.</para>
 

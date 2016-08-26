@@ -33,6 +33,9 @@ import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports to preprocess and process web log
+ */
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   /**
@@ -68,6 +71,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
     return inputList;
   }
 
+  /**
+   * Method of preprocessing web logs, generating vocab similarity based on web logs
+   */
   @Override
   public void preprocess() {
     LOG.info("*****************Web log preprocessing starts******************");
