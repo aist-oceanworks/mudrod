@@ -1,12 +1,11 @@
 # MUDROD
 ## Mining and Utilizing Dataset Relevancy from Oceanographic Datasets to Improve Data Discovery and Access
 
-<a href="http://www.apache.org/licenses/LICENSE-2.0">
-  <img src="https://img.shields.io/badge/license-Apache%202-4EB1BA.svg" />
-</a>
+[![license](https://img.shields.io/github/license/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
 [![codecov](https://codecov.io/gh/mudrod/mudrod/branch/master/graph/badge.svg)](https://codecov.io/gh/mudrod/mudrod)
+[![SonarQube Tech Debt](https://img.shields.io/sonar/http/nemo.sonarqube.org/esiptestbed:mudrod-parent/tech_debt.svg?maxAge=2592000?style=plastic)](http://nemo.sonarqube.org/dashboard/index/esiptestbed:mudrod-parent)
 
 <img src="http://geant4.slac.stanford.edu/Space06/NASAJPLlogo.jpg" align="right" width="300" />
 <img src="http://www.iucrc.org/sites/default/files/centerLogo.png" align="right" width="170" />
