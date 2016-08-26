@@ -67,7 +67,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
     for(int i =0; i < inputList.size(); i++){
       timeSuffix = inputList.get(i);
-      props.getProperty("TimeSuffix", timeSuffix);
+      props.put("TimeSuffix", timeSuffix);
       startTime=System.currentTimeMillis();
       LOG.info("*****************Web log preprocessing starts****************** {}", inputList.get(i));
 
