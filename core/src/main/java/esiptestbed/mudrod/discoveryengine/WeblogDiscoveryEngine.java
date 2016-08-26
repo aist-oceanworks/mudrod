@@ -1,3 +1,19 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Gist
+ @Yongyao
+ Unwatch 3
+  Star 1
+ Fork 5 mudrod/mudrod
+ Code  Issues 13  Pull requests 1  Wiki  Pulse  Graphs  Settings
+Branch: ISSUE-39 Find file Copy pathmudrod/core/src/main/java/esiptestbed/mudrod/discoveryengine/WeblogDiscoveryEngine.java
+6e5d5bf  3 hours ago
+@Yongyao Yongyao Fixed mimeType loop error and type prefix
+2 contributors @lewismc @Yongyao
+RawBlameHistory     153 lines (116 sloc)  5.29 KB
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. 
@@ -33,9 +49,6 @@ import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Supports to preprocess and process web log
- */
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   /**
@@ -151,54 +164,5 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   @Override
   public void output() {
   }
-
-  /**
-   * Method of web log ingest
-   */
-  public void logIngest() {
-    LOG.info("*****************Web log ingest starts******************");
-    ArrayList<String> inputList = getFileList(config.get("logDir"));
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract im = new ImportLogFile(this.config, this.es, this.spark);
-      im.execute();
-    }
-    LOG.info("*****************Web log ingest ends******************");
-  }
-
-  /**
-   * Method of reconstructing user sessions from raw web logs
-   */
-  public void sessionRestruct() {
-    LOG.info("*****************Session reconstruction starts******************");
-    ArrayList<String> inputList = getFileList(config.get("logDir"));
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      config.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.config, this.es, this.spark);
-      cd.execute();
-
-      DiscoveryStepAbstract sg = new SessionGenerator(this.config, this.es, this.spark);
-      sg.execute();
-
-      DiscoveryStepAbstract ss = new SessionStatistic(this.config, this.es, this.spark);
-      ss.execute();
-
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.config, this.es, this.spark);
-      rr.execute();
-
-      endTime=System.currentTimeMillis();
-    }
-    
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.config, this.es, this.spark);
-    hg.execute();
-
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.config, this.es, this.spark);
-    cg.execute();
-    LOG.info("*****************Session reconstruction ends******************");
-  }
-
-
 
 }
