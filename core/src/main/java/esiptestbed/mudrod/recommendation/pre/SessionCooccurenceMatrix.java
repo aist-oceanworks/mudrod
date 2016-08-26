@@ -20,6 +20,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.ItemSimCalculator;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
+import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
 /**
  * ClassName:SessionCooccurenceMatrix <br/>
@@ -46,24 +47,27 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
   public Object execute() {
 
     System.out.println(
-        "*****************Dataset user_based similarity Generator starts******************");
+        "*****************Dataset session_based similarity Generator starts******************");
     startTime = System.currentTimeMillis();
 
     ItemSimCalculator simCal = new ItemSimCalculator(config);
-    JavaPairRDD<String, List<String>> userDatasetRDD = simCal
-        .prepareData(spark.sc, config.get("session_item_opt"));
 
-    JavaPairRDD<String, List<String>> filterUserDatasetsRDD = simCal
-        .filterData(es, userDatasetRDD);
-    LabeledRowMatrix wordDocMatrix = MatrixUtil
-        .createWordDocMatrix(filterUserDatasetsRDD, spark.sc);
+    SessionExtractor extractor = new SessionExtractor();
+    JavaPairRDD<String, List<String>> sessionDatasetRDD = extractor
+        .bulidSessionItermRDD(config, es, spark);
 
-    MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words,
-        wordDocMatrix.docs, config.get("session_item_Matrix"));
+    JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = simCal
+        .filterData(es, sessionDatasetRDD);
+    LabeledRowMatrix datasetSessionMatrix = MatrixUtil
+        .createWordDocMatrix(sessionFiltedDatasetsRDD, spark.sc);
+
+    MatrixUtil.exportToCSV(datasetSessionMatrix.wordDocMatrix,
+        datasetSessionMatrix.words, datasetSessionMatrix.docs,
+        config.get("session_item_Matrix"));
 
     endTime = System.currentTimeMillis();
     System.out.println(
-        "*****************Dataset user_based  similarity Generator ends******************");
+        "*****************Dataset session_based  similarity Generator ends******************");
 
     return null;
   }

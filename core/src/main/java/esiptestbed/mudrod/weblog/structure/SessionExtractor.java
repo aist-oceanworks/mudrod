@@ -26,7 +26,9 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
@@ -304,6 +306,67 @@ public class SessionExtractor implements Serializable {
             });
 
     return filteredSessionItemRDD;
+  }
+
+  public JavaPairRDD<String, List<String>> bulidSessionItermRDD(
+      Map<String, String> config, ESDriver es, SparkDriver spark) {
+
+    ArrayList<String> sessionstatic_typeList = es.getTypeListWithPrefix(
+        config.get("indexName"), config.get("SessionStats_prefix"));
+    List<String> result = new ArrayList<>();
+    for (int n = 0; n < sessionstatic_typeList.size(); n++) {
+
+      String staticType = sessionstatic_typeList.get(n);
+
+      SearchResponse scrollResp = es.client
+          .prepareSearch(config.get("indexName")).setTypes(staticType)
+          .setScroll(new TimeValue(60000))
+          .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+          .actionGet();
+      while (true) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> session = hit.getSource();
+          String sessionID = (String) session.get("SessionID");
+          String views = (String) session.get("views");
+          if (views != null && !views.equals("")) {
+            String sessionItems = sessionID + ":" + views;
+            result.add(sessionItems);
+          }
+        }
+
+        scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+      }
+    }
+
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(result);
+
+    JavaPairRDD<String, List<String>> sessionItemRDD = sessionRDD
+        .mapToPair(new PairFunction<String, String, List<String>>() {
+          @Override
+          public Tuple2<String, List<String>> call(String sessionitem)
+              throws Exception {
+            String[] splits = sessionitem.split(":");
+            String sessionId = splits[0];
+            List<String> itemList = new ArrayList<String>();
+
+            String items = splits[1];
+            String[] itemArr = items.split(",");
+            int size = itemArr.length;
+            for (int i = 0; i < size; i++) {
+              String item = itemArr[i];
+              if (!itemList.contains(item))
+                itemList.add(itemArr[i]);
+            }
+
+            return new Tuple2<String, List<String>>(sessionId, itemList);
+          }
+        });
+
+    return sessionItemRDD;
   }
 
 }
