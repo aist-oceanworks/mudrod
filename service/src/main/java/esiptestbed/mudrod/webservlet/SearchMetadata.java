@@ -55,7 +55,7 @@ public class SearchMetadata extends HttpServlet {
         .getAttribute("MudrodInstance");
     Properties config = mudrod.getConfig();
     String fileList = null;
-    try {
+    /*try {
       LinkageIntegration li = new LinkageIntegration(config, mudrod.getES(),
           null);
       fileList = mudrod.getES().searchByQuery(config.getProperty(MudrodConstants.ES_INDEX_NAME),
@@ -64,7 +64,7 @@ public class SearchMetadata extends HttpServlet {
       e.printStackTrace();
     } catch (ExecutionException e) {
       e.printStackTrace();
-    }
+    }*/
     PrintWriter out = response.getWriter();
     out.print(fileList);
     out.flush();

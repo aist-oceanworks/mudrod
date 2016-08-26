@@ -54,6 +54,10 @@ public class MudrodEngine {
   private SparkDriver spark = null;
   private static final String LOG_INGEST = "logIngest";
   private static final String FULL_INGEST = "fullIngest";
+  private static final String Processing = "processingWithPreResults";
+  private static final String Session_Recon = "sessionReconstruction";
+  private static final String Vocab_Sim_From_LOG = "vocabSimFromLog";
+  private static final String Add_Meta_Onto = "addSimFromMetadataAndOnto";
   private static final String LOG_DIR = "logDir";
 
   /**
@@ -132,7 +136,7 @@ public class MudrodEngine {
    * Preprocess and process various {@link esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract}
    * implementations for weblog, ontology and metadata, linkage discovery and integration.
    */
-  public void start() {
+  public void startFullIngest() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.preprocess();
     wd.process();
@@ -147,6 +151,45 @@ public class MudrodEngine {
 
     LinkageIntegration li = new LinkageIntegration(props, es, spark);
     li.execute();
+  }
+
+  /**
+   * Begin ingesting logs with the {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
+   */
+  public void logIngest() {
+    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.logIngest();
+  }
+
+  /**
+   * Reconstructing user sessions based on raw logs.
+   */
+  public void sessionRestruction() {
+    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.sessionRestruct();
+  }
+
+  /**
+   * Calculating vocab similarity based on reconstructed sessions.
+   */
+  public void vocabSimFromLog() {
+    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.process();
+  }
+
+  /**
+   * Adding ontology and metadata results to vocab similarity results from web logs.
+   */
+  public void addMetaAndOntologySim() {
+    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
+    od.preprocess();
+    od.process();
+
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+    LOG.info("*****************Ontology and metadata similarity have "
+        + "been added successfully******************");
   }
 
   /**
@@ -193,8 +236,21 @@ public class MudrodEngine {
   public static void main(String[] args) {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest with the WeblogDiscoveryEngine only");
+
+    //preprocessing + processing
     Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
+    //processing only, assuming that preprocessing results is in logDir
+    Option processingOpt = new Option("p", Processing, false, "begin processing with preprocessing results");
+
+    //import raw web log into Elasticsearch
+    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest without any processing only");
+    //preprocessing web log, assuming web log has already been imported
+    Option sessionReconOpt = new Option("s", Session_Recon, false, "begin session reconstruction");
+    //calculate vocab similarity from session reconstrution results
+    Option vocabSimFromOpt = new Option("v", Vocab_Sim_From_LOG, false, "begin similarity calulation from web log Mudrod workflow");
+    //add metadata and ontology preprocessing and processing results into web log vocab similarity
+    Option addMetaOntoOpt = new Option("a", Add_Meta_Onto, false, "begin adding metadata and ontology results");
+
     // argument options
     Option logDirOpt = Option.builder(LOG_DIR).required(true).numberOfArgs(1)
         .hasArg(true).desc("the log directory to be processed by Mudrod").argName(LOG_DIR).build();
@@ -204,17 +260,41 @@ public class MudrodEngine {
     options.addOption(helpOpt);
     options.addOption(logIngestOpt);
     options.addOption(fullIngestOpt);
+    options.addOption(processingOpt);
+    options.addOption(sessionReconOpt);
+    options.addOption(vocabSimFromOpt);
+    options.addOption(addMetaOntoOpt); 
     options.addOption(logDirOpt);
 
     CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
-      String processingType;
+      String processingType = null;
+
       if (line.hasOption(LOG_INGEST)) {
         processingType = LOG_INGEST;
-      } else {
+      } 
+      else if (line.hasOption(FULL_INGEST))
+      {
         processingType = FULL_INGEST;
       }
+      else if (line.hasOption(Processing))
+      {
+        processingType = Processing;
+      }
+      else if (line.hasOption(Session_Recon))
+      {
+        processingType = Session_Recon;
+      }
+      else if (line.hasOption(Vocab_Sim_From_LOG))
+      {
+        processingType = Vocab_Sim_From_LOG;
+      }
+      else if (line.hasOption(Add_Meta_Onto))
+      {
+        processingType = Add_Meta_Onto;
+      }
+
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
       if(!dataDir.endsWith("/")){
         dataDir += "/";
@@ -225,14 +305,26 @@ public class MudrodEngine {
       me.props.put(LOG_DIR, dataDir);
       me.es = new ESDriver(me.getConfig());
       me.spark = new SparkDriver();
+      loadFullConfig(me, dataDir);
 
       switch (processingType) {
       case LOG_INGEST:
-        me.startLogIngest();
+        me.logIngest();
         break;
-      case FULL_INGEST:
-        loadFullConfig(me, dataDir);
-        me.startProcessing(); 
+      case Processing:
+        me.startProcessing();
+        break;
+      case Session_Recon:
+        me.sessionRestruction();
+        break;
+      case Vocab_Sim_From_LOG:
+        me.vocabSimFromLog();
+        break;
+      case Add_Meta_Onto:
+        me.addMetaAndOntologySim();
+        break;
+      case FULL_INGEST:      
+        me.startFullIngest();
         break;
       default:
         break;

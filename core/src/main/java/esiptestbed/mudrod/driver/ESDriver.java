@@ -126,9 +126,6 @@ public class ESDriver implements Serializable {
         .build());
   }
 
-  /**
-   * Method of closing a bulk processor
-   */
   public void destroyBulkProcessor(){
     try {
       getBulkProcessor().awaitClose(20, TimeUnit.MINUTES);
@@ -154,14 +151,6 @@ public class ESDriver implements Serializable {
     .execute().actionGet();
   }
 
-  /**
-   * Method of analyzing a string through customized analyzer
-   * @param indexName name of index
-   * @param str String needed to be processed
-   * @return Processed string
-   * @throws InterruptedException
-   * @throws ExecutionException
-   */
   public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException{
     String[] strList = str.toLowerCase().split(",");
     for(int i = 0; i<strList.length;i++)
@@ -178,14 +167,6 @@ public class ESDriver implements Serializable {
     return String.join(",", strList);
   }
 
-  /**
-   * Method of analyzing a string through customized analyzer
-   * @param indexName The name of index
-   * @param list The list of array that needs to be processed
-   * @return A processed list of String
-   * @throws InterruptedException
-   * @throws ExecutionException
-   */
   public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException{
     if(list == null){
       return list;
@@ -199,12 +180,6 @@ public class ESDriver implements Serializable {
     return customlist;
   }
 
-  /**
-   * Method of deleting documents from Elasticsearch by a particular query
-   * @param index The name of index
-   * @param type The name of type
-   * @param query a particular query used for delete
-   */
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcesser();
     SearchResponse scrollResp = getClient().prepareSearch(index)
@@ -231,22 +206,11 @@ public class ESDriver implements Serializable {
     destroyBulkProcessor();
   }
 
-  /**
-   * Method of deleting a type from a index
-   * @param index The name of index
-   * @param type The name of type
-   */
   public void deleteType(String index, String type){
     this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
   }
 
-  /**
-   * Method of getting a list of types given a prefix
-   * @param index The name of index
-   * @param typePrefix Prefix string
-   * @return
-   */
-  public ArrayList<String> getTypeListWithPrefix(String index, String typePrefix)
+  public ArrayList<String> getTypeListWithPrefix(Object object, Object object2)
   {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
@@ -266,14 +230,14 @@ public class ESDriver implements Serializable {
   }
 
   public String searchByQuery(String index, String Type, String query) throws IOException, InterruptedException, ExecutionException{
-    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists(); 
     if(!exists){
       return null;
     }
 
     QueryBuilder qb = QueryBuilders.queryStringQuery(query); 
     SearchResponse response = getClient().prepareSearch(index)
-        .setTypes(Type)		        
+        .setTypes(Type)           
         .setQuery(qb)
         .setSize(500)
         .execute()
@@ -317,14 +281,8 @@ public class ESDriver implements Serializable {
     return pdResults.toString();
   }
 
-  /**
-   * Get a list of terms give a string
-   * @param index The name of index
-   * @param chars The piece of string
-   * @return A list of string for autocompletion
-   */
   public List<String> autoComplete(String index, String chars){
-    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists();	
+    boolean exists = node.client().admin().indices().prepareExists(index).execute().actionGet().isExists(); 
     if(!exists){
       return null;
     }

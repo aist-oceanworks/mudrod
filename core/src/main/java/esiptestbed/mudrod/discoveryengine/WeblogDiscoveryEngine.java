@@ -1,19 +1,3 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Gist
- @Yongyao
- Unwatch 3
-  Star 1
- Fork 5 mudrod/mudrod
- Code  Issues 13  Pull requests 1  Wiki  Pulse  Graphs  Settings
-Branch: ISSUE-39 Find file Copy pathmudrod/core/src/main/java/esiptestbed/mudrod/discoveryengine/WeblogDiscoveryEngine.java
-6e5d5bf  3 hours ago
-@Yongyao Yongyao Fixed mimeType loop error and type prefix
-2 contributors @lewismc @Yongyao
-RawBlameHistory     153 lines (116 sloc)  5.29 KB
 /*
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
  * may not use this file except in compliance with the License. 
@@ -63,6 +47,26 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   }
 
   public String timeSuffix = null;
+  
+  /**
+   * Get log file list from a directory
+   * @param path folder directory
+   * @return a list of log files
+   */
+  public ArrayList<String> getFileList(String path){
+    File directory = new File(path);
+    ArrayList<String> inputList = new ArrayList<>();
+    // get all the files from a directory
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile()) {
+
+      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
+        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
+      }
+    }
+    return inputList;
+  }
 
   @Override
   public void preprocess() {
@@ -118,6 +122,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   }
 
+  /**
+   * Method of web log ingest
+   */
   public void logIngest() {
     LOG.info("*****************Web log ingest starts******************");
 
@@ -145,6 +152,37 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   }
 
+  /**
+   * Method of reconstructing user sessions from raw web logs
+   */
+  public void sessionRestruct() {
+    LOG.info("*****************Session reconstruction starts******************");
+    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
+    for(int i =0; i < inputList.size(); i++){
+      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
+      props.put("TimeSuffix", timeSuffix);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
+      cd.execute();
+
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es, this.spark);
+      sg.execute();
+
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
+      ss.execute();
+
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
+      rr.execute();
+
+      endTime=System.currentTimeMillis();
+    }
+    
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
+    hg.execute();
+
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es, this.spark);
+    cg.execute();
+    LOG.info("*****************Session reconstruction ends******************");
+  }
 
   @Override
   public void process() {
