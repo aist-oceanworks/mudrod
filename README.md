@@ -24,25 +24,40 @@ is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).
 
 # Installation
 
+## Docker Container
+We strongly advise all users to save time and effort by consulting the [Dockerfile documentation](https://github.com/mudrod/mudrod/tree/master/docker)
+for guidance on how to quickly use Docker to deploy Mudrod.
+
 ## From source
+Ensure you have Elasticsearch running locally.
 ```
 $ git clone https://github.com/mudrod/mudrod.git
 $ cd mudrod
 $ mvn clean install
+$ cd service
 $ mvn jetty:run
 ```
-You will now be able to access the Mudrod Web Application at http://localhost:8080/mudrod-service
+You will now be able to access the Mudrod Web Application at [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service)
+In another window...
+```
+$ cd mudrod
+$ ./core/target/appassembler/bin/mudrod
+usage: MudrodEngine: 'logDir' argument is mandatory. User must also
+       provide either 'logIngest' or 'fullIngest'. [-f] [-h] [-l] -logDir
+       <logDir>
+ -f,--fullIngest    begin full ingest Mudrod workflow
+ -h,--help          show this help message
+ -l,--logIngest     begin log ingest with the WeblogDiscoveryEngine only
+ -logDir <logDir>   the log directory to be processed by Mudrod
+MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+```
 
 ## Deploying to Apache Tomcat (or any other Servlet container)
 Once you have built the codebase as above, merely copy the genrated .war artifact to the servlet deployment directory. In Tomcat (for example), this would look as follows
 ```
-$ cp service/target/mudrod-service-0.0.1-SNAPSHOT.war $CATALINA_HOME/webapps/
+$ cp mudrod/service/target/mudrod-service-${version}-SNAPSHOT.war $CATALINA_HOME/webapps/
 ```
-Once Tomcat hot deploys the .war artifact, you will be able to browse to the running application similar to what is shown above http://localhost:8080/mudrod-service
-
-## Docker Container
-Please see the [Dockerfile documentation](https://github.com/mudrod/mudrod/tree/master/docker)
-for guidance on how to quickly use Docker to deploy Mudrod.
+Once Tomcat hot deploys the .war artifact, you will be able to browse to the running application similar to what is shown above [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service)
 
 # Publications
 * Jiang, Y., Y. Li, C. Yang, E. M. Armstrong, T. Huang & D. Moroni (2016) Reconstructing Sessions from Data Discovery and Access Logs to Build a Semantic Knowledge Base for Improving Data Discovery. ISPRS International Journal of Geo-Information, 5, 54. http://www.mdpi.com/2220-9964/5/5/54#stats 
