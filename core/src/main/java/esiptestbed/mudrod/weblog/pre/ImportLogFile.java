@@ -259,18 +259,22 @@ public class ImportLogFile extends DiscoveryStepAbstract{
     String request = matcher.group(5).toLowerCase();
     String agent = matcher.group(9);
     CrawlerDetection crawlerDe = new CrawlerDetection(this.props, this.es, this.spark);
-    if(crawlerDe.checkKnownCrawler(agent)) {
-      //do nothing we don't wish to process crawler agents
-    } else {
+    if(!crawlerDe.checkKnownCrawler(agent)) 
+    {
+      boolean tag = false;
       String[] mimeTypes = {".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", 
           ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/"};
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
-          //do nothing we don;t wish to process those mimeTypes above
-        }else{
-          IndexRequest ir = null;
-          executeBulkRequest(ir, index, type, matcher, date, bytes);
+          tag = true;
+          break;
         }
+      }
+      
+      if(tag == false)
+      {
+        IndexRequest ir = null;
+        executeBulkRequest(ir, index, type, matcher, date, bytes);
       }
     }
   }
