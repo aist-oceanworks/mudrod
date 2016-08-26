@@ -61,7 +61,6 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract ol = new OntologyLinkCal(this.props, this.es, this.spark);
-        this.spark);
     ol.execute();
 
     endTime = System.currentTimeMillis();
