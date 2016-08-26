@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.Ranker;
 import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
@@ -53,11 +54,13 @@ public class SearchMetadata extends HttpServlet {
 
     MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
         .getAttribute("MudrodInstance");
+    Ranker rr = (Ranker) request.getServletContext()
+        .getAttribute("MudrodRanker");
     Map<String, String> config = mudrod.getConfig();
     String fileList = null;
     Searcher sr = new Searcher(mudrod.getConfig(), mudrod.getES(), null);
     fileList = sr.ssearch(config.get("indexName"),
-        config.get("raw_metadataType"), query);
+        config.get("raw_metadataType"), query, rr);
     PrintWriter out = response.getWriter();
     out.print(fileList);
     out.flush();

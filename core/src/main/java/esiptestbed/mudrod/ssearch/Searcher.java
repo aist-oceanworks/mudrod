@@ -169,7 +169,7 @@ public class Searcher extends MudrodAbstract {
 
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);   
     BoolQueryBuilder qb = dp.createSemQuery(query, 1.0);
-    Map<String, Double> selected_Map = dp.getRelatedTermsByT(query, 1.0);
+    //Map<String, Double> selected_Map = dp.getRelatedTermsByT(query, 1.0);
     List<SResult> resultList = new ArrayList<SResult>();
 
     SearchResponse response = es.client.prepareSearch(index)
@@ -305,10 +305,10 @@ public class Searcher extends MudrodAbstract {
    * @param query regular query string
    * @return
    */
-  public String ssearch(String index, String type, String query) 
+  public String ssearch(String index, String type, String query, Ranker rr) 
   {
     List<SResult> resultList = searchByQuery(index, type, query);
-    Ranker rr = new Ranker(config, es, spark, "pairwise");
+    //Ranker rr = new Ranker(config, es, spark, "pairwise");
     List<SResult> li = rr.rank(resultList);
 
     Gson gson = new Gson();   
@@ -353,8 +353,10 @@ public class Searcher extends MudrodAbstract {
   
   public static void main(String[] args) throws IOException {
     String learnerType = "pairwise";
-    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
-        "saline density", "pathfinder", "gravity"};
+    /*String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+        "saline density", "pathfinder", "gravity"};*/
+    String[] query_list = {"ocean waves", "ocean pressure", "sea ice", "radar",
+        "ocean optics", "spurs"};
     //String[] query_list = {"ocean temperature"};
     Evaluator eva = new Evaluator();
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
@@ -380,11 +382,11 @@ public class Searcher extends MudrodAbstract {
       for(int i =0; i< li.size(); i++)
       {
         bw.write(li.get(i).toString(","));
-        rank_array[i] = sr.getRankNum(li.get(i).label);
+       // rank_array[i] = sr.getRankNum(li.get(i).label);
       }
-      double precision = eva.getPrecision(rank_array, 200);
+      /*double precision = eva.getPrecision(rank_array, 200);
       double ndcg = eva.getNDCG(rank_array, 200);     
-      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);
+      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);*/
 
       bw.close();
     }

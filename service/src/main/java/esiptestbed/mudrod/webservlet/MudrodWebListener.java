@@ -19,6 +19,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.Ranker;
 
 /**
  * Application Lifecycle Listener implementation class MudrodWebListener
@@ -45,7 +46,9 @@ public class MudrodWebListener implements ServletContextListener {
   public void contextInitialized(ServletContextEvent arg0) {
     MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     ServletContext ctx = arg0.getServletContext();
+    Ranker rr = new Ranker(mudrod.getConfig(), mudrod.getES(), null, "pairwise");
     ctx.setAttribute("MudrodInstance", mudrod);
+    ctx.setAttribute("MudrodRanker", rr);
   }
 
 }
