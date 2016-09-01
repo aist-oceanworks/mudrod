@@ -88,6 +88,13 @@ public class SResult {
     this.relase_date = date;
   }
   
+  public SResult(SResult sr){
+    for(int i =0; i <rlist.length; i++)
+    {
+      set(this, rlist[i], get(sr, rlist[i]));
+    }
+  }
+  
   /**
    * Method of getting export header
    * @param delimiter the delimiter used to separate strings
@@ -100,7 +107,7 @@ public class SResult {
       str += rlist[i] + delimiter;
     }
     str = str + "label" + "\n";
-    return "ShortName" + delimiter + str;
+    return "ShortName" + delimiter + "below" + delimiter + str;
   }
  
   /**
@@ -116,7 +123,7 @@ public class SResult {
       str += score + delimiter;
     }
     str = str + label + "\n";
-    return shortName + delimiter + str;
+    return shortName + delimiter + below + delimiter + str;
   }
 
   /**

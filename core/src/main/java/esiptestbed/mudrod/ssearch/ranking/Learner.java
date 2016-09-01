@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import esiptestbed.mudrod.ssearch.structure.SResult;
+import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -51,7 +52,7 @@ public class Learner {
         File file = new File(clsURL.toURI());
         String clspath = file.getAbsolutePath();       
         cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_7att_no_termAndv.model");       
+        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_7att_no_termAndv.model");   
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -68,7 +69,7 @@ public class Learner {
     {
       attributes.add(new Attribute(SResult.rlist[i]));
     }  
-    attributes.add(new Attribute("Label"));
+    attributes.add(new Attribute("label"));
     Instances dataset = new Instances("train_dataset", attributes, 0);
     dataset.setClassIndex(dataset.numAttributes() - 1);
     return dataset;
@@ -91,6 +92,16 @@ public class Learner {
       e.printStackTrace();
     }
     return prediction;
+  }
+  
+  public Classifier getClassifier()
+  {
+    return cls;
+  }
+  
+  public void setClassifier(Classifier new_cls)
+  {
+    cls = new_cls;
   }
 
 }

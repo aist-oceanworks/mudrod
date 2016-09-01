@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.Ranker;
+import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
  * Servlet implementation class SearchMetadata
@@ -53,18 +55,18 @@ public class SearchMetadata extends HttpServlet {
 
     MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
         .getAttribute("MudrodInstance");
+    Searcher sr = (Searcher) request.getServletContext()
+        .getAttribute("MudrodSearcher");
+    Ranker rr = (Ranker) request.getServletContext()
+        .getAttribute("MudrodRanker");
     Properties config = mudrod.getConfig();
     String fileList = null;
-    /*try {
-      LinkageIntegration li = new LinkageIntegration(config, mudrod.getES(),
-          null);
-      fileList = mudrod.getES().searchByQuery(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-          config.getProperty(MudrodConstants.RAW_METADATA_TYPE), li.getModifiedQuery(query, 3));
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-    }*/
+
+    fileList = sr.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
+        config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
+        query, 
+        rr);
+
     PrintWriter out = response.getWriter();
     out.print(fileList);
     out.flush();

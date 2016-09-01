@@ -25,6 +25,7 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.ssearch.ranking.Learner;
+import esiptestbed.mudrod.ssearch.sorting.Sorter;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
@@ -169,8 +170,15 @@ public class Ranker extends MudrodAbstract {
       }
     }
 
-    Collections.sort(resultList, new ResultComparator());
+    Collections.sort(resultList, new ResultComparator());   
     return resultList;
+    /*List<SResult> list = new ArrayList<SResult>();
+    try{
+      Sorter st = new Sorter(resultList);
+      list = st.sort(le);
+    }catch(Exception e){     
+    }
+    return list;*/
   }
 
   /**

@@ -51,6 +51,7 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
 public class Searcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   DecimalFormat NDForm = new DecimalFormat("#.##");
+  final Integer MAX_CHAR = 700;
 
   /**
    * Constructor supporting a number of parameters documented below.
@@ -93,7 +94,7 @@ public class Searcher extends MudrodAbstract {
     }
     return versionNum;
   }
-  
+
   /**
    * Method of converting processing level string into a number
    * @param pro processing level string
@@ -115,10 +116,10 @@ public class Searcher extends MudrodAbstract {
     {
       proNum = Double.parseDouble(pro);
     }
-    
+
     return proNum;
   }
-  
+
   public Double getPop(Double pop)
   {
     if(pop>1000)
@@ -127,7 +128,7 @@ public class Searcher extends MudrodAbstract {
     }
     return pop;
   }
-  
+
   /**
    * Method of checking if query exists in a certain attribute
    * @param strList attribute value in the form of ArrayList
@@ -187,8 +188,14 @@ public class Searcher extends MudrodAbstract {
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
 
+      if(!content.equals(""))
+      {
+        int maxLength = (content.length() < MAX_CHAR)?content.length():MAX_CHAR;
+        content = content.trim().substring(0, maxLength-1) + "...";
+      }
+
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-      Date date=new Date(Long.valueOf(longdate.get(0)).longValue());
+      Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
@@ -212,11 +219,11 @@ public class Searcher extends MudrodAbstract {
       Double monthPop = getPop(((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
-      
+
       Double versionFactor = Math.log(versionNum + 1);
       SResult.set(re, "term", relevance);
       SResult.set(re, "termAndv", relevance + versionFactor);
-      
+
       SResult.set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());     
       SResult.set(re, "version", version);
       SResult.set(re, "versionNum", versionNum);
@@ -263,21 +270,18 @@ public class Searcher extends MudrodAbstract {
   public String ssearch(String index, String type, String query, Ranker rr) 
   {
     List<SResult> resultList = searchByQuery(index, type, query);
-    //Ranker rr = new Ranker(config, es, spark, "pairwise");
     List<SResult> li = rr.rank(resultList);
-
     Gson gson = new Gson();   
     List<JsonObject> fileList = new ArrayList<>();
 
     for(int i =0; i< li.size(); i++)
     {
       JsonObject file = new JsonObject();
-      file.addProperty("Relevance", String.valueOf((double)SResult.get(li.get(i), "final_score")));
       file.addProperty("Short Name", (String)SResult.get(li.get(i), "shortName"));
       file.addProperty("Long Name", (String)SResult.get(li.get(i), "longName"));
       file.addProperty("Topic", (String)SResult.get(li.get(i), "topic"));
       file.addProperty("Abstract", (String)SResult.get(li.get(i), "description"));
-      file.addProperty("Release Date", (String)SResult.get(li.get(i), "date"));
+      file.addProperty("Release Date", (String)SResult.get(li.get(i), "relase_date"));
       fileList.add(file);
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
@@ -286,7 +290,7 @@ public class Searcher extends MudrodAbstract {
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
   }
-  
+
   public int getRankNum(String str)
   {
     switch (str) {
@@ -305,17 +309,18 @@ public class Searcher extends MudrodAbstract {
     }
     return 0;
   }
-  
+
   public static void main(String[] args) throws IOException {
     String learnerType = "pairwise";
-    String[] query_list = {"ocean waves", "ocean pressure", "sea ice", "radar",
-        "ocean optics", "spurs"};
-    Evaluator eva = new Evaluator();
-    
+   /* String[] query_list = {"ocean waves", "ocean pressure", "sea ice", "radar",
+        "ocean optics", "spurs"};*/
+    String[] query_list = {"ocean waves"};
+    //Evaluator eva = new Evaluator();
+
     MudrodEngine me = new MudrodEngine();
     me.loadConfig();
     me.setES(new ESDriver(me.getConfig()));
-    
+
     Searcher sr = new Searcher(me.getConfig(), me.getES(), null);
     for(String q:query_list)
     {
@@ -334,7 +339,7 @@ public class Searcher extends MudrodAbstract {
           me.getConfig().getProperty("raw_metadataType"), q);
       Ranker rr = new Ranker(me.getConfig(), me.getES(), null, learnerType);
       List<SResult> li = rr.rank(resultList);
-      int[] rank_array = new int[li.size()];
+      //int[] rank_array = new int[li.size()];
       for(int i =0; i< li.size(); i++)
       {
         bw.write(li.get(i).toString(","));

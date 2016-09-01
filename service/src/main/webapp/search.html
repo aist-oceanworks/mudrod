@@ -146,6 +146,7 @@
     		//sortName : "Time",
     		//sortOrder : "asc",
     		cardView: true,
+			//showHeader: false,
     
     		columns : [ {
     			'title' : 'Short Name',
@@ -155,23 +156,18 @@
     		}, {
     			'title' : 'Long Name',
     			'field' : 'Long Name',
-    		}, {			
-    			'title' : 'Relevance',
-    			'field' : 'Relevance',
     		},
     		{
     			'title' : 'Topic',
     			'field' : 'Topic',
-    
+				'formatter' : TopicFormatter,    
     		}, 
     		{
     			'title' : 'Release Date',
-    			'field' : 'Release Date',
-    
+    			'field' : 'Release Date',  
     		},{
     			'title' : 'Abstract',
-    			'field' : 'Abstract',
-    
+    			'field' : 'Abstract',  
     		} ]
     
     	};

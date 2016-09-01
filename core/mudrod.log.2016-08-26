@@ -1,0 +1,946 @@
+2016-08-26 14:17:31,424 ERROR main.MudrodEngine - MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+java.lang.NullPointerException
+	at esiptestbed.mudrod.discoveryengine.MudrodAbstract.initMudrod(MudrodAbstract.java:83)
+	at esiptestbed.mudrod.discoveryengine.MudrodAbstract.<init>(MudrodAbstract.java:61)
+	at esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract.<init>(DiscoveryEngineAbstract.java:31)
+	at esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine.<init>(WeblogDiscoveryEngine.java:45)
+	at esiptestbed.mudrod.main.MudrodEngine.startProcessing(MudrodEngine.java:200)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:312)
+2016-08-26 14:18:31,444 ERROR main.MudrodEngine - MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+org.apache.commons.cli.MissingOptionException: Missing required option: logDir
+	at org.apache.commons.cli.DefaultParser.checkRequiredOptions(DefaultParser.java:199)
+	at org.apache.commons.cli.DefaultParser.parse(DefaultParser.java:130)
+	at org.apache.commons.cli.DefaultParser.parse(DefaultParser.java:76)
+	at org.apache.commons.cli.DefaultParser.parse(DefaultParser.java:60)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:271)
+2016-08-26 14:18:50,842 ERROR main.MudrodEngine - MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+java.lang.NullPointerException
+	at esiptestbed.mudrod.discoveryengine.MudrodAbstract.initMudrod(MudrodAbstract.java:83)
+	at esiptestbed.mudrod.discoveryengine.MudrodAbstract.<init>(MudrodAbstract.java:61)
+	at esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract.<init>(DiscoveryEngineAbstract.java:31)
+	at esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine.<init>(WeblogDiscoveryEngine.java:45)
+	at esiptestbed.mudrod.main.MudrodEngine.startProcessing(MudrodEngine.java:200)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:312)
+2016-08-26 14:22:10,705 INFO  elasticsearch.plugins - [Tabitha Smith] modules [], plugins [], sites []
+2016-08-26 14:22:11,990 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 14:22:13,251 INFO  Remoting - Starting remoting
+2016-08-26 14:22:13,379 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:61161]
+2016-08-26 14:22:16,058 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 14:22:16,103 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 14:22:20,193 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 14:22:20,193 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 14:22:20,195 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 14:22:21,544 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer ends******************Took 1ss
+2016-08-26 14:22:21,546 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer starts******************
+2016-08-26 14:22:21,569 ERROR main.MudrodEngine - MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+java.lang.NullPointerException
+	at org.apache.hadoop.mapred.FileInputFormat.getPathStrings(FileInputFormat.java:419)
+	at org.apache.hadoop.mapred.FileInputFormat.setInputPaths(FileInputFormat.java:362)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at scala.Option.map(Option.scala:146)
+	at org.apache.spark.rdd.HadoopRDD.getJobConf(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD.getPartitions(HadoopRDD.scala:195)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.MapPartitionsRDD.getPartitions(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.ZippedWithIndexRDD.<init>(ZippedWithIndexRDD.scala:44)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:150)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:111)
+	at org.apache.spark.rdd.RDD.withScope(RDD.scala:316)
+	at org.apache.spark.rdd.RDD.zipWithIndex(RDD.scala:1271)
+	at org.apache.spark.api.java.JavaRDDLike$class.zipWithIndex(JavaRDDLike.scala:323)
+	at org.apache.spark.api.java.AbstractJavaRDDLike.zipWithIndex(JavaRDDLike.scala:46)
+	at esiptestbed.mudrod.utils.MatrixUtil.loadVectorFromCSV(MatrixUtil.java:260)
+	at esiptestbed.mudrod.semantics.SemanticAnalyzer.calTermSimfromMatrix(SemanticAnalyzer.java:64)
+	at esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer.execute(UserHistoryAnalyzer.java:54)
+	at esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine.process(WeblogDiscoveryEngine.java:196)
+	at esiptestbed.mudrod.main.MudrodEngine.startProcessing(MudrodEngine.java:201)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:314)
+2016-08-26 14:22:21,625 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/metrics/json,null}
+2016-08-26 14:22:21,626 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/kill,null}
+2016-08-26 14:22:21,627 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/api,null}
+2016-08-26 14:22:21,628 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/,null}
+2016-08-26 14:22:21,628 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/static,null}
+2016-08-26 14:22:21,629 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump/json,null}
+2016-08-26 14:22:21,630 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump,null}
+2016-08-26 14:22:21,632 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/json,null}
+2016-08-26 14:22:21,632 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors,null}
+2016-08-26 14:22:21,633 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment/json,null}
+2016-08-26 14:22:21,634 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment,null}
+2016-08-26 14:22:21,634 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd/json,null}
+2016-08-26 14:22:21,635 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd,null}
+2016-08-26 14:22:21,636 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/json,null}
+2016-08-26 14:22:21,636 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage,null}
+2016-08-26 14:22:21,636 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool/json,null}
+2016-08-26 14:22:21,637 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool,null}
+2016-08-26 14:22:21,637 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/json,null}
+2016-08-26 14:22:21,638 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage,null}
+2016-08-26 14:22:21,639 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/json,null}
+2016-08-26 14:22:21,640 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages,null}
+2016-08-26 14:22:21,640 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job/json,null}
+2016-08-26 14:22:21,640 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job,null}
+2016-08-26 14:22:21,640 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/json,null}
+2016-08-26 14:22:21,640 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs,null}
+2016-08-26 14:26:39,602 INFO  elasticsearch.plugins - [Thornn] modules [], plugins [], sites []
+2016-08-26 14:26:40,815 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 14:26:41,734 INFO  Remoting - Starting remoting
+2016-08-26 14:26:41,849 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:61289]
+2016-08-26 14:26:42,155 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 14:26:42,187 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 14:26:42,600 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 14:26:42,600 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 14:26:42,662 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 14:26:43,239 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer ends******************Took 0s
+2016-08-26 14:26:43,258 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer starts******************
+2016-08-26 14:27:03,038 INFO  elasticsearch.plugins - [Tattoo] modules [], plugins [], sites []
+2016-08-26 14:27:04,282 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 14:27:05,188 INFO  Remoting - Starting remoting
+2016-08-26 14:27:05,283 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:61402]
+2016-08-26 14:27:05,598 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 14:27:05,630 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 14:27:05,892 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 14:27:05,892 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 14:27:05,914 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 14:27:06,417 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer ends******************Took 0s
+2016-08-26 14:27:06,437 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer starts******************
+2016-08-26 14:28:22,167 INFO  elasticsearch.plugins - [Cottonmouth] modules [], plugins [], sites []
+2016-08-26 14:28:23,415 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 14:28:24,376 INFO  Remoting - Starting remoting
+2016-08-26 14:28:24,477 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:61518]
+2016-08-26 14:28:24,780 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 14:28:24,814 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 14:28:25,085 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 14:28:25,086 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 14:28:25,134 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 14:31:02,401 INFO  elasticsearch.plugins - [Bedlam II] modules [], plugins [], sites []
+2016-08-26 14:31:03,397 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 14:31:04,186 INFO  Remoting - Starting remoting
+2016-08-26 14:31:04,287 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:61632]
+2016-08-26 14:31:04,605 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 14:31:04,644 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 14:31:05,286 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 14:31:05,286 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 14:31:05,289 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 14:31:05,799 ERROR util.Shell - Failed to locate the winutils binary in the hadoop binary path
+java.io.IOException: Could not locate executable null\bin\winutils.exe in the Hadoop binaries.
+	at org.apache.hadoop.util.Shell.getQualifiedBinPath(Shell.java:278)
+	at org.apache.hadoop.util.Shell.getWinUtilsPath(Shell.java:300)
+	at org.apache.hadoop.util.Shell.<clinit>(Shell.java:293)
+	at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:76)
+	at org.apache.hadoop.mapred.FileInputFormat.setInputPaths(FileInputFormat.java:362)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at scala.Option.map(Option.scala:146)
+	at org.apache.spark.rdd.HadoopRDD.getJobConf(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD.getPartitions(HadoopRDD.scala:195)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.MapPartitionsRDD.getPartitions(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.ZippedWithIndexRDD.<init>(ZippedWithIndexRDD.scala:44)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:150)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:111)
+	at org.apache.spark.rdd.RDD.withScope(RDD.scala:316)
+	at org.apache.spark.rdd.RDD.zipWithIndex(RDD.scala:1271)
+	at org.apache.spark.api.java.JavaRDDLike$class.zipWithIndex(JavaRDDLike.scala:323)
+	at org.apache.spark.api.java.AbstractJavaRDDLike.zipWithIndex(JavaRDDLike.scala:46)
+	at esiptestbed.mudrod.utils.MatrixUtil.loadVectorFromCSV(MatrixUtil.java:260)
+	at esiptestbed.mudrod.semantics.SVDAnalyzer.getSVDMatrix(SVDAnalyzer.java:66)
+	at esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer.execute(ClickStreamAnalyzer.java:55)
+	at esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine.process(WeblogDiscoveryEngine.java:193)
+	at esiptestbed.mudrod.main.MudrodEngine.startProcessing(MudrodEngine.java:201)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:315)
+2016-08-26 14:31:06,612 WARN   - Your hostname, Yongyao-PC resolves to a loopback/non-reachable address: fe80:0:0:0:0:5efe:a9f:f8a%net8, but we couldn't find any external IP address!
+2016-08-26 14:31:09,641 WARN  distributed.RowMatrix - The input data is not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 14:31:09,769 WARN  netlib.ARPACK - Failed to load implementation from: com.github.fommil.netlib.NativeSystemARPACK
+2016-08-26 14:31:09,949 INFO  jni.JniLoader - successfully loaded C:\Windows\TEMP\jniloader778870196568561626netlib-native_ref-win-x86_64.dll
+2016-08-26 14:31:10,275 WARN  netlib.BLAS - Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+2016-08-26 14:31:10,303 INFO  jni.JniLoader - already loaded netlib-native_ref-win-x86_64.dll
+2016-08-26 14:31:15,243 WARN  distributed.RowMatrix - The input data was not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 14:31:37,693 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer ends******************Took 32s
+2016-08-26 14:31:37,696 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer starts******************
+2016-08-26 14:31:39,096 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer ends******************Took 1s
+2016-08-26 14:31:39,096 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing ends******************Took 33s
+2016-08-26 14:31:39,128 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology preprocessing starts******************
+2016-08-26 14:31:39,269 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology preprocessing ends******************Took 0s
+2016-08-26 14:31:39,269 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology processing starts******************
+2016-08-26 14:31:40,607 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology processing ends******************Took 1s
+2016-08-26 14:31:40,632 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata preprocessing starts******************
+2016-08-26 14:31:40,633 INFO  pre.ApiHarvester - *****************Metadata harvesting starts******************
+2016-08-26 14:31:53,930 INFO  pre.ApiHarvester - *****************Metadata harvesting ends******************Took 13s
+2016-08-26 14:31:53,931 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata preprocessing ends******************Took 13s
+2016-08-26 14:31:53,931 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata processing starts******************
+2016-08-26 14:31:53,933 INFO  pre.MatrixGenerator - *****************Metadata matrix starts******************
+2016-08-26 14:32:01,321 INFO  pre.MatrixGenerator - *****************Metadata matrix ends******************Took 7s
+2016-08-26 14:32:01,323 INFO  process.MetadataAnalyzer - *****************Metadata Analyzer starts******************
+2016-08-26 14:32:01,378 WARN  distributed.RowMatrix - The input data is not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 14:32:03,976 WARN  distributed.RowMatrix - The input data was not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 14:32:09,280 INFO  process.MetadataAnalyzer - *****************Metadata Analyzer ends******************Took 7s
+2016-08-26 14:32:09,280 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata processing ends******************Took 15s
+2016-08-26 14:32:10,500 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( quikscat 0.65 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( ocean temperature 0.57 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( surface wind 0.55 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( sea surface topography 0.5 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( ocean circulation 0.48 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( sea surface temperature 0.46 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( ocean wave 0.45 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( ascat 0.44 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( ccmp 0.43 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( aquarius project 0.43 )
+2016-08-26 14:32:10,501 INFO  integration.LinkageIntegration - ( saline density 0.42 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( surface wind 0.95 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( wind 0.94 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( wind speed 0.82 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( quikscat 0.78 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( quikscat wind 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( hyperspectral image 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( dmsp f08 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( topex poseidon wind 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( dmsp f13 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( ocean wind data 0.75 )
+2016-08-26 14:32:10,510 INFO  integration.LinkageIntegration - ( ccmp l3.0 0.75 )
+2016-08-26 14:32:10,521 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( wind speed 0.88 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( surface wind 0.86 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( wind 0.82 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( vector 0.81 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( ocean wind vector 0.8 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( wind data 0.8 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( grid 0.66 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( scatterometer 0.6 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( coastal 0.58 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( cioss 0.58 )
+2016-08-26 14:32:10,522 INFO  integration.LinkageIntegration - ( vanhoff 0.58 )
+2016-08-26 14:32:10,530 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 14:32:10,600 INFO  integration.LinkageIntegration - 
+************************Integrated results***************************
+2016-08-26 14:32:10,600 INFO  integration.LinkageIntegration - surface wind = 1.0, wind = 0.99, wind speed = 0.93, quikscat = 0.88, vector = 0.76, wind data = 0.75, topex poseidon wind = 0.75, quikscat wind = 0.75, ocean wind vector = 0.75, ocean wind data = 0.75, hyperspectral image = 0.75, 
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/metrics/json,null}
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/kill,null}
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/api,null}
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/,null}
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/static,null}
+2016-08-26 14:32:10,765 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/json,null}
+2016-08-26 14:32:10,766 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs,null}
+2016-08-26 15:23:09,957 INFO  elasticsearch.plugins - [Victor Mancha] modules [], plugins [], sites []
+2016-08-26 15:23:14,192 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2016-08-26 15:23:16,218 INFO  Remoting - Starting remoting
+2016-08-26 15:23:16,410 INFO  Remoting - Remoting started; listening on addresses :[akka.tcp://sparkDriverActorSystem@10.159.15.138:64356]
+2016-08-26 15:23:17,184 INFO  server.Server - jetty-8.y.z-SNAPSHOT
+2016-08-26 15:23:17,217 INFO  server.AbstractConnector - Started SelectChannelConnector@0.0.0.0:4040
+2016-08-26 15:23:19,334 INFO  discoveryengine.WeblogDiscoveryEngine - Started Mudrod Weblog Discovery Engine.
+2016-08-26 15:23:19,335 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing starts******************
+2016-08-26 15:23:19,339 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer starts******************
+2016-08-26 15:23:29,775 ERROR util.Shell - Failed to locate the winutils binary in the hadoop binary path
+java.io.IOException: Could not locate executable null\bin\winutils.exe in the Hadoop binaries.
+	at org.apache.hadoop.util.Shell.getQualifiedBinPath(Shell.java:278)
+	at org.apache.hadoop.util.Shell.getWinUtilsPath(Shell.java:300)
+	at org.apache.hadoop.util.Shell.<clinit>(Shell.java:293)
+	at org.apache.hadoop.util.StringUtils.<clinit>(StringUtils.java:76)
+	at org.apache.hadoop.mapred.FileInputFormat.setInputPaths(FileInputFormat.java:362)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.SparkContext$$anonfun$hadoopFile$1$$anonfun$33.apply(SparkContext.scala:1015)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD$$anonfun$getJobConf$6.apply(HadoopRDD.scala:176)
+	at scala.Option.map(Option.scala:146)
+	at org.apache.spark.rdd.HadoopRDD.getJobConf(HadoopRDD.scala:176)
+	at org.apache.spark.rdd.HadoopRDD.getPartitions(HadoopRDD.scala:195)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.MapPartitionsRDD.getPartitions(MapPartitionsRDD.scala:35)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:239)
+	at org.apache.spark.rdd.RDD$$anonfun$partitions$2.apply(RDD.scala:237)
+	at scala.Option.getOrElse(Option.scala:121)
+	at org.apache.spark.rdd.RDD.partitions(RDD.scala:237)
+	at org.apache.spark.rdd.ZippedWithIndexRDD.<init>(ZippedWithIndexRDD.scala:44)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDD$$anonfun$zipWithIndex$1.apply(RDD.scala:1272)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:150)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:111)
+	at org.apache.spark.rdd.RDD.withScope(RDD.scala:316)
+	at org.apache.spark.rdd.RDD.zipWithIndex(RDD.scala:1271)
+	at org.apache.spark.api.java.JavaRDDLike$class.zipWithIndex(JavaRDDLike.scala:323)
+	at org.apache.spark.api.java.AbstractJavaRDDLike.zipWithIndex(JavaRDDLike.scala:46)
+	at esiptestbed.mudrod.utils.MatrixUtil.loadVectorFromCSV(MatrixUtil.java:260)
+	at esiptestbed.mudrod.semantics.SVDAnalyzer.getSVDMatrix(SVDAnalyzer.java:66)
+	at esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer.execute(ClickStreamAnalyzer.java:56)
+	at esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine.process(WeblogDiscoveryEngine.java:193)
+	at esiptestbed.mudrod.main.MudrodEngine.startProcessing(MudrodEngine.java:201)
+	at esiptestbed.mudrod.main.MudrodEngine.main(MudrodEngine.java:315)
+2016-08-26 15:23:30,683 WARN   - Your hostname, Yongyao-PC resolves to a loopback/non-reachable address: fe80:0:0:0:0:5efe:a9f:f8a%net8, but we couldn't find any external IP address!
+2016-08-26 15:23:37,161 WARN  distributed.RowMatrix - The input data is not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 15:23:37,300 WARN  netlib.ARPACK - Failed to load implementation from: com.github.fommil.netlib.NativeSystemARPACK
+2016-08-26 15:23:37,481 INFO  jni.JniLoader - successfully loaded C:\Windows\TEMP\jniloader1002657229574532626netlib-native_ref-win-x86_64.dll
+2016-08-26 15:23:37,892 WARN  netlib.BLAS - Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+2016-08-26 15:23:37,914 INFO  jni.JniLoader - already loaded netlib-native_ref-win-x86_64.dll
+2016-08-26 15:23:51,865 WARN  distributed.RowMatrix - The input data was not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 15:24:21,711 INFO  process.ClickStreamAnalyzer - *****************ClickStreamAnalyzer ends******************Took 62s
+2016-08-26 15:24:21,712 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer starts******************
+2016-08-26 15:24:25,116 INFO  process.UserHistoryAnalyzer - *****************UserHistoryAnalyzer ends******************Took 3s
+2016-08-26 15:24:25,116 INFO  discoveryengine.WeblogDiscoveryEngine - *****************Web log processing ends******************Took 65s
+2016-08-26 15:24:25,169 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology preprocessing starts******************
+2016-08-26 15:24:25,574 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology preprocessing ends******************Took 0s
+2016-08-26 15:24:25,574 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology processing starts******************
+2016-08-26 15:24:27,004 INFO  discoveryengine.OntologyDiscoveryEngine - *****************Ontology processing ends******************Took 1s
+2016-08-26 15:24:27,343 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata preprocessing starts******************
+2016-08-26 15:24:27,346 INFO  pre.ApiHarvester - *****************Metadata harvesting starts******************
+2016-08-26 15:24:54,427 INFO  pre.ApiHarvester - *****************Metadata harvesting ends******************Took 27s
+2016-08-26 15:24:54,428 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata preprocessing ends******************Took 27s
+2016-08-26 15:24:54,428 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata processing starts******************
+2016-08-26 15:24:54,429 INFO  pre.MatrixGenerator - *****************Metadata matrix starts******************
+2016-08-26 15:25:01,108 INFO  pre.MatrixGenerator - *****************Metadata matrix ends******************Took 6s
+2016-08-26 15:25:01,109 INFO  process.MetadataAnalyzer - *****************Metadata Analyzer starts******************
+2016-08-26 15:25:01,158 WARN  distributed.RowMatrix - The input data is not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 15:25:03,797 WARN  distributed.RowMatrix - The input data was not directly cached, which may hurt performance if its parent RDDs are also uncached.
+2016-08-26 15:25:13,655 INFO  process.MetadataAnalyzer - *****************Metadata Analyzer ends******************Took 12s
+2016-08-26 15:25:13,655 INFO  discoveryengine.MetadataDiscoveryEngine - *****************Metadata processing ends******************Took 19s
+2016-08-26 15:25:13,730 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( quikscat 0.65 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( ocean temperature 0.57 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( surface wind 0.55 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( sea surface topography 0.5 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( ocean circulation 0.48 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( sea surface temperature 0.46 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( ocean wave 0.45 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( ascat 0.44 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( ccmp 0.43 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( aquarius project 0.43 )
+2016-08-26 15:25:13,790 INFO  integration.LinkageIntegration - ( saline density 0.42 )
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - ( surface wind 0.95 )
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - ( wind 0.94 )
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - ( wind speed 0.82 )
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - ( quikscat 0.78 )
+2016-08-26 15:25:13,794 INFO  integration.LinkageIntegration - ( hyperspectral image 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( average wind 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( dmsp f13 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( quikscat wind 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( topex poseidon wind 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( dmsp f08 0.75 )
+2016-08-26 15:25:13,795 INFO  integration.LinkageIntegration - ( ocean wind data 0.75 )
+2016-08-26 15:25:13,799 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:25:13,799 INFO  integration.LinkageIntegration - ( wind speed 0.88 )
+2016-08-26 15:25:13,799 INFO  integration.LinkageIntegration - ( surface wind 0.86 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( wind 0.82 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( vector 0.81 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( ocean wind vector 0.8 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( wind data 0.8 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( grid 0.66 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( scatterometer 0.6 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( coa 0.58 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( vanhoff 0.58 )
+2016-08-26 15:25:13,800 INFO  integration.LinkageIntegration - ( osu 0.58 )
+2016-08-26 15:25:13,803 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:25:13,845 INFO  integration.LinkageIntegration - 
+************************Integrated results***************************
+2016-08-26 15:25:13,845 INFO  integration.LinkageIntegration - surface wind = 1.0, wind = 0.99, wind speed = 0.93, quikscat = 0.88, vector = 0.76, wind data = 0.75, topex poseidon wind = 0.75, quikscat wind = 0.75, ocean wind vector = 0.75, ocean wind data = 0.75, hyperspectral image = 0.75, 
+2016-08-26 15:25:14,083 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/metrics/json,null}
+2016-08-26 15:25:14,084 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/kill,null}
+2016-08-26 15:25:14,084 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/api,null}
+2016-08-26 15:25:14,085 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/,null}
+2016-08-26 15:25:14,085 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/static,null}
+2016-08-26 15:25:14,086 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump/json,null}
+2016-08-26 15:25:14,086 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/threadDump,null}
+2016-08-26 15:25:14,087 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors/json,null}
+2016-08-26 15:25:14,087 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/executors,null}
+2016-08-26 15:25:14,088 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment/json,null}
+2016-08-26 15:25:14,088 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/environment,null}
+2016-08-26 15:25:14,089 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd/json,null}
+2016-08-26 15:25:14,089 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/rdd,null}
+2016-08-26 15:25:14,090 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage/json,null}
+2016-08-26 15:25:14,090 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/storage,null}
+2016-08-26 15:25:14,091 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool/json,null}
+2016-08-26 15:25:14,091 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/pool,null}
+2016-08-26 15:25:14,091 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage/json,null}
+2016-08-26 15:25:14,092 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/stage,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages/json,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/stages,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job/json,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/job,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs/json,null}
+2016-08-26 15:25:14,093 INFO  handler.ContextHandler - stopped o.s.j.s.ServletContextHandler{/jobs,null}
+2016-08-26 15:25:14,228 WARN  thread.QueuedThreadPool - 8 threads could not be stopped
+2016-08-26 15:34:44,662 INFO  elasticsearch.plugins - [Callisto] modules [], plugins [], sites []
+2016-08-26 15:34:45,355 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( significant wave height 0.62 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( ocean wind 0.45 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( adeo ii 0.37 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( ocean current 0.34 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( ocean pressure 0.34 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( altika 0.33 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( nscat 0.33 )
+2016-08-26 15:34:45,376 INFO  integration.LinkageIntegration - ( ocean temperature 0.32 )
+2016-08-26 15:34:45,377 INFO  integration.LinkageIntegration - ( sea surface temperature 0.32 )
+2016-08-26 15:34:45,377 INFO  integration.LinkageIntegration - ( cryosat 2 0.32 )
+2016-08-26 15:34:45,377 INFO  integration.LinkageIntegration - ( topex poseidon 0.32 )
+2016-08-26 15:34:45,381 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:34:45,381 INFO  integration.LinkageIntegration - ( significant wave height 0.97 )
+2016-08-26 15:34:45,381 INFO  integration.LinkageIntegration - ( wave height 0.85 )
+2016-08-26 15:34:45,381 INFO  integration.LinkageIntegration - ( geogrian bay altimeter data 0.83 )
+2016-08-26 15:34:45,381 INFO  integration.LinkageIntegration - ( arabia sea 0.75 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( wind speed 80m height brazil 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( mean sea surface 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( sea surface topography 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( jmr 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( satellite altimetry 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( south china sea 0.73 )
+2016-08-26 15:34:45,382 INFO  integration.LinkageIntegration - ( jason 1 sgdr netcdf 0.73 )
+2016-08-26 15:34:45,387 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:34:45,387 INFO  integration.LinkageIntegration - ( significant wave height 1.0 )
+2016-08-26 15:34:45,387 INFO  integration.LinkageIntegration - ( waveform 0.92 )
+2016-08-26 15:34:45,387 INFO  integration.LinkageIntegration - ( sea surface topography 0.88 )
+2016-08-26 15:34:45,387 INFO  integration.LinkageIntegration - ( sea surface height 0.84 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( sea surface height anomaly 0.51 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( sea level anomaly 0.51 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( swh 0.51 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( ssha 0.47 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( ssh 0.47 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( sla 0.43 )
+2016-08-26 15:34:45,388 INFO  integration.LinkageIntegration - ( ocean 0.41 )
+2016-08-26 15:34:45,391 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:34:45,426 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "significant wave height",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "ocean waves",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:34:59,174 INFO  elasticsearch.plugins - [Midnight] modules [], plugins [], sites []
+2016-08-26 15:34:59,853 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:34:59,874 INFO  integration.LinkageIntegration - ( significant wave height 0.62 )
+2016-08-26 15:34:59,874 INFO  integration.LinkageIntegration - ( ocean wind 0.45 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( adeo ii 0.37 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( ocean current 0.34 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( ocean pressure 0.34 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( altika 0.33 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( nscat 0.33 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( ocean temperature 0.32 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( sea surface temperature 0.32 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( cryosat 2 0.32 )
+2016-08-26 15:34:59,875 INFO  integration.LinkageIntegration - ( topex poseidon 0.32 )
+2016-08-26 15:34:59,878 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:34:59,878 INFO  integration.LinkageIntegration - ( significant wave height 0.97 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( wave height 0.85 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( geogrian bay altimeter data 0.83 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( arabia sea 0.75 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( wind speed 80m height brazil 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( mean sea surface 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( sea surface topography 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( jmr 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( satellite altimetry 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( south china sea 0.73 )
+2016-08-26 15:34:59,879 INFO  integration.LinkageIntegration - ( jason 1 sgdr netcdf 0.73 )
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - ( significant wave height 1.0 )
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - ( waveform 0.92 )
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - ( sea surface topography 0.88 )
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - ( sea surface height 0.84 )
+2016-08-26 15:34:59,882 INFO  integration.LinkageIntegration - ( sea surface height anomaly 0.51 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( sea level anomaly 0.51 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( swh 0.51 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( ssha 0.47 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( ssh 0.47 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( sla 0.43 )
+2016-08-26 15:34:59,883 INFO  integration.LinkageIntegration - ( ocean 0.41 )
+2016-08-26 15:34:59,886 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:34:59,900 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "significant wave height",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "ocean waves",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:25,973 INFO  elasticsearch.plugins - [Jimaine Szardos] modules [], plugins [], sites []
+2016-08-26 15:35:26,689 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( significant wave height 0.62 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( ocean wind 0.45 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( adeo ii 0.37 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( ocean current 0.34 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( ocean pressure 0.34 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( altika 0.33 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( nscat 0.33 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( ocean temperature 0.32 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( sea surface temperature 0.32 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( cryosat 2 0.32 )
+2016-08-26 15:35:26,711 INFO  integration.LinkageIntegration - ( topex poseidon 0.32 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( significant wave height 0.97 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( wave height 0.85 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( geogrian bay altimeter data 0.83 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( arabia sea 0.75 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( wind speed 80m height brazil 0.73 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( mean sea surface 0.73 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( sea surface topography 0.73 )
+2016-08-26 15:35:26,715 INFO  integration.LinkageIntegration - ( jmr 0.73 )
+2016-08-26 15:35:26,716 INFO  integration.LinkageIntegration - ( satellite altimetry 0.73 )
+2016-08-26 15:35:26,716 INFO  integration.LinkageIntegration - ( south china sea 0.73 )
+2016-08-26 15:35:26,716 INFO  integration.LinkageIntegration - ( jason 1 sgdr netcdf 0.73 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( significant wave height 1.0 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( waveform 0.92 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( sea surface topography 0.88 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( sea surface height 0.84 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( sea surface height anomaly 0.51 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( sea level anomaly 0.51 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( swh 0.51 )
+2016-08-26 15:35:26,721 INFO  integration.LinkageIntegration - ( ssha 0.47 )
+2016-08-26 15:35:26,722 INFO  integration.LinkageIntegration - ( ssh 0.47 )
+2016-08-26 15:35:26,722 INFO  integration.LinkageIntegration - ( sla 0.43 )
+2016-08-26 15:35:26,722 INFO  integration.LinkageIntegration - ( ocean 0.41 )
+2016-08-26 15:35:26,726 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:26,740 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "significant wave height",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "ocean waves",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - ( geodetic gravity 0.39 )
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - ( ocean circulation 0.34 )
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - ( ocean wave 0.34 )
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - ( gravity 0.32 )
+2016-08-26 15:35:27,404 INFO  integration.LinkageIntegration - ( ocean wind 0.31 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( ndbc moor buoy 0.3 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( sea surface topography 0.3 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( ssmi 0.3 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( grace 0.3 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( grace acc 0.29 )
+2016-08-26 15:35:27,405 INFO  integration.LinkageIntegration - ( aqua 0.28 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( water pressure 1.0 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( netcdf 0.99 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( tellu ocean mass 0.99 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( pressure 0.99 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( grace gsm 0.75 )
+2016-08-26 15:35:27,408 INFO  integration.LinkageIntegration - ( grace acc 0.45 )
+2016-08-26 15:35:27,409 INFO  integration.LinkageIntegration - ( grace kbr 0.36 )
+2016-08-26 15:35:27,409 INFO  integration.LinkageIntegration - ( tellu 0.3 )
+2016-08-26 15:35:27,409 INFO  integration.LinkageIntegration - ( geodetic gravity 0.15 )
+2016-08-26 15:35:27,409 INFO  integration.LinkageIntegration - ( grace gsm l2 grav csr rl05 0.14 )
+2016-08-26 15:35:27,409 INFO  integration.LinkageIntegration - ( grace rl05 0.14 )
+2016-08-26 15:35:27,412 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:27,412 INFO  integration.LinkageIntegration - ( water pressure 0.99 )
+2016-08-26 15:35:27,412 INFO  integration.LinkageIntegration - ( obp 0.91 )
+2016-08-26 15:35:27,412 INFO  integration.LinkageIntegration - ( ocean bottom pressure 0.91 )
+2016-08-26 15:35:27,412 INFO  integration.LinkageIntegration - ( ocean mass 0.9 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( eof 0.89 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( netcdf 0.88 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( gfz 0.88 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( gif 0.63 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( grace 0.62 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( animate 0.62 )
+2016-08-26 15:35:27,413 INFO  integration.LinkageIntegration - ( tellu 0.62 )
+2016-08-26 15:35:27,415 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:27,416 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "netcdf",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "water pressure",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "ocean pressure",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:28,508 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( atmospheric water vapor 0.42 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( oscat 0.42 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( radar 0.41 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( tellu 0.36 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( dmsp f08 0.35 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( tellu land 0.35 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( geo 3 altimeter 0.35 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( tellu ocean 0.35 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( aquarius radiometer 0.33 )
+2016-08-26 15:35:28,509 INFO  integration.LinkageIntegration - ( atmospheric electricity 0.32 )
+2016-08-26 15:35:28,510 INFO  integration.LinkageIntegration - ( ascat 0.31 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( ice extent 0.86 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( seawind adeo ii level 3 sigma 0 local time day browse dataset 0.76 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( seawind quikscat level 3 sigma 0 local time day browse dataset 0.74 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( sea ice age 0.73 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( arctic 0.73 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( ice 0.69 )
+2016-08-26 15:35:28,512 INFO  integration.LinkageIntegration - ( sigma naught 0.68 )
+2016-08-26 15:35:28,513 INFO  integration.LinkageIntegration - ( radar 0.64 )
+2016-08-26 15:35:28,513 INFO  integration.LinkageIntegration - ( scat byu l3 ow sigma0 enhance 0.63 )
+2016-08-26 15:35:28,513 INFO  integration.LinkageIntegration - ( quikscat south china sea 0.63 )
+2016-08-26 15:35:28,513 INFO  integration.LinkageIntegration - ( qscat byu l3 ow sigma0 ltod browse 0.63 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( cryosphere 0.96 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( ice extent 0.96 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( spectral engineering 0.85 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( radar 0.74 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( sigma naught 0.74 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( scp 0.7 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( david long 0.66 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( sir 0.66 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( byu 0.66 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( backscatter 0.59 )
+2016-08-26 15:35:28,541 INFO  integration.LinkageIntegration - ( sigma 0 0.59 )
+2016-08-26 15:35:28,544 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:28,544 INFO  integration.LinkageIntegration - ( polynya 0.75 )
+2016-08-26 15:35:28,546 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "ice extent",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "sea ice",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - ( sea ice 0.41 )
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - ( atmospheric water vapor 0.4 )
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - ( saline density 0.35 )
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - ( jmr 0.35 )
+2016-08-26 15:35:29,393 INFO  integration.LinkageIntegration - ( microwave 0.34 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( sass 0.33 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( qscat byu l3 ow sigma0 daily browse 0.33 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( ocean wind 0.32 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( oscat 0.31 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( saral 0.31 )
+2016-08-26 15:35:29,394 INFO  integration.LinkageIntegration - ( jason 1 0.3 )
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - ( scat byu l3 ow sigma0 enhance 0.87 )
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - ( enhance resolution sigma 0 dataset from byu scp 0.87 )
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - ( ice 0.86 )
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - ( sigma naught 0.84 )
+2016-08-26 15:35:29,396 INFO  integration.LinkageIntegration - ( ami 0.83 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( ice extent 0.72 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( quikscat south china sea 0.68 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( qscat byu l3 ow sigma0 ltod browse 0.68 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( gulf mexico 0.68 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( sea ice 0.64 )
+2016-08-26 15:35:29,397 INFO  integration.LinkageIntegration - ( seawind quikscat level 3 sigma 0 local time day browse dataset 0.64 )
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - ( sigma naught 1.0 )
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - ( spectral engineering 0.95 )
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - ( backscatter 0.8 )
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - ( sigma 0 0.8 )
+2016-08-26 15:35:29,399 INFO  integration.LinkageIntegration - ( cryosphere 0.78 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( ice extent 0.78 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( sigma0 0.74 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( sea ice 0.74 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( normalize radar cross section 0.69 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( db 0.59 )
+2016-08-26 15:35:29,400 INFO  integration.LinkageIntegration - ( roughness 0.59 )
+2016-08-26 15:35:29,401 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:29,402 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "radar",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "sigma naught",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:32,126 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:32,126 INFO  integration.LinkageIntegration - ( ocean temperature 0.37 )
+2016-08-26 15:35:32,126 INFO  integration.LinkageIntegration - ( noaa 11 0.31 )
+2016-08-26 15:35:32,126 INFO  integration.LinkageIntegration - ( sea surface topography 0.31 )
+2016-08-26 15:35:32,126 INFO  integration.LinkageIntegration - ( microwave 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( lra 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( geo 3 altimeter 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( ocean color 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( dmsp f08 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( ocean circulation 0.29 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( group high resolution sea surface temperature dataset 0.28 )
+2016-08-26 15:35:32,127 INFO  integration.LinkageIntegration - ( ocean wind 0.28 )
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - ( modi aqua l3 chla monthly 4km r 1.0 )
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - ( chlorohyll 1.0 )
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - ( ocean color 1.0 )
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - ( chlorophyl 1.0 )
+2016-08-26 15:35:32,129 INFO  integration.LinkageIntegration - ( weekly chlorophyll 1.0 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( modi plankton 1.0 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( chlorophyll 0.99 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( seawif l3 chla daily 9km r 0.98 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( seawif 0.98 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( modi l3 0.56 )
+2016-08-26 15:35:32,130 INFO  integration.LinkageIntegration - ( modi 0.1 )
+2016-08-26 15:35:32,131 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( ocean color 0.96 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( biology 0.96 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( seawif 0.95 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( chlorophyll 0.94 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( ecomapper 0.62 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( ysi 0.62 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( iver 0.62 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( ocean chemistry 0.62 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( oxygen 0.54 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( turbid 0.54 )
+2016-08-26 15:35:32,132 INFO  integration.LinkageIntegration - ( k490 0.46 )
+2016-08-26 15:35:32,133 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:32,134 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : [ {
+      "multi_match" : {
+        "query" : "ocean color",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "weekly chlorophyll",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "modi plankton",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "modi aqua l3 chla monthly 4km r",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "chlorophyll",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "chlorohyll",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "ocean optics",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "seawif",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }, {
+      "multi_match" : {
+        "query" : "chlorophyl",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    } ]
+  }
+}
+2016-08-26 15:35:32,268 INFO  integration.LinkageIntegration - 
+************************ UserHistoryLinkage results***************************
+2016-08-26 15:35:32,269 INFO  integration.LinkageIntegration - 
+************************ ClickStreamLinkage results***************************
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - 
+************************ MetadataLinkage results***************************
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( spurs1 1.0 )
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( insitu 1.0 )
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( north atlantic ocean 1.0 )
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( upper ocean 1.0 )
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( saline maximum region 1.0 )
+2016-08-26 15:35:32,271 INFO  integration.LinkageIntegration - ( temperature profile 0.95 )
+2016-08-26 15:35:32,272 INFO  integration.LinkageIntegration - ( knorr 0.91 )
+2016-08-26 15:35:32,272 INFO  integration.LinkageIntegration - ( pressure 0.9 )
+2016-08-26 15:35:32,272 INFO  integration.LinkageIntegration - ( conductivity 0.9 )
+2016-08-26 15:35:32,272 INFO  integration.LinkageIntegration - ( depth 0.9 )
+2016-08-26 15:35:32,272 INFO  integration.LinkageIntegration - ( uctd 0.88 )
+2016-08-26 15:35:32,273 INFO  integration.LinkageIntegration - 
+************************ SWEETLinkage results***************************
+2016-08-26 15:35:32,274 INFO  ssearch.Dispatcher - {
+  "bool" : {
+    "should" : {
+      "multi_match" : {
+        "query" : "spurs",
+        "fields" : [ "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full" ],
+        "type" : "phrase",
+        "boost" : 1.0,
+        "tie_breaker" : 0.5
+      }
+    }
+  }
+}
