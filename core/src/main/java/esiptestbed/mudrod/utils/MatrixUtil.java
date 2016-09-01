@@ -301,8 +301,7 @@ public class MatrixUtil {
 
     JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> testRDD = word_docnum_RDD
         .leftOuterJoin(wordIDRDD);
-    System.out.println(testRDD.collect());
-
+    
     int wordsize = (int) wordIDRDD.count();
     JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
         new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
@@ -376,11 +375,6 @@ public class MatrixUtil {
     labeledRowMatrix.wordDocMatrix = docwordMatrix;
     labeledRowMatrix.words = doc_vectorRDD.keys().collect();
     labeledRowMatrix.docs = wordIDRDD.keys().collect();
-
-    System.out.println(labeledRowMatrix.wordDocMatrix.numCols());
-    System.out.println(labeledRowMatrix.wordDocMatrix.numRows());
-    System.out.println(labeledRowMatrix.words.size());
-    System.out.println(labeledRowMatrix.docs.size());
 
     return labeledRowMatrix;
   }

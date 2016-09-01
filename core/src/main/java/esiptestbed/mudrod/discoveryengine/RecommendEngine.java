@@ -4,9 +4,15 @@ import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.recommendation.pre.ApiHarvester;
 import esiptestbed.mudrod.recommendation.pre.OHCodeMatrixGenerator;
 import esiptestbed.mudrod.recommendation.pre.OHEncodeMetadata;
+import esiptestbed.mudrod.recommendation.pre.SessionCooccurenceMatrix;
+import esiptestbed.mudrod.recommendation.pre.TFIDFGenerator;
+import esiptestbed.mudrod.recommendation.pre.TranformMetadata;
 import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
+import esiptestbed.mudrod.recommendation.process.TopicBasedCF;
+import esiptestbed.mudrod.recommendation.process.sessionBasedCF;
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
@@ -22,13 +28,13 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         "*****************Recommendation preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    /*DiscoveryStepAbstract harvester = new ApiHarvester(this.config, this.es,
+    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es,
         this.spark);
     harvester.execute();
     
-    DiscoveryStepAbstract transformer = new TranformMetadata(this.config,
+    DiscoveryStepAbstract transformer = new TranformMetadata(this.props,
         this.es, this.spark);
-    transformer.execute();*/
+    transformer.execute();
 
     DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.props, this.es,
         this.spark);
@@ -38,17 +44,13 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.es, this.spark);
     matrixGen.execute();
 
-    /* DiscoveryStepAbstract cooccur = new SessionCooccurence(this.config, this.es,
-        this.spark);
-    cooccur.execute();
-    
     DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurenceMatrix(
-        this.config, this.es, this.spark);
+        this.props, this.es, this.spark);
     sessionMatrixGen.execute();
     
-    DiscoveryStepAbstract topic = new TFIDFGenerator(this.config, this.es,
+    DiscoveryStepAbstract topic = new TFIDFGenerator(this.props, this.es,
         this.spark);
-    topic.execute();*/
+    topic.execute();
 
     endTime = System.currentTimeMillis();
     System.out.println(
@@ -68,13 +70,13 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.spark);
     cbCF.execute();
 
-    /* DiscoveryStepAbstract sbCF = new sessionBasedCF(this.config, this.es,
+    DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
         this.spark);
     sbCF.execute();
 
-    DiscoveryStepAbstract tbCF = new TopicBasedCF(this.config, this.es,
+    DiscoveryStepAbstract tbCF = new TopicBasedCF(this.props, this.es,
         this.spark);
-    tbCF.execute();*/
+    tbCF.execute();
 
     endTime = System.currentTimeMillis();
     System.out.println(

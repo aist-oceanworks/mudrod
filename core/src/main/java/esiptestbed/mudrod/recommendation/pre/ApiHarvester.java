@@ -53,10 +53,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   public Object execute() {
     LOG.info("*****************Metadata harvesting starts******************");
     startTime = System.currentTimeMillis();
-    es.createBulkProcesser();
     addMetadataMapping();
     importToES();
-    es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
     LOG.info(
@@ -81,6 +79,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   }
 
   private void importToES() {
+	es.deleteType(props.getProperty("indexName"),
+            props.getProperty("recom_metadataType"));
+	
+	es.createBulkProcesser();
     File directory = new File(props.getProperty("raw_metadataPath"));
     File[] fList = directory.listFiles();
     for (File file : fList) {
@@ -93,6 +95,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           JsonElement item = parser.parse(jsonTxt);
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               props.getProperty("recom_metadataType")).source(item.toString());
+          
           es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();
@@ -102,6 +105,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       }
 
     }
+    
+    es.destroyBulkProcessor();
   }
 
   private void harvestMetadatafromWeb() {

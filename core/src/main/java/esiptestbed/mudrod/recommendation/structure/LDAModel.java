@@ -25,11 +25,13 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 
 import com.google.common.base.Optional;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import scala.Tuple2;
@@ -51,8 +53,6 @@ public class LDAModel implements Serializable {
     variables.add("DatasetParameter-Variable");
     variables.add("Dataset-Description");
     variables.add("Dataset-LongName");
-    // variables.add("Dataset-ShortName");
-    // variables.add("extractedTerms");
   }
 
   public JavaPairRDD<String, List<String>> loadData(ESDriver es,
@@ -60,6 +60,7 @@ public class LDAModel implements Serializable {
 
     List<Tuple2<String, List<String>>> datasetsTokens = this
         .loadMetadataFromES(es);
+    
     JavaRDD<Tuple2<String, List<String>>> datasetsTokensRDD = spark.sc
         .parallelize(datasetsTokens);
 
@@ -85,10 +86,12 @@ public class LDAModel implements Serializable {
 
     List<Tuple2<String, List<String>>> datasetsTokens = new ArrayList<Tuple2<String, List<String>>>();
     while (true) {
+ 
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> result = hit.getSource();
         String shortName = (String) result.get("Dataset-ShortName");
 
+        
         List<String> tokens = new ArrayList<String>();
         int size = variables.size();
         for (int i = 0; i < size; i++) {
@@ -99,8 +102,6 @@ public class LDAModel implements Serializable {
             String filedStr = es.customAnalyzing(indexName,
                 filedValue.toString());
 
-            // System.out.println(filedValue);
-            // System.out.println(filedStr);
             List<String> filedTokenList = this.getTokens(filedStr);
             tokens.addAll(filedTokenList);
           }
@@ -148,22 +149,6 @@ public class LDAModel implements Serializable {
 
     LabeledRowMatrix labelMatrix = MatrixUtil
         .createDocWordMatrix(datasetTokensRDD, spark.sc);
-    /* RowMatrix wordDocMatrix = labelMatrix.wordDocMatrix;
-    
-    IndexedRowMatrix indexedMatrix = MatrixUtil
-        .buildIndexRowMatrix(wordDocMatrix.rows().toJavaRDD());
-    RowMatrix docWordMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
-    
-    LabeledRowMatrix lmatrix = new LabeledRowMatrix();
-    lmatrix.words = labelMatrix.docs;
-    lmatrix.docs = labelMatrix.words;
-    lmatrix.wordDocMatrix = docWordMatrix;
-    
-    System.out.println(lmatrix.words.size());
-    System.out.println(lmatrix.docs.size());
-    
-    System.out.println(lmatrix.wordDocMatrix.numRows());
-    System.out.println(lmatrix.wordDocMatrix.numCols());*/
 
     return labelMatrix;
   }
@@ -171,8 +156,6 @@ public class LDAModel implements Serializable {
   public LabeledRowMatrix getLDA(
       JavaPairRDD<String, List<String>> datasetTokensRDD, SparkDriver spark,
       String file) {
-
-    // System.out.println(datasetTokensRDD.count());
 
     LabeledRowMatrix labelMatrix = MatrixUtil
         .createWordDocMatrix(datasetTokensRDD, spark.sc);
@@ -182,10 +165,7 @@ public class LDAModel implements Serializable {
         .buildIndexRowMatrix(wordDocMatrix.rows().toJavaRDD());
     RowMatrix docWordMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
     JavaRDD<Vector> parsedData = docWordMatrix.rows().toJavaRDD();
-
-    // System.out.println(docWordMatrix.numRows());
-    // System.out.println(docWordMatrix.numCols());
-
+    
     // Index documents with unique IDs
     JavaPairRDD<Long, Vector> corpus = JavaPairRDD
         .fromJavaRDD(parsedData.zipWithIndex()
@@ -212,8 +192,6 @@ public class LDAModel implements Serializable {
 
     JavaRDD<Tuple3<Object, int[], double[]>> metadataTopicProb = sameModel
         .topTopicsPerDocument(topicnum).toJavaRDD();
-
-    // System.out.println(metadataTopicProb.count());
 
     List<Tuple3<Object, int[], double[]>> test = metadataTopicProb.collect();
 

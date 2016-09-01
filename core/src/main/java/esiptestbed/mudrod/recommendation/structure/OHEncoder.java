@@ -257,7 +257,8 @@ public class OHEncoder {
     int valueNum = VarValues.getBuckets().size();
     int pos = 0;
     for (Terms.Bucket entry : VarValues.getBuckets()) {
-      String value = (String) entry.getKey();
+      Object obj = entry.getKey();
+      String value = obj.toString();
       Vector sv = Vectors.sparse(valueNum, new int[] { pos },
           new double[] { 1 });
       pos += 1;
