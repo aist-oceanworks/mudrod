@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -35,6 +37,10 @@ import esiptestbed.mudrod.weblog.structure.SessionExtractor;
  */
 public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SessionCooccurenceMatrix.class);
+
   public SessionCooccurenceMatrix(Properties props, ESDriver es,
       SparkDriver spark) {
 
@@ -46,8 +52,9 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
   @Override
   public Object execute() {
 
-    System.out.println(
+    LOG.info(
         "*****************Dataset session_based similarity Generator starts******************");
+
     startTime = System.currentTimeMillis();
 
     ItemSimCalculator simCal = new ItemSimCalculator(props);
@@ -66,8 +73,10 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
         props.getProperty("session_item_Matrix"));
 
     endTime = System.currentTimeMillis();
-    System.out.println(
-        "*****************Dataset session_based  similarity Generator ends******************");
+
+    LOG.info(
+        "*****************Dataset session_based  similarity Generator ends******************Took {}s",
+        (endTime - startTime) / 1000);
 
     return null;
   }

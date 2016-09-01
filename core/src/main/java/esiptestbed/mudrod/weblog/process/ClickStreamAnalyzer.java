@@ -20,11 +20,15 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
+import esiptestbed.mudrod.ssearch.ClickstreamImporter;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to calculate term similarity based on click stream
+ */
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
   /**
@@ -39,6 +43,9 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     super(props, es, spark);
   }
 
+  /**
+   * Method of executing click stream analyzer
+   */
   @Override
   public Object execute() {
     LOG.info("*****************ClickStreamAnalyzer starts******************");
@@ -56,11 +63,15 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    
+    //Store click stream in ES for the ranking use
+    ClickstreamImporter cs = new ClickstreamImporter(props, es, spark);
+    cs.importfromCSVtoES();  
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
     LOG.info("*****************ClickStreamAnalyzer ends******************Took {}s",
-        (endTime - startTime) / 1000 + "s");
+        (endTime - startTime) / 1000);
     return null;
   }
 

@@ -29,6 +29,9 @@ import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to extract click stream data based on session processing results
+ */
 public class ClickStreamGenerator extends DiscoveryStepAbstract {
   
   /**

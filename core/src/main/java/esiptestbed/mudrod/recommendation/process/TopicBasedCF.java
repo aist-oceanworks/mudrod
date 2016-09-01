@@ -12,6 +12,9 @@ package esiptestbed.mudrod.recommendation.process;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -31,6 +34,8 @@ import esiptestbed.mudrod.utils.LinkageTriple;
  */
 public class TopicBasedCF extends DiscoveryStepAbstract {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TopicBasedCF.class);
+
   public TopicBasedCF(Properties props, ESDriver es, SparkDriver spark) {
 
     super(props, es, spark);
@@ -39,6 +44,10 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
+
+    LOG.info(
+        "*****************Topic based dataset similarity calculation starts******************");
+    startTime = System.currentTimeMillis();
 
     try {
       String topicMatrixFile = props.getProperty("metadata_topic_matrix");
@@ -52,6 +61,11 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+
+    LOG.info(
+        "*****************Topic based dataset similarity calculation ends******************Took {}s",
+        (endTime - startTime) / 1000);
+
     return null;
   }
 

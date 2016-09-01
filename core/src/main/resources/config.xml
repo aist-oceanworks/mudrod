@@ -13,8 +13,6 @@
   governing permissions and limitations under the License. 
 -->
 <Config>
-  <para name="loglevel">1</para>
-
   <para name="httpPrefix">access_log.</para>
   <para name="ftpPrefix">vsftpd.log.</para>
 
@@ -40,8 +38,8 @@
   <para name="viewf">200</para>   <!-- threshold for session summarizing, unit second -->
   <para name="downloadf">100</para>   <!-- threshold for session summarizing, unit second -->
 
-  <!-- para name="raw_metadataPath">./src/main/java/esiptestbed/tmp/RawMetadata</para -->
   <para name="raw_metadataType">RawMetadata</para>
+  <para name="clickstreamMatrixType">clickstreamMatrix</para>
   <para name="recom_metadataType">RecomMetadata</para>
   
 
@@ -62,9 +60,7 @@
   <para name="ontology_w">2</para>
   
   <para name="metadataCodeSimType">MetadataCodeSim</para>
-  <para name="metadataModelBasedSimType">MetadataMBSim</para>
-  <para name="metadataItemBasedSimType">MetadataIBSim</para>
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
-<para name="metadataTopicSimType">MetadataTBSim</para>
+  <para name="metadataTopicSimType">MetadataTBSim</para>
 
 </Config>

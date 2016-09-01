@@ -49,6 +49,9 @@ import esiptestbed.mudrod.weblog.structure.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to generate user session by time threshold and referrer
+ */
 public class SessionGenerator extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(SessionGenerator.class);
@@ -85,6 +88,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   }
 
+  /**
+   * Method to generate session by time threshold and referrer
+   * @param Timethres value of time threshold (second)
+   * @throws ElasticsearchException
+   * @throws IOException
+   */
   public void genSessionByReferer(int timeThres)
       throws ElasticsearchException, IOException {
     SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
@@ -241,6 +250,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method to combine choppy/short sessions into continue/larger session
+   * @param Timethres value of time threshold (second)
+   * @throws ElasticsearchException
+   * @throws IOException
+   */
   public void combineShortSessions(int Timethres)
       throws ElasticsearchException, IOException {
     SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
@@ -305,7 +320,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       }
 
       Collections.sort(sessionList);
-
       DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
       String last = null;
       String lastnewID = null;
@@ -344,7 +358,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
               scrollResp = es.getClient()
                   .prepareSearchScroll(scrollResp.getScrollId())
                   .setScroll(new TimeValue(600000)).execute().actionGet();
-              // Break condition: No hits are returned
               if (scrollResp.getHits().getHits().length == 0) {
                 break;
               }
@@ -359,6 +372,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method to remove invalid logs through IP address
+   * @param ip invalid IP address
+   * @throws ElasticsearchException
+   * @throws IOException
+   */
   public void deleteInvalid(String ip) throws IOException {
     QueryBuilder filterAll = QueryBuilders.boolQuery()
         .must(QueryBuilders.termQuery("IP", ip));
@@ -382,6 +401,16 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method to update a Elasticsearch record/document by id, field, and value
+   * @param index index name is Elasticsearch
+   * @param type type name
+   * @param id ID of the document that needs to be updated
+   * @param field1 field of the document that needs to be updated
+   * @param value1 value of the document that needs to be changed to
+   * @throws ElasticsearchException
+   * @throws IOException
+   */
   private void update(String index, String type, String id, String field1, Object value1) throws IOException {
     UpdateRequest ur = new UpdateRequest(index, type, id)
         .doc(jsonBuilder().startObject().field(field1, value1).endObject());

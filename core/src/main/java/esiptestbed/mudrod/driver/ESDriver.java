@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -93,7 +93,7 @@ public class ESDriver implements Serializable {
 
   /**
    * Substantiated constructor which accepts a {@link java.util.Properties}
-   *
+   * 
    * @param props
    *          a populated properties object.
    */
@@ -247,7 +247,7 @@ public class ESDriver implements Serializable {
   public String searchByQuery(String index, String Type, String query,
       Boolean bDetail)
       throws IOException, InterruptedException, ExecutionException {
-    boolean exists = node.client().admin().indices().prepareExists(index)
+    boolean exists = getClient().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {
       return null;

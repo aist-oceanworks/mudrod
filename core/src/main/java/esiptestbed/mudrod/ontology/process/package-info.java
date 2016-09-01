@@ -12,6 +12,6 @@
  * limitations under the License.
  */
 /**
- * Tests for the esiptestbed.mudrod.main package.
+ * This package includes ontology processing classes.
  */
-package esiptestbed.mudrod.main;
+package esiptestbed.mudrod.ontology.process;

@@ -25,6 +25,9 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to calculate term similarity based on user history
+ */
 public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
   
   /**
@@ -38,6 +41,9 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
     super(props, es, spark);
   }
 
+  /**
+   * Method of executing user history analyzer
+   */
   @Override
   public Object execute() {
     LOG.info("*****************UserHistoryAnalyzer starts******************");

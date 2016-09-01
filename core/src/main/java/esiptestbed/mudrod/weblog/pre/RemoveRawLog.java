@@ -24,6 +24,9 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to remove raw logs after processing is finished
+ */
 public class RemoveRawLog extends DiscoveryStepAbstract {
   
   /**

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
@@ -50,12 +51,13 @@ public class DatasetDetail extends HttpServlet {
 
       MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
           .getAttribute("MudrodInstance");
-      Properties props = mudrod.getConfig();
+      Properties config = mudrod.getConfig();
       String fileList = null;
       try {
         String query = "Dataset-ShortName:\"" + shortName + "\"";
-        fileList = mudrod.getES().searchByQuery(props.getProperty("indexName"),
-            props.getProperty("raw_metadataType"), query, true);
+        fileList = mudrod.getES().searchByQuery(
+            config.getProperty(MudrodConstants.ES_INDEX_NAME),
+            config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
       } catch (InterruptedException e) {
         e.printStackTrace();
       } catch (ExecutionException e) {

@@ -162,9 +162,6 @@ public class RequestUrl extends MudrodAbstract {
           keyword = keyword.replace("%25", " ");
         }
 
-        // keyword = keyword.replaceAll("[-+.^:,*_]","
-        // ").replaceAll("\\s+","
-        // ");
         keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
             .replaceAll("\\s+", " ").trim();
 

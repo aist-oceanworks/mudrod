@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
@@ -34,6 +36,10 @@ import esiptestbed.mudrod.utils.MatrixUtil;
  */
 public class TFIDFGenerator extends DiscoveryStepAbstract {
 
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory
+      .getLogger(TFIDFGenerator.class);
+
   public TFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
 
     super(props, es, spark);
@@ -43,6 +49,11 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
+
+    LOG.info(
+        "*****************Dataset TF_IDF Matrix Generator starts******************");
+
+    startTime = System.currentTimeMillis();
 
     LDAModel lda = new LDAModel(props);
     try {
@@ -59,6 +70,10 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
       e.printStackTrace();
 
     }
+
+    LOG.info(
+        "*****************Dataset TF_IDF Matrix Generator ends******************Took {}s",
+        (endTime - startTime) / 1000);
 
     return null;
   }

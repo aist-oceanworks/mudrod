@@ -52,7 +52,6 @@ public abstract class MudrodAbstract implements Serializable {
 
   private static final String ES_SETTINGS = "elastic_settings.json";
   private static final String ES_MAPPINGS = "elastic_mappings.json";
-  private int printLevel = 0;
 
   public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark){
     this.props = props;
@@ -61,6 +60,9 @@ public abstract class MudrodAbstract implements Serializable {
     this.initMudrod();
   }
 
+  /**
+   * Method of setting up essential configuration for MUDROD to start
+   */
   protected void initMudrod(){
     InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
     InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
@@ -89,21 +91,20 @@ public abstract class MudrodAbstract implements Serializable {
     ftpType = props.getProperty("FTP_type_prefix") + props.getProperty(TIME_SUFFIX);
     cleanupType = props.getProperty("Cleanup_type_prefix") + props.getProperty(TIME_SUFFIX);
     sessionStats = props.getProperty("SessionStats_prefix") + props.getProperty(TIME_SUFFIX);
-
-    printLevel = Integer.parseInt(props.getProperty("loglevel"));
   }
 
-  public void print(String log, int level){
-    if(level <= printLevel)
-    {
-      LOG.info(log);
-    }
-  }
-
+  /**
+   * Get driver of Elasticsearch
+   * @return driver of Elasticsearch
+   */
   public ESDriver getES(){
     return this.es;
   }
 
+  /**
+   * Get configuration of MUDROD (read from configuration file)
+   * @return configuration of MUDROD 
+   */
   public Properties getConfig(){
     return this.props;
   }

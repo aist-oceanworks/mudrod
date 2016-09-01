@@ -46,6 +46,10 @@ import esiptestbed.mudrod.weblog.structure.RequestUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to post-process session, including summarizing statistics and filtering
+ *
+ */
 public class SessionStatistic extends DiscoveryStepAbstract {
 
   /**
@@ -78,6 +82,13 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     return null;
   }
 
+/**
+ * Method to summarize duration, numbers of searching, viewing, and downloading requests, and 
+ * filter out suspicious sessions
+ * @throws IOException
+ * @throws InterruptedException
+ * @throws ExecutionException
+ */
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcesser();
@@ -259,11 +270,15 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         }
       }
     }
-
     LOG.info("Session count: {}", Integer.toString(session_count));
     es.destroyBulkProcessor();
   }
 
+  /**
+   * Extract the dataset ID from a long request
+   * @param request raw log request
+   * @return dataset ID
+   */
   public String findDataset(String request) {
     String pattern1 = "/dataset/";
     String pattern2;
