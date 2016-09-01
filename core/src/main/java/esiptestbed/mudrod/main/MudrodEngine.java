@@ -28,6 +28,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
 import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
@@ -36,15 +38,12 @@ import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
-import scala.reflect.internal.Trees.This;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
- * Main entry point for Running the Mudrod system.
- * Invocation of this class is tightly linked to the primary Mudrod 
- * configuration which can be located at
- * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+ * Main entry point for Running the Mudrod system. Invocation of this class is
+ * tightly linked to the primary Mudrod configuration which can be located at
+ * <a href=
+ * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
  */
 public class MudrodEngine {
 
@@ -60,13 +59,13 @@ public class MudrodEngine {
    * Public constructor for this class.
    */
   public MudrodEngine() {
-    //default constructor
+    // default constructor
   }
 
   /**
-   * Start the {@link esiptestbed.mudrod.driver.ESDriver}. 
-   * Should only be called after call to
-   * {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   * Start the {@link esiptestbed.mudrod.driver.ESDriver}. Should only be called
+   * after call to {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   * 
    * @return fully provisioned {@link esiptestbed.mudrod.driver.ESDriver}
    */
   public ESDriver startESDriver() {
@@ -74,9 +73,10 @@ public class MudrodEngine {
   }
 
   /**
-   * Start the {@link esiptestbed.mudrod.driver.SparkDriver}. 
-   * Should only be called after call to
+   * Start the {@link esiptestbed.mudrod.driver.SparkDriver}. Should only be
+   * called after call to
    * {@link esiptestbed.mudrod.main.MudrodEngine#loadConfig()}
+   * 
    * @return fully provisioned {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public SparkDriver startSparkDriver() {
@@ -84,8 +84,9 @@ public class MudrodEngine {
   }
 
   /**
-   * Retreive the Mudrod configuration as a Properties Map
-   * containing K, V of type String.
+   * Retreive the Mudrod configuration as a Properties Map containing K, V of
+   * type String.
+   * 
    * @return a {@link java.util.Properties} object
    */
   public Properties getConfig() {
@@ -94,6 +95,7 @@ public class MudrodEngine {
 
   /**
    * Retreive the Mudrod {@link esiptestbed.mudrod.driver.ESDriver}
+   * 
    * @return the {@link esiptestbed.mudrod.driver.ESDriver} instance.
    */
   public ESDriver getES() {
@@ -101,8 +103,9 @@ public class MudrodEngine {
   }
 
   /**
-   * Load the configuration provided at
-   * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+   * Load the configuration provided at <a href=
+   * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+   * 
    * @return a populated {@link java.util.Properties} object.
    */
   public Properties loadConfig() {
@@ -118,19 +121,22 @@ public class MudrodEngine {
 
       for (int i = 0; i < paraList.size(); i++) {
         Element paraNode = paraList.get(i);
-        props.put(paraNode.getAttributeValue("name"),
-            paraNode.getTextTrim());
+        props.put(paraNode.getAttributeValue("name"), paraNode.getTextTrim());
       }
     } catch (JDOMException | IOException e) {
-      LOG.error("Exception whilst retreiving or processing XML contained within 'config.xml'!", e);
+      LOG.error(
+          "Exception whilst retreiving or processing XML contained within 'config.xml'!",
+          e);
     }
     return getConfig();
 
   }
 
   /**
-   * Preprocess and process various {@link esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract}
-   * implementations for weblog, ontology and metadata, linkage discovery and integration.
+   * Preprocess and process various
+   * {@link esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract}
+   * implementations for weblog, ontology and metadata, linkage discovery and
+   * integration.
    */
   public void start() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -150,8 +156,10 @@ public class MudrodEngine {
   }
 
   /**
-   * Only preprocess various {@link esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract}
-   * implementations for weblog, ontology and metadata, linkage discovery and integration.
+   * Only preprocess various
+   * {@link esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract}
+   * implementations for weblog, ontology and metadata, linkage discovery and
+   * integration.
    */
   public void startProcessing() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -170,15 +178,18 @@ public class MudrodEngine {
   }
 
   /**
-   * Begin ingesting logs with the {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
+   * Begin ingesting logs with the
+   * {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
    */
   public void startLogIngest() {
     WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.logIngest();
+
   }
 
   /**
-   * Close the connection to the {@link esiptestbed.mudrod.driver.ESDriver} instance.
+   * Close the connection to the {@link esiptestbed.mudrod.driver.ESDriver}
+   * instance.
    */
   public void end() {
     es.close();
@@ -188,16 +199,21 @@ public class MudrodEngine {
    * Main program invocation. Accepts one argument denoting location (on disk)
    * to a log file which is to be ingested. Help will be provided if invoked
    * with incorrect parameters.
-   * @param args {@link java.lang.String} array contaning correct parameters.
+   * 
+   * @param args
+   *          {@link java.lang.String} array contaning correct parameters.
    */
   public static void main(String[] args) {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest with the WeblogDiscoveryEngine only");
-    Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
+    Option logIngestOpt = new Option("l", LOG_INGEST, false,
+        "begin log ingest with the WeblogDiscoveryEngine only");
+    Option fullIngestOpt = new Option("f", FULL_INGEST, false,
+        "begin full ingest Mudrod workflow");
     // argument options
     Option logDirOpt = Option.builder(LOG_DIR).required(true).numberOfArgs(1)
-        .hasArg(true).desc("the log directory to be processed by Mudrod").argName(LOG_DIR).build();
+        .hasArg(true).desc("the log directory to be processed by Mudrod")
+        .argName(LOG_DIR).build();
 
     // create the options
     Options options = new Options();
@@ -216,7 +232,7 @@ public class MudrodEngine {
         processingType = FULL_INGEST;
       }
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
-      if(!dataDir.endsWith("/")){
+      if (!dataDir.endsWith("/")) {
         dataDir += "/";
       }
 
@@ -232,7 +248,7 @@ public class MudrodEngine {
         break;
       case FULL_INGEST:
         loadFullConfig(me, dataDir);
-        me.startProcessing(); 
+        me.startProcessing();
         break;
       default:
         break;
@@ -240,10 +256,14 @@ public class MudrodEngine {
       me.end();
     } catch (Exception e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
-          + "User must also provide either 'logIngest' or 'fullIngest'.", options, true);
-      LOG.error("MudrodEngine: 'logDir' argument is mandatory. "
-          + "User must also provide either 'logIngest' or 'fullIngest'.", e);
+      formatter.printHelp(
+          "MudrodEngine: 'logDir' argument is mandatory. "
+              + "User must also provide either 'logIngest' or 'fullIngest'.",
+          options, true);
+      LOG.error(
+          "MudrodEngine: 'logDir' argument is mandatory. "
+              + "User must also provide either 'logIngest' or 'fullIngest'.",
+          e);
       return;
     }
   }
@@ -254,8 +274,10 @@ public class MudrodEngine {
     me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
     me.props.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
-    me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
-    me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+    me.props.put("clickstreamSVDMatrix_tmp",
+        dataDir + "clickstreamSVDMatrix_tmp.csv");
+    me.props.put("metadataSVDMatrix_tmp",
+        dataDir + "metadataSVDMatrix_tmp.csv");
     me.props.put("raw_metadataPath", dataDir + "RawMetadata");
   }
 }
