@@ -13,11 +13,9 @@
  */
 package esiptestbed.mudrod.recommendation.pre;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -27,17 +25,15 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.utils.HttpRequest;
+import esiptestbed.mudrod.metadata.pre.ApiHarvester;
 
-public class ApiHarvester extends DiscoveryStepAbstract {
+public class ImportMetadata extends DiscoveryStepAbstract {
 
   /**
    *
@@ -45,7 +41,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(ApiHarvester.class);
 
-  public ApiHarvester(Properties props, ESDriver es, SparkDriver spark) {
+  public ImportMetadata(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -79,10 +75,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   }
 
   private void importToES() {
-	es.deleteType(props.getProperty("indexName"),
-            props.getProperty("recom_metadataType"));
-	
-	es.createBulkProcesser();
+    es.deleteType(props.getProperty("indexName"),
+        props.getProperty("recom_metadataType"));
+
+    es.createBulkProcesser();
     File directory = new File(props.getProperty("raw_metadataPath"));
     File[] fList = directory.listFiles();
     for (File file : fList) {
@@ -95,7 +91,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
           JsonElement item = parser.parse(jsonTxt);
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               props.getProperty("recom_metadataType")).source(item.toString());
-          
+
           es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();
@@ -105,60 +101,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       }
 
     }
-    
+
     es.destroyBulkProcessor();
-  }
-
-  private void harvestMetadatafromWeb() {
-    int startIndex = 0;
-    int doc_length = 0;
-    JsonParser parser = new JsonParser();
-    do {
-      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex="
-          + Integer.toString(startIndex)
-          + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
-      HttpRequest http = new HttpRequest();
-      String response = http.getRequest(searchAPI);
-
-      JsonElement json = parser.parse(response);
-      JsonObject responseObject = json.getAsJsonObject();
-      JsonArray docs = responseObject.getAsJsonObject("response")
-          .getAsJsonArray("docs");
-
-      doc_length = docs.size();
-
-      File file = new File(props.getProperty("raw_metadataPath"));
-      if (!file.exists()) {
-        if (file.mkdir()) {
-          LOG.info("Directory is created!");
-        } else {
-          LOG.error("Failed to create directory!");
-        }
-      }
-      for (int i = 0; i < doc_length; i++) {
-        JsonElement item = docs.get(i);
-
-        int docId = startIndex + i;
-        File itemfile = new File(
-            props.getProperty("raw_metadataPath") + "/" + docId + ".json");
-        try {
-          itemfile.createNewFile();
-          FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
-          BufferedWriter bw = new BufferedWriter(fw);
-          bw.write(item.toString());
-          bw.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-
-      startIndex += 10;
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    } while (doc_length != 0);
   }
 
   @Override
