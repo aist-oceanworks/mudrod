@@ -210,7 +210,7 @@ public class Searcher extends MudrodAbstract {
         }
       }
 
-      Double versionNum = getVersionNum(version);
+      //Double versionNum = getVersionNum(version);
       String processingLevel = (String) result.get("Dataset-ProcessingLevel"); 
       Double proNum = getProLevelNum(processingLevel);
 
@@ -220,13 +220,13 @@ public class Searcher extends MudrodAbstract {
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
 
-      Double versionFactor = Math.log(versionNum + 1);
+      //Double versionFactor = Math.log(versionNum + 1);
       SResult.set(re, "term", relevance);
-      SResult.set(re, "termAndv", relevance + versionFactor);
+      //SResult.set(re, "termAndv", relevance + versionFactor);
 
       SResult.set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());     
       SResult.set(re, "version", version);
-      SResult.set(re, "versionNum", versionNum);
+      //SResult.set(re, "versionNum", versionNum);
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);

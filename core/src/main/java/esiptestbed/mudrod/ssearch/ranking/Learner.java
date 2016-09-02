@@ -52,7 +52,7 @@ public class Learner {
         File file = new File(clsURL.toURI());
         String clspath = file.getAbsolutePath();       
         cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_7att_no_termAndv.model");   
+        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_v4.model");   
       }
     } catch (Exception e) {
       e.printStackTrace();

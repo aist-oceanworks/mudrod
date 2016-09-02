@@ -31,11 +31,11 @@ public class Sorter {
     int end_index = 0;
     for(int i=0; i<numofthread; i++)
     {
-      List<SResult> newList = new ArrayList<>() ;
+     /* List<SResult> newList = new ArrayList<>() ;
       for (int m = 0 ; m < resultList.size(); m++){
         SResult sr = new SResult(resultList.get(m));
         newList.add(sr);
-      }
+      }*/
 
       if(i == numofthread -1)
       {
@@ -47,10 +47,9 @@ public class Sorter {
       try {
         learner.setClassifier(AbstractClassifier.makeCopy(learner.getClassifier()));
       } catch (Exception e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      threadlist[i] = new SorterThread(newList, i*num, end_index, learner);    
+      threadlist[i] = new SorterThread(resultList, i*num, end_index, learner);    
       threadlist[i].start();
     }
 
@@ -61,7 +60,7 @@ public class Sorter {
         e.printStackTrace();
       } 
     }
-    //Collections.sort(resultList, new ResultComparator());
+    Collections.sort(resultList, new ResultComparator());
     return resultList;
   }
 }

@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
  * Data structure class for search result 
  */
 public class SResult {
-  public static final String rlist[] = {"term_score", "releaseDate_score", "versionNum_score", "processingL_score", 
+  public static final String rlist[] = {"term_score", "releaseDate_score", /*"versionNum_score",*/ "processingL_score", 
       "allPop_score", "monthPop_score", "userPop_score"/*, "termAndv_score"*/};
   String shortName = null;
   String longName = null;
