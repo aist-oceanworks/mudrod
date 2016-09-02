@@ -12,10 +12,7 @@ public class WebLog implements Serializable {
   String IP;
   Date Time;
   String Request;
-  String Response;
   double Bytes;
-  String Referer;
-  String Browser;
 
   public String getLogType() {
     return this.LogType;
@@ -33,16 +30,8 @@ public class WebLog implements Serializable {
     return this.Request;
   }
 
-  public String getResponse() {
-    return this.Response;
-  }
-
   public double getBytes() {
     return this.Bytes;
-  }
-
-  public String getBrowser() {
-    return this.Browser;
   }
 
   public WebLog() {
@@ -78,10 +67,4 @@ public class WebLog implements Serializable {
     return time;
   }
 
-  public static boolean checknull(WebLog s) {
-    if (s == null) {
-      return false;
-    }
-    return true;
-  }
 }

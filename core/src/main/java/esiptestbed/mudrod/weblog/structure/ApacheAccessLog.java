@@ -16,7 +16,8 @@ import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
  */
 public class ApacheAccessLog extends WebLog implements Serializable {
 
-  double Bytes;
+  // double Bytes;
+  String Response;
   String Referer;
   String Browser;
 
@@ -25,9 +26,16 @@ public class ApacheAccessLog extends WebLog implements Serializable {
     return this.Bytes;
   }
 
-  @Override
   public String getBrowser() {
     return this.Browser;
+  }
+
+  public String getResponse() {
+    return this.Response;
+  }
+
+  public String getReferer() {
+    return this.Referer;
   }
 
   public ApacheAccessLog() {
@@ -93,4 +101,12 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
     return null;
   }
+
+  public static boolean checknull(WebLog s) {
+    if (s == null) {
+      return false;
+    }
+    return true;
+  }
+
 }

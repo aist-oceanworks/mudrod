@@ -23,7 +23,7 @@
   <para name="clusterName">elasticsearch</para>
   <para name="ES_Transport_TCP_Port">9300</para>
   <para name="ES_unicast_hosts">127.0.0.1</para>
-  <para name="indexName">mudrod</para>
+  <para name="indexName">baseline</para>
 
   <para name="HTTP_type_prefix">rawhttp</para>
   <para name="FTP_type_prefix">rawftp</para>

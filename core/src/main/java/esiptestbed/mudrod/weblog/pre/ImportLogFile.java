@@ -37,7 +37,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.weblog.structure.ApacheAccessLog;
 import esiptestbed.mudrod.weblog.structure.FtpLog;
-import esiptestbed.mudrod.weblog.structure.WebLog;
 
 /**
  * Supports ability to parse and process FTP and HTTP log files
@@ -140,22 +139,36 @@ public class ImportLogFile extends DiscoveryStepAbstract {
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX);
 
-    System.out.println(httplogpath);
-    System.out.println(ftplogpath);
-    System.out.println(props.getProperty("indexName") + "/" + this.httpType);
-    System.out.println(props.getProperty("indexName") + "/" + this.ftpType);
+    importHttpfile(httplogpath);
+    importFtpfile(ftplogpath);
 
+    /*es.createBulkProcesser();
+    try {
+      readLogFile(httplogpath, "http", props.getProperty("indexName"),
+          this.httpType);
+      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"),
+          this.ftpType);
+    
+    } catch (IOException e) {
+      LOG.error("Error whilst reading log file.", e);
+    }
+    es.destroyBulkProcessor();*/
+  }
+
+  public void importHttpfile(String httplogpath) {
     // import http logs
     JavaRDD<ApacheAccessLog> accessLogs = spark.sc.textFile(httplogpath)
         .map(s -> ApacheAccessLog.parseFromLogLine(s))
-        .filter(WebLog::checknull);
+        .filter(ApacheAccessLog::checknull);
     JavaEsSpark.saveToEs(accessLogs,
         props.getProperty("indexName") + "/" + this.httpType);
+  }
 
+  public void importFtpfile(String ftplogpath) {
     // import ftp logs
-
     JavaRDD<FtpLog> ftpLogs = spark.sc.textFile(ftplogpath)
-        .map(s -> FtpLog.parseFromLogLine(s)).filter(WebLog::checknull);
+        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
+
     JavaEsSpark.saveToEs(ftpLogs,
         props.getProperty("indexName") + "/" + this.ftpType);
   }

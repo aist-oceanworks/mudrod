@@ -39,4 +39,11 @@ public class FtpLog extends WebLog implements Serializable {
 
     return null;
   }
+
+  public static boolean checknull(WebLog s) {
+    if (s == null) {
+      return false;
+    }
+    return true;
+  }
 }
