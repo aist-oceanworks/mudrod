@@ -237,7 +237,6 @@ public class MudrodEngine {
     li.execute();
 
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    recom.preprocess();
     recom.process();
   }
 
