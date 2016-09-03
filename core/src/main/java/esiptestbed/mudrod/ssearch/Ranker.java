@@ -13,8 +13,12 @@
  */
 package esiptestbed.mudrod.ssearch;
 
-import java.util.Map;
 import java.util.Properties;
+
+import org.apache.spark.mllib.linalg.Vectors;
+import org.apache.spark.mllib.regression.LabeledPoint;
+
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,13 +29,12 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.ssearch.ranking.Learner;
-import esiptestbed.mudrod.ssearch.sorting.Sorter;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
  * Supports the ability to calculating ranking score
  */
-public class Ranker extends MudrodAbstract {
+public class Ranker extends MudrodAbstract implements Serializable{
   List<SResult> resultList = new ArrayList<SResult>();
   String learnerType = null;
   Learner le = null;
@@ -46,7 +49,7 @@ public class Ranker extends MudrodAbstract {
   public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
-    le = new Learner(learnerType);
+    le = new Learner(learnerType, spark);
   }
 
   /**
@@ -172,13 +175,6 @@ public class Ranker extends MudrodAbstract {
 
     Collections.sort(resultList, new ResultComparator());   
     return resultList;
-    /*List<SResult> list = new ArrayList<SResult>();
-    try{
-      Sorter st = new Sorter(resultList);
-      list = st.sort(le);
-    }catch(Exception e){     
-    }
-    return list;*/
   }
 
   /**
@@ -195,15 +191,16 @@ public class Ranker extends MudrodAbstract {
       double o2_score = SResult.get(o2, SResult.rlist[i]);
       double o1_score = SResult.get(o1, SResult.rlist[i]);
       instList.add(o2_score - o1_score);
-    }
-    instList.add(o2.prediction - o1.prediction);
+    }   
+
     double[] ins = instList.stream().mapToDouble(i->i).toArray();
-    double prediction = le.classify(ins);
-    if(prediction == 1.0)  
+    LabeledPoint ins_point = new LabeledPoint(99.0, Vectors.dense(ins));
+    double prediction = le.classify(ins_point);
+    if(prediction == 1.0)  //different from weka where the return value is 1 or 2
     {
-      return 1;
-    }else{
       return 0;
+    }else{
+      return 1;
     }
   }
 

@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,13 +43,12 @@ import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.ssearch.ranking.Evaluator;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
  * Supports ability to performance semantic search with a given query
  */
-public class Searcher extends MudrodAbstract {
+public class Searcher extends MudrodAbstract implements Serializable{
   private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
@@ -233,11 +233,6 @@ public class Searcher extends MudrodAbstract {
       SResult.set(re, "allPop", allPop);
       SResult.set(re, "monthPop", monthPop);
 
-      /*FilterBuilder filter = FilterBuilders.boolFilter()
-          .must(FilterBuilders.termFilter("query", query))
-          .must(FilterBuilders.termFilter("dataID", shortName));
-      QueryBuilder query_label_search = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filter);*/
       QueryBuilder query_label_search = QueryBuilders.boolQuery()
           .must(QueryBuilders.termQuery("query", query))
           .must(QueryBuilders.termQuery("dataID", shortName));
@@ -311,15 +306,17 @@ public class Searcher extends MudrodAbstract {
   }
 
   public static void main(String[] args) throws IOException {
-    String learnerType = "pairwise";
+    String learnerType = "SparkSVM";
    /* String[] query_list = {"ocean waves", "ocean pressure", "sea ice", "radar",
         "ocean optics", "spurs"};*/
-    String[] query_list = {"ocean waves"};
-    //Evaluator eva = new Evaluator();
+    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+        "saline density", "pathfinder", "gravity"};
+    //String[] query_list = {"saline density"};
 
     MudrodEngine me = new MudrodEngine();
     me.loadConfig();
     me.setES(new ESDriver(me.getConfig()));
+    SparkDriver spark = new SparkDriver();
 
     Searcher sr = new Searcher(me.getConfig(), me.getES(), null);
     for(String q:query_list)
@@ -337,18 +334,12 @@ public class Searcher extends MudrodAbstract {
 
       List<SResult> resultList = sr.searchByQuery(me.getConfig().getProperty("indexName"), 
           me.getConfig().getProperty("raw_metadataType"), q);
-      Ranker rr = new Ranker(me.getConfig(), me.getES(), null, learnerType);
+      Ranker rr = new Ranker(me.getConfig(), me.getES(), spark, learnerType);
       List<SResult> li = rr.rank(resultList);
-      //int[] rank_array = new int[li.size()];
       for(int i =0; i< li.size(); i++)
       {
         bw.write(li.get(i).toString(","));
-        //rank_array[i] = sr.getRankNum(li.get(i).label);
       }
-      /*double precision = eva.getPrecision(rank_array, 200);
-      double ndcg = eva.getNDCG(rank_array, 200);     
-      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);*/
-
       bw.close();
     }
 

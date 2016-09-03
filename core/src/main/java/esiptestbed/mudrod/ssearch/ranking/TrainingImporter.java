@@ -116,10 +116,13 @@ public class TrainingImporter extends MudrodAbstract {
 
 
   public static void main(String[] args) throws IOException {
-   /* MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
-    TrainingImporter ti = new TrainingImporter(mudrod.getConfig(), mudrod.getES(), null);
-    ti.importTrainingSet("C:/mudrodCoreTestData/rankingResults/training/training_data_v2");
-    mudrod.end(); */  
+    MudrodEngine me = new MudrodEngine();
+    me.loadConfig();
+    me.setES(new ESDriver(me.getConfig()));
+    
+    TrainingImporter ti = new TrainingImporter(me.getConfig(), me.getES(), null);
+    ti.importTrainingSet("C:/mudrodCoreTestData/rankingResults/training/training_data_v4");
+    me.end();  
   }
 
 }

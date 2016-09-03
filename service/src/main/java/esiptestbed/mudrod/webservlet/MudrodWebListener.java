@@ -21,6 +21,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ssearch.Ranker;
 //import esiptestbed.mudrod.ssearch.Ranker;
@@ -51,14 +52,14 @@ public class MudrodWebListener implements ServletContextListener {
    */
   @Override
   public void contextInitialized(ServletContextEvent arg0) {
-    // MudrodEngine mudrod = new MudrodEngine("Elasticsearch");
     MudrodEngine me = new MudrodEngine();
     Properties config = me.loadConfig();
     me.setES(new ESDriver(config));
+    SparkDriver spark = new SparkDriver();
 
     ServletContext ctx = arg0.getServletContext();
     Searcher sr = new Searcher(me.getConfig(), me.getES(), null);
-    Ranker rr = new Ranker(me.getConfig(), me.getES(), null, "pairwise");
+    Ranker rr = new Ranker(me.getConfig(), me.getES(), spark, "SparkSVM");
     ctx.setAttribute("MudrodInstance", me);
     ctx.setAttribute("MudrodSearcher", sr);
     ctx.setAttribute("MudrodRanker", rr);
