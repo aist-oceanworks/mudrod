@@ -41,11 +41,13 @@ public class DataGenerator {
   public static final HashMap<String, Integer> map1 = new HashMap<String, Integer>();
   static
   {
-    map1.put("Excellent",5);
-    map1.put("Good",4);
-    map1.put("OK",3);
-    map1.put("Bad",2);
-    map1.put("Terrible",1);
+    map1.put("Excellent", 7);
+    map1.put("Very good", 6);
+    map1.put("Good", 5);
+    map1.put("OK", 4);
+    map1.put("Bad", 3);
+    map1.put("Very bad", 2);
+    map1.put("Terrible", 1);
   }
   
   /**

@@ -15,93 +15,62 @@ package esiptestbed.mudrod.ssearch.ranking;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import esiptestbed.mudrod.ssearch.structure.SResult;
-import weka.classifiers.AbstractClassifier;
-import weka.classifiers.Classifier;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
+import org.apache.spark.SparkContext;
+import org.apache.spark.mllib.classification.SVMModel;
+import org.apache.spark.mllib.regression.LabeledPoint;
+
+import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
  * Supports the ability to importing classifier into memory
  */
-public class Learner {
-  private Classifier cls= null;
-  private static final String POINTWISE = "pointwise";
-  private static final String PAIRWISE = "pairwise";
+public class Learner implements Serializable{
+  private static final String SPARKSVM = "SparkSVM";
+  SVMModel Model = null;
+  SparkContext sc = null;
 
   /**
    * Constructor to load in weka classifier
    * @param classifierName classifier type
    */
-  public Learner(String classifierName) {
-    String rootPath="C:/mudrodCoreTestData/rankingResults/model/"; 
-    
-    try {
-      if(classifierName.equals(POINTWISE))
-      {
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"linearRegression.model");
+  public Learner(String classifierName, SparkDriver skd) {
+    if(classifierName.equals(SPARKSVM))
+    {
+      //URL clsURL = Learner.class.getClassLoader().getResource("RankingModel/javaSVMWithSGDModel");
+      /*File file = null;
+      try {
+        file = new File(clsURL.toURI());
+      } catch (URISyntaxException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
-      else if(classifierName.equals(PAIRWISE))
+      String clspath = file.getAbsolutePath(); */
+      if(OSValidator.isWindows())
       {
-        /*URL clsURL = Learner.class.getClassLoader().getResource("rankSVMmodel_new.model");
-        File file = new File(clsURL.toURI());
-        String clspath = file.getAbsolutePath();       
-        cls = (Classifier) weka.core.SerializationHelper.read(clspath);*/
-        cls = (Classifier) weka.core.SerializationHelper.read(rootPath+"rankSVM_v4.model");   
+        System.setProperty("hadoop.home.dir","C:\\winutils");
       }
-    } catch (Exception e) {
-      e.printStackTrace();
+      sc = skd.sc.sc();
+      //please replace the second para to the model path on your local machine.
+      Model = SVMModel.load(sc, "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
     }
   }
 
-  /**
-   * Method of creating dataset which is necessary for further classification
-   * @return an empty instances
-   */
-  public Instances createDataset(){
-    ArrayList<Attribute> attributes = new ArrayList<Attribute>();
-    for(int i =0; i <SResult.rlist.length; i++)
-    {
-      attributes.add(new Attribute(SResult.rlist[i]));
-    }  
-    attributes.add(new Attribute("label"));
-    Instances dataset = new Instances("train_dataset", attributes, 0);
-    dataset.setClassIndex(dataset.numAttributes() - 1);
-    return dataset;
-  }
+
 
   /**
    * Method of classifying instance
    * @param instance the instance that needs to be classified
    * @return the class id
    */
-  public double classify(double[] instance)
+  public double classify(LabeledPoint p)
   {
-    Instances dataset = createDataset();
-    double prediction = 0;
-    try {
-      Instance inst = new DenseInstance(1.0, instance);
-      dataset.add(inst);
-      prediction = cls.classifyInstance(dataset.instance(0));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return prediction;
-  }
-  
-  public Classifier getClassifier()
-  {
-    return cls;
-  }
-  
-  public void setClassifier(Classifier new_cls)
-  {
-    cls = new_cls;
+    Double score = Model.predict(p.features());
+    return score;
   }
 
 }
