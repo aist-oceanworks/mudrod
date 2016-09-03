@@ -35,26 +35,18 @@ public class Learner implements Serializable{
   SparkContext sc = null;
 
   /**
-   * Constructor to load in weka classifier
+   * Constructor to load in spark SVM classifier
    * @param classifierName classifier type
    */
   public Learner(String classifierName, SparkDriver skd) {
     if(classifierName.equals(SPARKSVM))
     {
-      //URL clsURL = Learner.class.getClassLoader().getResource("RankingModel/javaSVMWithSGDModel");
-      /*File file = null;
-      try {
-        file = new File(clsURL.toURI());
-      } catch (URISyntaxException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      String clspath = file.getAbsolutePath(); */
       if(OSValidator.isWindows())
       {
         System.setProperty("hadoop.home.dir","C:\\winutils");
       }
       sc = skd.sc.sc();
+      
       //please replace the second para to the model path on your local machine.
       Model = SVMModel.load(sc, "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
     }

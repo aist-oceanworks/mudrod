@@ -113,16 +113,4 @@ public class TrainingImporter extends MudrodAbstract {
     }
     es.destroyBulkProcessor();
   }
-
-
-  public static void main(String[] args) throws IOException {
-    MudrodEngine me = new MudrodEngine();
-    me.loadConfig();
-    me.setES(new ESDriver(me.getConfig()));
-    
-    TrainingImporter ti = new TrainingImporter(me.getConfig(), me.getES(), null);
-    ti.importTrainingSet("C:/mudrodCoreTestData/rankingResults/training/training_data_v4");
-    me.end();  
-  }
-
 }

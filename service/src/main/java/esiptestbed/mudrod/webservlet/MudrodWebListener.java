@@ -24,7 +24,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ssearch.Ranker;
-//import esiptestbed.mudrod.ssearch.Ranker;
 import esiptestbed.mudrod.ssearch.Searcher;
 
 /**

@@ -13,10 +13,6 @@
  */
 package esiptestbed.mudrod.ssearch;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -61,38 +57,6 @@ public class Searcher extends MudrodAbstract implements Serializable{
    */
   public Searcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-  }
-
-  /**
-   * Method of extracting version number from version string
-   * @param version version string
-   * @return version number
-   */
-  public Double getVersionNum(String version)
-  {
-    if(version==null){
-      return 0.0;
-    }
-    Double versionNum = 0.0;
-    Pattern p = Pattern.compile(".*[a-zA-Z].*");
-    if(version.equals("Operational/Near-Real-Time"))
-    {
-      versionNum = 2.0;
-    }else if(version.matches("[0-9]{1}[a-zA-Z]{1}"))
-    {
-      versionNum = Double.parseDouble(version.substring(0, 1));
-    }else if(p.matcher(version).find())
-    {
-      versionNum = 0.0;
-    }else
-    {
-      versionNum = Double.parseDouble(version);
-      /*if(versionNum >=5)
-      {
-        versionNum = 20.0;
-      }*/
-    }
-    return versionNum;
   }
 
   /**
@@ -200,17 +164,6 @@ public class Searcher extends MudrodAbstract implements Serializable{
       String dateText = df2.format(date);
 
       //////////////////////////////////////////////more features//////////////////////////////////
-      ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
-      String version=null;
-      if(versionList!=null)
-      {
-        if(versionList.size()>0)
-        {
-          version = versionList.get(0);
-        }
-      }
-
-      //Double versionNum = getVersionNum(version);
       String processingLevel = (String) result.get("Dataset-ProcessingLevel"); 
       Double proNum = getProLevelNum(processingLevel);
 
@@ -220,13 +173,8 @@ public class Searcher extends MudrodAbstract implements Serializable{
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
 
-      //Double versionFactor = Math.log(versionNum + 1);
       SResult.set(re, "term", relevance);
-      //SResult.set(re, "termAndv", relevance + versionFactor);
-
       SResult.set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());     
-      SResult.set(re, "version", version);
-      //SResult.set(re, "versionNum", versionNum);
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);
@@ -284,65 +232,5 @@ public class Searcher extends MudrodAbstract implements Serializable{
     JsonObject PDResults = new JsonObject();
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
-  }
-
-  public int getRankNum(String str)
-  {
-    switch (str) {
-    case "Excellent":
-      return 5;
-    case "Good":
-      return 4;
-    case "OK":
-      return 3;
-    case "Bad":
-      return 2;
-    case "Terrible":
-      return 1;
-    default:
-      break;
-    }
-    return 0;
-  }
-
-  public static void main(String[] args) throws IOException {
-    String learnerType = "SparkSVM";
-   /* String[] query_list = {"ocean waves", "ocean pressure", "sea ice", "radar",
-        "ocean optics", "spurs"};*/
-    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
-        "saline density", "pathfinder", "gravity"};
-    //String[] query_list = {"saline density"};
-
-    MudrodEngine me = new MudrodEngine();
-    me.loadConfig();
-    me.setES(new ESDriver(me.getConfig()));
-    SparkDriver spark = new SparkDriver();
-
-    Searcher sr = new Searcher(me.getConfig(), me.getES(), null);
-    for(String q:query_list)
-    {
-      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + q + "_" + learnerType + ".csv");
-      if (file.exists()) {
-        file.delete();
-      }
-
-      file.createNewFile();
-
-      FileWriter fw = new FileWriter(file.getAbsoluteFile());
-      BufferedWriter bw = new BufferedWriter(fw); 
-      bw.write(SResult.getHeader(","));
-
-      List<SResult> resultList = sr.searchByQuery(me.getConfig().getProperty("indexName"), 
-          me.getConfig().getProperty("raw_metadataType"), q);
-      Ranker rr = new Ranker(me.getConfig(), me.getES(), spark, learnerType);
-      List<SResult> li = rr.rank(resultList);
-      for(int i =0; i< li.size(); i++)
-      {
-        bw.write(li.get(i).toString(","));
-      }
-      bw.close();
-    }
-
-    me.end();   
   }
 }
