@@ -286,6 +286,48 @@ public class ESDriver implements Serializable {
       file.addProperty("Topic", topic);
       file.addProperty("Abstract", content);
       file.addProperty("Release Date", dateText);
+
+      if (bDetail) {
+        file.addProperty("Processing Level",
+            (String) result.get("Dataset-ProcessingLevel"));
+        file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
+        file.addProperty("Dataset-TemporalRepeat",
+            (String) result.get("Dataset-TemporalRepeat"));
+        file.addProperty("Dataset-TemporalRepeatMax",
+            (String) result.get("Dataset-TemporalRepeatMax"));
+        file.addProperty("Dataset-TemporalRepeatMin",
+            (String) result.get("Dataset-TemporalRepeatMin"));
+        file.addProperty("DatasetPolicy-DataFormat",
+            (String) result.get(" DatasetPolicy-DataFormat"));
+        file.addProperty("DatasetPolicy-DataLatency",
+            (String) result.get("DatasetPolicy-DataLatency"));
+        file.addProperty("Dataset-Description",
+            (String) result.get("Dataset-Description"));
+
+        List<String> sensors = (List<String>) result
+            .get("DatasetSource-Sensor-ShortName");
+        file.addProperty("DatasetSource-Sensor-ShortName",
+            String.join(", ", sensors));
+
+        List<String> projects = (List<String>) result
+            .get("DatasetProject-Project-ShortName");
+        file.addProperty("DatasetProject-Project-ShortName",
+            String.join(", ", projects));
+
+        List<String> categories = (List<String>) result
+            .get("DatasetParameter-Category");
+        file.addProperty("DatasetParameter-Category",
+            String.join(", ", categories));
+
+        List<String> variables = (List<String>) result
+            .get("DatasetParameter-Variable");
+        file.addProperty("DatasetParameter-Variable",
+            String.join(", ", variables));
+
+        List<String> terms = (List<String>) result.get("DatasetParameter-Term");
+        file.addProperty("DatasetParameter-Term", String.join(", ", terms));
+      }
+
       fileList.add(file);
 
     }
