@@ -43,5 +43,5 @@ function getURLParameter(name) {
 }
 
 function TopicFormatter(value, row) {
-	return '<span style="font-style: italic" class="text-success">' + value + '</span>'; 
+	return '<span class="search-link">' + value + '</span>'; 
 }
