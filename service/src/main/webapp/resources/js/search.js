@@ -59,7 +59,7 @@ $(document).ready(function(){
     					if(response!=null)
     					{
     						$("#searchLoading").hide();
-    						console.log(response);
+    						
     						var searchResults = response.PDResults;
     						if(searchResults.length==0)
     						{
@@ -87,11 +87,12 @@ $(document).ready(function(){
     		cache : false,
     		pagination : true,
     		pageSize : 10,
+    		striped: true,
     		//pageList : [ 10, 25, 50, 100, 200 ],
     		//sortName : "Time",
     		//sortOrder : "asc",
     		cardView: true,
-			//showHeader: false,
+			showHeader: false,
     
     		columns : [ {
     			'title' : 'Short Name',

@@ -13,12 +13,7 @@
  */
 package esiptestbed.mudrod.ssearch.ranking;
 
-import java.io.File;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
 
 import org.apache.spark.SparkContext;
 import org.apache.spark.mllib.classification.SVMModel;
@@ -29,38 +24,40 @@ import esiptestbed.mudrod.driver.SparkDriver;
 /**
  * Supports the ability to importing classifier into memory
  */
-public class Learner implements Serializable{
+public class Learner implements Serializable {
   private static final String SPARKSVM = "SparkSVM";
   SVMModel Model = null;
   SparkContext sc = null;
 
   /**
    * Constructor to load in spark SVM classifier
-   * @param classifierName classifier type
+   * 
+   * @param classifierName
+   *          classifier type
    */
   public Learner(String classifierName, SparkDriver skd) {
-    if(classifierName.equals(SPARKSVM))
-    {
-      if(OSValidator.isWindows())
-      {
-        System.setProperty("hadoop.home.dir","C:\\winutils");
+    if (classifierName.equals(SPARKSVM)) {
+      if (OSValidator.isWindows()) {
+        System.setProperty("hadoop.home.dir", "C:\\winutils");
       }
       sc = skd.sc.sc();
-      
-      //please replace the second para to the model path on your local machine.
-      Model = SVMModel.load(sc, "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
+
+      // please replace the second para to the model path on your local machine.
+      // Model = SVMModel.load(sc,
+      // "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
+      Model = SVMModel.load(sc,
+          "E:/mudrodCoreTestData/RankingModel/javaSVMWithSGDModel/");
     }
   }
 
-
-
   /**
    * Method of classifying instance
-   * @param instance the instance that needs to be classified
+   * 
+   * @param instance
+   *          the instance that needs to be classified
    * @return the class id
    */
-  public double classify(LabeledPoint p)
-  {
+  public double classify(LabeledPoint p) {
     Double score = Model.predict(p.features());
     return score;
   }
