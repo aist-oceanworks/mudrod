@@ -47,6 +47,10 @@ $(document).ready(function(){
     			$("#note").hide();
     			$("#searchResults").show();
     			$("#searchLoading").show();
+    			
+            	$("#searchContainer").css("margin-top", "30px");
+            	$("#searchResultContainer").show();
+            	$("#searchContainer h2.title").css("font-size", "24px");
     			$.ajax({
     				url : "SearchMetadata",
     				data : {
@@ -84,7 +88,7 @@ $(document).ready(function(){
     		cache : false,
     		pagination : true,
     		pageSize : 10,
-    		//pageList : [ 11, 25, 50, 100, 200 ],
+    		//pageList : [ 10, 25, 50, 100, 200 ],
     		//sortName : "Time",
     		//sortOrder : "asc",
     		cardView: true,

@@ -33,6 +33,11 @@ $(document).ready(function(){
     success : function completeHandler(response) {
         if(response!=null)
     	{
+        	$("#searchContainer").css("margin-top", "30px");
+        	$("#searchResultContainer").show();
+        	$("#searchContainer h2.title").css("font-size", "24px");
+        	
+        	
     	console.log(response);
     	    graph = response.graph;
     		$("#searchResultsGroup").append($("#searchGroup"));
