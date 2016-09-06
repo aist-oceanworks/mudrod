@@ -16,21 +16,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="icon" href="./resources/images/NASALogo_burned.png">
     <title>MUDROD | Vocabulary linkage</title>
-
     <link href="./resources/css/bootstrap.min.css" rel="stylesheet">
     <link href="./resources/font-awesome/css/font-awesome.css" rel="stylesheet">
-
     <link href="./resources/css/animate.css" rel="stylesheet">
     <link href="./resources/css/style.css" rel="stylesheet">
-
 </head>
 
 <body>
-
 <div id="wrapper">
-
     <nav class="navbar-default navbar-static-side" role="navigation">
         <div class="sidebar-collapse">
             <ul class="nav metismenu" id="side-menu">
@@ -63,14 +58,15 @@
             <div class="row" style="margin-bottom: 15px;">
                 <div class="col-lg-12">
                     <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="position: absolute; left: -22px; top: -28px;"><i class="fa fa-bars"></i> </a>
+                   <p class="lead" >
+                   The vocabulary linkage is discovered through user behavior, metadata, and <a href="https://sweet.jpl.nasa.gov/" target="_blank">SWEET</a> ontology.
+                   </p>
                     <div id="searchContainer" class="text-center m-t-lg" style="margin-top: 20%;">
-                        <h2 class="title" style="font-size: 32px;">
-                            The vocabulary linkage is discovered through user behavior, metadata, and <a href="https://sweet.jpl.nasa.gov/" target="_blank">SWEET</a> ontology.
-                        </h2>
-                            <div class="search-form">
+                        <h2 class="title" style="font-size: 40px;">Oceanographic vocabulary linkage discovery</h2>
+                        <div class="search-form">
                                 <div>
                                     <div class="input-group">
-                                        <input id="query" type="text" placeholder="search text..." name="query" class="form-control input-lg" autocomplete="off">
+                                        <input id="query" type="text" placeholder="Enter ocean concepts (e.g. ocean wind, ocean wave) to search" name="query" class="form-control input-lg" autocomplete="off">
                                         <div class="input-group-btn">
                                             <button id="searchButton" class="btn btn-lg btn-primary" type="button" onclick="doSearch();return false;">
                                                 Search
