@@ -1,31 +1,32 @@
 var shortname = getURLParameter('shortname');
   $(document).ready(function(){
 
-		$("#query").keyup(function(event){
+		$("#query").keydown(function(event){
 			if(event.keyCode == 13){
-				$("#searchButton").click();
+				doSearch();
 			}
 		});		
-		
-		$("#searchButton").click(function() {			
-			if(!$("#query").val()) return false;		
-			
-			var url = window.location.href;
-			var hash = location.hash;
-			url = url.replace(hash, '');
-			
-			if(url.indexOf('dataset.html') > -1){
-				url = url.substring(0, url.indexOf('dataset.html'));
-				url += 'search.html?query=' + $("#query").val();
-				window.location.href = url + hash;
-			}
-	   });
 	   
 	   
 	 loadMetaData(shortname);
 	 //loadRecomData(shortname);
 	 loadHybirdRecomData(shortname);
   });
+  
+  function doSearch() {
+		if(!$("#query").val()) return false;		
+		
+		var url = window.location.href;
+		var hash = location.hash;
+		url = url.replace(hash, '');
+		
+		if(url.indexOf('dataset.html') > -1){
+			url = url.substring(0, url.indexOf('dataset.html'));
+			url += 'search.html?query=' + $("#query").val();
+			window.location.href = url + hash;
+			return false;
+		}
+  }
   
   function loadRecomData(shortname) {
 	if (shortname != "") {

@@ -24,7 +24,6 @@ $(document).ready(function(){
 			$("#NotFound").hide();
 			$("#query").val(query);
 			search(query);
-		
 		}
 
 		$("#query").keyup(function(event){

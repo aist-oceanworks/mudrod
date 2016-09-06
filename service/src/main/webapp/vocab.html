@@ -65,19 +65,19 @@
                     <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="position: absolute; left: -22px; top: -28px;"><i class="fa fa-bars"></i> </a>
                     <div id="searchContainer" class="text-center m-t-lg" style="margin-top: 20%;">
                         <h2 class="title" style="font-size: 32px;">
-                            The vocabulary linkage is discovered through user behaviour, metadata, and <a href="https://sweet.jpl.nasa.gov/" target="_blank">SWEET</a> ontology.
+                            The vocabulary linkage is discovered through user behavior, metadata, and <a href="https://sweet.jpl.nasa.gov/" target="_blank">SWEET</a> ontology.
                         </h2>
                             <div class="search-form">
-                                <form action="#" method="get">
+                                <div>
                                     <div class="input-group">
-                                        <input id="query" type="text" placeholder="search text..." name="search" class="form-control input-lg">
+                                        <input id="query" type="text" placeholder="search text..." name="query" class="form-control input-lg">
                                         <div class="input-group-btn">
-                                            <button id="searchButton" class="btn btn-lg btn-primary" type="button">
+                                            <button id="searchButton" class="btn btn-lg btn-primary" type="button" onclick="doSearch();return false;">
                                                 Search
                                             </button>
                                         </div>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                     </div>
                 </div>
