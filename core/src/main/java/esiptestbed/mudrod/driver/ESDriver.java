@@ -244,6 +244,7 @@ public class ESDriver implements Serializable {
     return searchByQuery(index, Type, query, false);
   }
 
+  @SuppressWarnings("unchecked")
   public String searchByQuery(String index, String Type, String query,
       Boolean bDetail)
       throws IOException, InterruptedException, ExecutionException {
@@ -259,19 +260,15 @@ public class ESDriver implements Serializable {
 
     Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
-    DecimalFormat twoDForm = new DecimalFormat("#.##");
 
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
-      Double relevance = Double.valueOf(twoDForm.format(hit.getScore()));
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
-      @SuppressWarnings("unchecked")
       ArrayList<String> topicList = (ArrayList<String>) result
           .get("DatasetParameter-Variable");
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
-      @SuppressWarnings("unchecked")
       ArrayList<String> longdate = (ArrayList<String>) result
           .get("DatasetCitation-ReleaseDateLong");
 
@@ -280,7 +277,6 @@ public class ESDriver implements Serializable {
       String dateText = df2.format(date);
 
       JsonObject file = new JsonObject();
-      file.addProperty("Relevance", relevance);
       file.addProperty("Short Name", shortName);
       file.addProperty("Long Name", longName);
       file.addProperty("Topic", topic);
@@ -459,8 +455,7 @@ public class ESDriver implements Serializable {
   }
 
   /**
-   * @param bulkProcessor
-   *          the bulkProcessor to set
+   * @param bulkProcessor the bulkProcessor to set  
    */
   public void setBulkProcessor(BulkProcessor bulkProcessor) {
     this.bulkProcessor = bulkProcessor;
@@ -474,7 +469,6 @@ public class ESDriver implements Serializable {
       ur = new UpdateRequest(index, type, id)
           .doc(jsonBuilder().startObject().field(field1, value1).endObject());
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -486,16 +480,13 @@ public class ESDriver implements Serializable {
 
     UpdateRequest ur = null;
     try {
-
       XContentBuilder builder = jsonBuilder().startObject();
       for (String field : filedValueMap.keySet()) {
         builder.field(field, filedValueMap.get(field));
       }
       builder.endObject();
       ur = new UpdateRequest(index, type, id).doc(builder);
-
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 

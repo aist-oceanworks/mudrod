@@ -44,14 +44,11 @@ public class Learner implements Serializable{
       {
         System.setProperty("hadoop.home.dir","C:\\winutils");
       }
-      sc = skd.sc.sc();
-      
+      sc = skd.sc.sc();    
       //please replace the second para to the model path on your local machine.
       Model = SVMModel.load(sc, "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
     }
   }
-
-
 
   /**
    * Method of classifying instance
