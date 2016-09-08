@@ -119,8 +119,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   /**
    * Check crawler by request sending rate, which is read from configruation file
-   * @throws InterruptedException
-   * @throws IOException
+   * @throws InterruptedException InterruptedException
+   * @throws IOException IOException
    */
   public void checkByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();

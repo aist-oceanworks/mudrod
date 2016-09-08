@@ -63,14 +63,6 @@ public class SemanticAnalyzer extends MudrodAbstract {
     return this.calTermSimfromMatrix(csvFileName, 1);
   }
 
-  /**
-   * CalTermSimfromMatrix: Calculate term similarity from matrix.
-   *
-   * @param csvFileName
-   *          csv file of matrix, each row is a term, and each column is a
-   *          dimension in feature space
-   * @return Linkage triple list
-   */
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
       int skipRow) {
 
@@ -92,14 +84,12 @@ public class SemanticAnalyzer extends MudrodAbstract {
   }
 
   /**
-   * SaveToES: Save linkage triples to Elasticsearch.
-   *
-   * @param tripleList
-   *          linkage triple list
-   * @param index
-   *          index name
-   * @param type
-   *          linkage triple type name
+   * Method of saving linkage triples to Elasticsearch.
+   * @param tripleList linkage triple list
+   * @param index index name
+   * @param type type name
+   * @param bTriple bTriple
+   * @param bSymmetry bSymmetry
    */
   public void saveToES(List<LinkageTriple> tripleList, String index,
       String type, boolean bTriple, boolean bSymmetry) {
@@ -107,8 +97,6 @@ public class SemanticAnalyzer extends MudrodAbstract {
       LinkageTriple.insertTriples(es, tripleList, index, type, bTriple,
           bSymmetry);
     } catch (IOException e) {
-
-      // TODO Auto-generated catch block
       e.printStackTrace();
 
     }

@@ -90,9 +90,9 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   /**
    * Method to generate session by time threshold and referrer
-   * @param Timethres value of time threshold (second)
-   * @throws ElasticsearchException
-   * @throws IOException
+   * @param timeThres value of time threshold (s)
+   * @throws ElasticsearchException ElasticsearchException
+   * @throws IOException IOException
    */
   public void genSessionByReferer(int timeThres)
       throws ElasticsearchException, IOException {
@@ -250,12 +250,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     }
   }
 
-  /**
-   * Method to combine choppy/short sessions into continue/larger session
-   * @param Timethres value of time threshold (second)
-   * @throws ElasticsearchException
-   * @throws IOException
-   */
   public void combineShortSessions(int Timethres)
       throws ElasticsearchException, IOException {
     SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
@@ -375,8 +369,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   /**
    * Method to remove invalid logs through IP address
    * @param ip invalid IP address
-   * @throws ElasticsearchException
-   * @throws IOException
+   * @throws ElasticsearchException ElasticsearchException
+   * @throws IOException IOException
    */
   public void deleteInvalid(String ip) throws IOException {
     QueryBuilder filterAll = QueryBuilders.boolQuery()

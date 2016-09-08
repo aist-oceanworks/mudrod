@@ -118,7 +118,6 @@ public class CodeSimCalculator implements Serializable {
         }).filter(new Function<LinkageTriple, Boolean>() {
           @Override
           public Boolean call(LinkageTriple arg0) throws Exception {
-            // TODO Auto-generated method stub
             if (arg0 == null) {
               return false;
             }
@@ -130,7 +129,6 @@ public class CodeSimCalculator implements Serializable {
   }
 
   private double similarity(List<Vector> vecListA, List<Vector> vecListB) {
-
     if (vecListA.size() != vecListB.size()) {
       return 0.0;
     }
@@ -144,7 +142,6 @@ public class CodeSimCalculator implements Serializable {
     }
 
     double totalSim = vecSum / totalWeights;
-
     return totalSim;
   }
 

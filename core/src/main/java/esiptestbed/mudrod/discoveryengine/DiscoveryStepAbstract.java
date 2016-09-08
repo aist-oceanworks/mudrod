@@ -33,10 +33,11 @@ public abstract class DiscoveryStepAbstract extends MudrodAbstract {
    * @return An instance of Object
    */
   public abstract Object execute();
-
+  
   /**
-   * Abstract class of step execution without parameter
-   * @return An instance of Object
+   * Abstract class of step execution with parameter
+   * @param o an instance of object
+   * @return An instance of object
    */
   public abstract Object execute(Object o);
 

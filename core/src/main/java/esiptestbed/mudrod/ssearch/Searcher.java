@@ -49,12 +49,6 @@ public class Searcher extends MudrodAbstract implements Serializable{
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
   public Searcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
@@ -208,7 +202,8 @@ public class Searcher extends MudrodAbstract implements Serializable{
    * @param index index name in Elasticsearch
    * @param type  type name in Elasticsearch
    * @param query regular query string
-   * @return
+   * @param rr selected ranking method
+   * @return search results
    */
   public String ssearch(String index, String type, String query, Ranker rr) 
   {

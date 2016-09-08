@@ -34,12 +34,6 @@ import esiptestbed.mudrod.driver.SparkDriver;
  * through .csv file
  */
 public class ClickstreamImporter extends MudrodAbstract {
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
   public ClickstreamImporter(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
     addClickStreamMapping();

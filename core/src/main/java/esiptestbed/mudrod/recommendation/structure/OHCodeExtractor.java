@@ -37,16 +37,13 @@ public class OHCodeExtractor implements Serializable {
   private String metadataType;
 
   public OHCodeExtractor(Properties props) {
-    // TODO Auto-generated constructor stub
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
   }
 
   public List<String> loadMetadataOHEncode(ESDriver es) throws Exception {
-
     OHEncoder coder = new OHEncoder();
     List<String> fields = coder.CategoricalVars;
-    // fields.add("DatasetParameter-Term");
     List<String> metadataCode = this.loadFieldsOHEncode(es, fields);
 
     return metadataCode;
@@ -139,60 +136,4 @@ public class OHCodeExtractor implements Serializable {
 
     return metedataCode;
   }
-
-  /*public JavaPairRDD<String, Vector> loadOBCode(ESDriver es, JavaSparkContext sc, String index, String type)
-  		throws Exception {
-
-  	List<String> metadataCodes = this.loadOBCodeFromES(es, index, type);
-  	JavaPairRDD<String, Vector> metadataCodeRDD = this.buildOBCodeRDD(es, sc, index, metadataCodes);
-  	return metadataCodeRDD;
-  }
-
-  private List<String> loadOBCodeFromES(ESDriver es, String index, String type) throws Exception {
-
-  	List<String> metadataCodes = new ArrayList<String>();
-
-  	SearchResponse scrollResp = es.client.prepareSearch(index).setTypes(type)
-  			.setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000)).setSize(100).execute()
-  			.actionGet();
-
-  	while (true) {
-  		for (SearchHit hit : scrollResp.getHits().getHits()) {
-  			Map<String, Object> result = hit.getSource();
-  			String shortname = (String) result.get("Dataset-ShortName");
-  			String obCode = (String) result.get("Metadata_code");
-  			metadataCodes.add(shortname + ":" + obCode);
-  		}
-  		scrollResp = es.client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000))
-  				.execute().actionGet();
-  		if (scrollResp.getHits().getHits().length == 0) {
-  			break;
-  		}
-  	}
-
-  	return metadataCodes;
-  }
-
-  protected JavaPairRDD<String, Vector> buildOBCodeRDD(ESDriver es, JavaSparkContext sc, String index,
-  		List<String> metadatacodes) {
-  	JavaRDD<String> metadataCodeRDD = sc.parallelize(metadatacodes);
-  	JavaPairRDD<String, Vector> codeVecRDD = metadataCodeRDD.mapToPair(new PairFunction<String, String, Vector>() {
-  		public Tuple2<String, Vector> call(String metadatacide) throws Exception {
-
-  			String[] tmps = metadatacide.split(":");
-  			String[] values = tmps[1].split(",");
-
-  			double[] nums = new double[values.length];
-  			for (int i = 0; i < nums.length; i++) {
-  				nums[i] = Double.parseDouble(values[i]);
-  			}
-
-  			Vector vec = Vectors.dense(nums);
-
-  			return new Tuple2<String, Vector>(tmps[0].toLowerCase(), vec);
-  		}
-  	});
-
-  	return codeVecRDD;
-  }*/
 }

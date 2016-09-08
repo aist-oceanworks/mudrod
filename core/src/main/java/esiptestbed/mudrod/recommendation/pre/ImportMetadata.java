@@ -68,9 +68,9 @@ public class ImportMetadata extends DiscoveryStepAbstract {
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
     es.getClient().admin().indices()
-        .preparePutMapping(props.getProperty("indexName"))
-        .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
-        .execute().actionGet();
+    .preparePutMapping(props.getProperty("indexName"))
+    .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
+    .execute().actionGet();
 
   }
 
@@ -107,7 +107,6 @@ public class ImportMetadata extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

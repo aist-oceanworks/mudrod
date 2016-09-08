@@ -32,13 +32,6 @@ import org.elasticsearch.search.SearchHit;
 import esiptestbed.mudrod.driver.ESDriver;
 import scala.Tuple2;
 
-/**
- * ClassName: MetadataExtractor Function: TODO ADD FUNCTION. Reason: TODO ADD
- * REASON(可选). Date: Aug 12, 2016 10:40:59 AM
- *
- * @author Yun
- *
- */
 public class MetadataExtractor implements Serializable {
 
   public MetadataExtractor() {
@@ -106,8 +99,6 @@ public class MetadataExtractor implements Serializable {
               es.customAnalyzing(index, variable),
               es.customAnalyzing(index, keyword));
         } catch (InterruptedException | ExecutionException e) {
-
-          // TODO Auto-generated catch block
           e.printStackTrace();
 
         }
@@ -153,7 +144,6 @@ public class MetadataExtractor implements Serializable {
           @Override
           public List<String> call(List<String> v1, List<String> v2)
               throws Exception {
-            // TODO Auto-generated method stub
             List<String> list = new ArrayList<String>();
             list.addAll(v1);
             list.addAll(v2);

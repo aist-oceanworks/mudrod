@@ -85,9 +85,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 /**
  * Method to summarize duration, numbers of searching, viewing, and downloading requests, and 
  * filter out suspicious sessions
- * @throws IOException
- * @throws InterruptedException
- * @throws ExecutionException
+ * @throws IOException IOException
+ * @throws InterruptedException InterruptedException
+ * @throws ExecutionException ExecutionException
  */
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {

@@ -21,13 +21,11 @@ public class ContentBasedCF extends DiscoveryStepAbstract
       .getLogger(ContentBasedCF.class);
 
   public ContentBasedCF(Properties props, ESDriver es, SparkDriver spark) {
-    // TODO Auto-generated constructor stub
     super(props, es, spark);
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     LOG.info(
         "*****************Metadata content based similarity starts******************");
     startTime = System.currentTimeMillis();
@@ -43,7 +41,6 @@ public class ContentBasedCF extends DiscoveryStepAbstract
           props.getProperty("metadataCodeSimType"), true, false);
 
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -57,7 +54,6 @@ public class ContentBasedCF extends DiscoveryStepAbstract
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 

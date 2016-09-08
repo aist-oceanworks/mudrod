@@ -34,13 +34,6 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
  */
 public class Dispatcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
-  
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
   public Dispatcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
@@ -89,7 +82,7 @@ public class Dispatcher extends MudrodAbstract {
   /**
    * Method of creating semantic query based on Threshold
    * @param input regular query
-   * @param num the number of most related terms
+   * @param T threshold raning from 0 to 1
    * @return a multiMatch query builder
    */
   public BoolQueryBuilder createSemQuery(String input, double T){
@@ -110,7 +103,7 @@ public class Dispatcher extends MudrodAbstract {
           .tieBreaker((float) 0.5)); // when set to 1.0, it would be equal to "most fields" query
     }
     
-    LOG.info(qb.toString());
+    //LOG.info(qb.toString());
     return qb;
   }
 

@@ -35,13 +35,6 @@ import esiptestbed.mudrod.main.MudrodEngine;
  * Supports the ability to importing training set into Elasticsearch
  */
 public class TrainingImporter extends MudrodAbstract {
-
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   */
   public TrainingImporter(Properties props, ESDriver es,
       SparkDriver spark) {
     super(props, es, spark);
@@ -81,7 +74,7 @@ public class TrainingImporter extends MudrodAbstract {
   /**
    * Method of importing training set in to Elasticsearch
    * @param dataFolder the path to the traing set
-   * @throws IOException
+   * @throws IOException IOException
    */
   public void importTrainingSet(String dataFolder) throws IOException
   {

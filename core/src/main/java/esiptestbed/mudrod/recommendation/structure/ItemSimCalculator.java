@@ -37,15 +37,12 @@ public class ItemSimCalculator implements Serializable {
   private String metadataType;
 
   public ItemSimCalculator(Properties props) {
-    // TODO Auto-generated constructor stub
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
   }
 
   public JavaPairRDD<String, List<String>> prepareData(JavaSparkContext sc,
       String path) {
-
-    // load data
     JavaRDD<String> data = sc.textFile(path)
         .map(new Function<String, String>() {
           @Override
@@ -72,7 +69,6 @@ public class ItemSimCalculator implements Serializable {
           @Override
           public Iterable<Tuple2<String, List<String>>> call(
               Tuple2<String, Integer> arg0) throws Exception {
-            // TODO Auto-generated method stub
             List<Tuple2<String, List<String>>> pairs = new ArrayList<Tuple2<String, List<String>>>();
             String words = arg0._1;
             int n = arg0._2;
@@ -90,7 +86,6 @@ public class ItemSimCalculator implements Serializable {
           @Override
           public List<String> call(List<String> arg0, List<String> arg1)
               throws Exception {
-            // TODO Auto-generated method stub
             List<String> newlist = new ArrayList<String>();
             newlist.addAll(arg0);
             newlist.addAll(arg1);
@@ -118,7 +113,6 @@ public class ItemSimCalculator implements Serializable {
               @Override
               public Tuple2<String, List<String>> call(
                   Tuple2<String, List<String>> arg0) throws Exception {
-                // TODO Auto-generated method stub
                 List<String> oriDatasets = arg0._2;
                 List<String> newDatasets = new ArrayList<String>();
                 int size = oriDatasets.size();
@@ -198,7 +192,6 @@ public class ItemSimCalculator implements Serializable {
         }).filter(new Function<LinkageTriple, Boolean>() {
           @Override
           public Boolean call(LinkageTriple arg0) throws Exception {
-            // TODO Auto-generated method stub
             if (arg0 == null) {
               return false;
             }

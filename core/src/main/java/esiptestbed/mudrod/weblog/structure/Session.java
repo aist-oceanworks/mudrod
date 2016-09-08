@@ -39,8 +39,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 /**
  * ClassName: Session Function: Session operations.
  *
- * @author Yun
- *
  */
 public class Session extends MudrodAbstract implements Comparable<Session> {
   private static final Logger LOG = LoggerFactory.getLogger(Session.class);
@@ -210,16 +208,13 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
     List<ClickStream> clickthroughs = tree.getClickStreamList();
     return clickthroughs;
   }
-
+  
   /**
-   * getSessionTree: Convert current session to a tree structure
-   *
-   * @param cleanuptype:
-   *          Session type name in Elasticsearch
-   * @param sessionID:
-   *          Session ID
-   * @return Session Tree
-   *         {@link esiptestbed.mudrod.weblog.structure.SessionTree}
+   * Method of converting a given session to a tree structure
+   * @param cleanuptype session type name in Elasticsearch
+   * @param sessionID ID of session
+   * @return an instance of session tree structure
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   private SessionTree getSessionTree(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
@@ -248,15 +243,13 @@ public class Session extends MudrodAbstract implements Comparable<Session> {
 
     return tree;
   }
-
+  
   /**
-   * getRequests: Get all request in current session
-   *
-   * @param cleanuptype:
-   *          Session type name in Elasticsearch
-   * @param sessionID:
-   *          Session ID
-   * @return all requests in Json format
+   * Method of getting all requests from a given current session
+   * @param cleanuptype Session type name in Elasticsearch
+   * @param sessionID Session ID
+   * @return all of these requests in JSON
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   private JsonElement getRequests(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {

@@ -39,13 +39,6 @@ public class Ranker extends MudrodAbstract implements Serializable{
   String learnerType = null;
   Learner le = null;
 
-  /**
-   * Constructor supporting a number of parameters documented below.
-   * @param config a {@link java.util.Map} containing K,V of type String, String respectively.
-   * @param es the {@link esiptestbed.mudrod.driver.ESDriver} used to persist log files.
-   * @param spark the {@link esiptestbed.mudrod.driver.SparkDriver} used to process input log files.
-   * @param learnerType the type of ML classifier
-   */
   public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
@@ -181,7 +174,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * Method of compare two search resutls
    * @param o1 search result 1
    * @param o2 search result 2
-   * @return 1 if o1>o2, 0 otherwise
+   * @return 1 if o1 is greater than o2, 0 otherwise
    */
   public int comp(SResult o1, SResult o2)
   {

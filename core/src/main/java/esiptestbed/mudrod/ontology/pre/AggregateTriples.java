@@ -107,8 +107,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   /**
    * Load OWL file into memory
    * @param filePathName local path of OWL file
-   * @throws JDOMException
-   * @throws IOException
+   * @throws JDOMException JDOMException
+   * @throws IOException IOException
    */
   public void loadxml(String filePathName) throws JDOMException, IOException {
     SAXBuilder saxBuilder = new SAXBuilder();
@@ -142,7 +142,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
    * Method of identifying a specific child given a element name
    * @param str element name
    * @param ele parent element
-   * @return
+   * @return the element of child
    */
   public Element findChild(String str, Element ele) {
     Iterator<?> processDescendants = ele.getDescendants(new ElementFilter());
@@ -164,7 +164,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   /**
    * Method of extract triples (subclassOf, equivalent class) from OWL file
-   * @throws IOException
+   * @throws IOException IOException
    */
   public void getAllClass() throws IOException {
     List<?> classElements = rootNode.getChildren("Class",
@@ -221,7 +221,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   /**
    * Method of cleaning up a string
    * @param str String needed to be processed
-   * @return
+   * @return the processed string
    */
   public String cutString(String str) {
     str = str.substring(str.indexOf("#") + 1);

@@ -32,8 +32,6 @@ import esiptestbed.mudrod.driver.SparkDriver;
 /**
  * ClassName: RequestUrl Function: request url relate operations
  *
- * @author Yun
- *
  */
 public class RequestUrl extends MudrodAbstract {
 

@@ -21,27 +21,13 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.ItemSimCalculator;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
-/**
- * ClassName:sessionBasedCF <br/>
- * Function: TODO ADD FUNCTION. <br/>
- * Reason: TODO ADD REASON. <br/>
- * Date: Aug 19, 2016 3:17:00 PM <br/>
- *
- * @author Yun
- * @version
- * @since JDK 1.6
- * @see
- */
 public class sessionBasedCF extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(sessionBasedCF.class);
 
   public sessionBasedCF(Properties props, ESDriver es, SparkDriver spark) {
-
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
-
   }
 
   @Override
@@ -50,7 +36,6 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
         "*****************Session based metadata similarity starts******************");
     startTime = System.currentTimeMillis();
 
-    // TODO Auto-generated method stub
     try {
       String session_metadatFile = props.getProperty("session_item_Matrix");
       ItemSimCalculator simcal = new ItemSimCalculator(props);
@@ -60,7 +45,6 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
           props.getProperty("metadataSessionBasedSimType"), true, false);
 
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -74,8 +58,6 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-
-    // TODO Auto-generated method stub
     return null;
   }
 

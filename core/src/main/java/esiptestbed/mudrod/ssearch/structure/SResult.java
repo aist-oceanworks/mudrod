@@ -154,7 +154,8 @@ public class SResult {
    * Generic getter method
    * @param object instance of SResult
    * @param fieldName field name of search result
-   * @return
+   * @param <V> data type
+   * @return the value of the filed in the object
    */
   @SuppressWarnings("unchecked")
   public static <V> V get(Object object, String fieldName) {

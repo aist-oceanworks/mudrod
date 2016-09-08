@@ -45,43 +45,7 @@ public class OHEncoder {
   public void inital() {
 
     CategoricalVarValueVecs = new HashMap<String, Map<String, Vector>>();
-    CategoricalVarWeights = new HashMap<String, Double>();
-
-    /*CategoricalVarWeights.put("DatasetParameter-Topic", 4.0);
-    CategoricalVarWeights.put("DatasetParameter-Term", 5.0);
-    CategoricalVarWeights.put("DatasetParameter-Category", 4.0);
-    CategoricalVarWeights.put("DatasetParameter-Variable", 5.0);
-    CategoricalVarWeights.put("Dataset-ProcessingLevel_facet", 3.0);
-    CategoricalVarWeights.put("DatasetSource-Source-Type", 3.0);
-    CategoricalVarWeights.put("DatasetSource-Source-ShortName", 4.0);
-    CategoricalVarWeights.put("DatasetSource-Sensor-ShortName", 5.0);
-    CategoricalVarWeights.put("DatasetRegion-Region", 4.0);
-    CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
-    CategoricalVarWeights.put("DatasetCoverage-NorthLat_facet", 3.0);
-    CategoricalVarWeights.put("DatasetCoverage-SouthLat_facet", 3.0);
-    CategoricalVarWeights.put("DatasetCoverage-WestLon_facet", 3.0);
-    CategoricalVarWeights.put("DatasetCoverage-EastLon_facet", 3.0);
-    CategoricalVarWeights.put("Dataset-ProjectionType", 1.0);
-    CategoricalVarWeights.put("Dataset-HorizontalResolutionRange", 1.0);
-    CategoricalVarWeights.put("Dataset-LatitudeResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-LongitudeResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-SatelliteSpatialResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-AcrossTrackResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-AlongTrackResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-TemporalRepeat", 3.0);
-    CategoricalVarWeights.put("Dataset-TemporalResolution-Group", 3.0);
-    CategoricalVarWeights.put("Dataset-TemporalRepeatMin", 2.0);
-    CategoricalVarWeights.put("Dataset-TemporalResolutionRange", 2.0);
-    CategoricalVarWeights.put("Dataset-TemporalResolution", 3.0);
-    CategoricalVarWeights.put("Dataset-TemporalRepeatMax", 2.0);
-    CategoricalVarWeights.put("Dataset-DatasetCoverage-TimeSpan", 4.0);
-    CategoricalVarWeights.put("DatasetPolicy-DataLatency", 3.0);
-    CategoricalVarWeights.put("DatasetPolicy-DataFrequency", 1.0);
-    CategoricalVarWeights.put("DatasetPolicy-DataDuration", 1.0);
-    CategoricalVarWeights.put("DatasetPolicy-DataFormat", 4.0);
-    CategoricalVarWeights.put("DatasetPolicy-Availability", 4.0);
-    CategoricalVarWeights.put("Collection-ShortName", 3.0);
-    CategoricalVarWeights.put("Dataset-Provider-ShortName", 1.0);*/
+    CategoricalVarWeights = new HashMap<String, Double>();   
 
     CategoricalVarWeights.put("DatasetParameter-Topic", 3.0);
     CategoricalVarWeights.put("DatasetParameter-Term", 4.0);
@@ -143,7 +107,6 @@ public class OHEncoder {
               hit.getId(), metadatacode);
           es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
@@ -161,18 +124,14 @@ public class OHEncoder {
   private Map<String, Object> OHEncodeMetadata(ESDriver es,
       Map<String, Object> metadata)
       throws InterruptedException, ExecutionException {
-    // String code = "";
     Map<String, Object> metadataCodes = new HashMap<String, Object>();
-    // System.out.println(metadata.get("Dataset-ShortName"));
     int CategoryNum = CategoricalVars.size();
     for (int i = 0; i < CategoryNum; i++) {
       String var = CategoricalVars.get(i);
-      // System.out.println(var);
       Vector vec = null;
       if (metadata.get(var) != null && metadata.get(var) != "") {
         String value = es.customAnalyzing(indexName, "csv",
             metadata.get(var).toString());
-        // System.out.println(value);
         if (value.contains(",")) {
 
           String[] values = value.split(",");
@@ -186,7 +145,6 @@ public class OHEncoder {
               vec = this.VectorSum(vec, tmpvec);
             }
           }
-          // System.out.println(vec.toString());
         } else {
           vec = getValueVec(var, value);
           if (vec == null) {
@@ -198,21 +156,12 @@ public class OHEncoder {
       }
 
       double[] codeArr = vec.toArray();
-      /*
-       * double[] codeArr = codeArr1; // test
-       *
-       * for (int k = 0; k < codeArr1.length; k++) { codeArr[k] = codeArr[k] *
-       * CategoricalVarWeights.get(var); }
-       */
 
       String codeStr = Arrays.toString(codeArr);
       codeStr = codeStr.substring(1, codeStr.length() - 1);
       metadataCodes.put(var + "_code", codeStr);
-      // code += codeStr + ",";
     }
 
-    // code = code.substring(0, code.length() - 1);
-    // metadataCodes.put("Metadata_code", code);
     return metadataCodes;
   }
 
@@ -238,7 +187,6 @@ public class OHEncoder {
     for (int i = 0; i < CategoryNum; i++) {
       String var = CategoricalVars.get(i);
       Map<String, Vector> valueVecs = this.OHEncodeVar(es, var);
-      // System.out.println(var + " ： " + valueVecs.toString());
       CategoricalVarValueVecs.put(var, valueVecs);
     }
   }

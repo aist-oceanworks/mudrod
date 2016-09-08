@@ -65,7 +65,6 @@ public class TranformMetadata extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     LOG.info(
         "*****************Mapping metadata variable value starts******************");
 
@@ -84,7 +83,6 @@ public class TranformMetadata extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -105,7 +103,6 @@ public class TranformMetadata extends DiscoveryStepAbstract {
               metadataType, hit.getId(), metadatacode);
           es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
       }
@@ -127,7 +124,6 @@ public class TranformMetadata extends DiscoveryStepAbstract {
     int CategoryNum = CategoricalVars.size();
     for (int i = 0; i < CategoryNum; i++) {
       String var = CategoricalVars.get(i);
-      // System.out.println(var);
       String groups = null;
       if (metadata.get(var) != null && metadata.get(var) != "") {
         String value = es.customAnalyzing(props.getProperty("indexName"), "csv",

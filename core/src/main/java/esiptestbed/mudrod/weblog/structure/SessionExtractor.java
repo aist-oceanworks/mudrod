@@ -278,13 +278,11 @@ public class SessionExtractor implements Serializable {
         }).reduceByKey(new Function2<Double, Double, Double>() {
           @Override
           public Double call(Double v1, Double v2) throws Exception {
-            // TODO Auto-generated method stub
             return v1 + v2;
           }
         }).filter(new Function<Tuple2<String, Double>, Boolean>() {
           @Override
           public Boolean call(Tuple2<String, Double> arg0) throws Exception {
-            // TODO Auto-generated method stub
             Boolean b = true;
             if (arg0._2 < 2) {
               b = false;
@@ -307,8 +305,6 @@ public class SessionExtractor implements Serializable {
                 if (optStr.isPresent()) {
                   item = optStr.get();
                 }
-
-                // TODO Auto-generated method stub
                 return new Tuple2<String, Double>(arg0._1 + "," + item, 1.0);
               }
 

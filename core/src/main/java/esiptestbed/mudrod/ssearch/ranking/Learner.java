@@ -37,6 +37,7 @@ public class Learner implements Serializable{
   /**
    * Constructor to load in spark SVM classifier
    * @param classifierName classifier type
+   * @param skd an instance of spark driver
    */
   public Learner(String classifierName, SparkDriver skd) {
     if(classifierName.equals(SPARKSVM))
@@ -56,7 +57,7 @@ public class Learner implements Serializable{
 
   /**
    * Method of classifying instance
-   * @param instance the instance that needs to be classified
+   * @param p the instance that needs to be classified
    * @return the class id
    */
   public double classify(LabeledPoint p)

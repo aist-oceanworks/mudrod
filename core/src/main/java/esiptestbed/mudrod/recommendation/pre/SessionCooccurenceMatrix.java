@@ -5,7 +5,7 @@
  * Date:Aug 19, 20163:06:33 PM
  * Copyright (c) 2016, chenzhou1025@126.com All Rights Reserved.
  *
-*/
+ */
 
 package esiptestbed.mudrod.recommendation.pre;
 
@@ -24,17 +24,6 @@ import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
-/**
- * ClassName:SessionCooccurenceMatrix <br/>
- * Function: TODO ADD FUNCTION. <br/>
- * Reason: TODO ADD REASON. <br/>
- * Date: Aug 19, 2016 3:06:33 PM <br/>
- *
- * @author Yun
- * @version
- * @since JDK 1.6
- * @see
- */
 public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
@@ -43,10 +32,7 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
   public SessionCooccurenceMatrix(Properties props, ESDriver es,
       SparkDriver spark) {
-
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
-
   }
 
   @Override
@@ -83,8 +69,6 @@ public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-
-    // TODO Auto-generated method stub
     return null;
   }
 

@@ -23,17 +23,7 @@ import esiptestbed.mudrod.recommendation.structure.LDAModel;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 
-/**
- * ClassName:TFIDFGenerator <br/>
- * Function: TODO ADD FUNCTION. <br/>
- * Reason: TODO ADD REASON. <br/>
- * Date: Aug 22, 2016 12:39:52 PM <br/>
- *
- * @author Yun
- * @version
- * @since JDK 1.6
- * @see
- */
+
 public class TFIDFGenerator extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
@@ -41,10 +31,7 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
       .getLogger(TFIDFGenerator.class);
 
   public TFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
-
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
-
   }
 
   @Override

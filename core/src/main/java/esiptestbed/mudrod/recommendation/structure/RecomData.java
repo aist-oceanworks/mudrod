@@ -46,29 +46,23 @@ public class RecomData extends DiscoveryStepAbstract {
 
   public RecomData(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public JsonObject getRecomDataInJson(String input, int num) {
-    // String type = config.get("metadataCodeSimType");
     String type = props.getProperty("metadataSessionBasedSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
     JsonElement linkedJson = mapToJson(sortedOBSimMap, num);
 
-    // type = config.get("metadataItemBasedSimType");
-    // type = config.get("metadataSessionBasedSimType");
     type = props.getProperty("metadataTopicSimType");
 
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
@@ -127,34 +121,8 @@ public class RecomData extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
-  /*
-   * public List<LinkedTerm> getRelatedDataFromES(String type, String input, int
-   * num) {
-   *
-   * String customInput = input.toLowerCase(); // SearchRequestBuilder builder =
-   * es.client.prepareSearch(config.get(INDEX_NAME)).setTypes(type)
-   * .setQuery(QueryBuilders.termQuery("keywords", customInput)).addSort(WEIGHT,
-   * SortOrder.DESC).setSize(num);
-   *
-   * SearchResponse usrhis = builder.execute().actionGet();
-   *
-   * for (SearchHit hit : usrhis.getHits().getHits()) { Map<String, Object>
-   * result = hit.getSource(); String keywords = (String)
-   * result.get("keywords"); String relatedKey = extractRelated(keywords,
-   * customInput);
-   *
-   * if (!relatedKey.equals(input.toLowerCase())) { LinkedTerm lTerm = new
-   * LinkedTerm(relatedKey, (double) result.get(WEIGHT), type);
-   * termList.add(lTerm); } }
-   *
-   * return termList; }
-   */
-
   public List<LinkedTerm> getRelatedDataFromES(String type, String input,
       int num) {
-
-    // String customInput = input.toLowerCase();
-    //
     SearchRequestBuilder builder = es.getClient()
         .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
         .setQuery(QueryBuilders.termQuery("concept_A", input))

@@ -75,18 +75,6 @@ public class LinkageTriple implements Serializable {
     LinkageTriple.insertTriples(es, triples, index, type, false, false);
   }
 
-  /**
-   * insertTriples: Insert linkage triples into Elasticsearch.
-   *
-   * @param es
-   *          an Elasticsearch client node instance
-   * @param triples
-   *          linkage triple list
-   * @param index
-   *          index name
-   * @param type
-   *          triple type name
-   */
   public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
       String index, String type, Boolean bTriple, boolean bSymmetry)
       throws IOException {

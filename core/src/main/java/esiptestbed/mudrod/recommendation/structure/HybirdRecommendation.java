@@ -47,18 +47,15 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
   public HybirdRecommendation(Properties props, ESDriver es,
       SparkDriver spark) {
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
   }
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -67,26 +64,12 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
 
     type = props.getProperty("metadataTopicSimType");
-    // type = config.get("metadataSessionBasedSimType");
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
 
     type = props.getProperty("metadataSessionBasedSimType");
     Map<String, Double> sortedSBSimMap = getRelatedData(type, input, num + 5);
 
     Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
-
-    /*
-     * for (String name : sortedOBSimMap.keySet()) { hybirdSimMap.put(name,
-     * sortedOBSimMap.get(name) * 0.5); }
-     *
-     * for (String name : sortedMBSimMap.keySet()) { if (hybirdSimMap.get(name)
-     * != null) { double sim = hybirdSimMap.get(name) + 0.5 *
-     * sortedMBSimMap.get(name);
-     *
-     * hybirdSimMap.put(name, Double.parseDouble(df.format(sim))); } else {
-     * double sim = sortedMBSimMap.get(name) * 0.5; hybirdSimMap.put(name,
-     * Double.parseDouble(df.format(sim))); } }
-     */
 
     for (String name : sortedOBSimMap.keySet()) {
       hybirdSimMap.put(name, sortedOBSimMap.get(name));
