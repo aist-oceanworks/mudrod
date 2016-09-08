@@ -13,8 +13,6 @@
  */
 package esiptestbed.mudrod.ssearch.ranking;
 
-import java.io.File;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;

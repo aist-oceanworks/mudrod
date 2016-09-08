@@ -16,275 +16,123 @@
   <head>
     <title>MUDROD</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="./resources/images/NASALogo_burned.png">
-    <script src="./resources/js/jquery/1.12.0/jquery-1.12.0.min.js"></script>
-    <script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
-    <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
-    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <!-- bt table -->
-    <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
-    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-    <!-- Custom styles for this template -->
-    <script src="./resources/js/util.js"></script>
-    <link href="./resources/css/dashboard.css" rel="stylesheet">
-    <style>
-      .ui-autocomplete {
-      position: absolute;
-      z-index: 1000;
-      cursor: default;
-      padding: 0;
-      margin-top: 2px;
-      list-style: none;
-      background-color: #ffffff;
-      border: 1px solid #ccc
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      }
-      .ui-autocomplete > li {
-      padding: 3px 20px;
-      }
-      .ui-autocomplete > li.ui-state-focus {
-      background-color: #DDD;
-      }
-      .ui-helper-hidden-accessible {
-      display: none;
-      }
-</style>
-</head>
-  <body>
-    <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          </button>
-          <a href="javascript:;" class="pull-left"><img src="./resources/images/NASALogo_burned.png" height="50">
-          <a href="javascript:;" class="navbar-brand">MUDROD Semantic Search Testbed</a>
-        </div>
-      </div>
-    </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-14 main">
-          <h4 class="page-header"><a href="./">Semantic search</a> > Metadata details</h4>
-          <div class="col-sm-9  row" id = "resultPanels">
-              <table id="ResultsTable" class="table"></table>
-          </div>
-          <div class="col-sm-3 row"  id= "hybird">
-           <h4 style="margin-left:8px">You may be interested in</h4>
-           <ul id="hybirdul">
-          </div>
-           <!--  <div class="col-sm-3 row"  id="related">
-           <h4>Similar datasets</h4>
-           <ul id="linkedul">
-           </ul>
-          </div>
-          <div class="col-sm-3 row"  id="interested">
-           <h4 style="width:400px">People who viewed this dataset also viewed</h4>
-           <ul id="relatedul">
-          </div> -->
-        </div>
-      </div>
-    </div>
-    <footer class="footer">
-      <div class="row" style = "margin:0">
-        <div class="col-md-2">
-        </div>
-        <div class="col-md-10">
-          <div class="container-fluid" style = "text-align:center;padding-top:20px;padding-bottom:5px;font-size:small">
-            This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>. 
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
-  <script type="text/javascript">
-  
-  var shortname = getURLParameter('shortname');
-  $(document).ready(function(){
-	 loadMetaData(shortname);
-	 //loadRecomData(shortname);
-	 loadHybirdRecomData(shortname);
-  });
-  
-  function loadRecomData(shortname) {
-	if (shortname != "") {
-		$("#dataset").show();
-		$.ajax({
-			url : "RecomDatasets",
-			data : {
-				"shortname" : shortname
-			},
-			success : function completeHandler(response) {
-				if (response != null) {
-					var recomdata = response.recomdata;
-					
-					var linked = recomdata.linked;
-					if (linked.length == 0) {
-						$("#NotFound").show();
-					} else {
-						$.each(linked, function(i, item) {
-					       var li = $("<li><a></a></li>");
-					       $("#linkedul").append(li);
-					       $("a",li).text(item.name  + "(" + item.weight + ")");
-					       //$("a",li).text(item.name);
-					       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
-					    });
-					}
-					
-					var related = recomdata.related;
-					if (related.length == 0) {
-						$("#NotFound").show();
-					} else {
-						$.each(related, function(i, item) {
-					       var li = $("<li><a></a></li>");
-					       $("#relatedul").append(li);
-					       $("a",li).text(item.name + "(" + item.weight + ")");
-					       //$("a",li).text(item.name);
-					       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
-					    });
-					}
-					
-					loadHybirdRecomData(shortname);
-				}
-			}
-		});
-	}
-  }
-  
-  function loadHybirdRecomData(shortname) {
-		if (shortname != "") {
-			$("#dataset").show();
-			$.ajax({
-				url : "HybirdRecomDatasets",
-				data : {
-					"shortname" : shortname
-				},
-				success : function completeHandler(response) {
-					if (response != null) {
-						var recomdata = response.recomdata;
-						var linked = recomdata.linked;
-						if (linked.length == 0) {
-							$("#NotFound").show();
-						} else {
-							
-							$.each(linked, function(i, item) {
-								console.log("hh");
-						       var li = $("<li><a></a></li>");
-						       $("#hybirdul").append(li);
-						       //$("a",li).text(item.name  + "(" + item.weight + ")");
-						       $("a",li).text(item.name);
-						       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
-						    });
-						}
-					}
-				}
-			});
-		}
-	}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="./resources/images/NASALogo_burned.png">
+    <title>MUDROD | Semantic Search Result Dataset</title>
+
+    <link href="./resources/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./resources/font-awesome/css/font-awesome.css" rel="stylesheet">
     
-  function loadMetaData(shortname) {
-		if (shortname != "") {
-			$("#dataset").show();
-			$.ajax({
-				url : "DatasetDetail",
-				data : {
-					"shortname" : shortname
-				},
-				success : function completeHandler(response) {
-					if (response != null) {
-						$("#searchLoading").hide();
-						var searchResults = response.PDResults;
-						
-						console.log(searchResults);
-						if (searchResults.length == 0) {
-							$("#NotFound").show();
-						} else {
-							createResultTable();
-							$('#ResultsTable').bootstrapTable('load', searchResults);
-						}
-					}
-				}
-			});
-		}
-	}
-	
-	function createResultTable() {
-		var layout = {
-			cache : false,
-					cardView : true,
-					columns : [ {
-						'title' : 'Short Name',
-						'field' : 'Short Name',
-					}, {
-						'title' : 'Long Name',
-						'field' : 'Long Name',
-					}, {
-						'title' : 'Topic',
-						'field' : 'Topic',
-					},  {
-						'title' : 'Category',
-						'field' : 'DatasetParameter-Category',
-					} , {
-						'title' : 'Variable',
-						'field' : 'DatasetParameter-Variable',
-					} , {
-						'title' : 'Term',
-						'field' : 'DatasetParameter-Term',
-					} ,{
-						'title' : 'Release Date',
-						'field' : 'Release Date',
+    <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
+    <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
 
-					}, {
-						'title' : 'Abstract',
-						'field' : 'Abstract',
+    <link href="./resources/css/animate.css" rel="stylesheet">
+    <link href="./resources/css/style.css" rel="stylesheet">
 
-					} , {
-						'title' : 'Processing Level',
-						'field' : 'Processing Level',
+</head>
 
-					} , {
-						'title' : 'Doi',
-						'field' : 'Dataset-Doi',
+<body>
 
-					} , {
-						'title' : 'TemporalRepeat',
-						'field' : 'Dataset-TemporalRepeat',
+<div id="wrapper">
 
-					} , {
-						'title' : 'TemporalRepeatMax',
-						'field' : 'Dataset-TemporalRepeatMax',
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header" style="padding-top: 5px;">
+                    <div class="dropdown profile-element">
+                            <span class="clear"> 
+                            <img src="./resources/images/nasaLogo.png" width="125px" style="margin-left: 25px;">
+                            <span class="text-muted text-xs block" style="font-size: 18px;">MUDROD Semantic Search Testbed </span> 
+                            </span>
+                    </div>
+                    <div class="logo-element">
+                        MUDROD
+                    </div>
+                </li>
+                <li>
+                    <a href="vocab.html"><i class="fa fa-link"></i> <span class="nav-label">Vocabulary linkage</span></a>
+                </li>
+                <li class="active">
+                    <a href="search.html"><i class="fa fa-search"></i> <span class="nav-label">Semantic Search</span> </a>
+                </li>
+                <li>
+                    <a href="https://github.com/mudrod/mudrod" target="_blank"><i class="fa fa-users"></i> <span class="nav-label">About MUDROD</span> </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-					} , {
-						'title' : 'TemporalRepeatMin',
-						'field' : 'Dataset-TemporalRepeatMin',
+    <div id="page-wrapper" class="gray-bg">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row" style="margin-bottom: 15px;">
+                <div class="col-lg-12">
+                    
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="position: absolute; left: -22px; top: -28px;"><i class="fa fa-bars"></i></a>
+                    <div class="text-center m-t-lg">
+                            <div class="search-form">
+                                <div>
+                                    <div class="input-group">
+                                        <input id="query" type="text" placeholder="Enter ocean concepts (e.g. ocean wind) to search" name="query" class="form-control input-lg">
+                                        <div class="input-group-btn">
+                                            <button id="searchButton" class="btn btn-lg btn-primary" type="button" onclick="doSearch();return false;">
+                                                Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            <div class="col-lg-9">
+                <div class="wrapper wrapper-content animated fadeInUp" style="padding-left: 2px;">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                        <h2 id="shortname" style="font-weight: bold;"></h2>
+                            <div id = "resultPanels">
+				              <table id="ResultsTable" class="table"></table>
+				          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="wrapper wrapper-content project-manager">
+                    <h4>You may be interested in</h4>
+                    <ul id="hybirdul" class="list-unstyled">
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-					} , {
-						'title' : 'Sensor',
-						'field' : 'DatasetSource-Sensor-ShortName',
-					}, {
-						'title' : 'Project',
-						'field' : 'DatasetProject-Project-ShortName',
-					} , {
-						'title' : 'Format',
-						'field' : 'DatasetPolicy-DataFormat',
-					} , {
-						'title' : 'DataLatency',
-						'field' : 'DatasetPolicy-DataLatency',
-					} 
-					]
-				};
+    </div>
 
-				$('#ResultsTable').bootstrapTable(layout);
-			}
-		</script>
+        <div class="footer fixed">
+            <div>
+                This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>.
+            </div>
+        </div>
+</div>
+
+<!-- Mainly scripts -->
+<script src="./resources/js/jquery-2.1.1.js"></script>
+<script src="./resources/js/bootstrap.min.js"></script>
+<script src="./resources/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="./resources/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="./resources/js/inspinia.js"></script>
+<script src="./resources/js/plugins/pace/pace.min.js"></script>
+
+    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+
+<script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+<script src="./resources/js/util.js"></script>
+    
+<script src="./resources/js/dataset.js"></script>
+
+</body>
+
 </html>
