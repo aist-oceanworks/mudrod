@@ -12,6 +12,6 @@
  * limitations under the License.
  */
 /**
- * Tests for the esiptestbed.mudrod.webservlet package
+ * This package includes all the MUDROD web services.
  */
 package esiptestbed.mudrod.webservlet;

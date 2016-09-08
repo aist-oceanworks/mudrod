@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class Dispatcher extends MudrodAbstract {
    * @param T threshold raning from 0 to 1
    * @return a multiMatch query builder
    */
-  public BoolQueryBuilder createSemQuery(String input, double T){
+  public BoolQueryBuilder createSemQuery(String input, double T, String query_operator){
     Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
     selected_Map.put(input, (double) 1);
 
@@ -97,10 +98,26 @@ public class Dispatcher extends MudrodAbstract {
     };
     BoolQueryBuilder qb = new BoolQueryBuilder();
     for (Entry<String, Double> entry : selected_Map.entrySet()){
+      if(query_operator.equals("phrase"))
+      {
       qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
           .boost(entry.getValue().floatValue())
           .type(MultiMatchQueryBuilder.Type.PHRASE)
           .tieBreaker((float) 0.5)); // when set to 1.0, it would be equal to "most fields" query
+      }
+      else if(query_operator.equals("and"))
+      {
+        qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
+            .boost(entry.getValue().floatValue())
+            .operator(MatchQueryBuilder.Operator.AND)
+            .tieBreaker((float) 0.5)); 
+      }else
+      {
+        qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
+            .boost(entry.getValue().floatValue())
+            .operator(MatchQueryBuilder.Operator.OR)
+            .tieBreaker((float) 0.5)); 
+      }
     }
     
     //LOG.info(qb.toString());

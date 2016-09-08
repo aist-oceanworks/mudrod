@@ -64,7 +64,8 @@ public class SearchMetadata extends HttpServlet {
 
     fileList = sr.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
         config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
-        query, 
+        query,
+        "phrase", //please replace it with and, or, phrase
         rr);
 
     PrintWriter out = response.getWriter();

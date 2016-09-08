@@ -118,7 +118,7 @@ public class Searcher extends MudrodAbstract implements Serializable{
    * @return a list of search result
    */
   @SuppressWarnings("unchecked")
-  public List<SResult> searchByQuery(String index, String type, String query) 
+  public List<SResult> searchByQuery(String index, String type, String query, String query_operator) 
   {
     boolean exists = es.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();  
     if(!exists){
@@ -126,7 +126,7 @@ public class Searcher extends MudrodAbstract implements Serializable{
     }
 
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);   
-    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0);
+    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, query_operator);
     List<SResult> resultList = new ArrayList<SResult>();
 
     SearchResponse response = es.getClient().prepareSearch(index)
@@ -205,9 +205,9 @@ public class Searcher extends MudrodAbstract implements Serializable{
    * @param rr selected ranking method
    * @return search results
    */
-  public String ssearch(String index, String type, String query, Ranker rr) 
+  public String ssearch(String index, String type, String query, String query_operator, Ranker rr) 
   {
-    List<SResult> resultList = searchByQuery(index, type, query);
+    List<SResult> resultList = searchByQuery(index, type, query, query_operator);
     List<SResult> li = rr.rank(resultList);
     Gson gson = new Gson();   
     List<JsonObject> fileList = new ArrayList<>();

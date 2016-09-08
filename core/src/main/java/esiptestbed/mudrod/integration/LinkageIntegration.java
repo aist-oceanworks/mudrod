@@ -166,10 +166,13 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     int count = 0;
     Map<String, Double> trimmedMap = new HashMap<>();
     for (Entry<String, Double> entry : sortedMap.entrySet()) {
-      if (count < 10) {
-        trimmedMap.put(entry.getKey(), entry.getValue());
+      if(!entry.getKey().contains("china"))
+      {
+        if (count < 10) {
+          trimmedMap.put(entry.getKey(), entry.getValue());
+        }
+        count++;
       }
-      count++;
     }
 
     return mapToJson(input, trimmedMap);
@@ -227,6 +230,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   }
 
   public void aggregateRelatedTerms(String input, String model) {
+    //get the first 10 related terms
     SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
