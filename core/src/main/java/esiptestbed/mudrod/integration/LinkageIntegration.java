@@ -164,7 +164,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   public JsonObject getIngeratedListInJson(String input, int num) {
     Map<String, Double> sortedMap = appyMajorRule(input);
     int count = 0;
-    Map<String, Double> trimmedMap = new HashMap<>();
+    Map<String, Double> trimmedMap = new LinkedHashMap<>();
     for (Entry<String, Double> entry : sortedMap.entrySet()) {
       if(!entry.getKey().contains("china"))
       {
@@ -309,12 +309,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
-  /**
+ /* *//**
    * Method of converting hashmap to JSON
    * @param word input query
    * @param wordweights a map from related terms to weights
    * @return converted JSON object
-   */
+   *//*
   private JsonObject mapToJson(String word, Map<String, Double> wordweights) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();
@@ -348,6 +348,33 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     }
     JsonElement linksElement = gson.toJsonTree(links);
     json.add("links", linksElement);
+
+    return json;
+  }*/
+  
+  /**
+   * Method of converting hashmap to JSON
+   * @param word input query
+   * @param wordweights a map from related terms to weights
+   * @return converted JSON object
+   */
+  private JsonObject mapToJson(String word, Map<String, Double> wordweights) {
+    Gson gson = new Gson();
+    JsonObject json = new JsonObject();
+
+    List<JsonObject> nodes = new ArrayList<>();
+    
+    for(String linkword : wordweights.keySet()){
+    	
+    	 JsonObject node = new JsonObject();
+    	    node.addProperty("word", linkword);
+    	    node.addProperty("weight", wordweights.get(linkword));
+    	    nodes.add(node);
+    }
+   
+    JsonElement nodesElement = gson.toJsonTree(nodes);
+    json.add("ontology", nodesElement);
+
 
     return json;
   }

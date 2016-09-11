@@ -1,138 +1,121 @@
 <!DOCTYPE html>
-<!-- 
-  Licensed under the Apache License, Version 2.0 (the "License"); 
-  you may not use this file except in compliance with the License. 
-  You may obtain  a copy of the License at 
-  
-  http://www.apache.org/licenses/LICENSE-2.0 Unless 
-  
-  required by applicable law or agreed to in writing, software 
-  distributed under the License is distributed on an "AS IS" 
-  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
-  express or implied. See the License for the specific language 
-  governing permissions and limitations under the License. 
-  -->
 <html lang="en">
-  <head>
-    <title>MUDROD</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="./resources/images/NASALogo_burned.png">
-    <title>MUDROD | Semantic Search Result Dataset</title>
-
-    <link href="./resources/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./resources/font-awesome/css/font-awesome.css" rel="stylesheet">
-    
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Search</title>
+<link rel="icon" href="./resources/images/NASALogo_burned.png">
+<link href="./resources/font-awesome/css/font-awesome.css"
+	rel="stylesheet">
     <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
     <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
-
-    <link href="./resources/css/animate.css" rel="stylesheet">
-    <link href="./resources/css/style.css" rel="stylesheet">
-
+<link href="./resources/css/search.css" rel="stylesheet">
 </head>
-
 <body>
+	<div class="background"></div>
+	<header id="main-toolbar" class="toolbar">
+		<h1>
+			<a class="nasa-logo" href="./index.html" title="Mudrod Home"></a> <a
+				class="site-logo" href="./index.html"> <span
+				class="site-logo-org"></span> MUDROD
+			</a>
+		</h1>
+		<div class="form">
+				<span class="twitter-typeahead"
+					style="position: relative; display: inline-block; direction: ltr;">
+					<input id="query" type="text" name="query"
+					class="autocomplete-placenames tt-input"
+					data-bind="valueUpdate: 'keyup'"
+					placeholder="Enter ocean concepts (e.g. ocean wind) to search"
+					autocomplete="off" spellcheck="false"
+					style="position: relative; vertical-align: top;">
+				</span>
+				<button id="searchButton" class="btn btn-search" type="button">
+					<i class="fa fa-search"></i>&nbsp;&nbsp;<span class="bold">Search</span>
+				</button>
+				<div id="searchOption" style="display: inline-block;">
+					<label>Search Operator: </label>
+					<div class="radio radio-info radio-inline">
+						<input type="radio" value="Phrase" id="searchOption_Phrase"
+							name="searchOption" checked="checked"> <label
+							for="searchOption_Phrase"> Phrase </label>
+					</div>
+					<div class="radio radio-inline">
+						<input type="radio" id="searchOption_And" value="And"
+							name="searchOption"> <label for="searchOption_And">
+							And </label>
+					</div>
+					<div class="radio radio-inline">
+						<input type="radio" value="Or" id="searchOption_Or"
+							name="searchOption"> <label for="searchOption_Or">
+							Or </label>
+					</div>
+				</div>
+		</div>
+	</header>
+	<section class="main-content">
+		<div class="master-overlay homepage-search is-master-overlay-secondary-hidden is-master-overlay-maximized is-master-overlay-parent-hidden">
+			<div class="master-overlay-main">
+				<div class="master-overlay-main-content">
+					<section id="collection-results" class="master-overlay-has-min">
+						<header>
+				          <h2 id="shortName">Loading...</h2>
+				        </header>
+				        <div id="collection-scroll-pane" class="master-overlay-content">
+				        	<div class="panel-list">
+				        		<table id="ResultsTable" class="table"></table>
+				        	</div>
+				        </div>
+					</section>
+				</div>
+			</div>
+			<div class="master-overlay-right">
+				<div class="master-overlay-main-content">
+					<section id="ontology-results" class="master-overlay-has-min">
+						<header>
+				          <h2 id="ontologyResultCount">Related datasets</h2>
+				        </header>
+				        <div id="collection-scroll-pane" class="master-overlay-content">
+				        	<div class="panel-list">
+				        		<ul id="hybirdul" class="ontologyUL"></ul>
+				        	</div>
+				        </div>
+					</section>
+					<section id="ontology-results" class="master-overlay-has-min">
+						<header>
+				          <h2 id="ontologyResultCount">Related searches</h2>
+				        </header>
+				        <div id="collection-scroll-pane" class="master-overlay-content">
+				        	<div class="panel-list">
+				        		<ul id="ontologyUL" class="ontologyUL"></ul>
+				        	</div>
+				        </div>
+					</section>
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer>
+		<div class="footer-content">
+			<p>
+				<a href="https://github.com/mudrod/mudrod" target="_blank">MUDROD</a> is funded by NASA AIST Program(NNX15AM85G), developed
+				by <a href="http://stcenter.net/stc/">NSF Spatiotemporal
+					Innovation Center</a> in collaboration with <a
+					href="http://www.jpl.nasa.gov/">NASA JPL</a>.
+			</p>
+		</div>
+		<script src="./resources/js/jquery-2.1.1.js"></script>
+		<script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+	</footer>
+	<script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+	<script
+		src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 
-<div id="wrapper">
+	<script src="./resources/js/util.js"></script>
 
-    <nav class="navbar-default navbar-static-side" role="navigation">
-        <div class="sidebar-collapse">
-            <ul class="nav metismenu" id="side-menu">
-                <li class="nav-header" style="padding-top: 5px;">
-                    <div class="dropdown profile-element">
-                            <span class="clear"> 
-                            <img src="./resources/images/nasaLogo.png" width="125px" style="margin-left: 25px;">
-                            <span class="text-muted text-xs block" style="font-size: 18px;">MUDROD Semantic Search Testbed </span> 
-                            </span>
-                    </div>
-                    <div class="logo-element">
-                        MUDROD
-                    </div>
-                </li>
-                <li>
-                    <a href="vocab.html"><i class="fa fa-link"></i> <span class="nav-label">Vocabulary linkage</span></a>
-                </li>
-                <li class="active">
-                    <a href="search.html"><i class="fa fa-search"></i> <span class="nav-label">Semantic Search</span> </a>
-                </li>
-                <li>
-                    <a href="https://github.com/mudrod/mudrod" target="_blank"><i class="fa fa-users"></i> <span class="nav-label">About MUDROD</span> </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-    <div id="page-wrapper" class="gray-bg">
-        <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row" style="margin-bottom: 15px;">
-                <div class="col-lg-12">
-                    
-                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="position: absolute; left: -22px; top: -28px;"><i class="fa fa-bars"></i></a>
-                    <div class="text-center m-t-lg">
-                            <div class="search-form">
-                                <div>
-                                    <div class="input-group">
-                                        <input id="query" type="text" placeholder="Enter ocean concepts (e.g. ocean wind) to search" name="query" class="form-control input-lg">
-                                        <div class="input-group-btn">
-                                            <button id="searchButton" class="btn btn-lg btn-primary" type="button" onclick="doSearch();return false;">
-                                                Search
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-            <div class="col-lg-9">
-                <div class="wrapper wrapper-content animated fadeInUp" style="padding-left: 2px;">
-                    <div class="ibox">
-                        <div class="ibox-content">
-                        <h2 id="shortname" style="font-weight: bold;"></h2>
-                            <div id = "resultPanels">
-				              <table id="ResultsTable" class="table"></table>
-				          </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="wrapper wrapper-content project-manager">
-                    <h4>You may be interested in</h4>
-                    <ul id="hybirdul" class="list-unstyled">
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-        <div class="footer fixed">
-            <div>
-                This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>.
-            </div>
-        </div>
-</div>
-
-<!-- Mainly scripts -->
-<script src="./resources/js/jquery-2.1.1.js"></script>
-<script src="./resources/js/bootstrap.min.js"></script>
-<script src="./resources/js/plugins/metisMenu/jquery.metisMenu.js"></script>
-<script src="./resources/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-
-<!-- Custom and plugin javascript -->
-<script src="./resources/js/inspinia.js"></script>
-<script src="./resources/js/plugins/pace/pace.min.js"></script>
-
-    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-
-<script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
-<script src="./resources/js/util.js"></script>
-    
-<script src="./resources/js/dataset.js"></script>
-
+	<script src="./resources/js/dataset.js"></script>
 </body>
-
 </html>

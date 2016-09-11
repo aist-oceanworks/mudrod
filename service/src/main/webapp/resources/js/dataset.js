@@ -1,32 +1,55 @@
+var g_currentQuery, g_currentSearchOption;
 var shortname = getURLParameter('shortname');
+
   $(document).ready(function(){
+		var query = getURLParameter('query');
+		g_currentSearchOption = getURLParameter('searchOption');
+		if (query) {
+			$("#query").val(query);
+		}
+		if(g_currentSearchOption) {
+			$('#searchOption_' + g_currentSearchOption).prop('checked', true);
+		}
 
 		$("#query").keydown(function(event){
 			if(event.keyCode == 13){
-				doSearch();
+				$("#searchButton").click();
 			}
 		});		
-	   
-	   
+
+		$("#searchButton").click(function() {
+			redirect("search", "query", $("#query").val(), "searchOption", $("input[name='searchOption']:checked").val());
+		});
+
+		$("#ontologyUL").on("click", "li a", function(){
+			redirect("search", "query", $(this).data("word"), "searchOption", $("input[name='searchOption']:checked").val());
+		});
+
+		g_currentQuery = encodeURI(query);
+
+		$.ajax({
+            url: "SearchVocab",
+            data: {
+                "concept": query
+            },
+            success: function completeHandler(response) {
+                if (response != null) {
+                    var ontologyResults = response.graph.ontology;
+                    if(ontologyResults.length == 0) {
+                    	
+                    } else {
+						//$("#ontologyResultCount").html(searchResults.length + ' Matching Collections');
+                    	for(var i = 0; i < ontologyResults.length; i++){
+                    		$("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word  + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
+                    	}                    	
+                    }
+                }
+            }
+        });
 	 loadMetaData(shortname);
 	 //loadRecomData(shortname);
 	 loadHybirdRecomData(shortname);
   });
-  
-  function doSearch() {
-		if(!$("#query").val()) return false;		
-		
-		var url = window.location.href;
-		var hash = location.hash;
-		url = url.replace(hash, '');
-		
-		if(url.indexOf('dataset.html') > -1){
-			url = url.substring(0, url.indexOf('dataset.html'));
-			url += 'search.html?query=' + $("#query").val();
-			window.location.href = url + hash;
-			return false;
-		}
-  }
   
   function loadRecomData(shortname) {
 	if (shortname != "") {
@@ -95,7 +118,7 @@ var shortname = getURLParameter('shortname');
 						       $("#hybirdul").append(li);
 						       //$("a",li).text(item.name  + "(" + item.weight + ")");
 						       $("a",li).text(item.name);
-						       $("a",li).attr("href", "./dataset.html?shortname=" + item.name);
+						       $("a",li).attr("href", "./dataset.html?query=" + g_currentQuery + "&searchOption=" + g_currentSearchOption + "&shortname=" + item.name);
 						    });
 						}
 					}
@@ -123,7 +146,7 @@ var shortname = getURLParameter('shortname');
 						} else {
 							createResultTable();
 							
-							$("#shortname").html(searchResults[0]["Short Name"]);
+							$("#shortName").html(searchResults[0]["Short Name"]);
 							$('#ResultsTable').bootstrapTable('load', searchResults);
 						}
 					}

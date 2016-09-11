@@ -1,0 +1,324 @@
+html, body {
+	padding: 0px;
+	margin: 0px;
+    height: 100%;
+}
+
+body {
+	font-size: 16px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height: 1.42857143;
+}
+
+.background {
+	position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #246 url('../images/OceanWave.jpg') no-repeat 0 0;
+    background-size: cover;
+    z-index: -1;
+}
+
+h1, h2, h3, p {
+    margin: 0 0 .2em 0;
+}
+
+footer, .toolbar {
+    background: #2c3e50;
+    color: #fff;
+}
+
+.toolbar {
+    background-color: #2276ac;
+    background-image: -webkit-linear-gradient(#2276ac, #1e6797);
+    background-image: linear-gradient(#2276ac, #1e6797);
+    /*padding: 25px 0 60px 0;*/
+    height: 60px;
+    #border-bottom: 1px solid #242424;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+    display: block;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.toolbar a:link, .toolbar a:visited {
+    color: #fff;
+}
+
+header h1>a {
+    margin-top: 10px;
+}
+
+a {
+    color: #428bca;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+header .nasa-logo {
+    background-image: url('../images/NASALogo.png');
+    height: 40px;
+    width: 40px;
+    margin-left: 10px;
+    float: left;
+    background-repeat: no-repeat;
+    text-indent: inherit;
+    padding-left: 16px;
+    padding-top: 10px;
+    line-height: 1.1em;
+    font-weight: 300;
+    font-size: 26px;
+    -webkit-transition: background 0.2s ease-in-out;
+    -moz-transition: background 0.2s ease-in-out;
+    transition: background 0.2s ease-in-out;
+	box-sizing: content-box;
+}
+
+a:focus, a:hover {
+	text-decoration: none;
+}
+
+header .site-logo {
+    height: 40px;
+    float: left;
+    line-height: 40px;
+    font-weight: 300;
+    font-size: 26px;
+    -webkit-transition: background 0.2s ease-in-out;
+    -moz-transition: background 0.2s ease-in-out;
+    transition: background 0.2s ease-in-out;
+}
+
+header .site-logo-org {
+    font-family: 'Open Sans', sans-serif;
+    content: 'Earthdata';
+    display: block;
+    font-size: .475em;
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1em;
+}
+
+.footer-content {
+    height: 35px;
+    font-size: .7em;
+	text-align:center;
+}
+
+.footer-content p {
+    padding: 10px 20px 0 20px;
+}
+
+.footer-content .version {
+    background: #315880;
+    padding: 2px 8px;
+    border-radius: 2px;
+    text-shadow: 1px 1px 1px #283949;
+}
+
+b, strong {
+    font-weight: bold;
+}
+
+.footer-content a:link, .footer-content a:visited {
+    color: #92bfec;
+}
+
+a:link, a:visited {
+    color: #2980b9;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+}
+
+body>footer {
+    z-index: 1000;
+    width: 100%;
+}
+
+.landing-dialog {
+    width: 700px;
+    margin: 200px auto 0;
+    color: #fff;
+    /*background-color: rgba(17,17,17,0.8);*/
+    border-radius: 6px;
+    box-shadow: 0 0 20px 0 rgba(17,17,17,0.7);
+}
+
+.landing-dialog-header, .noscript, .old-ie {
+    padding: 1em 1.5em;
+}
+
+.landing-dialog-header h2, .noscript h2, .old-ie h2 {
+    font-weight: normal;
+    margin: 0 0 .2em 0;
+    font-size: 2.2em;
+    text-shadow: 1px 1px 1px #111;
+}
+
+.fa {
+    display: inline-block;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.searchBox {
+    height: 100px;
+    padding: .5em 0;
+    background: transparent;
+    margin-left: .5em;
+}
+
+.toolbar .form {
+    display: inline-block;
+}
+
+.toolbar p {
+    margin: 0;
+}
+
+.tt-input {
+    vertical-align: baseline !important;
+}
+
+input[type="text"], input[type="search"], input[type="password"], textarea {
+    padding: 5px;
+    outline: none;
+    min-width: 150px;
+    color: #424242;
+}
+
+.toolbar .tt-query, .toolbar .tt-hint, .toolbar .tt-input {
+    padding: 11px;
+    margin: 2px 0 0 20px;
+    width: 540px;
+    border: 1px solid #236d9e;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 5px 1px rgba(0,0,0,0.2);
+}
+
+.dropdown {
+    display: inline-block;
+    position: relative;
+}
+
+.button, input[type="button"], input[type="reset"], input[type="submit"], button {
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 3px;
+    outline: none;
+    color: #fff;
+}
+
+.toolbar .button, .toolbar input[type="button"], .toolbar input[type="reset"], .toolbar input[type="submit"] {
+    border: 1px solid #2c3e50;
+    background: #1a5981;
+    color: #fff;
+    text-shadow: none;
+}
+
+.btn-search, .btn-search:hover, .btn-search:focus, .btn-search:active, .btn-search.active, .open .dropdown-toggle.btn-search, .btn-search:active:focus, .btn-search:active:hover, .btn-search.active:hover, .btn-search.active:focus {
+    background-color: #1a5981;
+    border-color: #1a5981;
+    color: #FFFFFF;
+    padding: 9px 12px 9px 12px;
+    font-size: 18px;
+}
+
+.checkbox-inline, .radio-inline {
+    position: relative;
+    display: inline-block;
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: 400;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.radio {
+    padding-left: 20px;
+}
+
+.radio.radio-inline {
+    margin-top: 0;
+}
+
+.radio input[type="radio"] {
+    opacity: 0;
+    z-index: 1;
+}
+
+.radio label {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    padding-left: 5px;
+}
+
+.radio label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    left: 0;
+    margin-left: -20px;
+    border: 1px solid #cccccc;
+    border-radius: 50%;
+    background-color: #fff;
+    -webkit-transition: border 0.15s ease-in-out;
+    -o-transition: border 0.15s ease-in-out;
+    transition: border 0.15s ease-in-out;
+}
+
+.radio label::after {
+    display: inline-block;
+    position: absolute;
+    content: " ";
+    width: 11px;
+    height: 11px;
+    left: 3px;
+    top: 3px;
+    margin-left: -20px;
+    border-radius: 50%;
+    background-color: #5bc0de;
+    -webkit-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+    -webkit-transition: -webkit-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    -moz-transition: -moz-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    -o-transition: -o-transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+    transition: transform 0.1s cubic-bezier(0.8, -0.33, 0.2, 1.33);
+}
+
+.radio-info input[type="radio"]:checked + label::before {
+    border-color: #5bc0de;
+}
+
+.radio-info input[type="radio"] + label::after {
+    background-color: #5bc0de;
+}
+
+.radio input[type="radio"]:checked + label::after {
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform: scale(1, 1);
+}
+
+.radio-info input[type="radio"]:checked + label::after {
+    background-color: #5bc0de;
+}
