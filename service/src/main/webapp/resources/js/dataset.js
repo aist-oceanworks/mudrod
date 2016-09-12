@@ -30,7 +30,8 @@ var shortname = getURLParameter('shortname');
 		$.ajax({
             url: "SearchVocab",
             data: {
-                "concept": query
+                "concept": query,
+				"operator": $("input[name='searchOption']:checked").val()
             },
             success: function completeHandler(response) {
                 if (response != null) {
@@ -102,7 +103,8 @@ var shortname = getURLParameter('shortname');
 			$.ajax({
 				url : "HybirdRecomDatasets",
 				data : {
-					"shortname" : shortname
+					"shortname" : shortname,
+					"operator": $("input[name='searchOption']:checked").val()
 				},
 				success : function completeHandler(response) {
 					if (response != null) {

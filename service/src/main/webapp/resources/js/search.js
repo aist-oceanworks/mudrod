@@ -3,6 +3,9 @@ var g_currentQuery, g_currentSearchOption;
 $(document).ready(function() {
 	var query = getURLParameter('query');
 	g_currentSearchOption = getURLParameter('searchOption');
+	if(g_currentSearchOption) {
+		$('#searchOption_' + g_currentSearchOption).prop('checked', true);
+	}
 	if (query == null) {
 		$("#searchResults").hide();
 	} else {
@@ -11,9 +14,6 @@ $(document).ready(function() {
 		$("#NotFound").hide();
 		$("#query").val(query);
 		search(query);
-	}
-	if(g_currentSearchOption) {
-		$('#searchOption_' + g_currentSearchOption).prop('checked', true);
 	}
 
 	$("#query").keyup(function(event) {
@@ -45,7 +45,8 @@ function search(query) {
 		$.ajax({
 			url : "SearchMetadata",
 			data : {
-				"query" : $("#query").val()
+				"query" : $("#query").val(),
+				"operator": $("input[name='searchOption']:checked").val()
 			},
 			success : function completeHandler(response) {
 				if (response != null) {
@@ -66,7 +67,8 @@ function search(query) {
 		$.ajax({
             url: "SearchVocab",
             data: {
-                "concept": $("#query").val().toLowerCase()
+                "concept": $("#query").val().toLowerCase(),
+				"operator": $("input[name='searchOption']:checked").val()
             },
             success: function completeHandler(response) {
                 if (response != null) {
