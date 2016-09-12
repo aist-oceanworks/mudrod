@@ -21,11 +21,24 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.ItemSimCalculator;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
+/**
+ * ClassName: Recommend metedata based on session level co-occurrence 
+ */
 public class sessionBasedCF extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(sessionBasedCF.class);
 
+  /**
+   * Creates a new instance of sessionBasedCF.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
   public sessionBasedCF(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

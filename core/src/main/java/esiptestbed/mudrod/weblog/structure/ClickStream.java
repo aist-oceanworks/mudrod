@@ -20,9 +20,6 @@ import org.codehaus.jettison.json.JSONObject;
 
 /**
  * ClassName: ClickStream Function: user click stream data related operations.
- *
- * @author Yun
- *
  */
 public class ClickStream implements Serializable {
   // keywords: query words related to the click behaviour

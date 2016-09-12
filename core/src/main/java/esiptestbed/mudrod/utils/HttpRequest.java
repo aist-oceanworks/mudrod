@@ -24,11 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * ClassName: HttpRequest 
- * Function: Http request tool. 
- * Date: Aug 12, 2016 12:41:57 PM 
- *
- * @author Yun
-
+ * Function: Http request tool.  
  */
 public class HttpRequest {
 

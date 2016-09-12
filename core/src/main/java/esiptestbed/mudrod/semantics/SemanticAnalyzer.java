@@ -31,9 +31,6 @@ import esiptestbed.mudrod.utils.SimilarityUtil;
 
 /**
  * ClassName: SemanticAnalyzer Function: Semantic analyzer
- *
- * @author Yun
- *
  */
 public class SemanticAnalyzer extends MudrodAbstract {
 

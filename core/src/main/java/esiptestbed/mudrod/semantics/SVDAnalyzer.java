@@ -28,10 +28,7 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 
 /**
  * ClassName: SVDAnalyzer Function: Analyze semantic relationship through SVD
- * method Date: Aug 12, 2016 12:49:26 PM
- *
- * @author Yun
- *
+ * method 
  */
 public class SVDAnalyzer extends SemanticAnalyzer {
 

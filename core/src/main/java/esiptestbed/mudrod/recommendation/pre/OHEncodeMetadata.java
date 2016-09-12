@@ -10,13 +10,26 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.structure.OHEncoder;
 
-// one binary encoding of metadata parameters
+/*
+ * ClassName: Encode metadata parameters with one hot encoder method
+ */
+
 public class OHEncodeMetadata extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
       .getLogger(OHEncodeMetadata.class);
 
+  /**
+   * Creates a new instance of OHEncodeMetadata.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   */
   public OHEncodeMetadata(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

@@ -33,6 +33,11 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.metadata.pre.ApiHarvester;
 
+/**
+ * ClassName: Import Metadata to elasticsearch
+ *
+ */
+
 public class ImportMetadata extends DiscoveryStepAbstract {
 
   /**
@@ -59,6 +64,10 @@ public class ImportMetadata extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * addMetadataMapping: Add mapping to index metadata in Elasticsearch. Please
+   * invoke this method before import metadata to Elasticsearch.
+   */
   public void addMetadataMapping() {
     String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
         + "{\r\n         \"strings\": "
@@ -68,12 +77,17 @@ public class ImportMetadata extends DiscoveryStepAbstract {
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
     es.getClient().admin().indices()
-    .preparePutMapping(props.getProperty("indexName"))
-    .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
-    .execute().actionGet();
+        .preparePutMapping(props.getProperty("indexName"))
+        .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
+        .execute().actionGet();
 
   }
 
+  /**
+   * importToES: Index metadata into elasticsearch from local file directory.
+   * Please make sure metadata have been harvest from web service before
+   * invoking this method.
+   */
   private void importToES() {
     es.deleteType(props.getProperty("indexName"),
         props.getProperty("recom_metadataType"));
@@ -109,5 +123,4 @@ public class ImportMetadata extends DiscoveryStepAbstract {
   public Object execute(Object o) {
     return null;
   }
-
 }

@@ -14,12 +14,25 @@ import esiptestbed.mudrod.recommendation.structure.CodeSimCalculator;
 import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
+/**
+ * ClassName: Recommend metedata based on metadata variable similarity
+ */
 public class ContentBasedCF extends DiscoveryStepAbstract
     implements Serializable {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(ContentBasedCF.class);
 
+  /**
+   * Creates a new instance of ContentBasedCF.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
   public ContentBasedCF(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

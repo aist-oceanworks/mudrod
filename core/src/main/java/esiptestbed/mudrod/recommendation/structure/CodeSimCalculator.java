@@ -18,16 +18,30 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.LinkageTriple;
 import scala.Tuple2;
 
+/**
+ * Calculate metadata code similarity
+ */
 public class CodeSimCalculator implements Serializable {
 
+  // index name of mudrod
   private String indexName;
+  // metadata type name in ES
   private String metadataType;
+  // weight of metada variables for calculating similarity
   private Map<String, Double> CategoricalVarWeights;
-
+  // weight list
   private List<Double> weights;
+  // sum of all weights
   private double totalWeights;
+  // index of term
   private int termIndex;
 
+  /**
+   * Creates a new instance of CodeSimCalculator.
+   *
+   * @param props
+   *          the Mudrod configuration
+   */
   public CodeSimCalculator(Properties props) {
     // TODO Auto-generated constructor stub
     indexName = props.getProperty("indexName");
@@ -51,6 +65,17 @@ public class CodeSimCalculator implements Serializable {
     }
   }
 
+  /**
+   * CalItemSimfromTxt:Calculate metadata similarity based on variable code
+   *
+   * @param spark
+   *          spark client
+   * @param txtFile
+   *          metadta code file
+   * @return triple list, each triple is according to similarity between two
+   *         metadata
+   *
+   */
   public List<LinkageTriple> CalItemSimfromTxt(SparkDriver spark,
       String txtFile) {
 
@@ -128,6 +153,15 @@ public class CodeSimCalculator implements Serializable {
     return tripleRDD.collect();
   }
 
+  /**
+   * similarity:calculate similarity of two list of vectors
+   *
+   * @param vecListA
+   *          vector list
+   * @param vecListB
+   *          vector list
+   * @return cosine similarity
+   */
   private double similarity(List<Vector> vecListA, List<Vector> vecListB) {
     if (vecListA.size() != vecListB.size()) {
       return 0.0;
@@ -145,6 +179,15 @@ public class CodeSimCalculator implements Serializable {
     return totalSim;
   }
 
+  /**
+   * cosSimilarity:calculate cosine similarity of two vectors
+   *
+   * @param vecA
+   *          one vector
+   * @param vecB
+   *          one vector
+   * @return cosine similarity
+   */
   private double cosSimilarity(Vector vecA, Vector vecB) {
     double product = 0.0;
 
@@ -170,6 +213,15 @@ public class CodeSimCalculator implements Serializable {
     return sim;
   }
 
+  /**
+   * dotProduct:calculate dot product of two vectors
+   *
+   * @param vecA
+   *          one vector
+   * @param vecB
+   *          one vector
+   * @return dot product
+   */
   public double dotProduct(Vector vecA, Vector vecB) {
     double product = 0.0;
 

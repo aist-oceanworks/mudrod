@@ -25,13 +25,22 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * Recommend metadata using combination all two methods, including content-based
+ * similarity and session-level similarity
+ */
 public class HybirdRecommendation extends DiscoveryStepAbstract {
-
+  // recommended metadata list
   protected transient List<LinkedTerm> termList = new ArrayList<>();
+  // format decimal
   DecimalFormat df = new DecimalFormat("#.00");
+  // index name
   protected static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
 
+  /**
+   * recommended data class Date: Sep 12, 2016 2:25:28 AM
+   */
   class LinkedTerm {
     public String term = null;
     public double weight = 0;
@@ -59,6 +68,15 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return null;
   }
 
+  /**
+   * Get recommended data for a giving dataset
+   *
+   * @param input:
+   *          a giving dataset
+   * @param num:
+   *          the number of recommended dataset
+   * @return recommended dataset in json format
+   */
   public JsonObject getRecomDataInJson(String input, int num) {
     String type = props.getProperty("metadataCodeSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
@@ -104,6 +122,15 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return json;
   }
 
+  /**
+   * Method of converting hashmap to JSON
+   *
+   * @param wordweights
+   *          a map from related metadata to weights
+   * @param num
+   *          the number of converted elements
+   * @return converted JSON object
+   */
   protected JsonElement mapToJson(Map<String, Double> wordweights, int num) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();
@@ -129,6 +156,18 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return nodesElement;
   }
 
+  /**
+   * Get recommend dataset for a giving dataset
+   *
+   * @param type
+   *          recommend method
+   * @param input
+   *          a giving dataset
+   * @param num
+   *          the number of recommended dataset
+   * @return recommended dataset map, key is dataset name, value is similarity
+   *         value
+   */
   public Map<String, Double> getRelatedData(String type, String input,
       int num) {
     termList = new ArrayList<>();
@@ -149,6 +188,17 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
+  /**
+   * Get recommend dataset for a giving dataset
+   *
+   * @param type
+   *          recommend method
+   * @param input
+   *          a giving dataset
+   * @param num
+   *          the number of recommended dataset
+   * @return recommended dataset list
+   */
   public List<LinkedTerm> getRelatedDataFromES(String type, String input,
       int num) {
 
@@ -173,6 +223,15 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return termList;
   }
 
+  /**
+   * Method of extracting the related dataset from a comma string
+   *
+   * @param str
+   *          input string
+   * @param input
+   *          query string
+   * @return related dataset contained in the input string
+   */
   private String extractRelated(String str, String input) {
     String[] strList = str.split(",");
     if (input.equals(strList[0])) {
@@ -182,6 +241,13 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of sorting a map by value
+   * 
+   * @param passedMap
+   *          input map
+   * @return sorted map
+   */
   public Map<String, Double> sortMapByValue(Map<String, Double> passedMap) {
     List<String> mapKeys = new ArrayList<>(passedMap.keySet());
     List<Double> mapValues = new ArrayList<>(passedMap.values());

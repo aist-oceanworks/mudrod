@@ -30,9 +30,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 
 /**
  * ClassName: SessionTree Function: Convert request list in a session to a tree
- *
- * @author Yun
- *
  */
 public class SessionTree extends MudrodAbstract {
 

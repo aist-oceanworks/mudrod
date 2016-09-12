@@ -21,10 +21,6 @@ import java.util.Set;
 
 /**
  * ClassName: PODAACMetadata Function: PODAACMetadata setter and getter methods
- * Date: Aug 12, 2016 11:16:43 AM
- *
- * @author Yun
- *
  */
 public class PODAACMetadata implements Serializable {
 

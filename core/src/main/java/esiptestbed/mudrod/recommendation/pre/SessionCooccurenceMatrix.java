@@ -24,12 +24,28 @@ import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import esiptestbed.mudrod.weblog.structure.SessionExtractor;
 
+/**
+ * ClassName: SessionCooccurenceMatrix
+ * Function: Generate metadata session coocucurence matrix from web logs. Each
+ * row in the matrix is corresponding to a metadata, and each column is a
+ * session.
+ */
 public class SessionCooccurenceMatrix extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
       .getLogger(SessionCooccurenceMatrix.class);
 
+  /**
+   * Creates a new instance of SessionCooccurenceMatrix.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   */
   public SessionCooccurenceMatrix(Properties props, ESDriver es,
       SparkDriver spark) {
     super(props, es, spark);

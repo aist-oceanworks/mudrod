@@ -20,11 +20,7 @@ import com.google.gson.JsonParser;
 import esiptestbed.mudrod.utils.HttpRequest;
 
 /**
- * ClassName: GeoIp Function: convert IP to geo location Date: Aug 15, 2016
- * 1:28:52 PM
- *
- * @author Yun
- * 
+ * ClassName: GeoIp Function: convert IP to geo location 
  */
 public class GeoIp {
 

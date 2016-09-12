@@ -9,10 +9,7 @@ import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
@@ -28,74 +25,36 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import scala.Tuple2;
 
+/**
+ * Calculate metadata similarity from matrix
+ */
 public class ItemSimCalculator implements Serializable {
 
-  JavaPairRDD<String, Long> userIDRDD = null;
-  JavaPairRDD<String, Long> itemIDRDD = null;
-
+  // index name
   private String indexName;
+  // type name of metadata
   private String metadataType;
 
+  /**
+   * Creates a new instance of ItemSimCalculator.
+   *
+   * @param props
+   *          the Mudrod configuration
+   */
   public ItemSimCalculator(Properties props) {
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
   }
 
-  public JavaPairRDD<String, List<String>> prepareData(JavaSparkContext sc,
-      String path) {
-    JavaRDD<String> data = sc.textFile(path)
-        .map(new Function<String, String>() {
-          @Override
-          public String call(String s) {
-            String line = s.substring(1, s.length() - 1);
-            return line;
-          }
-        });
-
-    // generate user-id, item-id
-    JavaPairRDD<String, Integer> useritem_rateRDD = data
-        .mapToPair(new PairFunction<String, String, Integer>() {
-          @Override
-          public Tuple2<String, Integer> call(String s) {
-            String[] sarray = s.split(",");
-            Double rate = Double.parseDouble(sarray[2]);
-            return new Tuple2<String, Integer>(sarray[0] + "," + sarray[1],
-                rate.intValue());
-          }
-        });
-
-    JavaPairRDD<String, List<String>> testRDD = useritem_rateRDD.flatMapToPair(
-        new PairFlatMapFunction<Tuple2<String, Integer>, String, List<String>>() {
-          @Override
-          public Iterable<Tuple2<String, List<String>>> call(
-              Tuple2<String, Integer> arg0) throws Exception {
-            List<Tuple2<String, List<String>>> pairs = new ArrayList<Tuple2<String, List<String>>>();
-            String words = arg0._1;
-            int n = arg0._2;
-            for (int i = 0; i < n; i++) {
-              List<String> l = new ArrayList<String>();
-              l.add(words.split(",")[1]);
-              Tuple2<String, List<String>> worddoc = new Tuple2<String, List<String>>(
-                  words.split(",")[0], l);
-              pairs.add(worddoc);
-            }
-            return pairs;
-          }
-        })
-        .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
-          @Override
-          public List<String> call(List<String> arg0, List<String> arg1)
-              throws Exception {
-            List<String> newlist = new ArrayList<String>();
-            newlist.addAll(arg0);
-            newlist.addAll(arg1);
-            return newlist;
-          }
-        });
-
-    return testRDD;
-  }
-
+  /**
+   * filter out-of-data metadata
+   *
+   * @param es
+   *          the Elasticsearch drive
+   * @param userDatasetsRDD
+   *          dataset extracted from session
+   * @return filtered session datasets
+   */
   public JavaPairRDD<String, List<String>> filterData(ESDriver es,
       JavaPairRDD<String, List<String>> userDatasetsRDD) {
     Map<String, String> nameMap = this.getMetadataNameMap(es);
@@ -129,6 +88,13 @@ public class ItemSimCalculator implements Serializable {
     return filterUserDatasetsRDD;
   }
 
+  /**
+   * getMetadataNameMap: Get current metadata names
+   *
+   * @param es
+   *          the elasticsearch client
+   * @return a map from lower case metadata name to original metadata name
+   */
   private Map<String, String> getMetadataNameMap(ESDriver es) {
 
     Map<String, String> shortnameMap = new HashMap<String, String>();
@@ -153,6 +119,18 @@ public class ItemSimCalculator implements Serializable {
     return shortnameMap;
   }
 
+  /**
+   * Calculate metadata similarity from session coocurrence
+   *
+   * @param spark
+   *          spark client
+   * @param CSV_fileName
+   *          matrix csv file name
+   * @param skipRow
+   *          the number of rows should be skipped from the first row
+   * @return triple list, each one stands for the similarity between two
+   *         datasets
+   */
   public List<LinkageTriple> CalItemSimfromMatrix(SparkDriver spark,
       String CSV_fileName, int skipRow) {
 
@@ -202,6 +180,13 @@ public class ItemSimCalculator implements Serializable {
     return tripleRDD.collect();
   }
 
+  /**
+   * calculate similarity between vectors
+   *
+   * @param vecA
+   * @param vecB
+   * @return similarity between two vectors
+   */
   private double itemSim(Vector vecA, Vector vecB) {
     double[] arrA = vecA.toArray();
     double[] arrB = vecB.toArray();

@@ -25,6 +25,10 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * This class is used to test recommendation result similarity and session-level
+ * similarity 
+ */
 public class RecomData extends DiscoveryStepAbstract {
 
   protected transient List<LinkedTerm> termList = new ArrayList<>();

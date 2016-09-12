@@ -20,16 +20,30 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import esiptestbed.mudrod.driver.ESDriver;
 
+/**
+ * Encode metadata using one hot method 
+ */
 public class OHEncoder {
 
+  // index name
   private String indexName;
+  // variable list,
   public List<String> CategoricalVars;
+  // a map from variable to its weight
   public Map<String, Double> CategoricalVarWeights;
+  // a map from variable to its value list and vector of each value
   private Map<String, Map<String, Vector>> CategoricalVarValueVecs;
+  // type name of metadata in ES
   private String metadataType;
-
+  // default value of variable if variable is null:
   private String VAR_NOT_EXIST = "varNotExist";
 
+  /**
+   * Creates a new instance of OHEncoder.
+   *
+   * @param props
+   *          the Mudrod configuration
+   */
   public OHEncoder(Properties props) {
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
@@ -37,15 +51,23 @@ public class OHEncoder {
     this.inital();
   }
 
+  /**
+   * Creates a new instance of OHEncoder.
+   *
+   */
   public OHEncoder() {
 
     this.inital();
   }
 
+  /**
+   * inital variable value hashmap. It is a map from variable to its value list
+   * and vector of each value
+   */
   public void inital() {
 
     CategoricalVarValueVecs = new HashMap<String, Map<String, Vector>>();
-    CategoricalVarWeights = new HashMap<String, Double>();   
+    CategoricalVarWeights = new HashMap<String, Double>();
 
     CategoricalVarWeights.put("DatasetParameter-Topic", 3.0);
     CategoricalVarWeights.put("DatasetParameter-Term", 4.0);
@@ -89,6 +111,12 @@ public class OHEncoder {
     CategoricalVars = new ArrayList(CategoricalVarWeights.keySet());
   }
 
+  /**
+   * Encode all metadata *
+   *
+   * @param es
+   *          the Elasticsearch client
+   */
   public void OHEncodeaAllMetadata(ESDriver es) {
 
     es.createBulkProcesser();
@@ -121,6 +149,17 @@ public class OHEncoder {
     es.destroyBulkProcessor();
   }
 
+  /**
+   * Encode one metadata using one hot method
+   *
+   * @param es
+   *          the Elasticsearch client
+   * @param metadata
+   *          metadta name
+   * @return a map from variable value to code
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
   private Map<String, Object> OHEncodeMetadata(ESDriver es,
       Map<String, Object> metadata)
       throws InterruptedException, ExecutionException {
@@ -165,6 +204,15 @@ public class OHEncoder {
     return metadataCodes;
   }
 
+  /**
+   * getValueVec:get vector for a giving variable value
+   *
+   * @param var
+   *          variable name
+   * @param value
+   *          variable value
+   * @return vector
+   */
   private Vector getValueVec(String var, String value) {
 
     if (value.startsWith("[")) {
@@ -182,6 +230,12 @@ public class OHEncoder {
     return tmpvec;
   }
 
+  /**
+   * Encode variables
+   *
+   * @param es
+   *          the Elasticsearch client
+   */
   public void OHEncodeVars(ESDriver es) {
     int CategoryNum = CategoricalVars.size();
     for (int i = 0; i < CategoryNum; i++) {
@@ -191,6 +245,15 @@ public class OHEncoder {
     }
   }
 
+  /**
+   * Encode variable
+   *
+   * @param es
+   *          the Elasticsearch client
+   * @param varName
+   *          variable name
+   * @return a map from variable value to vector
+   */
   private Map<String, Vector> OHEncodeVar(ESDriver es, String varName) {
 
     SearchResponse sr = es.getClient().prepareSearch(indexName)
@@ -219,6 +282,15 @@ public class OHEncoder {
     return valueVec;
   }
 
+  /**
+   * Sum of two vectors
+   *
+   * @param v1
+   *          vector
+   * @param v2
+   *          vector
+   * @return sum of two vectors
+   */
   private static Vector VectorSum(Vector v1, Vector v2) {
     double[] arr1 = v1.toArray();
     double[] arr2 = v2.toArray();

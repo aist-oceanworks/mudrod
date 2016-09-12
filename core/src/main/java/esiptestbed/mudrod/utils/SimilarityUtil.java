@@ -30,11 +30,7 @@ import com.google.common.base.Optional;
 import scala.Tuple2;
 
 /**
- * ClassName: SimilarityUtil Function: Similarity calculation tool Date: Aug 12,
- * 2016 11:33:30 AM
- *
- * @author Yun
- * 
+ * ClassName: SimilarityUtil Function: Similarity calculation tool 
  */
 public class SimilarityUtil {
 

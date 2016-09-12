@@ -36,10 +36,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import esiptestbed.mudrod.driver.ESDriver;
 
 /**
- * ClassName: LinkageTriple Function: Vocabulary linkage operations Date: Aug
- * 12, 2016 11:20:45 AM
- *
- * @author Yun
+ * ClassName: LinkageTriple Function: Vocabulary linkage operations 
  */
 public class LinkageTriple implements Serializable {
 

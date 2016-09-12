@@ -34,6 +34,9 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/*
+ *Transform metadata parameters
+ */
 public class TranformMetadata extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;

@@ -47,10 +47,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import scala.Tuple2;
 
 /**
- * ClassName: MatrixUtil Function: Matrix tool Date: Aug 12, 2016 11:44:14 AM
- *
- * @author Yun
- *
+ * ClassName: MatrixUtil Function: Matrix tool
  */
 public class MatrixUtil {
 

@@ -23,13 +23,25 @@ import esiptestbed.mudrod.recommendation.structure.LDAModel;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 
-
+/**
+ * ClassName: Generate TFIDF information of all metadata
+ */
 public class TFIDFGenerator extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
       .getLogger(TFIDFGenerator.class);
 
+  /**
+   * Creates a new instance of MatrixGenerator.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
+   */
   public TFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

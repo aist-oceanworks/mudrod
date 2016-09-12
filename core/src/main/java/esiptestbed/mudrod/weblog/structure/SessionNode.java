@@ -25,10 +25,7 @@ import java.util.regex.Pattern;
 
 /**
  * ClassName: SessionNode Function: Functions related to a node in a session
- * tree sturcture Reason: TODO ADD REASON(可选). Date: Aug 12, 2016 1:16:41 PM
- *
- * @author Yun
- *
+ * tree sturcture.
  */
 public class SessionNode {
   // id: Node ID

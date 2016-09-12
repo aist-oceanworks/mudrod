@@ -43,9 +43,6 @@ import scala.Tuple2;
 /**
  * ClassName: SessionExtractor Function: Extract sessions details from
  * reconstructed sessions.
- *
- * @author Yun
- *
  */
 public class SessionExtractor implements Serializable {
 

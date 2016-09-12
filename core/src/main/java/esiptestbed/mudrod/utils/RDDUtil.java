@@ -20,11 +20,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 
 /**
- * ClassName: RDDUtil Function: Mudrod Spark RDD common methods Date: Aug 12,
- * 2016 11:40:43 AM
- *
- * @author Yun
- * 
+ * ClassName: RDDUtil Function: Mudrod Spark RDD common methods 
  */
 public class RDDUtil {
 

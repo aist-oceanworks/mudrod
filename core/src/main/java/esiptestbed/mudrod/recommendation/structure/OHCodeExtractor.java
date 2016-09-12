@@ -31,17 +31,35 @@ import org.elasticsearch.search.SearchHit;
 
 import esiptestbed.mudrod.driver.ESDriver;
 
+/**
+ * Extractor metadata code
+ */
 public class OHCodeExtractor implements Serializable {
 
+  // index name:
   private String indexName;
+  // type name of metadata
   private String metadataType;
 
+  /**
+   * Creates a new instance of OHCodeExtractor.
+   *
+   * @param props
+   *          the Mudrod configuration
+   */
   public OHCodeExtractor(Properties props) {
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
   }
 
-  public List<String> loadMetadataOHEncode(ESDriver es) throws Exception {
+  /**
+   * Load metadata code from es
+   *
+   * @param es
+   *          the Elasticsearch client
+   * @return code value of variables
+   */
+  public List<String> loadMetadataOHEncode(ESDriver es) {
     OHEncoder coder = new OHEncoder();
     List<String> fields = coder.CategoricalVars;
     List<String> metadataCode = this.loadFieldsOHEncode(es, fields);
@@ -49,6 +67,15 @@ public class OHCodeExtractor implements Serializable {
     return metadataCode;
   }
 
+  /**
+   * load code value of giving variables
+   *
+   * @param es
+   *          the Elasticsearch client
+   * @param fields
+   *          variables list
+   * @return code ist
+   */
   public List<String> loadFieldsOHEncode(ESDriver es, List<String> fields) {
 
     List<String> metedataCode = new ArrayList<String>();
@@ -87,6 +114,15 @@ public class OHCodeExtractor implements Serializable {
     return metedataCode;
   }
 
+  /**
+   * load code values of giving variables
+   *
+   * @param es
+   *          the Elasticsearch client
+   * @param fields
+   *          variables list
+   * @return a map from variable value to code
+   */
   public Map<String, Vector> loadFieldsOHEncodeMap(ESDriver es,
       List<String> fields) {
 

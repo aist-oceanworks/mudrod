@@ -21,10 +21,23 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
+/**
+ * ClassName: Recommend metedata based on data content semantic similarity
+ */
 public class TopicBasedCF extends DiscoveryStepAbstract {
 
   private static final Logger LOG = LoggerFactory.getLogger(TopicBasedCF.class);
 
+  /**
+   * Creates a new instance of TopicBasedCF.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch client
+   * @param spark
+   *          the spark drive
+   */
   public TopicBasedCF(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

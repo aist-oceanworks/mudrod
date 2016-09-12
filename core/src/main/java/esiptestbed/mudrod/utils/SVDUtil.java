@@ -28,11 +28,7 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
- * ClassName: SVDUtil Function: Singular value decomposition Date: Aug 15, 2016
- * 1:58:02 PM
- *
- * @author Yun
- *
+ * ClassName: SVDUtil Function: Singular value decomposition 
  */
 public class SVDUtil extends MudrodAbstract {
 

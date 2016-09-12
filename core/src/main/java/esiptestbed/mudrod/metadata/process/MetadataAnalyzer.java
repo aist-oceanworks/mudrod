@@ -30,9 +30,6 @@ import org.slf4j.LoggerFactory;
  * ClassName: MetadataAnalyzer 
  * Function: Calculate semantic relationship of vocabularies extracted from
  * metadata. 
- *
- * @author Yun
-
  */
 public class MetadataAnalyzer extends DiscoveryStepAbstract
 implements Serializable {
