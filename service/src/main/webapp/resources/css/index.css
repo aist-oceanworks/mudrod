@@ -30,12 +30,9 @@ footer, .toolbar {
 }
 
 .toolbar {
-    background-color: #2276ac;
-    background-image: -webkit-linear-gradient(#2276ac, #1e6797);
-    background-image: linear-gradient(#2276ac, #1e6797);
+    background-color: #276774;
     /*padding: 25px 0 60px 0;*/
     height: 60px;
-    #border-bottom: 1px solid #242424;
 }
 
 article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
