@@ -52,6 +52,7 @@ public class SearchMetadata extends HttpServlet {
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     String query = request.getParameter("query");
+    String operator = request.getParameter("operator");
 
     MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
         .getAttribute("MudrodInstance");
@@ -65,7 +66,7 @@ public class SearchMetadata extends HttpServlet {
     fileList = sr.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
         config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
         query,
-        "phrase", //please replace it with and, or, phrase
+        operator,
         rr);
 
     PrintWriter out = response.getWriter();

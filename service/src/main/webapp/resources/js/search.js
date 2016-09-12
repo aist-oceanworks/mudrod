@@ -42,10 +42,12 @@ function search(query) {
 		$("#searchContainer").css("margin-top", "30px");
 		$("#searchResultContainer").show();
 		$("#searchContainer h2.title").css("font-size", "24px");
+		var search_operator = $("input[name='searchOption']:checked").val();
 		$.ajax({
 			url : "SearchMetadata",
 			data : {
-				"query" : $("#query").val()
+				"query" : $("#query").val(),
+				"operator" : search_operator //it could be or, and, phrase (lowercase)
 			},
 			success : function completeHandler(response) {
 				if (response != null) {

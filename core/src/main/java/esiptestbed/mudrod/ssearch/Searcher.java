@@ -157,7 +157,6 @@ public class Searcher extends MudrodAbstract implements Serializable{
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
-      //////////////////////////////////////////////more features//////////////////////////////////
       String processingLevel = (String) result.get("Dataset-ProcessingLevel"); 
       Double proNum = getProLevelNum(processingLevel);
 
@@ -190,7 +189,7 @@ public class Searcher extends MudrodAbstract implements Serializable{
         label_string = (String) label_item.get("label");
       }
       SResult.set(re, "label", label_string);
-      /***************************************************************************/
+      /***************************************/
       resultList.add(re); 
     }
 
