@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes Preprocessing for all functionality required by the 
- * {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
+ * This package includes the preprocessing, processing, and data structure used
+ * by recommendation module.
  */
-package esiptestbed.mudrod.weblog.pre;
+package esiptestbed.mudrod.recommendation;
