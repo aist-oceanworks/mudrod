@@ -37,7 +37,8 @@ $ mvn clean install
 $ cd service
 $ mvn jetty:run
 ```
-You will now be able to access the Mudrod Web Application at [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service)
+You will now be able to access the Mudrod Web Application at [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service). **N.B.** The service should not be run this way in production. Please see below for running the service via Tomcat.
+
 In another window...
 ```
 $ cd mudrod
