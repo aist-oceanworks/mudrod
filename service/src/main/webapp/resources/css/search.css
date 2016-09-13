@@ -30,7 +30,7 @@ footer, .toolbar {
 }
 
 .toolbar {
-	background-color: #276774;
+	background-color: #2276ac;
 	/*padding: 25px 0 60px 0;*/
 	height: 60px;
 }
@@ -59,7 +59,10 @@ a {
 }
 
 header .nasa-logo {
-	background-image: url('../images/NASALogo.png');
+    background-image: url('../images/NASALogo.png');
+    background-size: contain;
+    background-position-y: -5px;
+    opacity: 0.6;
 	height: 40px;
 	width: 40px;
 	margin-left: 10px;
@@ -272,6 +275,9 @@ input[type="text"], input[type="search"], input[type="password"],
 .master-overlay-main-content {
 	width: 100%;
 	left: 0%;
+	height: 100%;
+	overflow: auto;
+	padding-bottom: 10px;
 }
 
 .master-overlay-main-content section {
@@ -329,7 +335,7 @@ input[type="text"], input[type="search"], input[type="password"],
 	display: block;
 	text-decoration: none;
 	color: #fff;
-	background: #276774;
+	background: #2276ac;
 	padding: 2px 0px 2px 20px;
 	width: 100%;
 }
@@ -455,12 +461,13 @@ a.fileShortName {
 ::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-	background-color: #276774;
+	background-color: #2276ac;
 }
 
 ::-webkit-scrollbar
 {
 	width: 8px;
+	height: 8px;
 	background-color: #48b7ff;
 }
 
