@@ -61,6 +61,7 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
+    endTime = System.currentTimeMillis();
     LOG.info(
         "*****************Topic based dataset similarity calculation ends******************Took {}s",
         (endTime - startTime) / 1000);

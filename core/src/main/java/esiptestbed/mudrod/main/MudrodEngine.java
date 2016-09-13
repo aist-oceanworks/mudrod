@@ -386,10 +386,9 @@ public class MudrodEngine {
         dataDir + "metadataSVDMatrix_tmp.csv");
     me.props.put("raw_metadataPath", dataDir + "RawMetadata");
 
-    me.props.put("metadataOBCodeMatrix", dataDir + "MetadataOBCodeMatrix.csv");
-    me.props.put("metadataOBCode", dataDir + "MetadataOBCode");
+    me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
     me.props.put("session_item_Matrix",
-        dataDir + "session_based_item_Matrix.csv");
+        dataDir + "metadata_session_coocurrence_matrix.csv");
     me.props.put("metadata_topic", dataDir + "metadata_topic");
     me.props.put("metadata_topic_matrix",
         dataDir + "metadata_topic_matrix.csv");

@@ -10,6 +10,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.recommendation.pre.ImportMetadata;
 import esiptestbed.mudrod.recommendation.pre.OHCodeMatrixGenerator;
 import esiptestbed.mudrod.recommendation.pre.OHEncodeMetadata;
+import esiptestbed.mudrod.recommendation.pre.SessionCooccurenceMatrix;
 import esiptestbed.mudrod.recommendation.pre.TFIDFGenerator;
 import esiptestbed.mudrod.recommendation.pre.TranformMetadata;
 import esiptestbed.mudrod.recommendation.process.ContentBasedCF;
@@ -52,9 +53,9 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.es, this.spark);
     matrixGen.execute();
 
-    /*DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurenceMatrix(
+    DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurenceMatrix(
         this.props, this.es, this.spark);
-    sessionMatrixGen.execute();*/
+    sessionMatrixGen.execute();
 
     DiscoveryStepAbstract topic = new TFIDFGenerator(this.props, this.es,
         this.spark);
