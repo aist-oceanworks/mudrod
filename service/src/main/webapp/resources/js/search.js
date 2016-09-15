@@ -56,7 +56,11 @@ function search(query) {
 					var searchResults = response.PDResults;
 					if (searchResults.length == 0) {
 						$("#NotFound").show();
+						$("#searchKeyword").html($("#query").val());
+						$("#resultCount, #ontology-results").hide();
 					} else {
+						$("#NotFound").hide();
+						$("#resultCount, #ontology-results").show();
 						$("#resultCount").html(searchResults.length + ' matches');
 						createResultTable();
 						$('#ResultsTable').bootstrapTable('load', searchResults);

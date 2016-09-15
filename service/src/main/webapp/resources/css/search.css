@@ -338,6 +338,7 @@ input[type="text"], input[type="search"], input[type="password"],
 	background: #2276ac;
 	padding: 2px 0px 2px 20px;
 	width: 100%;
+	word-break: break-all;
 }
 
 .ontologyUL li a:hover {
