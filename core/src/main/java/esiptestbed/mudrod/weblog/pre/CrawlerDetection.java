@@ -84,16 +84,16 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Crawler detection starts******************");
+    LOG.info("Starting Crawler detection.");
     startTime = System.currentTimeMillis();
     try {
       checkByRate();
     } catch (InterruptedException | IOException e) {
-      LOG.error("Erro checking for crawler detection based upon rate and frequency metric.", e);
+      LOG.error("Encountered an error whilst detecting Web crawlers.", e);
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Crawler detection ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Crawler detection complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
     return null;
   }
 

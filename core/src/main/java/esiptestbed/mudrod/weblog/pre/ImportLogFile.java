@@ -68,11 +68,11 @@ public class ImportLogFile extends DiscoveryStepAbstract{
 
   @Override
   public Object execute() {
-    LOG.info("*****************Import starts******************");
+    LOG.info("Starting Log Import.");
     startTime=System.currentTimeMillis();
     readFile();
     endTime=System.currentTimeMillis();
-    LOG.info("*****************Import ends******************Took {}s", (endTime-startTime)/1000);
+    LOG.info("Log Import complete. Time elapsed {} seconds", (endTime-startTime)/1000);
     es.refreshIndex();
     return null;
   }
@@ -176,7 +176,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
       LOG.error("Error reading input directory.", e);
     }finally {
       br.close();
-      LOG.info("Num of {}: {}", protocol, count);
+      LOG.info("Num of {} entries:\t{}", protocol, count);
     }
   }
 

@@ -14,10 +14,6 @@
 package esiptestbed.mudrod.ssearch.ranking;
 
 import java.io.Serializable;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-
 import org.apache.spark.SparkContext;
 import org.apache.spark.mllib.classification.SVMModel;
 import org.apache.spark.mllib.regression.LabeledPoint;
@@ -28,8 +24,12 @@ import esiptestbed.mudrod.driver.SparkDriver;
  * Supports the ability to importing classifier into memory
  */
 public class Learner implements Serializable{
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private static final String SPARKSVM = "SparkSVM";
-  SVMModel Model = null;
+  SVMModel model = null;
   SparkContext sc = null;
 
   /**
@@ -38,15 +38,9 @@ public class Learner implements Serializable{
    * @param skd an instance of spark driver
    */
   public Learner(String classifierName, SparkDriver skd) {
-    if(classifierName.equals(SPARKSVM))
-    {
-      if(OSValidator.isWindows())
-      {
-        System.setProperty("hadoop.home.dir","C:\\winutils");
-      }
-      sc = skd.sc.sc();    
-      //please replace the second para to the model path on your local machine.
-      Model = SVMModel.load(sc, "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
+    if(classifierName.equals(SPARKSVM)) {
+      sc = skd.sc.sc();
+      model = SVMModel.load(sc, Learner.class.getClassLoader().getResource("javaSVMWithSGDModel").toString());
     }
   }
 
@@ -57,7 +51,7 @@ public class Learner implements Serializable{
    */
   public double classify(LabeledPoint p)
   {
-    Double score = Model.predict(p.features());
+    Double score = model.predict(p.features());
     return score;
   }
 

@@ -103,7 +103,7 @@ public class MudrodEngine {
    * 
    * @return the {@link esiptestbed.mudrod.driver.ESDriver} instance.
    */
-  public ESDriver getES() {
+  public ESDriver getESDriver() {
     return this.es;
   }
 
@@ -113,7 +113,7 @@ public class MudrodEngine {
    * @param es
    *          an ES driver instance
    */
-  public void setES(ESDriver es) {
+  public void setESDriver(ESDriver es) {
     this.es = es;
   }
 
@@ -364,12 +364,8 @@ public class MudrodEngine {
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(
           "MudrodEngine: 'logDir' argument is mandatory. "
-              + "User must also provide either 'logIngest' or 'fullIngest'.",
+              + "User must also provide an ingest method.",
           options, true);
-      LOG.error(
-          "MudrodEngine: 'logDir' argument is mandatory. "
-              + "User must also provide either 'logIngest' or 'fullIngest'.",
-          e);
       return;
     }
   }
@@ -392,5 +388,22 @@ public class MudrodEngine {
     me.props.put("metadata_topic", dataDir + "metadata_topic");
     me.props.put("metadata_topic_matrix",
         dataDir + "metadata_topic_matrix.csv");
+  }
+
+  /**
+   * Obtain the spark implementation.
+   * @return the {@link esiptestbed.mudrod.driver.SparkDriver}
+   */
+  public SparkDriver getSparkDriver() {
+    return this.spark;
+  }
+
+  /**
+   * Set the {@link esiptestbed.mudrod.driver.SparkDriver}
+   * @param sparkDriver a configured {@link esiptestbed.mudrod.driver.SparkDriver}
+   */
+  public void setSparkDriver(SparkDriver sparkDriver) {
+    this.spark = sparkDriver;
+    
   }
 }

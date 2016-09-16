@@ -52,13 +52,13 @@ public class MudrodWebListener implements ServletContextListener {
   @Override
   public void contextInitialized(ServletContextEvent arg0) {
     MudrodEngine me = new MudrodEngine();
-    Properties config = me.loadConfig();
-    me.setES(new ESDriver(config));
-    SparkDriver spark = new SparkDriver();
+    Properties props = me.loadConfig();
+    me.setESDriver(new ESDriver(props));
+    me.setSparkDriver(new SparkDriver());
 
     ServletContext ctx = arg0.getServletContext();
-    Searcher sr = new Searcher(me.getConfig(), me.getES(), null);
-    Ranker rr = new Ranker(me.getConfig(), me.getES(), spark, "SparkSVM");
+    Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
+    Ranker rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), "SparkSVM");
     ctx.setAttribute("MudrodInstance", me);
     ctx.setAttribute("MudrodSearcher", sr);
     ctx.setAttribute("MudrodRanker", rr);

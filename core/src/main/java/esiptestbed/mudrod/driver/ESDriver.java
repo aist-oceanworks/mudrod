@@ -19,7 +19,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +34,7 @@ import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
+import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -88,7 +88,7 @@ public class ESDriver implements Serializable {
    * substantiated constructor.
    */
   public ESDriver() {
-    // Default constructor, to load configuration call
+    // Default constructor, to load configuration call ESDriver(props)
   }
 
   /**
@@ -106,6 +106,7 @@ public class ESDriver implements Serializable {
   }
 
   public void createBulkProcesser() {
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", 1000, 2500500);
     setBulkProcessor(
         BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
           @Override
@@ -125,8 +126,10 @@ public class ESDriver implements Serializable {
                 + ", failure: " + failure, failure);
           }
         }).setBulkActions(1000)
-            .setBulkSize(new ByteSizeValue(1, ByteSizeUnit.GB))
-            .setConcurrentRequests(1).build());
+        .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
+        .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
+            TimeValue.timeValueMillis(100), 10))
+        .setConcurrentRequests(1).build());
   }
 
   public void destroyBulkProcessor() {
@@ -149,10 +152,10 @@ public class ESDriver implements Serializable {
     }
 
     getClient().admin().indices().prepareCreate(indexName)
-        .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
-        .actionGet();
+    .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
+    .actionGet();
     getClient().admin().indices().preparePutMapping(indexName)
-        .setType("_default_").setSource(mappingJson).execute().actionGet();
+    .setType("_default_").setSource(mappingJson).execute().actionGet();
   }
 
   public String customAnalyzing(String indexName, String str)
@@ -247,7 +250,7 @@ public class ESDriver implements Serializable {
   @SuppressWarnings("unchecked")
   public String searchByQuery(String index, String Type, String query,
       Boolean bDetail)
-      throws IOException, InterruptedException, ExecutionException {
+          throws IOException, InterruptedException, ExecutionException {
     boolean exists = getClient().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {

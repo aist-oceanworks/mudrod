@@ -15,6 +15,7 @@ package esiptestbed.mudrod.weblog.structure;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,6 +23,7 @@ import java.util.Properties;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
@@ -33,8 +35,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
-import com.google.common.base.Optional;
-
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
@@ -45,6 +45,11 @@ import scala.Tuple2;
  * reconstructed sessions.
  */
 public class SessionExtractor implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
   public SessionExtractor() {
   }
@@ -129,11 +134,12 @@ public class SessionExtractor implements Serializable {
            */
           private static final long serialVersionUID = 1L;
 
+          @SuppressWarnings("unchecked")
           @Override
-          public Iterable<ClickStream> call(String line) throws Exception {
+          public Iterator<ClickStream> call(String line) throws Exception {
             List<ClickStream> clickthroughs = (List<ClickStream>) ClickStream
                 .parseFromTextLine(line);
-            return clickthroughs;
+            return (Iterator<ClickStream>) clickthroughs;
           }
         });
   }
@@ -224,6 +230,11 @@ public class SessionExtractor implements Serializable {
       JavaRDD<ClickStream> clickstreamRDD) {
     JavaPairRDD<String, Double> useritem_rateRDD = clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, Double> call(ClickStream click)
               throws Exception {
@@ -240,9 +251,13 @@ public class SessionExtractor implements Serializable {
                 user + "," + click.getViewDataset(), rate);
           }
         }).reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Double call(Double v1, Double v2) throws Exception {
-            // TODO Auto-generated method stub
             return v1 >= v2 ? v1 : v2;
 
           }
@@ -255,6 +270,11 @@ public class SessionExtractor implements Serializable {
       JavaRDD<ClickStream> clickstreamRDD, int filterOpt) {
     JavaPairRDD<String, String> sessionItemRDD = clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, String>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, String> call(ClickStream click)
               throws Exception {
@@ -268,16 +288,31 @@ public class SessionExtractor implements Serializable {
     // remove some sessions
     JavaPairRDD<String, Double> sessionItemNumRDD = sessionItemRDD.keys()
         .mapToPair(new PairFunction<String, String, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, Double> call(String item) throws Exception {
             return new Tuple2<String, Double>(item, 1.0);
           }
         }).reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Double call(Double v1, Double v2) throws Exception {
             return v1 + v2;
           }
         }).filter(new Function<Tuple2<String, Double>, Boolean>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Boolean call(Tuple2<String, Double> arg0) throws Exception {
             Boolean b = true;
@@ -291,10 +326,15 @@ public class SessionExtractor implements Serializable {
     JavaPairRDD<String, Double> filteredSessionItemRDD = sessionItemNumRDD
         .leftOuterJoin(sessionItemRDD).mapToPair(
             new PairFunction<Tuple2<String, Tuple2<Double, Optional<String>>>, String, Double>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<String, Double> call(
                   Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
-                  throws Exception {
+                      throws Exception {
 
                 Tuple2<Double, Optional<String>> test = arg0._2;
                 Optional<String> optStr = test._2;
@@ -350,6 +390,11 @@ public class SessionExtractor implements Serializable {
 
     JavaPairRDD<String, List<String>> sessionItemRDD = sessionRDD
         .mapToPair(new PairFunction<String, String, List<String>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, List<String>> call(String sessionitem)
               throws Exception {

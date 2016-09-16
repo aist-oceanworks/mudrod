@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.clustering.DistributedLDAModel;
@@ -25,13 +26,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-
-import com.google.common.base.Optional;
-
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import scala.Tuple2;
@@ -39,6 +35,10 @@ import scala.Tuple3;
 
 public class LDAModel implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private String indexName;
   private String metadataType;
 
@@ -67,6 +67,11 @@ public class LDAModel implements Serializable {
     JavaPairRDD<String, List<String>> datasetsTokenPairRDD = datasetsTokensRDD
         .mapToPair(
             new PairFunction<Tuple2<String, List<String>>, String, List<String>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<String, List<String>> call(
                   Tuple2<String, List<String>> term) throws Exception {
@@ -107,7 +112,7 @@ public class LDAModel implements Serializable {
           }
         }
 
-        datasetsTokens.add(new Tuple2(shortName, tokens));
+        datasetsTokens.add(new Tuple2<String, List<String>>(shortName, tokens));
       }
 
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
@@ -122,7 +127,7 @@ public class LDAModel implements Serializable {
 
   public List<String> getTokens(String str) throws Exception {
     String[] splits = str.split(" ");
-    List list = java.util.Arrays.asList(splits);
+    List<String> list = java.util.Arrays.asList(splits);
     return list;
   }
 
@@ -170,6 +175,11 @@ public class LDAModel implements Serializable {
     JavaPairRDD<Long, Vector> corpus = JavaPairRDD
         .fromJavaRDD(parsedData.zipWithIndex()
             .map(new Function<Tuple2<Vector, Long>, Tuple2<Long, Vector>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<Long, Vector> call(Tuple2<Vector, Long> doc_id) {
                 return doc_id.swap();
@@ -193,10 +203,13 @@ public class LDAModel implements Serializable {
     JavaRDD<Tuple3<Object, int[], double[]>> metadataTopicProb = sameModel
         .topTopicsPerDocument(topicnum).toJavaRDD();
 
-    List<Tuple3<Object, int[], double[]>> test = metadataTopicProb.collect();
-
     JavaPairRDD<Long, Vector> metadata_id_vector = metadataTopicProb.mapToPair(
         new PairFunction<Tuple3<Object, int[], double[]>, Long, Vector>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<Long, Vector> call(Tuple3<Object, int[], double[]> arg0)
               throws Exception {
@@ -206,11 +219,14 @@ public class LDAModel implements Serializable {
           }
         });
 
-    int nsize = test.size();
-
     JavaPairRDD<Long, String> id_datasetRDD = JavaPairRDD
         .fromJavaRDD(datasetTokensRDD.keys().zipWithIndex()
             .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<Long, String> call(Tuple2<String, Long> doc_id) {
                 return doc_id.swap();
@@ -220,6 +236,11 @@ public class LDAModel implements Serializable {
     JavaPairRDD<String, Vector> dataset_vectorRDD = id_datasetRDD
         .leftOuterJoin(metadata_id_vector).values().mapToPair(
             new PairFunction<Tuple2<String, Optional<Vector>>, String, Vector>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<String, Vector> call(
                   Tuple2<String, Optional<Vector>> arg0) throws Exception {
@@ -248,18 +269,18 @@ public class LDAModel implements Serializable {
     return lmatrix;
   }
 
-  public LinkedHashMap sortMapByValue(HashMap passedMap) {
-    List mapKeys = new ArrayList(passedMap.keySet());
-    List mapValues = new ArrayList(passedMap.values());
+  public LinkedHashMap<Object, Object> sortMapByValue(HashMap<?, ?> passedMap) {
+    List<?> mapKeys = new ArrayList<Object>(passedMap.keySet());
+    List<?> mapValues = new ArrayList<Object>(passedMap.values());
     Collections.sort(mapValues, Collections.reverseOrder());
     Collections.sort(mapKeys, Collections.reverseOrder());
 
-    LinkedHashMap sortedMap = new LinkedHashMap();
+    LinkedHashMap<Object, Object> sortedMap = new LinkedHashMap<Object, Object>();
 
-    Iterator valueIt = mapValues.iterator();
+    Iterator<?> valueIt = mapValues.iterator();
     while (valueIt.hasNext()) {
       Object val = valueIt.next();
-      Iterator keyIt = mapKeys.iterator();
+      Iterator<?> keyIt = mapKeys.iterator();
 
       while (keyIt.hasNext()) {
         Object key = keyIt.next();

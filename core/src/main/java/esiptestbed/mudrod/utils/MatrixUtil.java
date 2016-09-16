@@ -19,12 +19,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
@@ -40,8 +42,6 @@ import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.linalg.distributed.IndexedRow;
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
-
-import com.google.common.base.Optional;
 
 import esiptestbed.mudrod.driver.SparkDriver;
 import scala.Tuple2;
@@ -142,7 +142,7 @@ public class MatrixUtil {
               private static final long serialVersionUID = 1L;
 
               @Override
-              public Iterable<Tuple2<Tuple2<String, Long>, Double>> call(
+              public Iterator<Tuple2<Tuple2<String, Long>, Double>> call(
                   Tuple2<List<String>, Long> docwords) throws Exception {
                 List<Tuple2<Tuple2<String, Long>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, Long>, Double>>();
                 List<String> words = docwords._1;
@@ -153,7 +153,7 @@ public class MatrixUtil {
                   pairs.add(
                       new Tuple2<Tuple2<String, Long>, Double>(worddoc, 1.0));
                 }
-                return pairs;
+                return pairs.iterator();
               }
             })
         .reduceByKey(new Function2<Double, Double, Double>() {
@@ -218,7 +218,6 @@ public class MatrixUtil {
               public Tuple2<String, Vector> call(
                   Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
                   throws Exception {
-                // TODO Auto-generated method stub
                 int docsize = arg0._2._1.size();
                 int[] intArray = new int[docsize];
                 double[] doubleArray = new double[docsize];
@@ -245,9 +244,14 @@ public class MatrixUtil {
     // Index word with unique IDs
     JavaPairRDD<String, Long> wordIDRDD = uniqueDocRDD.values()
         .flatMap(new FlatMapFunction<List<String>, String>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
-          public Iterable<String> call(List<String> arg0) throws Exception {
-            return arg0;
+          public Iterator<String> call(List<String> arg0) throws Exception {
+            return arg0.iterator();
           }
         }).distinct().zipWithIndex();
 
@@ -256,8 +260,13 @@ public class MatrixUtil {
         .flatMapToPair(
             new PairFlatMapFunction<Tuple2<String, List<String>>, Tuple2<String, String>, Double>() {
 
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
-              public Iterable<Tuple2<Tuple2<String, String>, Double>> call(
+              public Iterator<Tuple2<Tuple2<String, String>, Double>> call(
                   Tuple2<String, List<String>> docwords) throws Exception {
                 List<Tuple2<Tuple2<String, String>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, String>, Double>>();
                 List<String> words = docwords._2;
@@ -268,10 +277,15 @@ public class MatrixUtil {
                   pairs.add(
                       new Tuple2<Tuple2<String, String>, Double>(worddoc, 1.0));
                 }
-                return pairs;
+                return pairs.iterator();
               }
             })
         .reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Double call(Double first, Double second) throws Exception {
             return first + second;
@@ -282,6 +296,11 @@ public class MatrixUtil {
     JavaPairRDD<String, Tuple2<String, Double>> word_docnum_RDD = docword_num_RDD
         .mapToPair(
             new PairFunction<Tuple2<Tuple2<String, String>, Double>, String, Tuple2<String, Double>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<String, Tuple2<String, Double>> call(
                   Tuple2<Tuple2<String, String>, Double> arg0)
@@ -302,6 +321,11 @@ public class MatrixUtil {
     int wordsize = (int) wordIDRDD.count();
     JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
         new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, Tuple2<List<Long>, List<Double>>> call(
               Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> arg0)
@@ -321,7 +345,6 @@ public class MatrixUtil {
             Tuple2<List<Long>, List<Double>> wordcount = new Tuple2<List<Long>, List<Double>>(
                 word, count);
 
-            // TODO Auto-generated method stub
             return new Tuple2<String, Tuple2<List<Long>, List<Double>>>(
                 arg0._2._1._1, wordcount);
           }
@@ -353,7 +376,6 @@ public class MatrixUtil {
               public Tuple2<String, Vector> call(
                   Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
                   throws Exception {
-                // TODO Auto-generated method stub
                 int docsize = arg0._2._1.size();
                 int[] intArray = new int[docsize];
                 double[] doubleArray = new double[docsize];
@@ -508,7 +530,6 @@ public class MatrixUtil {
       bw.close();
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
 
     }

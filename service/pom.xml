@@ -28,12 +28,6 @@
   <name>Mudrod :: Service</name>
   <description>Mudrod Frontend and WebService implementation.</description>
 
-  <properties>
-    <!-- the following property is used in the bash script as well, don't 
-      remove it! -->
-    <jetty.version>9.3.11.M0</jetty.version>
-  </properties>
-
   <dependencies>
     <!-- Core Module -->
     <dependency>
@@ -51,20 +45,17 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
-
-    <!-- BEGIN: Jetty Deps. -->
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-runner</artifactId>
-      <version>${jetty.version}</version>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
-    <!-- END: Jetty Deps. -->
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>
@@ -72,28 +63,31 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jetty.version}</version>
+        <groupId>org.apache.tomcat.maven</groupId>
+        <artifactId>tomcat7-maven-plugin</artifactId>
+        <version>2.2</version>
         <configuration>
-          <webAppConfig>
-            <contextPath>/${project.artifactId}</contextPath>
-          </webAppConfig>
+          <port>8181</port>
+          <systemProperties>
+            <CATALINA_OPTS>-Djava.awt.headless=true -Dfile.encoding=UTF-8
+                           -server -Xms1536m -Xmx1536m
+                           -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
+                           -XX:MaxPermSize=512m -XX:+DisableExplicitGC
+                           -XX:+UseConcMarkSweepGC
+                           -XX:+CMSIncrementalMode
+                           -XX:+CMSIncrementalPacing
+                           -XX:CMSIncrementalDutyCycleMin=0
+                           -XX:-TraceClassUnloading
+            </CATALINA_OPTS>
+          </systemProperties>
+          <contextFile>${basedir}/src/main/webapp/META-INF/context.xml</contextFile>
+          <path>/${project.build.finalName}</path>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>2.6</version>
-        <!--configuration>
-          <webResources>
-            <resource>
-              <directory>${basedir}/src/main/resources/</directory>
-              <targetPath>/resources</targetPath>
-              <filtering>true</filtering>
-            </resource>
-          </webResources>
-        </configuration-->
         <executions>
           <execution>
             <id>self-contained-war</id>

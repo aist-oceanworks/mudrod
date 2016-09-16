@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.utils;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.spark.api.java.JavaPairRDD;
@@ -25,7 +26,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 public class RDDUtil {
 
   public RDDUtil() {
-    // TODO Auto-generated constructor stub
   }
 
   /**
@@ -40,9 +40,14 @@ public class RDDUtil {
       JavaPairRDD<String, List<String>> docwordRDD) {
     JavaRDD<String> wordRDD = docwordRDD.values()
         .flatMap(new FlatMapFunction<List<String>, String>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
-          public Iterable<String> call(List<String> list) {
-            return list;
+          public Iterator<String> call(List<String> list) {
+            return list.iterator();
           }
         }).distinct();
 

@@ -16,7 +16,6 @@ package esiptestbed.mudrod.discoveryengine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 import esiptestbed.mudrod.driver.ESDriver;
@@ -70,13 +69,13 @@ public abstract class MudrodAbstract implements Serializable {
     JSONObject mappingJSON = null;
 
     try {
-      settingsJSON = new JSONObject(IOUtils.toString(settingsStream, Charset.defaultCharset()));
+      settingsJSON = new JSONObject(IOUtils.toString(settingsStream));
     } catch (JSONException | IOException e1) {
       e1.printStackTrace();
     }
 
     try {
-      mappingJSON = new JSONObject(IOUtils.toString(mappingsStream, Charset.defaultCharset()));
+      mappingJSON = new JSONObject(IOUtils.toString(mappingsStream));
     } catch (JSONException | IOException e1) {
       e1.printStackTrace();
     }
@@ -87,10 +86,10 @@ public abstract class MudrodAbstract implements Serializable {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
 
-    httpType = props.getProperty("HTTP_type_prefix") + props.getProperty(TIME_SUFFIX);
-    ftpType = props.getProperty("FTP_type_prefix") + props.getProperty(TIME_SUFFIX);
-    cleanupType = props.getProperty("Cleanup_type_prefix") + props.getProperty(TIME_SUFFIX);
-    sessionStats = props.getProperty("SessionStats_prefix") + props.getProperty(TIME_SUFFIX);
+    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) + props.getProperty(TIME_SUFFIX);
   }
 
   /**

@@ -19,7 +19,7 @@ is a semantic discovery and search project funded by NASA AIST (NNX15AM85G).
  * Apache Maven 3.X
  * Elasticsearch v2.6.X
  * Kibana v4
- * Apache Spark v1.6.X
+ * Apache Spark v2.0.0
  * Apache Tomcat 8.X
 
 # Installation
@@ -29,15 +29,15 @@ We strongly advise all users to save time and effort by consulting the [Dockerfi
 for guidance on how to quickly use Docker to deploy Mudrod.
 
 ## From source
-Ensure you have Elasticsearch running locally.
+Ensure you have Elasticsearch running locally and that the configuration in [config.xml](https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml) reflects your ES cluster.
 ```
 $ git clone https://github.com/mudrod/mudrod.git
 $ cd mudrod
 $ mvn clean install
 $ cd service
-$ mvn jetty:run
+$ mvn tomcat7:run
 ```
-You will now be able to access the Mudrod Web Application at [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service). **N.B.** The service should not be run this way in production. Please see below for running the service via Tomcat.
+You will now be able to access the Mudrod Web Application at [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service). **N.B.** The service should not be run this way in production. Please see below for running the service via Tomcat in a production setting.
 
 In another window...
 ```

@@ -65,7 +65,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Session summarizing starts******************");
+    LOG.info("Starting Session Summarization.");
     startTime = System.currentTimeMillis();
     try {
       processSession();
@@ -78,7 +78,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Session summarizing ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Session Summarization complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

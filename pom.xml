@@ -85,7 +85,7 @@
     <implementation.build.tstamp>${maven.build.timestamp}</implementation.build.tstamp>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <spark.version>1.6.2</spark.version>
+    <spark.version>2.0.0</spark.version>
     <findbugs.version>3.0.4</findbugs.version>
     <xml.maven.version>1.0.1</xml.maven.version>
     <jacoco.version>0.7.6.201602180812</jacoco.version>
@@ -380,7 +380,6 @@
   
   <dependencyManagement>
     <dependencies>
-      <!-- Gson: Java to Json conversion -->
       <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
@@ -403,13 +402,13 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-core_2.11</artifactId>
         <version>${spark.version}</version>
-        <!--scope>provided</scope-->
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-mllib_2.11</artifactId>
         <version>${spark.version}</version>
-        <!--scope>provided</scope-->
+        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>com.github.fommil.netlib</groupId>
@@ -421,13 +420,11 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
         <version>1.7.21</version>
-        <!--scope>compile</scope-->
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.17</version>
-        <!--scope>runtime</scope-->
       </dependency>
       <dependency>
         <groupId>commons-cli</groupId>

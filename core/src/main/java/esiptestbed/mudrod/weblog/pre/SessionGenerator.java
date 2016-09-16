@@ -54,6 +54,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SessionGenerator extends DiscoveryStepAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(SessionGenerator.class);
 
   public SessionGenerator(Properties props, ESDriver es, SparkDriver spark) {
@@ -62,12 +66,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Session generating starts******************");
+    LOG.info("Starting Session Generation.");
     startTime = System.currentTimeMillis();
     generateSession();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Session generating ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Session generating complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 
