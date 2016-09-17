@@ -34,4 +34,9 @@ public class SparkDriver implements Serializable {
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
   }
+  
+  public void close()
+  {
+    sc.sc().stop();
+  }
 }
