@@ -32,7 +32,7 @@ import esiptestbed.mudrod.ssearch.Searcher;
  */
 @WebListener
 public class MudrodWebListener implements ServletContextListener {
-
+  MudrodEngine me = null;
   /**
    * Default constructor.
    */
@@ -44,6 +44,7 @@ public class MudrodWebListener implements ServletContextListener {
    */
   @Override
   public void contextDestroyed(ServletContextEvent arg0) {
+    me.end();
   }
 
   /**
@@ -51,7 +52,7 @@ public class MudrodWebListener implements ServletContextListener {
    */
   @Override
   public void contextInitialized(ServletContextEvent arg0) {
-    MudrodEngine me = new MudrodEngine();
+    me = new MudrodEngine();
     Properties props = me.loadConfig();
     me.setESDriver(new ESDriver(props));
     me.setSparkDriver(new SparkDriver());

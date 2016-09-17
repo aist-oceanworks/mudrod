@@ -56,19 +56,19 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
-  public static final String GOOGLE_BOT = "gsa-crawler (Enterprise; T4-JPDGU3TRCQAXZ; earthdata-sa@lists.nasa.gov,srinivasa.s.tummala@nasa.gov)";
-  public static final String GOOGLE_BOT_21 = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
-  public static final String BING_BOT = "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)";
-  public static final String YAHOO_BOT = "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)";
-  public static final String ROGER_BOT = "rogerbot/1.0 (http://www.moz.com/dp/rogerbot, rogerbot-crawler@moz.com)";
-  public static final String YACY_BOT = "yacybot (/global; amd64 Windows Server 2008 R2 6.1; java 1.8.0_31; Europe/de) http://yacy.net/bot.html";
-  public static final String YANDEX_BOT = "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)";
-  public static final String GOOGLE_IMAGE = "Googlebot-Image/1.0";
-  public static final String RANDOMBOT_1 = "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+  
+  public static final String CRAWLER = "crawler";
+  public static final String GOOGLE_BOT = "googlebot";
+  public static final String BING_BOT = "bingbot";
+  public static final String YAHOO_BOT = "slurp";
+  public static final String YACY_BOT = "yacybot";
+  public static final String ROGER_BOT = "rogerbot";
+  public static final String YANDEX_BOT = "yandexbot";
+  
   public static final String NO_AGENT_BOT = "-";
   public static final String PERL_BOT = "libwww-perl/";
-  public static final String APACHE_HHTP = "Apache-HttpClient/";
-  public static final String JAVA_CLIENT = "Java/";
+  public static final String APACHE_HHTP = "apache-httpclient/";
+  public static final String JAVA_CLIENT = "java/";
   public static final String CURL = "curl/";
 
   /**
@@ -103,11 +103,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    * @return 1 if the log is initiated by crawler, 0 otherwise
    */
   public boolean checkKnownCrawler(String agent) {
-    if (agent.equals(GOOGLE_BOT) || agent.equals(GOOGLE_BOT_21)
-        || agent.equals(BING_BOT) || agent.equals(YAHOO_BOT)
-        || agent.equals(ROGER_BOT) || agent.equals(YACY_BOT)
-        || agent.equals(YANDEX_BOT) || agent.equals(GOOGLE_IMAGE)
-        || agent.equals(RANDOMBOT_1) || agent.equals(NO_AGENT_BOT)
+    agent = agent.toLowerCase();
+    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT)
+        || agent.contains(BING_BOT) || agent.contains(APACHE_HHTP)
+        || agent.contains(PERL_BOT) || agent.contains(YAHOO_BOT)
+        || agent.contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT)       
         || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP)
         || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
       return true;
