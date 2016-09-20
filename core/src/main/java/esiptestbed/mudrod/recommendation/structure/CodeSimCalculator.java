@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.recommendation.structure;
 
 import java.io.Serializable;
@@ -23,6 +36,10 @@ import scala.Tuple2;
  */
 public class CodeSimCalculator implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // index name of mudrod
   private String indexName;
   // metadata type name in ES
@@ -43,13 +60,12 @@ public class CodeSimCalculator implements Serializable {
    *          the Mudrod configuration
    */
   public CodeSimCalculator(Properties props) {
-    // TODO Auto-generated constructor stub
     indexName = props.getProperty("indexName");
     metadataType = props.getProperty("recom_metadataType");
 
     OHEncoder encoder = new OHEncoder();
     CategoricalVarWeights = encoder.CategoricalVarWeights;
-    weights = new ArrayList(CategoricalVarWeights.values());
+    weights = new ArrayList<Double>(CategoricalVarWeights.values());
 
     int size = weights.size();
     for (int i = 0; i < size; i++) {
@@ -82,6 +98,11 @@ public class CodeSimCalculator implements Serializable {
     // load data
     JavaPairRDD<String, List<Vector>> importRDD = spark.sc.textFile(txtFile)
         .mapToPair(new PairFunction<String, String, List<Vector>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, List<Vector>> call(String s) {
             String[] sarray = s.split(":");
@@ -97,7 +118,6 @@ public class CodeSimCalculator implements Serializable {
               String tmpcode = codeArr[i];
               // System.out.println(tmpcode);
               String[] values = tmpcode.split(", ");
-              int valuesize = values.length;
               double[] nums = Stream.of(values).mapToDouble(Double::parseDouble)
                   .toArray();
               Vector vec = Vectors.dense(nums);
@@ -113,6 +133,11 @@ public class CodeSimCalculator implements Serializable {
 
     JavaRDD<LinkageTriple> tripleRDD = cartesianRDD.map(
         new Function<Tuple2<Tuple2<String, List<Vector>>, Tuple2<String, List<Vector>>>, LinkageTriple>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public LinkageTriple call(
               Tuple2<Tuple2<String, List<Vector>>, Tuple2<String, List<Vector>>> arg) {
@@ -141,6 +166,11 @@ public class CodeSimCalculator implements Serializable {
             return triple;
           }
         }).filter(new Function<LinkageTriple, Boolean>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Boolean call(LinkageTriple arg0) throws Exception {
             if (arg0 == null) {

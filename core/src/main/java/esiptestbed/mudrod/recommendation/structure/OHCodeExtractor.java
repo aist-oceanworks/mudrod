@@ -36,6 +36,10 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 public class OHCodeExtractor implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // index name:
   private String indexName;
   // type name of metadata
@@ -85,11 +89,9 @@ public class OHCodeExtractor implements Serializable {
         .actionGet();
 
     int fieldnum = fields.size();
-    OHEncoder coder = new OHEncoder();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
-        Map<String, Object> metadatacode;
 
         String shortname = (String) metadata.get("Dataset-ShortName");
 
@@ -137,7 +139,6 @@ public class OHCodeExtractor implements Serializable {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
-        Map<String, Object> metadatacode;
 
         String shortname = (String) metadata.get("Dataset-ShortName");
 
@@ -146,7 +147,6 @@ public class OHCodeExtractor implements Serializable {
           String field = fields.get(i);
           String code = (String) metadata.get(field + "_code");
           String[] values = code.split(",");
-          int valuesize = values.length;
           double[] nums = Stream.of(values).mapToDouble(Double::parseDouble)
               .toArray();
 

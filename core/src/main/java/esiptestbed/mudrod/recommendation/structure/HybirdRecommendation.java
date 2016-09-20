@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.recommendation.structure;
 
 import java.text.DecimalFormat;
@@ -30,6 +43,10 @@ import esiptestbed.mudrod.driver.SparkDriver;
  * similarity and session-level similarity
  */
 public class HybirdRecommendation extends DiscoveryStepAbstract {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // recommended metadata list
   protected transient List<LinkedTerm> termList = new ArrayList<>();
   // format decimal
@@ -133,7 +150,6 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
    */
   protected JsonElement mapToJson(Map<String, Double> wordweights, int num) {
     Gson gson = new Gson();
-    JsonObject json = new JsonObject();
 
     List<JsonObject> nodes = new ArrayList<>();
     Set<String> words = wordweights.keySet();
@@ -221,24 +237,6 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     }
 
     return termList;
-  }
-
-  /**
-   * Method of extracting the related dataset from a comma string
-   *
-   * @param str
-   *          input string
-   * @param input
-   *          query string
-   * @return related dataset contained in the input string
-   */
-  private String extractRelated(String str, String input) {
-    String[] strList = str.split(",");
-    if (input.equals(strList[0])) {
-      return strList[1].toLowerCase();
-    } else {
-      return strList[0].toLowerCase();
-    }
   }
 
   /**

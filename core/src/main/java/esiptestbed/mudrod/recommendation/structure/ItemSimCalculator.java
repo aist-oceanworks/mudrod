@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package esiptestbed.mudrod.recommendation.structure;
 
 import java.io.Serializable;
@@ -12,8 +25,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.linalg.Vector;
-import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
-import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -30,6 +41,10 @@ import scala.Tuple2;
  */
 public class ItemSimCalculator implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // index name
   private String indexName;
   // type name of metadata
@@ -62,12 +77,10 @@ public class ItemSimCalculator implements Serializable {
     JavaPairRDD<String, List<String>> filterUserDatasetsRDD = userDatasetsRDD
         .mapToPair(
             new PairFunction<Tuple2<String, List<String>>, String, List<String>>() {
-              public Tuple2<String, Integer> call(String s) {
-                String[] sarray = s.split(",");
-                Double rate = Double.parseDouble(sarray[2]);
-                return new Tuple2<String, Integer>(sarray[0] + "," + sarray[1],
-                    rate.intValue());
-              }
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
 
               @Override
               public Tuple2<String, List<String>> call(
@@ -137,10 +150,6 @@ public class ItemSimCalculator implements Serializable {
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
         CSV_fileName, skipRow);
 
-    IndexedRowMatrix indexedMatrix = MatrixUtil
-        .buildIndexRowMatrix(importRDD.values());
-    RowMatrix transposeMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
-
     JavaRDD<Tuple2<String, Vector>> importRDD1 = importRDD
         .map(f -> new Tuple2<String, Vector>(f._1, f._2));
     JavaPairRDD<Tuple2<String, Vector>, Tuple2<String, Vector>> cartesianRDD = importRDD1
@@ -148,6 +157,11 @@ public class ItemSimCalculator implements Serializable {
 
     JavaRDD<LinkageTriple> tripleRDD = cartesianRDD.map(
         new Function<Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>>, LinkageTriple>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public LinkageTriple call(
               Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>> arg) {
@@ -168,6 +182,11 @@ public class ItemSimCalculator implements Serializable {
             return triple;
           }
         }).filter(new Function<LinkageTriple, Boolean>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Boolean call(LinkageTriple arg0) throws Exception {
             if (arg0 == null) {
