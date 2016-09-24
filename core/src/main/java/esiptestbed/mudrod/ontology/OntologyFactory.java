@@ -56,8 +56,6 @@ public class OntologyFactory {
    * config.xml</a> with configuration key
    * <code>mudrod.ontology.implementation</code>. This property can also be accessed via
    * {@link esiptestbed.mudrod.main.MudrodConstants#ONTOLOGY_IMPL}.
-   * If the name is  empty (no preference),
-   * the {@ link esiptestbed.mudrod.ontology.process.EsipSRIOntology}
    */
   public Ontology getOntology() {
 

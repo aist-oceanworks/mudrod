@@ -22,12 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.impl.OntologyImpl;
 import org.apache.jena.rdf.model.Literal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import esiptestbed.mudrod.ontology.OntologyFactory;
 
 /**
  * implementation of parser for w3c's OWL files
@@ -35,8 +30,6 @@ import esiptestbed.mudrod.ontology.OntologyFactory;
  * @author michael j pan
  */
 public class OwlParser implements OntologyParser {
-
-  private final static Logger LOG = LoggerFactory.getLogger(OwlParser.class);
 
   public OwlParser () {
   }
@@ -54,7 +47,7 @@ public class OwlParser implements OntologyParser {
         continue;
       }
 
-      parseClass( c,  new ArrayList(), 0 );
+      parseClass( c,  new ArrayList<>(), 0 );
     }
   }
 

@@ -15,8 +15,6 @@ package esiptestbed.mudrod.ontology.process;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -32,7 +30,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
@@ -46,11 +43,9 @@ import org.apache.jena.shared.PrefixMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ontology.Ontology;
 import esiptestbed.mudrod.ontology.OntologyFactory;
-import scala.collection.immutable.StreamViewLike.EmptyView;
 
 /**
  * @author lewismc
@@ -63,11 +58,11 @@ public class LocalOntology implements Ontology {
   public static final String DELIMITER_SEARCHTERM = " ";
 
   private static final String ONT_DIR = "ontDir";
-  private static Hashtable searchTerms = new Hashtable();
+  private static Hashtable searchTerms = new Hashtable<>();
   private static OntologyParser parser;
   private static OntModel ontologyModel;
   private static Ontology ontology = null;
-  private static Map m_anonIDs = new HashMap();
+  private static Map m_anonIDs = new HashMap<>();
   private static int m_anonCount = 0;
 
   public LocalOntology() {
@@ -139,7 +134,7 @@ public class LocalOntology implements Ontology {
    */
   public Iterator subclasses (String entitySearchTerm) {
     Map classMap = retrieve(entitySearchTerm);
-    Map subclasses = new HashMap();
+    Map subclasses = new HashMap<>();
 
     Iterator iter = classMap.keySet().iterator();
     while (iter.hasNext()) {
@@ -185,7 +180,7 @@ public class LocalOntology implements Ontology {
 
     Map classMap = retrieve(queryKeyPhrase);
 
-    Map synonyms = new HashMap();
+    Map synonyms = new HashMap<>();
 
     Iterator iter = classMap.keySet().iterator();
     while (iter.hasNext()) {
@@ -236,7 +231,7 @@ public class LocalOntology implements Ontology {
   public static Map retrieve(String label) {
     Map m = (Map) searchTerms.get(label.toLowerCase());
     if (m==null) {
-      m = new HashMap();
+      m = new HashMap<>();
     }
     return m;
   }
@@ -347,7 +342,6 @@ public class LocalOntology implements Ontology {
     CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
-      String processingType = null;
 
       String ontDir;
       if (line.hasOption(ONT_DIR)) {
@@ -380,7 +374,7 @@ public class LocalOntology implements Ontology {
           //print class
           OntClass c = (OntClass) i.next();
 
-          renderHierarchy(System.out, c, new LinkedList(), 0);
+          renderHierarchy(System.out, c, new LinkedList<>(), 0);
         }
 
         String[] terms =
