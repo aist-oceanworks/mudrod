@@ -89,6 +89,7 @@
     <findbugs.version>3.0.4</findbugs.version>
     <xml.maven.version>1.0.1</xml.maven.version>
     <jacoco.version>0.7.6.201602180812</jacoco.version>
+    <jena.version>3.1.0</jena.version>
   </properties>
   
   <scm>
@@ -435,6 +436,13 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.12</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>apache-jena-libs</artifactId>
+        <type>pom</type>
+        <version>${jena.version}</version>
+        <scope>compile</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

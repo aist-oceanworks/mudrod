@@ -62,5 +62,12 @@
   <para name="metadataCodeSimType">MetadataCodeSim</para>
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
+  
+  <!-- 
+  The ontology service implementation. Possible values include
+   EsipSRI - esiptestbed.mudrod.ontology.process.EsipSRI
+   Local - esiptestbed.mudrod.ontology.process.Local
+   -->
+  <para name="mudrod.ontology.implementation">Local</para>
 
 </Config>

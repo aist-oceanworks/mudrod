@@ -20,6 +20,8 @@ package esiptestbed.mudrod.main;
  * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>
  */
 public interface MudrodConstants {
+  
+  public static final String MUDROD = "mudrod";
 
   public static final String LOG_LEVEL = "loglevel";
 
@@ -87,5 +89,9 @@ public interface MudrodConstants {
 
   public static final String ONTOLOGY_W = "ontology_w";
 
+  /**
+   * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.
+   */
+  public static final String ONTOLOGY_IMPL = MUDROD + "ontology.implementation";
 
 }
