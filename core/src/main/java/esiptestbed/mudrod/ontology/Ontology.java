@@ -44,7 +44,7 @@ public interface Ontology {
    * Retreive all subclasses for a particular entity provided within the 
    * search term e.g.subclass-based query expansion.
    * @param entitySearchTerm an input search term
-   * @return
+   * @return an {@link java.util.Iterator} object containing subClass entries.
    */
   public Iterator<String> subclasses(String entitySearchTerm);
 
@@ -52,7 +52,7 @@ public interface Ontology {
    * Retreive all synonyms for a particular entity provided within the 
    * search term e.g.synonym-based query expansion.
    * @param queryKeyPhrase
-   * @return
+   * @return an {@link java.util.Iterator} object containing synonym entries.
    */
   public Iterator<String> synonyms(String queryKeyPhrase);
 
