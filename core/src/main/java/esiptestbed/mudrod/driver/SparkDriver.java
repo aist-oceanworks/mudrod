@@ -17,27 +17,26 @@ import java.io.Serializable;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SQLContext;
 
-/**
- * ClassName: SparkDriver Function: spark driver.
- *
- * @author Yun
- * 
- */
 public class SparkDriver implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   public transient JavaSparkContext sc;
+  public SQLContext sqlContext;
 
-  /**
-   * Creates a new instance of SparkDriver.
-   *
-   */
   public SparkDriver() {
-    SparkConf conf = new SparkConf().setAppName("Testing")
-        .setMaster("local[2]");
+    SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]")
+        .set("spark.hadoop.validateOutputSpecs", "false")
+        .set("spark.files.overwrite", "true");
     sc = new JavaSparkContext(conf);
+    sqlContext = new SQLContext(sc);
+  }
+  
+  public void close()
+  {
+    sc.sc().stop();
   }
 }

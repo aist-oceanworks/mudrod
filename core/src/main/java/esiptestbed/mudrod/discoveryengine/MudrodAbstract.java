@@ -16,8 +16,11 @@ package esiptestbed.mudrod.discoveryengine;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Properties;
+
+import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
@@ -25,17 +28,12 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.driver.ESDriver;
-import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.main.MudrodConstants;
-
 /**
  * This is the most generic class of Mudrod
  */
 public abstract class MudrodAbstract implements Serializable {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MudrodAbstract.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MudrodAbstract.class);
   /**
    * 
    */
@@ -53,70 +51,60 @@ public abstract class MudrodAbstract implements Serializable {
 
   private static final String ES_SETTINGS = "elastic_settings.json";
   private static final String ES_MAPPINGS = "elastic_mappings.json";
-  private int printLevel = 0;
 
-  public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark) {
+  public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark){
     this.props = props;
     this.es = es;
     this.spark = spark;
-
-    if (this.props != null) {
-      this.initMudrod();
-    }
+    this.initMudrod();
   }
 
-  protected void initMudrod() {
-    InputStream settingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_SETTINGS);
-    InputStream mappingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_MAPPINGS);
+  /**
+   * Method of setting up essential configuration for MUDROD to start
+   */
+  protected void initMudrod(){
+    InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
+    InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
     JSONObject settingsJSON = null;
     JSONObject mappingJSON = null;
 
     try {
-      settingsJSON = new JSONObject(
-          IOUtils.toString(settingsStream, Charset.defaultCharset()));
+      settingsJSON = new JSONObject(IOUtils.toString(settingsStream));
     } catch (JSONException | IOException e1) {
       e1.printStackTrace();
     }
 
     try {
-      mappingJSON = new JSONObject(
-          IOUtils.toString(mappingsStream, Charset.defaultCharset()));
+      mappingJSON = new JSONObject(IOUtils.toString(mappingsStream));
     } catch (JSONException | IOException e1) {
       e1.printStackTrace();
     }
 
     try {
-      this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME),
-          settingsJSON.toString(), mappingJSON.toString());
+      this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
 
-    httpType = props.getProperty("HTTP_type_prefix")
-        + props.getProperty(TIME_SUFFIX);
-    ftpType = props.getProperty("FTP_type_prefix")
-        + props.getProperty(TIME_SUFFIX);
-    cleanupType = props.getProperty("Cleanup_type_prefix")
-        + props.getProperty(TIME_SUFFIX);
-    sessionStats = props.getProperty("SessionStats_prefix")
-        + props.getProperty(TIME_SUFFIX);
-
-    printLevel = Integer.parseInt(props.getProperty("loglevel"));
+    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
+    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) + props.getProperty(TIME_SUFFIX);
   }
 
-  public void print(String log, int level) {
-    if (level <= printLevel) {
-      LOG.info(log);
-    }
-  }
-
-  public ESDriver getES() {
+  /**
+   * Get driver of Elasticsearch
+   * @return driver of Elasticsearch
+   */
+  public ESDriver getES(){
     return this.es;
   }
 
-  public Properties getConfig() {
+  /**
+   * Get configuration of MUDROD (read from configuration file)
+   * @return configuration of MUDROD 
+   */
+  public Properties getConfig(){
     return this.props;
   }
 }
