@@ -14,6 +14,7 @@
 package esiptestbed.mudrod.weblog.pre;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,10 +23,6 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -36,14 +33,17 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract} implementation
@@ -80,6 +80,10 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    */
   public CrawlerDetection(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
+  }
+
+  public CrawlerDetection() {
+    super(null, null, null);
   }
 
   @Override
@@ -213,6 +217,124 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     }
     es.destroyBulkProcessor();
     LOG.info("User count: {}", Integer.toString(userCount));
+  }
+
+  private List<String> getAllUsers() {
+
+    SearchResponse sr = es.getClient()
+        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
+        .execute().actionGet();
+    Terms users = sr.getAggregations().get("Users");
+    List<String> userList = new ArrayList<String>();
+    for (Terms.Bucket entry : users.getBuckets()) {
+      String ip = (String) entry.getKey();
+      userList.add(ip);
+    }
+
+    return userList;
+  }
+
+  /* public void checkByRate() throws InterruptedException, IOException {
+    es.createBulkProcesser();
+  
+    int userCount = 0;
+    List<String> users = this.getAllUsers();
+    JavaRDD<String> userRDD = spark.sc.parallelize(users);
+  
+    Broadcast<ESDriver> broadcastVar = spark.sc.broadcast(es);
+    userRDD.foreach(new VoidFunction<String>() {
+      @Override
+      public void call(String arg0) throws Exception {
+        // TODO Auto-generated method stub
+        checkByRate(broadcastVar.value(), arg0);
+      }
+    });
+  
+    LOG.info("User count: {}", Integer.toString(userCount));
+  }*/
+
+  private boolean checkByRate(ESDriver es, String user) {
+
+    // System.out.println(es);
+    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    Pattern pattern = Pattern.compile("get (.*?) http/*");
+    Matcher matcher;
+
+    QueryBuilder filterSearch = QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery("IP", user));
+    QueryBuilder querySearch = QueryBuilders
+        .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+
+    AggregationBuilder aggregation = AggregationBuilders
+        .dateHistogram("by_minute").field("Time")
+        .interval(DateHistogramInterval.MINUTE).order(Order.COUNT_DESC);
+    SearchResponse checkRobot = es.getClient()
+        .prepareSearch(props.getProperty("indexName"))
+        .setTypes(httpType, ftpType).setQuery(querySearch).setSize(0)
+        .addAggregation(aggregation).execute().actionGet();
+
+    Histogram agg = checkRobot.getAggregations().get("by_minute");
+
+    List<? extends Histogram.Bucket> botList = agg.getBuckets();
+    long maxCount = botList.get(0).getDocCount();
+    if (maxCount >= rate) {
+      return false;
+    } else {
+      DateTime dt1 = null;
+      int toLast = 0;
+      SearchResponse scrollResp = es.getClient()
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
+          .setQuery(querySearch).setSize(100).execute().actionGet();
+      while (true) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> result = hit.getSource();
+          String logtype = (String) result.get("LogType");
+          if (logtype.equals("PO.DAAC")) {
+            String request = (String) result.get("Request");
+            matcher = pattern.matcher(request.trim().toLowerCase());
+            boolean find = false;
+            while (matcher.find()) {
+              request = matcher.group(1);
+              result.put("RequestUrl", "http://podaac.jpl.nasa.gov" + request);
+              find = true;
+            }
+            if (!find) {
+              result.put("RequestUrl", request);
+            }
+          } else {
+            result.put("RequestUrl", result.get("Request"));
+          }
+
+          DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+          DateTime dt2 = fmt.parseDateTime((String) result.get("Time"));
+
+          if (dt1 == null) {
+            toLast = 0;
+          } else {
+            toLast = Math.abs(Seconds.secondsBetween(dt1, dt2).getSeconds());
+          }
+          result.put("ToLast", toLast);
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+              cleanupType).source(result);
+
+          es.getBulkProcessor().add(ir);
+          dt1 = dt2;
+        }
+
+        scrollResp = es.getClient()
+            .prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+      }
+
+    }
+
+    return true;
   }
 
   @Override
