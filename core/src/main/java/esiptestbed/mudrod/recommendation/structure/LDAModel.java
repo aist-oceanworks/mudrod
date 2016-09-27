@@ -276,18 +276,23 @@ public class LDAModel implements Serializable {
        
        }*/
 
-  public LinkedHashMap<Object, Object> sortMapByValue(HashMap<?, ?> passedMap) {
-    List<?> mapKeys = new ArrayList<Object>(passedMap.keySet());
-    List<?> mapValues = new ArrayList<Object>(passedMap.values());
+  /**
+   * Method of sorting a map by value
+   * @param passedMap input map
+   * @return sorted map
+   */
+  public Map<String, Double> sortMapByValue(Map<String, Double> passedMap) {
+    List<String> mapKeys = new ArrayList<>(passedMap.keySet());
+    List<Double> mapValues = new ArrayList<>(passedMap.values());
     Collections.sort(mapValues, Collections.reverseOrder());
     Collections.sort(mapKeys, Collections.reverseOrder());
 
-    LinkedHashMap<Object, Object> sortedMap = new LinkedHashMap<Object, Object>();
+    LinkedHashMap<String, Double> sortedMap = new LinkedHashMap<>();
 
-    Iterator<?> valueIt = mapValues.iterator();
+    Iterator<Double> valueIt = mapValues.iterator();
     while (valueIt.hasNext()) {
       Object val = valueIt.next();
-      Iterator<?> keyIt = mapKeys.iterator();
+      Iterator<String> keyIt = mapKeys.iterator();
 
       while (keyIt.hasNext()) {
         Object key = keyIt.next();
@@ -297,7 +302,7 @@ public class LDAModel implements Serializable {
         if (comp1.equals(comp2)) {
           passedMap.remove(key);
           mapKeys.remove(key);
-          sortedMap.put(key, val);
+          sortedMap.put((String) key, (Double) val);
           break;
         }
 
