@@ -26,13 +26,7 @@ import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
-import org.apache.spark.mllib.clustering.DistributedLDAModel;
-import org.apache.spark.mllib.clustering.LDA;
-import org.apache.spark.mllib.linalg.Vector;
-import org.apache.spark.mllib.linalg.Vectors;
-import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
@@ -44,7 +38,6 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 import scala.Tuple2;
-import scala.Tuple3;
 
 public class LDAModel implements Serializable {
 
@@ -170,118 +163,118 @@ public class LDAModel implements Serializable {
     return labelMatrix;
   }
 
-  public LabeledRowMatrix getLDA(
+  /* public LabeledRowMatrix getLDA(
       JavaPairRDD<String, List<String>> datasetTokensRDD, SparkDriver spark,
       String file) {
-
+  
     LabeledRowMatrix labelMatrix = MatrixUtil
         .createWordDocMatrix(datasetTokensRDD, spark.sc);
     RowMatrix wordDocMatrix = labelMatrix.wordDocMatrix;
-
+  
     IndexedRowMatrix indexedMatrix = MatrixUtil
         .buildIndexRowMatrix(wordDocMatrix.rows().toJavaRDD());
     RowMatrix docWordMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
     JavaRDD<Vector> parsedData = docWordMatrix.rows().toJavaRDD();
-
+  
     // Index documents with unique IDs
     JavaPairRDD<Long, Vector> corpus = JavaPairRDD
         .fromJavaRDD(parsedData.zipWithIndex()
             .map(new Function<Tuple2<Vector, Long>, Tuple2<Long, Vector>>() {
-              /**
-               * 
-               */
-              private static final long serialVersionUID = 1L;
-
-              @Override
-              public Tuple2<Long, Vector> call(Tuple2<Vector, Long> doc_id) {
-                return doc_id.swap();
-              }
-            }));
-
-    // Cluster the documents into three topics using LDA
-    int topicnum = 50;
-    org.apache.spark.mllib.clustering.LDAModel ldaModel = new LDA()
-        .setK(topicnum).setDocConcentration(2).setTopicConcentration(2)
-        .setMaxIterations(topicnum).setSeed(0L).setCheckpointInterval(10)
-        .setOptimizer("em").run(corpus);
-
-    this.DeleteFileFolder(file);
-
-    ldaModel.save(spark.sc.sc(), file);
-
-    DistributedLDAModel sameModel = DistributedLDAModel.load(spark.sc.sc(),
-        file);
-
-    JavaRDD<Tuple3<Object, int[], double[]>> metadataTopicProb = sameModel
-        .topTopicsPerDocument(topicnum).toJavaRDD();
-
-    JavaPairRDD<Long, Vector> metadata_id_vector = metadataTopicProb.mapToPair(
-        new PairFunction<Tuple3<Object, int[], double[]>, Long, Vector>() {
-          /**
-           * 
-           */
-          private static final long serialVersionUID = 1L;
-
-          @Override
-          public Tuple2<Long, Vector> call(Tuple3<Object, int[], double[]> arg0)
-              throws Exception {
-            Long dataid = (Long) arg0._1();
-            Vector vec = Vectors.dense(arg0._3());
-            return new Tuple2<Long, Vector>(dataid, vec);
-          }
-        });
-
-    JavaPairRDD<Long, String> id_datasetRDD = JavaPairRDD
-        .fromJavaRDD(datasetTokensRDD.keys().zipWithIndex()
-            .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
-              /**
-               * 
-               */
-              private static final long serialVersionUID = 1L;
-
-              @Override
-              public Tuple2<Long, String> call(Tuple2<String, Long> doc_id) {
-                return doc_id.swap();
-              }
-            }));
-
-    /* JavaPairRDD<String, Vector> dataset_vectorRDD = id_datasetRDD
-        .leftOuterJoin(metadata_id_vector).values().mapToPair(
-            new PairFunction<Tuple2<String, Optional<Vector>>, String, Vector>() {
               *//**
                 * 
-                *//*
-                  private static final long serialVersionUID = 1L;
-                  
-                  @Override
-                  public Tuple2<String, Vector> call(
-                   Tuple2<String, Optional<Vector>> arg0) throws Exception {
-                  Optional<Vector> oVec = arg0._2;
-                  Vector vec = null;
-                  if (oVec.isPresent()) {
-                   vec = oVec.get();
-                  }
-                  return new Tuple2<String, Vector>(arg0._1, vec);
-                  }
-                  
-                  });
-                  
-                  LabeledRowMatrix lmatrix = new LabeledRowMatrix();
-                  lmatrix.words = dataset_vectorRDD.keys().collect();
-                  RowMatrix rowMatrix = new RowMatrix(dataset_vectorRDD.values().rdd());
-                  lmatrix.wordDocMatrix = rowMatrix;
-                  
-                  List<String> topics = new ArrayList<String>();
-                  for (int i = 0; i < topicnum; i++) {
-                  topics.add("topic" + i);
-                  }
-                  
-                  lmatrix.docs = topics;
-                  
-                  return lmatrix;*/
-
-    return null;
+                */
+  /*
+  private static final long serialVersionUID = 1L;
+  
+  @Override
+  public Tuple2<Long, Vector> call(Tuple2<Vector, Long> doc_id) {
+  return doc_id.swap();
   }
+  }));
+  
+  // Cluster the documents into three topics using LDA
+  int topicnum = 50;
+  org.apache.spark.mllib.clustering.LDAModel ldaModel = new LDA()
+  .setK(topicnum).setDocConcentration(2).setTopicConcentration(2)
+  .setMaxIterations(topicnum).setSeed(0L).setCheckpointInterval(10)
+  .setOptimizer("em").run(corpus);
+  
+  this.DeleteFileFolder(file);
+  
+  ldaModel.save(spark.sc.sc(), file);
+  
+  DistributedLDAModel sameModel = DistributedLDAModel.load(spark.sc.sc(),
+  file);
+  
+  JavaRDD<Tuple3<Object, int[], double[]>> metadataTopicProb = sameModel
+  .topTopicsPerDocument(topicnum).toJavaRDD();
+  
+  JavaPairRDD<Long, Vector> metadata_id_vector = metadataTopicProb.mapToPair(
+  new PairFunction<Tuple3<Object, int[], double[]>, Long, Vector>() {
+  *//**
+    * 
+    */
+
+  /*
+  private static final long serialVersionUID = 1L;
+  
+  @Override
+  public Tuple2<Long, Vector> call(Tuple3<Object, int[], double[]> arg0)
+   throws Exception {
+  Long dataid = (Long) arg0._1();
+  Vector vec = Vectors.dense(arg0._3());
+  return new Tuple2<Long, Vector>(dataid, vec);
+  }
+  });
+  
+  JavaPairRDD<Long, String> id_datasetRDD = JavaPairRDD
+  .fromJavaRDD(datasetTokensRDD.keys().zipWithIndex()
+  .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
+   *//**
+     * 
+     *//*
+       private static final long serialVersionUID = 1L;
+       
+       @Override
+       public Tuple2<Long, String> call(Tuple2<String, Long> doc_id) {
+       return doc_id.swap();
+       }
+       }));
+       
+       JavaPairRDD<String, Vector> dataset_vectorRDD = id_datasetRDD
+       .leftOuterJoin(metadata_id_vector).values().mapToPair(
+       new PairFunction<Tuple2<String, Optional<Vector>>, String, Vector>() {
+       
+       private static final long serialVersionUID = 1L;
+       
+       @Override
+       public Tuple2<String, Vector> call(
+        Tuple2<String, Optional<Vector>> arg0) throws Exception {
+       Optional<Vector> oVec = arg0._2;
+       Vector vec = null;
+       if (oVec.isPresent()) {
+        vec = oVec.get();
+       }
+       return new Tuple2<String, Vector>(arg0._1, vec);
+       }
+       
+       });
+       
+       LabeledRowMatrix lmatrix = new LabeledRowMatrix();
+       lmatrix.words = dataset_vectorRDD.keys().collect();
+       RowMatrix rowMatrix = new RowMatrix(dataset_vectorRDD.values().rdd());
+       lmatrix.wordDocMatrix = rowMatrix;
+       
+       List<String> topics = new ArrayList<String>();
+       for (int i = 0; i < topicnum; i++) {
+       topics.add("topic" + i);
+       }
+       
+       lmatrix.docs = topics;
+       
+       return lmatrix;
+       
+       }*/
 
   public LinkedHashMap<Object, Object> sortMapByValue(HashMap<?, ?> passedMap) {
     List<?> mapKeys = new ArrayList<Object>(passedMap.keySet());
