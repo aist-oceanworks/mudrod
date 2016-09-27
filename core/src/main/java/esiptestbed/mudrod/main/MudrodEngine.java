@@ -185,7 +185,6 @@ public class MudrodEngine {
     WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
     // wd.logIngest();
     wd.preprocess();
-
   }
 
   /**

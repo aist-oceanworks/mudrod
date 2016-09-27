@@ -72,7 +72,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
           "*****************Web log preprocessing starts****************** {}",
           inputList.get(i));
 
-      /*DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+      /* DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
           this.spark);
       im.execute();*/
 

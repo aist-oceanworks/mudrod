@@ -142,7 +142,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     importHttpfile(httplogpath);
     importFtpfile(ftplogpath);
 
-    /*es.createBulkProcesser();
+    /* es.createBulkProcesser();
     try {
       readLogFile(httplogpath, "http", props.getProperty("indexName"),
           this.httpType);
@@ -155,7 +155,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     es.destroyBulkProcessor();*/
   }
 
-  public void importHttpfile(String httplogpath) {
+  /*  public void importHttpfile(String httplogpath) {
     // import http logs
     JavaRDD<ApacheAccessLog> accessLogs = spark.sc.textFile(httplogpath)
         .map(s -> ApacheAccessLog.parseFromLogLine(s))
@@ -163,13 +163,31 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     JavaEsSpark.saveToEs(accessLogs,
         props.getProperty("indexName") + "/" + this.httpType);
   }
-
+  
   public void importFtpfile(String ftplogpath) {
     // import ftp logs
     JavaRDD<FtpLog> ftpLogs = spark.sc.textFile(ftplogpath)
         .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
-
+  
     JavaEsSpark.saveToEs(ftpLogs,
+        props.getProperty("indexName") + "/" + this.ftpType);
+  }*/
+
+  public void importHttpfile(String httplogpath) {
+    // import http logs
+    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath)
+        .map(s -> ApacheAccessLog.parseFromLogLine(s))
+        .filter(ApacheAccessLog::checknull);
+    JavaEsSpark.saveJsonToEs(accessLogs,
+        props.getProperty("indexName") + "/" + this.httpType);
+  }
+
+  public void importFtpfile(String ftplogpath) {
+    // import ftp logs
+    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath)
+        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
+
+    JavaEsSpark.saveJsonToEs(ftpLogs,
         props.getProperty("indexName") + "/" + this.ftpType);
   }
 

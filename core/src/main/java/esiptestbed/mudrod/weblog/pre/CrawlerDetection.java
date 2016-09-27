@@ -16,14 +16,30 @@ package esiptestbed.mudrod.weblog.pre;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.VoidFunction;
+import org.apache.spark.broadcast.Broadcast;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +47,6 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
-import esiptestbed.mudrod.weblog.structure.test;
 
 /**
  * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract}
@@ -131,18 +146,37 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     return userList;
   }
 
-  private boolean checkByRate(String user) {
+  public void checkByRate() throws InterruptedException, IOException {
+    es.createBulkProcesser();
 
-    System.out.println(es.getClient());
-    /* int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    int userCount = 0;
+    List<String> users = this.getAllUsers();
+    JavaRDD<String> userRDD = spark.sc.parallelize(users);
+
+    Broadcast<ESDriver> broadcastVar = spark.sc.broadcast(es);
+    userRDD.foreach(new VoidFunction<String>() {
+      @Override
+      public void call(String arg0) throws Exception {
+        // TODO Auto-generated method stub
+        checkByRate(broadcastVar.value(), arg0);
+      }
+    });
+
+    LOG.info("User count: {}", Integer.toString(userCount));
+  }
+
+  private boolean checkByRate(ESDriver es, String user) {
+
+    // System.out.println(es);
+    int rate = Integer.parseInt(props.getProperty("sendingrate"));
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
-    
+
     QueryBuilder filterSearch = QueryBuilders.boolQuery()
         .must(QueryBuilders.termQuery("IP", user));
     QueryBuilder querySearch = QueryBuilders
         .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
-    
+
     AggregationBuilder aggregation = AggregationBuilders
         .dateHistogram("by_minute").field("Time")
         .interval(DateHistogramInterval.MINUTE).order(Order.COUNT_DESC);
@@ -150,9 +184,9 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
         .prepareSearch(props.getProperty("indexName"))
         .setTypes(httpType, ftpType).setQuery(querySearch).setSize(0)
         .addAggregation(aggregation).execute().actionGet();
-    
+
     Histogram agg = checkRobot.getAggregations().get("by_minute");
-    
+
     List<? extends Histogram.Bucket> botList = agg.getBuckets();
     long maxCount = botList.get(0).getDocCount();
     if (maxCount >= rate) {
@@ -183,10 +217,10 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
           } else {
             result.put("RequestUrl", result.get("Request"));
           }
-    
+
           DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
           DateTime dt2 = fmt.parseDateTime((String) result.get("Time"));
-    
+
           if (dt1 == null) {
             toLast = 0;
           } else {
@@ -195,11 +229,11 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
           result.put("ToLast", toLast);
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               cleanupType).source(result);
-    
+
           es.getBulkProcessor().add(ir);
           dt1 = dt2;
         }
-    
+
         scrollResp = es.getClient()
             .prepareSearchScroll(scrollResp.getScrollId())
             .setScroll(new TimeValue(600000)).execute().actionGet();
@@ -207,43 +241,14 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
           break;
         }
       }
-    
-    }*/
+
+    }
 
     return true;
   }
 
+  /* 
   public void checkByRate() throws InterruptedException, IOException {
-    es.createBulkProcesser();
-
-    int userCount = 0;
-
-    List<String> users = this.getAllUsers();
-
-    JavaRDD<String> userRDD = spark.sc.parallelize(users);
-
-    test t = new test();
-    userRDD.foreach(new VoidFunction<String>() {
-      @Override
-      public void call(String arg0) throws Exception {
-        // TODO Auto-generated method stub
-        // checkByRate(arg0);
-        // System.out.println(arg0);
-        t.checkByRate(es, spark, props, httpType, ftpType, cleanupType, arg0);
-      }
-    });
-
-    System.out.println(es.getClient());
-
-    // this.checkByRate(users.get(1));
-
-    LOG.info("User count: {}", Integer.toString(userCount));
-
-    // test t = new test();
-    // t.checkByRate(es, spark, props, httpType);
-  }
-
-  /*public void checkByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();
   
     int rate = Integer.parseInt(props.getProperty("sendingrate"));

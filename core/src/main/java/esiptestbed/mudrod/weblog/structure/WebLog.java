@@ -1,7 +1,6 @@
 package esiptestbed.mudrod.weblog.structure;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * This class represents an Apache access log line. See
@@ -10,7 +9,7 @@ import java.util.Date;
 public class WebLog implements Serializable {
   String LogType;
   String IP;
-  Date Time;
+  String Time;
   String Request;
   double Bytes;
 
@@ -22,7 +21,7 @@ public class WebLog implements Serializable {
     return this.IP;
   }
 
-  public Date getTime() {
+  public String getTime() {
     return this.Time;
   }
 
@@ -65,6 +64,13 @@ public class WebLog implements Serializable {
       time = time.replace("Dec", "12");
     }
     return time;
+  }
+
+  public static boolean checknull(String s) {
+    if (s.equals("{}")) {
+      return false;
+    }
+    return true;
   }
 
 }
