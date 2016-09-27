@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.clustering.DistributedLDAModel;
@@ -39,6 +38,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
@@ -73,7 +73,7 @@ public class LDAModel implements Serializable {
 
     List<Tuple2<String, List<String>>> datasetsTokens = this
         .loadMetadataFromES(es);
-    
+
     JavaRDD<Tuple2<String, List<String>>> datasetsTokensRDD = spark.sc
         .parallelize(datasetsTokens);
 
@@ -104,12 +104,11 @@ public class LDAModel implements Serializable {
 
     List<Tuple2<String, List<String>>> datasetsTokens = new ArrayList<Tuple2<String, List<String>>>();
     while (true) {
- 
+
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> result = hit.getSource();
         String shortName = (String) result.get("Dataset-ShortName");
 
-        
         List<String> tokens = new ArrayList<String>();
         int size = variables.size();
         for (int i = 0; i < size; i++) {
@@ -183,7 +182,7 @@ public class LDAModel implements Serializable {
         .buildIndexRowMatrix(wordDocMatrix.rows().toJavaRDD());
     RowMatrix docWordMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
     JavaRDD<Vector> parsedData = docWordMatrix.rows().toJavaRDD();
-    
+
     // Index documents with unique IDs
     JavaPairRDD<Long, Vector> corpus = JavaPairRDD
         .fromJavaRDD(parsedData.zipWithIndex()
@@ -246,40 +245,42 @@ public class LDAModel implements Serializable {
               }
             }));
 
-    JavaPairRDD<String, Vector> dataset_vectorRDD = id_datasetRDD
+    /* JavaPairRDD<String, Vector> dataset_vectorRDD = id_datasetRDD
         .leftOuterJoin(metadata_id_vector).values().mapToPair(
             new PairFunction<Tuple2<String, Optional<Vector>>, String, Vector>() {
-              /**
-               * 
-               */
-              private static final long serialVersionUID = 1L;
+              *//**
+                * 
+                *//*
+                  private static final long serialVersionUID = 1L;
+                  
+                  @Override
+                  public Tuple2<String, Vector> call(
+                   Tuple2<String, Optional<Vector>> arg0) throws Exception {
+                  Optional<Vector> oVec = arg0._2;
+                  Vector vec = null;
+                  if (oVec.isPresent()) {
+                   vec = oVec.get();
+                  }
+                  return new Tuple2<String, Vector>(arg0._1, vec);
+                  }
+                  
+                  });
+                  
+                  LabeledRowMatrix lmatrix = new LabeledRowMatrix();
+                  lmatrix.words = dataset_vectorRDD.keys().collect();
+                  RowMatrix rowMatrix = new RowMatrix(dataset_vectorRDD.values().rdd());
+                  lmatrix.wordDocMatrix = rowMatrix;
+                  
+                  List<String> topics = new ArrayList<String>();
+                  for (int i = 0; i < topicnum; i++) {
+                  topics.add("topic" + i);
+                  }
+                  
+                  lmatrix.docs = topics;
+                  
+                  return lmatrix;*/
 
-              @Override
-              public Tuple2<String, Vector> call(
-                  Tuple2<String, Optional<Vector>> arg0) throws Exception {
-                Optional<Vector> oVec = arg0._2;
-                Vector vec = null;
-                if (oVec.isPresent()) {
-                  vec = oVec.get();
-                }
-                return new Tuple2<String, Vector>(arg0._1, vec);
-              }
-
-            });
-
-    LabeledRowMatrix lmatrix = new LabeledRowMatrix();
-    lmatrix.words = dataset_vectorRDD.keys().collect();
-    RowMatrix rowMatrix = new RowMatrix(dataset_vectorRDD.values().rdd());
-    lmatrix.wordDocMatrix = rowMatrix;
-
-    List<String> topics = new ArrayList<String>();
-    for (int i = 0; i < topicnum; i++) {
-      topics.add("topic" + i);
-    }
-
-    lmatrix.docs = topics;
-
-    return lmatrix;
+    return null;
   }
 
   public LinkedHashMap<Object, Object> sortMapByValue(HashMap<?, ?> passedMap) {
