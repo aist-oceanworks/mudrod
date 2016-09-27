@@ -26,17 +26,14 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.spark.api.java.JavaRDD;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.weblog.structure.ApacheAccessLog;
-import esiptestbed.mudrod.weblog.structure.FtpLog;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Supports ability to parse and process FTP and HTTP log files 
@@ -116,71 +113,38 @@ public class ImportLogFile extends DiscoveryStepAbstract{
   }
 
   /**
-   * Read the FTP or HTTP log path with the intention of processing lines from
-   * log files.
+   * Read the FTP or HTTP log path with the intention
+   * of processing lines from log files.
    */
-  public void readFile() {
-    String httplogpath = props.getProperty("logDir")
-        + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
-        + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX);
+  public void readFile(){
+    es.createBulkProcesser();
 
-    String ftplogpath = props.getProperty("logDir")
-        + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
-        + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX);
+    String httplogpath = props.getProperty("logDir") + 
+        props.getProperty("httpPrefix") + 
+        props.getProperty(TIME_SUFFIX) + 
+        "/" + 
+        props.getProperty("httpPrefix") + 
+        props.getProperty(TIME_SUFFIX);
 
-    importHttpfile(httplogpath);
-    importFtpfile(ftplogpath);
+    String ftplogpath = props.getProperty("logDir") + 
+        props.getProperty("ftpPrefix") + 
+        props.getProperty(TIME_SUFFIX) +
+        "/" + 
+        props.getProperty("ftpPrefix") + 
+        props.getProperty(TIME_SUFFIX);
 
-    /* es.createBulkProcesser();
     try {
-      readLogFile(httplogpath, "http", props.getProperty("indexName"),
-          this.httpType);
-      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"),
-          this.ftpType);
-    
+      readLogFile(httplogpath, "http", props.getProperty("indexName"), this.httpType);
+      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"), this.ftpType);
+
     } catch (IOException e) {
       LOG.error("Error whilst reading log file.", e);
-    }
-    es.destroyBulkProcessor();*/
+    } 
+    es.destroyBulkProcessor();
+
   }
 
-  /*  public void importHttpfile(String httplogpath) {
-    // import http logs
-    JavaRDD<ApacheAccessLog> accessLogs = spark.sc.textFile(httplogpath)
-        .map(s -> ApacheAccessLog.parseFromLogLine(s))
-        .filter(ApacheAccessLog::checknull);
-    JavaEsSpark.saveToEs(accessLogs,
-        props.getProperty("indexName") + "/" + this.httpType);
-  }
-  
-  public void importFtpfile(String ftplogpath) {
-    // import ftp logs
-    JavaRDD<FtpLog> ftpLogs = spark.sc.textFile(ftplogpath)
-        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
-  
-    JavaEsSpark.saveToEs(ftpLogs,
-        props.getProperty("indexName") + "/" + this.ftpType);
-  }*/
-
-  public void importHttpfile(String httplogpath) {
-    // import http logs
-    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath)
-        .map(s -> ApacheAccessLog.parseFromLogLine(s))
-        .filter(ApacheAccessLog::checknull);
-    JavaEsSpark.saveJsonToEs(accessLogs,
-        props.getProperty("indexName") + "/" + this.httpType);
-  }
-
-  public void importFtpfile(String ftplogpath) {
-    // import ftp logs
-    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath)
-        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
-
-    JavaEsSpark.saveJsonToEs(ftpLogs,
-        props.getProperty("indexName") + "/" + this.ftpType);
-  }
-
-   /**
+  /**
    * Process a log path on local file system which contains
    * the relevant parameters as below.
    * @param fileName the {@link java.lang.String} path to the log directory on file system
