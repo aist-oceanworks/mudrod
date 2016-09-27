@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.utils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -27,11 +28,7 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
- * ClassName: SVDUtil Function: Singular value decomposition Date: Aug 15, 2016
- * 1:58:02 PM
- *
- * @author Yun
- *
+ * ClassName: SVDUtil Function: Singular value decomposition 
  */
 public class SVDUtil extends MudrodAbstract {
 
@@ -123,7 +120,12 @@ public class SVDUtil extends MudrodAbstract {
   public void insertLinkageToES(String index, String type) {
     List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD,
         simMatrix);
-    LinkageTriple.insertTriples(es, triples, index, type);
+    try {
+      LinkageTriple.insertTriples(es, triples, index, type);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
 }

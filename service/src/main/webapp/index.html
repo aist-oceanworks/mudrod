@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Search</title>
+<link rel="icon" href="./resources/images/NASALogo.png">
+<link href="./resources/font-awesome/css/font-awesome.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
+<link href="./resources/css/index.css" rel="stylesheet">
+</head>
+<body>
+	<div class="background"></div>
+	<header id="main-toolbar" class="toolbar">
+		<h1>
+			<a class="nasa-logo" href="./" title="Mudrod Home"></a> <a
+				class="site-logo" href="./"> <span class="site-logo-org"></span>
+				MUDROD
+			</a>
+		</h1>
+	</header>
+	<div class="landing-dialog">
+		<div class="landing-dialog-header">
+			<h2>Oceanographic Data Discovery</h2>
+		</div>
+		<div class="searchBox toolbar">
+			<div class="landing-toolbar-content"
+				style="top: 0px; left: 0px; position: static;">
+				<form id="searchForm" class="form" action="search.html"
+					accept-charset="UTF-8" method="get">
+					<p>
+						<span class="twitter-typeahead"
+							style="position: relative; display: inline-block; direction: ltr;">
+							<input id="query" type="text" name="query"
+							class="autocomplete-placenames tt-input"
+							data-bind="valueUpdate: 'keyup'"
+							placeholder="Enter ocean concepts (e.g. ocean wind) to search"
+							autofocus="" autocomplete="off" spellcheck="false" dir="auto"
+							style="position: relative; vertical-align: top;">
+						</span>
+					<button id="searchButton" class="btn btn-search" type="button">
+						<i class="fa fa-search"></i>&nbsp;&nbsp;<span class="bold">Search</span>
+					</button>
+					</p>
+					<div id="searchOption" style="padding: 10px 0px 0px 20px;">
+						<label>Search Operator: </label>
+						<div class="radio radio-info radio-inline">
+							<input type="radio" value="phrase" id="searchOption_Phrase"
+								name="searchOption" checked="checked"> <label
+								for="searchOption_Phrase"> Phrase </label>
+						</div>
+						<div class="radio radio-inline">
+							<input type="radio" id="searchOption_And" value="and"
+								name="searchOption"> <label for="searchOption_And">
+								And </label>
+						</div>
+						<div class="radio radio-inline">
+							<input type="radio" value="or" id="searchOption_Or"
+								name="searchOption"> <label for="searchOption_Or">
+								Or </label>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<footer>
+		<div class="footer-content">
+			<p>
+				<a href="https://github.com/mudrod/mudrod" target="_blank">MUDROD</a>
+				is funded by NASA AIST Program(NNX15AM85G), developed by <a
+					href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation
+					Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA
+					JPL</a>.
+			</p>
+		</div>
+		<script src="./resources/js/jquery-2.1.1.js"></script>
+		<script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+		<script src="./resources/js/index.js"></script>
+	</footer>
+</body>
+</html>

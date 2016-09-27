@@ -30,10 +30,6 @@ import org.slf4j.LoggerFactory;
  * ClassName: MatrixGenerator 
  * Function: Generate term-metadata matrix from original metadata. Each row in
  * the matrix is corresponding to a term, and each column is a metadata. 
- * Date: Aug 11, 2016 12:11:21 PM 
- *
- * @author Yun
-
  */
 public class MatrixGenerator extends DiscoveryStepAbstract {
 

@@ -25,6 +25,9 @@ import esiptestbed.mudrod.metadata.process.MetadataAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports to preprocess and process metadata
+ */
 public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
 
   /**
@@ -37,6 +40,9 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
     super(props, es, spark);
   }
 
+  /**
+   * Method of preprocessing metadata
+   */
   public void preprocess() {
     LOG.info("*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
@@ -49,6 +55,9 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
         (endTime - startTime) / 1000);
   }
 
+  /**
+   * Method of processing metadata
+   */
   public void process() {
     LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();

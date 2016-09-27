@@ -23,6 +23,9 @@ import esiptestbed.mudrod.ontology.process.OntologyLinkCal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports to preprocess and process ontology
+ */
 public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
   
   /**
@@ -35,6 +38,9 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
     super(props, es, spark);
   }
 
+  /**
+   * Method of preprocessing ontology
+   */
   public void preprocess() {
     LOG.info("*****************Ontology preprocessing starts******************");
     startTime = System.currentTimeMillis();
@@ -47,6 +53,9 @@ public class OntologyDiscoveryEngine extends DiscoveryEngineAbstract {
         (endTime - startTime) / 1000);
   }
 
+  /**
+   * Method of processing ontology
+   */
   public void process() {
     LOG.info("*****************Ontology processing starts******************");
     startTime = System.currentTimeMillis();

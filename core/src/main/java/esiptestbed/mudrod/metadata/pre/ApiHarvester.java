@@ -39,10 +39,6 @@ import esiptestbed.mudrod.utils.HttpRequest;
 
 /**
  * ClassName: ApiHarvester Function: Harvest metadata from PO.DAACweb service.
- * Date: Aug 11, 2016 11:15:00 AM
- *
- * @author Yun
- *
  */
 public class ApiHarvester extends DiscoveryStepAbstract {
 

@@ -60,7 +60,7 @@ public class SearchVocab extends HttpServlet {
       MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
           .getAttribute("MudrodInstance");
       LinkageIntegration li = new LinkageIntegration(mudrod.getConfig(),
-          mudrod.getES(), null);
+          mudrod.getESDriver(), null);
 
       JsonObject jsonKb = new JsonObject();
 

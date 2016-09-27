@@ -30,10 +30,19 @@ public abstract class DiscoveryEngineAbstract extends MudrodAbstract
       SparkDriver spark) {
     super(props, es, spark);
   }
-
+  
+  /**
+   * Abstract method of preprocess
+   */
   public abstract void preprocess();
 
+  /**
+   * Abstract method of process
+   */
   public abstract void process();
 
+  /**
+   * Abstract method of output
+   */
   public abstract void output();
 }

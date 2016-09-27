@@ -20,10 +20,6 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 /**
  * ClassName: LabeledRowMatrix 
  * Function: LabeledRowMatrix strut. 
- * Date: Aug 12, 2016 11:24:44 AM 
- *
- * @author Yun
-
  */
 public class LabeledRowMatrix {
 

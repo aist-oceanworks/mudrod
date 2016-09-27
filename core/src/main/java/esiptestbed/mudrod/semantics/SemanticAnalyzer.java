@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.semantics;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,9 +31,6 @@ import esiptestbed.mudrod.utils.SimilarityUtil;
 
 /**
  * ClassName: SemanticAnalyzer Function: Semantic analyzer
- *
- * @author Yun
- * 
  */
 public class SemanticAnalyzer extends MudrodAbstract {
 
@@ -46,8 +44,7 @@ public class SemanticAnalyzer extends MudrodAbstract {
    * @param spark
    *          the spark drive
    */
-  public SemanticAnalyzer(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public SemanticAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -60,28 +57,45 @@ public class SemanticAnalyzer extends MudrodAbstract {
    * @return Linkage triple list
    */
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName) {
+    return this.calTermSimfromMatrix(csvFileName, 1);
+  }
+
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
+      int skipRow) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        csvFileName, 1);
+        csvFileName, skipRow);
     CoordinateMatrix simMatrix = SimilarityUtil
         .CalSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
-    return SimilarityUtil.MatrixtoTriples(rowKeyRDD,
-        simMatrix);
+    return SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
+  }
+
+  public void saveToES(List<LinkageTriple> triple_List, String index,
+      String type) {
+    try {
+      LinkageTriple.insertTriples(es, triple_List, index, type);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
-   * SaveToES: Save linkage triples to Elasticsearch.
-   *
-   * @param tripleList
-   *          linkage triple list
-   * @param index
-   *          index name
-   * @param type
-   *          linkage triple type name
+   * Method of saving linkage triples to Elasticsearch.
+   * @param tripleList linkage triple list
+   * @param index index name
+   * @param type type name
+   * @param bTriple bTriple
+   * @param bSymmetry bSymmetry
    */
   public void saveToES(List<LinkageTriple> tripleList, String index,
-      String type) {
-    LinkageTriple.insertTriples(es, tripleList, index, type);
+      String type, boolean bTriple, boolean bSymmetry) {
+    try {
+      LinkageTriple.insertTriples(es, tripleList, index, type, bTriple,
+          bSymmetry);
+    } catch (IOException e) {
+      e.printStackTrace();
+
+    }
   }
 }

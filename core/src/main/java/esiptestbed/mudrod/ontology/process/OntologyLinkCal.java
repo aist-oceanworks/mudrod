@@ -29,6 +29,9 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/**
+ * Supports ability to parse and process FTP and HTTP log files 
+ */
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
   public OntologyLinkCal(Properties props, ESDriver es,
@@ -39,6 +42,9 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     addSWEETMapping();
   }
 
+  /**
+   * Method of adding mapping for triples extracted from SWEET
+   */
   public void addSWEETMapping() {
     XContentBuilder Mapping;
     try {
@@ -59,6 +65,9 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     }
   }
 
+  /**
+   * Method of calculating and importing SWEET triples into Elasticsearch
+   */
   @Override
   public Object execute() {
     es.deleteType(props.getProperty("indexName"), props.getProperty("ontologyLinkageType"));

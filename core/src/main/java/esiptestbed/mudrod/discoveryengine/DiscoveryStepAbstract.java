@@ -18,6 +18,9 @@ import java.util.Properties;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
+/*
+ * Generic class of discovery engine step
+ */
 public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 
   public DiscoveryStepAbstract(Properties props, ESDriver es,
@@ -25,8 +28,17 @@ public abstract class DiscoveryStepAbstract extends MudrodAbstract {
     super(props, es, spark);
   }
 
+  /**
+   * Abstract class of step execution without parameter
+   * @return An instance of Object
+   */
   public abstract Object execute();
-
+  
+  /**
+   * Abstract class of step execution with parameter
+   * @param o an instance of object
+   * @return An instance of object
+   */
   public abstract Object execute(Object o);
 
 }

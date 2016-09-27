@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * Preprocessing for all functionality required by the 
+ * This package includes Preprocessing for all functionality required by the 
  * {@link esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine}
  */
 package esiptestbed.mudrod.weblog.pre;

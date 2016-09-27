@@ -13,12 +13,18 @@
  */
 package esiptestbed.mudrod.webservlet;
 
+import java.util.Properties;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.Ranker;
+import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
  * Application Lifecycle Listener implementation class MudrodWebListener
@@ -26,7 +32,7 @@ import esiptestbed.mudrod.main.MudrodEngine;
  */
 @WebListener
 public class MudrodWebListener implements ServletContextListener {
-
+  MudrodEngine me = null;
   /**
    * Default constructor.
    */
@@ -36,16 +42,27 @@ public class MudrodWebListener implements ServletContextListener {
   /**
    * @see ServletContextListener#contextDestroyed(ServletContextEvent)
    */
+  @Override
   public void contextDestroyed(ServletContextEvent arg0) {
+    me.end();
   }
 
   /**
    * @see ServletContextListener#contextInitialized(ServletContextEvent)
    */
+  @Override
   public void contextInitialized(ServletContextEvent arg0) {
-    MudrodEngine mudrod = new MudrodEngine();
+    me = new MudrodEngine();
+    Properties props = me.loadConfig();
+    me.setESDriver(new ESDriver(props));
+    me.setSparkDriver(new SparkDriver());
+
     ServletContext ctx = arg0.getServletContext();
-    ctx.setAttribute("MudrodInstance", mudrod);
+    Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
+    Ranker rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), "SparkSVM");
+    ctx.setAttribute("MudrodInstance", me);
+    ctx.setAttribute("MudrodSearcher", sr);
+    ctx.setAttribute("MudrodRanker", rr);
   }
 
 }

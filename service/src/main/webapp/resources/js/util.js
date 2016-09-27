@@ -15,6 +15,13 @@ $(document).ready(function(){
 
 });
 
+function redirect(page, para1, value1, para2, value2)
+{
+	var url = window.location.href;
+	url = url.substring(0, url.lastIndexOf('/') + 1) + page + '.html?' + para1 + '=' + value1 + '&' + para2 + '=' + value2;
+	window.location.href = url;
+}
+
 function setGetParameter(paramName, paramValue)
 {
 	var url = window.location.href;
@@ -40,4 +47,8 @@ function setGetParameter(paramName, paramValue)
 
 function getURLParameter(name) {
 	return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+}
+
+function TopicFormatter(value, row) {
+	return '<span class="search-link">' + value + '</span>'; 
 }

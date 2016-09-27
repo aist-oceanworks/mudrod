@@ -15,147 +15,108 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <link rel="icon" href="./resources/images/NASALogo_burned.png">
-    <title>MUDROD</title>
-    <script src="./resources/js/jquery/1.12.0/jquery-1.12.0.min.js"></script>
-    <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
-    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <!-- bt table -->
-    <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
-    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-    <script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
-    <script src="./resources/js/d3/d3.min.js"></script>
-    <!-- Custom styles for this template -->
-    <link href="./resources/css/dashboard.css" rel="stylesheet">
-    <script src="./resources/js/graph.js"></script>
-    <script src="./resources/js/util.js"></script>
-  </head>
-  <script type="text/javascript">
-    $(document).ready(function(){
-    
-     $("#query").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "AutoComplete",
-                    type: "POST",
-                    data: {chars: $("#query").val()},
-    
-                    dataType: "json",
-    
-                    success: function(data) {
-    	    response(data);
-                    }
-               });              
-            }   
-    });
-    
-        $("#query").keyup(function(event){
-    if(event.keyCode == 13){
-    	$("#searchButton").click();
-    }
-    });
-    
-    $("#searchButton").click(function() {
-      if($("#query").val()!="")
-    {
-    $.ajax({
-    url : "SearchVocab",
-    data : {
-    			"concept" : $("#query").val().toLowerCase()
-    		},
-    success : function completeHandler(response) {
-        if(response!=null)
-    	{
-    	console.log(response);
-    	    graph = response.graph;
-    		$("#searchResultsGroup").append($("#searchGroup"));
-    		
-    		$("#searchResults").show();
-    		removeGraph();
-    		drawGraph();
-    	
-    		//writeFilterList(response.filters.filters);
-    	}					
-    }
-    });		
-    
-    }
-    });
-    });
-	
-	$(window).resize(function() {
-    	removeGraph();
-    	drawGraph();
-    });
-  </script>
-  <body>
-    <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          </button>
-          <a href="javascript:;" class="pull-left"><img src="./resources/images/NASALogo_burned.png" height="50">
-          <a href="javascript:;" class="navbar-brand">MUDROD Semantic Search Testbed</a>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./resources/images/NASALogo.png">
+    <title>MUDROD | Vocabulary linkage</title>
+    <link href="./resources/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./resources/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="./resources/css/animate.css" rel="stylesheet">
+    <link href="./resources/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header" style="padding-top: 5px;">
+                    <div class="dropdown profile-element">
+                            <span class="clear"> 
+                            <img src="./resources/images/nasaLogo.png" width="125px" style="margin-left: 25px;">
+                            <span class="text-muted text-xs block" style="font-size: 18px;">MUDROD Semantic Search Testbed </span> 
+                            </span>
+                    </div>
+                    <div class="logo-element">
+                        MUDROD
+                    </div>
+                </li>
+                <li class="active">
+                    <a href="vocab.html"><i class="fa fa-link"></i> <span class="nav-label">Vocabulary linkage</span></a>
+                </li>
+                <li>
+                    <a href="search.html"><i class="fa fa-search"></i> <span class="nav-label">Semantic Search</span> </a>
+                </li>
+                <li>
+                    <a href="https://github.com/mudrod/mudrod" target="_blank"><i class="fa fa-users"></i> <span class="nav-label">About MUDROD</span> </a>
+                </li>
+            </ul>
         </div>
-      </div>
     </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a id= "searchNav" href="vocab.html">Vocabulary linkage</a></li>
-            <li><a href="search.html">Semantic search</a></li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Vocabulary linkage</h1>
-          <p class="lead">The vocabulary linkage is discovered through user behaviour, metadata, and <a href="https://sweet.jpl.nasa.gov/" target="_blank">SWEET</a> ontology.</p>
-          <div id = "searchResults" class="container" style="width:100%">
-            <div class="row" style = "border-bottom:1px solid #ddd; padding-bottom:10px;margin-bottom:10px;position:relative">
-              <div class="input-group" style="width:60%;margin: 0 auto" id = "searchGroup">
-                <input type="text" class="form-control" placeholder="search text..." id="query" name="query" value="">
-                <div class="input-group-btn">
-                  <button type="submit" class="btn btn-success" id = "searchButton" ><span class="glyphicon glyphicon-search"></span></button>
+
+    <div id="page-wrapper" class="gray-bg">
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row" style="margin-bottom: 15px;">
+                <div class="col-lg-12">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="position: absolute; left: -22px; top: -28px;"><i class="fa fa-bars"></i> </a>
+                    <p class="lead" style="margin-left:20px">The oceanographic vocabulary semantic relations are discovered through PO.DAAC user behavior, metadata, and SWEET ontology.</p>
+                    <div id="searchContainer" class="text-center m-t-lg" style="margin-top: 15%;">
+                        <h2 class="title" style="font-size: 40px;">Vocabulary Semantic Relations Discovery</h2>
+                        <div class="search-form">
+                                <div>
+                                    <div class="input-group">
+                                        <input id="query" type="text" placeholder="Enter ocean concepts (e.g. ocean wind) to search" name="query" class="form-control input-lg" autocomplete="off">
+                                        <div class="input-group-btn">
+                                            <button id="searchButton" class="btn btn-lg btn-primary" type="button" onclick="doSearch();return false;">
+                                                Search
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-1"> 
-            </div>
-            <div class="col-md-10">
-              <div class="panel panel-default" style = "height:66vh"> <!-- ADDED height here-->
-					   <div class="panel-heading">Ontology search results</div>
-					   <!-- CHANGED min-height and max-height to only 60% of viewport height-->
-					   <div class="panel-body" id = "graphBody" style = "height:60vh"></div>
-			  </div>
-            </div>
-            <div class="col-md-1"> 
-            </div>
-          </div>
+            <div id="searchResultContainer" class="row" style="display: none;">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-content" style="text-align: center;">
+                            <h2>
+                                Ontology search results
+                            </h2>
+                            <!-- <small>Request time  (0.23 seconds)</small> -->
+                            <div class="hr-line-dashed"></div>
+                            <div class="panel-body" id = "graphBody" style = "height:60vh"></div>
+                        </div>
+                    </div>
         </div>
-      </div>
+
+        </div>
+
     </div>
-    </div>
-    <footer class="footer">
-      <div class="row" style = "margin:0">
-        <div class="col-md-2">
+        <div class="footer fixed">
+            <div>
+                This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>.
+            </div>
         </div>
-        <div class="col-md-10">
-          <div class="container-fluid" style = "text-align:center;padding-top:20px;padding-bottom:5px;font-size:small">
-            This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="
-              http://www.jpl.nasa.gov/">NASA JPL</a>. 
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
+</div>
+
+<!-- Mainly scripts -->
+<script src="./resources/js/jquery-2.1.1.js"></script>
+<script src="./resources/js/bootstrap.min.js"></script>
+<script src="./resources/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="./resources/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="./resources/js/inspinia.js"></script>
+<script src="./resources/js/plugins/pace/pace.min.js"></script>
+
+<script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+<script src="./resources/js/graph.js"></script>
+<script src="./resources/js/util.js"></script>
+<script src="./resources/js/d3/d3.min.js"></script>
+    
+<script src="./resources/js/vocab.js"></script>
+
+</body>
+
 </html>

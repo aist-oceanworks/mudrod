@@ -24,6 +24,9 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports ability to remove raw logs after processing is finished
+ */
 public class RemoveRawLog extends DiscoveryStepAbstract {
   
   /**
@@ -39,7 +42,7 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Clean raw log starts******************");
+    LOG.info("Starting raw log removal.");
     startTime = System.currentTimeMillis();
     es.deleteAllByQuery(props.getProperty("indexName"), httpType,
         QueryBuilders.matchAllQuery());
@@ -47,7 +50,7 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
         QueryBuilders.matchAllQuery());
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Clean raw log ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Raw log removal complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

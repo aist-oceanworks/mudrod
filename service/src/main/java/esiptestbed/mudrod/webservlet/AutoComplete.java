@@ -64,7 +64,7 @@ public class AutoComplete extends HttpServlet {
     List<AutoCompleteData> result = new ArrayList<>();
     MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
         .getAttribute("MudrodInstance");
-    List<String> suggestList = mudrod.getES()
+    List<String> suggestList = mudrod.getESDriver()
         .autoComplete(mudrod.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), chars);
     for (final String item : suggestList) {
       result.add(new AutoCompleteData(item, item));

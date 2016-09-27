@@ -15,17 +15,23 @@ package esiptestbed.mudrod.weblog.structure;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
@@ -37,11 +43,13 @@ import scala.Tuple2;
 /**
  * ClassName: SessionExtractor Function: Extract sessions details from
  * reconstructed sessions.
- *
- * @author Yun
- *
  */
 public class SessionExtractor implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
   public SessionExtractor() {
   }
@@ -59,8 +67,8 @@ public class SessionExtractor implements Serializable {
    * @return clickstream list in JavaRDD format
    *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
    */
-  public JavaRDD<ClickStream> extractClickStreamFromES(
-      Properties props, ESDriver es, SparkDriver spark) {
+  public JavaRDD<ClickStream> extractClickStreamFromES(Properties props,
+      ESDriver es, SparkDriver spark) {
     List<ClickStream> queryList = null;
     try {
       queryList = this.getClickStreamList(props, es);
@@ -83,7 +91,7 @@ public class SessionExtractor implements Serializable {
   protected List<ClickStream> getClickStreamList(Properties props,
       ESDriver es) {
     ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
-        props.getProperty(MudrodConstants.ES_INDEX_NAME), 
+        props.getProperty(MudrodConstants.ES_INDEX_NAME),
         props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX));
     List<ClickStream> result = new ArrayList<>();
     for (int n = 0; n < cleanupTypeList.size(); n++) {
@@ -122,15 +130,16 @@ public class SessionExtractor implements Serializable {
     return sc.textFile(clickthroughFile)
         .flatMap(new FlatMapFunction<String, ClickStream>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
+          @SuppressWarnings("unchecked")
           @Override
-          public Iterable<ClickStream> call(String line) throws Exception {
+          public Iterator<ClickStream> call(String line) throws Exception {
             List<ClickStream> clickthroughs = (List<ClickStream>) ClickStream
                 .parseFromTextLine(line);
-            return clickthroughs;
+            return (Iterator<ClickStream>) clickthroughs;
           }
         });
   }
@@ -149,7 +158,7 @@ public class SessionExtractor implements Serializable {
     return clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, List<String>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -169,13 +178,12 @@ public class SessionExtractor implements Serializable {
               query.add(click.getKeyWords());
             }
 
-            return new Tuple2<>(click.getViewDataset(),
-                query);
+            return new Tuple2<>(click.getViewDataset(), query);
           }
         })
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -204,7 +212,8 @@ public class SessionExtractor implements Serializable {
   protected List<String> getSessions(Properties props, ESDriver es,
       String cleanupType) {
     List<String> sessionIDList = new ArrayList<>();
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+    SearchResponse sr = es.getClient()
+        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
         .setTypes(cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0)
         .addAggregation(
@@ -216,4 +225,197 @@ public class SessionExtractor implements Serializable {
     }
     return sessionIDList;
   }
+
+  public JavaPairRDD<String, Double> bulidUserItermRDD(
+      JavaRDD<ClickStream> clickstreamRDD) {
+    JavaPairRDD<String, Double> useritem_rateRDD = clickstreamRDD
+        .mapToPair(new PairFunction<ClickStream, String, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Tuple2<String, Double> call(ClickStream click)
+              throws Exception {
+            double rate = 1;
+            boolean download = click.isDownload();
+            if (download) {
+              rate = 2;
+            }
+
+            String sessionID = click.getSessionID();
+            String user = sessionID.split("@")[0];
+
+            return new Tuple2<String, Double>(
+                user + "," + click.getViewDataset(), rate);
+          }
+        }).reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Double call(Double v1, Double v2) throws Exception {
+            return v1 >= v2 ? v1 : v2;
+
+          }
+        });
+
+    return useritem_rateRDD;
+  }
+
+  public JavaPairRDD<String, Double> bulidSessionItermRDD(
+      JavaRDD<ClickStream> clickstreamRDD, int filterOpt) {
+    JavaPairRDD<String, String> sessionItemRDD = clickstreamRDD
+        .mapToPair(new PairFunction<ClickStream, String, String>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Tuple2<String, String> call(ClickStream click)
+              throws Exception {
+
+            String sessionID = click.getSessionID();
+            return new Tuple2<String, String>(sessionID,
+                click.getViewDataset());
+          }
+        }).distinct();
+
+    // remove some sessions
+    JavaPairRDD<String, Double> sessionItemNumRDD = sessionItemRDD.keys()
+        .mapToPair(new PairFunction<String, String, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Tuple2<String, Double> call(String item) throws Exception {
+            return new Tuple2<String, Double>(item, 1.0);
+          }
+        }).reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Double call(Double v1, Double v2) throws Exception {
+            return v1 + v2;
+          }
+        }).filter(new Function<Tuple2<String, Double>, Boolean>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Boolean call(Tuple2<String, Double> arg0) throws Exception {
+            Boolean b = true;
+            if (arg0._2 < 2) {
+              b = false;
+            }
+            return b;
+          }
+        });
+
+    JavaPairRDD<String, Double> filteredSessionItemRDD = sessionItemNumRDD
+        .leftOuterJoin(sessionItemRDD).mapToPair(
+            new PairFunction<Tuple2<String, Tuple2<Double, Optional<String>>>, String, Double>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              public Tuple2<String, Double> call(
+                  Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
+                      throws Exception {
+
+                Tuple2<Double, Optional<String>> test = arg0._2;
+                Optional<String> optStr = test._2;
+                String item = "";
+                if (optStr.isPresent()) {
+                  item = optStr.get();
+                }
+                return new Tuple2<String, Double>(arg0._1 + "," + item, 1.0);
+              }
+
+            });
+
+    return filteredSessionItemRDD;
+  }
+
+  public JavaPairRDD<String, List<String>> bulidSessionItermRDD(
+      Properties props, ESDriver es, SparkDriver spark) {
+
+    ArrayList<String> sessionstatic_typeList = es.getTypeListWithPrefix(
+        props.getProperty("indexName"),
+        props.getProperty("SessionStats_prefix"));
+    List<String> result = new ArrayList<>();
+    for (int n = 0; n < sessionstatic_typeList.size(); n++) {
+
+      String staticType = sessionstatic_typeList.get(n);
+
+      SearchResponse scrollResp = es.getClient()
+          .prepareSearch(props.getProperty("indexName")).setTypes(staticType)
+          .setScroll(new TimeValue(60000))
+          .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+          .actionGet();
+      while (true) {
+        for (SearchHit hit : scrollResp.getHits().getHits()) {
+          Map<String, Object> session = hit.getSource();
+          String sessionID = (String) session.get("SessionID");
+          String views = (String) session.get("views");
+          if (views != null && !views.equals("")) {
+            String sessionItems = sessionID + ":" + views;
+            result.add(sessionItems);
+          }
+        }
+
+        scrollResp = es.getClient()
+            .prepareSearchScroll(scrollResp.getScrollId())
+            .setScroll(new TimeValue(600000)).execute().actionGet();
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+      }
+    }
+
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(result);
+
+    JavaPairRDD<String, List<String>> sessionItemRDD = sessionRDD
+        .mapToPair(new PairFunction<String, String, List<String>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Tuple2<String, List<String>> call(String sessionitem)
+              throws Exception {
+            String[] splits = sessionitem.split(":");
+            String sessionId = splits[0];
+            List<String> itemList = new ArrayList<String>();
+
+            String items = splits[1];
+            String[] itemArr = items.split(",");
+            int size = itemArr.length;
+            for (int i = 0; i < size; i++) {
+              String item = itemArr[i];
+              if (!itemList.contains(item))
+                itemList.add(itemArr[i]);
+            }
+
+            return new Tuple2<String, List<String>>(sessionId, itemList);
+          }
+        });
+
+    return sessionItemRDD;
+  }
+
 }

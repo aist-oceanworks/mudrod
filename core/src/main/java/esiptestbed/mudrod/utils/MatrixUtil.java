@@ -19,12 +19,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.Optional;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -44,10 +47,7 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import scala.Tuple2;
 
 /**
- * ClassName: MatrixUtil Function: Matrix tool Date: Aug 12, 2016 11:44:14 AM
- *
- * @author Yun
- *
+ * ClassName: MatrixUtil Function: Matrix tool
  */
 public class MatrixUtil {
 
@@ -142,7 +142,7 @@ public class MatrixUtil {
               private static final long serialVersionUID = 1L;
 
               @Override
-              public Iterable<Tuple2<Tuple2<String, Long>, Double>> call(
+              public Iterator<Tuple2<Tuple2<String, Long>, Double>> call(
                   Tuple2<List<String>, Long> docwords) throws Exception {
                 List<Tuple2<Tuple2<String, Long>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, Long>, Double>>();
                 List<String> words = docwords._1;
@@ -153,7 +153,7 @@ public class MatrixUtil {
                   pairs.add(
                       new Tuple2<Tuple2<String, Long>, Double>(worddoc, 1.0));
                 }
-                return pairs;
+                return pairs.iterator();
               }
             })
         .reduceByKey(new Function2<Double, Double, Double>() {
@@ -218,7 +218,6 @@ public class MatrixUtil {
               public Tuple2<String, Vector> call(
                   Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
                   throws Exception {
-                // TODO Auto-generated method stub
                 int docsize = arg0._2._1.size();
                 int[] intArray = new int[docsize];
                 double[] doubleArray = new double[docsize];
@@ -237,6 +236,165 @@ public class MatrixUtil {
     labeledRowMatrix.wordDocMatrix = wordDocMatrix;
     labeledRowMatrix.words = word_vectorRDD.keys().collect();
     labeledRowMatrix.docs = uniqueDocRDD.keys().collect();
+    return labeledRowMatrix;
+  }
+
+  public static LabeledRowMatrix createDocWordMatrix(
+      JavaPairRDD<String, List<String>> uniqueDocRDD, JavaSparkContext sc) {
+    // Index word with unique IDs
+    JavaPairRDD<String, Long> wordIDRDD = uniqueDocRDD.values()
+        .flatMap(new FlatMapFunction<List<String>, String>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Iterator<String> call(List<String> arg0) throws Exception {
+            return arg0.iterator();
+          }
+        }).distinct().zipWithIndex();
+
+    //
+    JavaPairRDD<Tuple2<String, String>, Double> docword_num_RDD = uniqueDocRDD
+        .flatMapToPair(
+            new PairFlatMapFunction<Tuple2<String, List<String>>, Tuple2<String, String>, Double>() {
+
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              public Iterator<Tuple2<Tuple2<String, String>, Double>> call(
+                  Tuple2<String, List<String>> docwords) throws Exception {
+                List<Tuple2<Tuple2<String, String>, Double>> pairs = new ArrayList<Tuple2<Tuple2<String, String>, Double>>();
+                List<String> words = docwords._2;
+                int n = words.size();
+                for (int i = 0; i < n; i++) {
+                  Tuple2<String, String> worddoc = new Tuple2<String, String>(
+                      docwords._1, words.get(i));
+                  pairs.add(
+                      new Tuple2<Tuple2<String, String>, Double>(worddoc, 1.0));
+                }
+                return pairs.iterator();
+              }
+            })
+        .reduceByKey(new Function2<Double, Double, Double>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Double call(Double first, Double second) throws Exception {
+            return first + second;
+          }
+        });
+
+    //
+    JavaPairRDD<String, Tuple2<String, Double>> word_docnum_RDD = docword_num_RDD
+        .mapToPair(
+            new PairFunction<Tuple2<Tuple2<String, String>, Double>, String, Tuple2<String, Double>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              public Tuple2<String, Tuple2<String, Double>> call(
+                  Tuple2<Tuple2<String, String>, Double> arg0)
+                  throws Exception {
+
+                Tuple2<String, Double> wordmums = new Tuple2<String, Double>(
+                    arg0._1._1, arg0._2);
+                return new Tuple2<String, Tuple2<String, Double>>(arg0._1._2,
+                    wordmums);
+              }
+            });
+
+    //
+
+    JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> testRDD = word_docnum_RDD
+        .leftOuterJoin(wordIDRDD);
+    
+    int wordsize = (int) wordIDRDD.count();
+    JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
+        new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
+          @Override
+          public Tuple2<String, Tuple2<List<Long>, List<Double>>> call(
+              Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> arg0)
+              throws Exception {
+            Optional<Long> oid = arg0._2._2;
+            Long wordId = (long) 0;
+            if (oid.isPresent()) {
+              wordId = oid.get();
+            }
+
+            List<Long> word = new ArrayList<Long>();
+            word.add(wordId);
+
+            List<Double> count = new ArrayList<Double>();
+            count.add(arg0._2._1._2);
+
+            Tuple2<List<Long>, List<Double>> wordcount = new Tuple2<List<Long>, List<Double>>(
+                word, count);
+
+            return new Tuple2<String, Tuple2<List<Long>, List<Double>>>(
+                arg0._2._1._1, wordcount);
+          }
+
+        }).reduceByKey(
+            new Function2<Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>, Tuple2<List<Long>, List<Double>>>() {
+              /**
+               *
+               */
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              public Tuple2<List<Long>, List<Double>> call(
+                  Tuple2<List<Long>, List<Double>> arg0,
+                  Tuple2<List<Long>, List<Double>> arg1) throws Exception {
+                arg0._1.addAll(arg1._1);
+                arg0._2.addAll(arg1._2);
+                return new Tuple2<List<Long>, List<Double>>(arg0._1, arg0._2);
+              }
+            })
+        .mapToPair(
+            new PairFunction<Tuple2<String, Tuple2<List<Long>, List<Double>>>, String, Vector>() {
+              /**
+               *
+               */
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              public Tuple2<String, Vector> call(
+                  Tuple2<String, Tuple2<List<Long>, List<Double>>> arg0)
+                  throws Exception {
+                int docsize = arg0._2._1.size();
+                int[] intArray = new int[docsize];
+                double[] doubleArray = new double[docsize];
+                for (int i = 0; i < docsize; i++) {
+                  intArray[i] = arg0._2._1.get(i).intValue();
+                  doubleArray[i] = arg0._2._2.get(i).intValue();
+                }
+                Vector sv = Vectors.sparse(wordsize, intArray, doubleArray);
+                return new Tuple2<String, Vector>(arg0._1, sv);
+              }
+            });
+
+    RowMatrix docwordMatrix = new RowMatrix(doc_vectorRDD.values().rdd());
+
+    LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
+    labeledRowMatrix.wordDocMatrix = docwordMatrix;
+    labeledRowMatrix.words = doc_vectorRDD.keys().collect();
+    labeledRowMatrix.docs = wordIDRDD.keys().collect();
+
     return labeledRowMatrix;
   }
 
@@ -354,7 +512,7 @@ public class MatrixUtil {
       BufferedWriter bw = new BufferedWriter(fw);
       String coltitle = " Num" + ",";
       for (int j = 0; j < colnum; j++) {
-        coltitle += colKeys.get(j) + ",";
+        coltitle += "\"" + colKeys.get(j) + "\",";
       }
       coltitle = coltitle.substring(0, coltitle.length() - 1);
       bw.write(coltitle + "\n");
@@ -372,7 +530,6 @@ public class MatrixUtil {
       bw.close();
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
 
     }

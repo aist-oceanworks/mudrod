@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.linalg.Vector;
@@ -25,16 +26,10 @@ import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
-import com.google.common.base.Optional;
-
 import scala.Tuple2;
 
 /**
- * ClassName: SimilarityUtil Function: Similarity calculation tool Date: Aug 12,
- * 2016 11:33:30 AM
- *
- * @author Yun
- * 
+ * ClassName: SimilarityUtil Function: Similarity calculation tool 
  */
 public class SimilarityUtil {
 
@@ -90,6 +85,11 @@ public class SimilarityUtil {
     JavaPairRDD<Long, String> keyIdRDD = JavaPairRDD
         .fromJavaRDD(keys.zipWithIndex()
             .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<Long, String> call(Tuple2<String, Long> doc_id) {
                 return doc_id.swap();
@@ -99,10 +99,14 @@ public class SimilarityUtil {
     JavaPairRDD<Long, LinkageTriple> entries_rowRDD = simMatirx.entries()
         .toJavaRDD()
         .mapToPair(new PairFunction<MatrixEntry, Long, LinkageTriple>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<Long, LinkageTriple> call(MatrixEntry t)
               throws Exception {
-            // TODO Auto-generated method stub
             LinkageTriple triple = new LinkageTriple();
             triple.keyAId = t.i();
             triple.keyBId = t.j();
@@ -114,10 +118,14 @@ public class SimilarityUtil {
     JavaPairRDD<Long, LinkageTriple> entries_colRDD = entries_rowRDD
         .leftOuterJoin(keyIdRDD).values().mapToPair(
             new PairFunction<Tuple2<LinkageTriple, Optional<String>>, Long, LinkageTriple>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public Tuple2<Long, LinkageTriple> call(
                   Tuple2<LinkageTriple, Optional<String>> t) throws Exception {
-                // TODO Auto-generated method stub
                 LinkageTriple triple = t._1;
                 Optional<String> stra = t._2;
                 if (stra.isPresent()) {
@@ -130,6 +138,11 @@ public class SimilarityUtil {
     JavaRDD<LinkageTriple> tripleRDD = entries_colRDD.leftOuterJoin(keyIdRDD)
         .values().map(
             new Function<Tuple2<LinkageTriple, Optional<String>>, LinkageTriple>() {
+              /**
+               * 
+               */
+              private static final long serialVersionUID = 1L;
+
               @Override
               public LinkageTriple call(
                   Tuple2<LinkageTriple, Optional<String>> t) throws Exception {

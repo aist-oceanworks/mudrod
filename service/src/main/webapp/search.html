@@ -1,257 +1,124 @@
 <!DOCTYPE html>
-<!-- 
-  Licensed under the Apache License, Version 2.0 (the "License"); 
-  you may not use this file except in compliance with the License. 
-  You may obtain  a copy of the License at 
-  
-  http://www.apache.org/licenses/LICENSE-2.0 Unless 
-  
-  required by applicable law or agreed to in writing, software 
-  distributed under the License is distributed on an "AS IS" 
-  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
-  express or implied. See the License for the specific language 
-  governing permissions and limitations under the License. 
-  -->
 <html lang="en">
-  <head>
-    <title>MUDROD</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="./resources/images/NASALogo_burned.png">
-    <script src="./resources/js/jquery/1.12.0/jquery-1.12.0.min.js"></script>
-    <script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
-    <link rel="stylesheet" href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
-    <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
-    <!-- bt table -->
-    <link rel="stylesheet" href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
-    <script src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
-    <!-- Custom styles for this template -->
-    <script src="./resources/js/util.js"></script>
-    <link href="./resources/css/dashboard.css" rel="stylesheet">
-    <style>
-      .ui-autocomplete {
-      position: absolute;
-      z-index: 1000;
-      cursor: default;
-      padding: 0;
-      margin-top: 2px;
-      list-style: none;
-      background-color: #ffffff;
-      border: 1px solid #ccc
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      }
-      .ui-autocomplete > li {
-      padding: 3px 20px;
-      }
-      .ui-autocomplete > li.ui-state-focus {
-      background-color: #DDD;
-      }
-      .ui-helper-hidden-accessible {
-      display: none;
-      }
-    </style>
-  </head>
-  <script type="text/javascript">
-    $(document).ready(function(){
-    
-    
-    $("#query").autocomplete({
-               source: function(request, response) {
-                   $.ajax({
-                       url: "AutoComplete",
-                       type: "POST",
-                       data: {chars: $("#query").val()},
-    
-                       dataType: "json",
-    
-                       success: function(data) {
-    				    response(data);
-                       }
-                  });              
-               }   
-       });
-    
-               var query = getURLParameter('query');
-    		if(query==null)
-    		{			
-    			$("#searchResults").hide();
-    		}else{
-    			$("#searchResults").hide();
-    			$("#NotFound").hide();
-    			$("#query").val(query);
-    			search(query);
-    		
-    		}
-    
-    		$("#query").keyup(function(event){
-    			if(event.keyCode == 13){
-    				$("#searchButton").click();
-    			}
-    		});		
-    		
-    		$("#searchButton").click(function() {				
-    			setGetParameter("query", $("#query").val());
-    	   });
-    
-    });
-    
-    function search(query){
-    if($("#query").val()!="")
-    			{							
-    			$("#searchBox").append($("#searchGroup"));
-    			$("#searchjumbo").hide();
-    			$("#note").hide();
-    			$("#searchResults").show();
-    			$("#searchLoading").show();
-    			$.ajax({
-    				url : "SearchMetadata",
-    				data : {
-    							"query" : $("#query").val()
-    					   },
-    				success : function completeHandler(response) {
-    					if(response!=null)
-    					{
-    						$("#searchLoading").hide();
-    						console.log(response);
-    						var searchResults = response.PDResults;
-    						if(searchResults.length==0)
-    						{
-    						$("#NotFound").show();
-    						}else{
-    						createResultTable();
-    						$('#ResultsTable').bootstrapTable('load', searchResults);
-    						}
-    					}					
-    				}
-    			});		
-    	
-    		   }
-    }
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Search</title>
+<link rel="icon" href="./resources/images/NASALogo.png">
+<link href="./resources/font-awesome/css/font-awesome.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
+<link rel="stylesheet"
+	href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
+<link href="./resources/css/search.css" rel="stylesheet">
+</head>
+<body>
+	<div class="background"></div>
+							<div id="NotFound" style="display: none;position: fixed;top: 75px;left: 20px;z-index: 1;color:#FFF">
+								<p>Your search - <label id="searchKeyword"></label> did not match any dataset.</p>
+								<p>Suggestion:</p>
+								<ul>
+									<li>Make sure all words are spelled correctly.</li>
+									<li>Try different keywords.</li>
+									<li>Try different search operators.</li>
+								</ul>
+							</div>
+	<header id="main-toolbar" class="toolbar">
+		<h1>
+			<a class="nasa-logo" href="./index.html" title="Mudrod Home"></a> <a
+				class="site-logo" href="./index.html"> <span
+				class="site-logo-org"></span> MUDROD
+			</a>
+		</h1>
+		<div class="form">
+				<span class="twitter-typeahead"
+					style="position: relative; display: inline-block; direction: ltr;">
+					<input id="query" type="text" name="query"
+					class="autocomplete-placenames tt-input"
+					data-bind="valueUpdate: 'keyup'"
+					placeholder="Enter ocean concepts (e.g. ocean wind) to search"
+					autocomplete="off" spellcheck="false"
+					style="position: relative; vertical-align: top;">
+				</span>
+				<button id="searchButton" class="btn btn-search" type="button">
+					<i class="fa fa-search"></i>&nbsp;&nbsp;<span class="bold">Search</span>
+				</button>
+				<div id="searchOption" style="display: inline-block;">
+					<label>Search Operator: </label>
+					<div class="radio radio-info radio-inline">
+						<input type="radio" value="Phrase" id="searchOption_Phrase"
+							name="searchOption" checked="checked"> <label
+							for="searchOption_Phrase"> Phrase </label>
+					</div>
+					<div class="radio radio-inline">
+						<input type="radio" id="searchOption_And" value="And"
+							name="searchOption"> <label for="searchOption_And">
+							And </label>
+					</div>
+					<div class="radio radio-inline">
+						<input type="radio" value="Or" id="searchOption_Or"
+							name="searchOption"> <label for="searchOption_Or">
+							Or </label>
+					</div>
+				</div>
+		</div>
+	</header>
+	<section class="main-content">
+		<div
+			class="master-overlay homepage-search is-master-overlay-secondary-hidden is-master-overlay-maximized is-master-overlay-parent-hidden">
+			<div class="master-overlay-main">
+				<div class="master-overlay-main-content">
+					<section id="collection-results" class="master-overlay-has-min">
+						<header>
+							<h2 id="resultCount">Loading...</h2>
+						</header>
+						<div id="collection-scroll-pane" class="master-overlay-content">
+							<div class="panel-list">
+								<table id="ResultsTable" class="table"></table>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+			<div class="master-overlay-right">
+				<div class="master-overlay-main-content">
+					<section id="ontology-results" class="master-overlay-has-min">
+						<header>
+							<h2 id="ontologyResultCount">Related searches</h2>
+						</header>
+						<div id="collection-scroll-pane" class="master-overlay-content">
+							<div class="panel-list">
+								<ul id="ontologyUL" class="ontologyUL"></ul>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer>
+		<div class="footer-content">
+			<p>
+				<a href="https://github.com/mudrod/mudrod" target="_blank">MUDROD</a>
+				is funded by NASA AIST Program(NNX15AM85G), developed by <a
+					href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation
+					Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA
+					JPL</a>.
+			</p>
+		</div>
+		<script src="./resources/js/jquery-2.1.1.js"></script>
+		<script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+	</footer>
+	<script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+	<script
+		src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 
-    function FileNameFormatter(value) {
-        var url = "http://podaac.jpl.nasa.gov/ws/metadata/dataset?format=gcmd&shortName="+encodeURIComponent(value);
-           //url = encodeURIComponent(url);		
-    	return '<a href=' + url + ' target="_blank">' + value + '</a>'; 
-       }
+	<script src="./resources/js/util.js"></script>
 
-    function createResultTable() {
-    	var layout = {
-    		cache : false,
-    		pagination : true,
-    		pageSize : 10,
-    		//pageList : [ 11, 25, 50, 100, 200 ],
-    		//sortName : "Time",
-    		//sortOrder : "asc",
-    		cardView: true,
-    
-    		columns : [ {
-    			'title' : 'Short Name',
-    			'field' : 'Short Name',
-    			'formatter' : FileNameFormatter,
-    			sortable : true
-    		}, {
-    			'title' : 'Long Name',
-    			'field' : 'Long Name',
-    		}, {			
-    			'title' : 'Relevance',
-    			'field' : 'Relevance',
-    		},
-    		{
-    			'title' : 'Topic',
-    			'field' : 'Topic',
-    
-    		}, 
-    		{
-    			'title' : 'Release Date',
-    			'field' : 'Release Date',
-    
-    		},{
-    			'title' : 'Abstract',
-    			'field' : 'Abstract',
-    
-    		} ]
-    
-    	};
-    
-    	$('#ResultsTable').bootstrapTable(layout);
-    }
-  </script>
-  <body>
-    <div id = "alert_placeholder" style="width:80%;margin: 0 auto"></div>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          </button>
-          <a href="javascript:;" class="pull-left"><img src="./resources/images/NASALogo_burned.png" height="50">
-          <a href="javascript:;" class="navbar-brand">MUDROD Semantic Search Testbed</a>
-        </div>
-      </div>
-    </nav>
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li><a href="vocab.html">Vocabulary linkage</a></li>
-            <li class="active"><a id= "searchNav" href = "search.html">Semantic search</a></li>
-          </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Semantic search</h1>
-          <p class="lead" id = "note">In order to test the performance of our algorithms, all publicly available collection 
-            level datasets on <a href="https://podaac.jpl.nasa.gov/" target="_blank">PO.DAAC</a> are harvested and hosted on <a href="http://cloud.gmu.edu">NSF Hybrid Cloud Service</a>.
-          </p>
-          <div id= "searchjumbo" class="container" style = "width:84%;margin:7%">
-            <h2 style ="text-align:center">Oceanographic Data Discovery <img src="./resources/images/docs.png" height="45"></h2>
-            <p style ="text-align:center">Please search for archived dataset by concepts.</p>
-            <div class="input-group" style="width:56%;;margin:0 auto" id = "searchGroup">
-              <input type="text" class="form-control" placeholder="Search text..." id="query" name="query" value="">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-success" id = "searchButton" ><span class="glyphicon glyphicon-search"></span></button>
-              </div>
-            </div>
-            <p style="margin-left:22%;margin-top:1%"><a class="btn btn-primary" href="vocab.html"><span class="glyphicon glyphicon-eye-open"></span> Search vocabulary linkage</a></p>
-          </div>
-          <div class="container" id = "searchResults" style="width:80%">
-            <div class="row" style = "border-bottom:1px solid #ddd; padding-bottom:10px;margin-bottom:10px;position:relative">
-              <div class="col-md-12" id = "searchBox">
-              </div>
-            </div>
-            <p id = "searchLoading" style="text-align:center; margin:10%"><img src="./resources/images/loading.gif" height="80"><br> Please wait while results are loading. </p>
-            <div class="row" id = "resultPanels">
-              <table id="ResultsTable" class="table"></table>
-            </div>
-            <div class="row" id = "NotFound" style = "font-size:medium">
-              Your search did not match any documents. <br><strong>Suggestions</strong>:
-              <ul>
-                <li>Check spelling.</li>
-                <li>Try different keywords.</li>
-                <li>Try fewer and more general keywords.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <footer class="footer">
-      <div class="row" style = "margin:0">
-        <div class="col-md-2">
-        </div>
-        <div class="col-md-10">
-          <div class="container-fluid" style = "text-align:center;padding-top:20px;padding-bottom:5px;font-size:small">
-            This system is funded by NASA AIST Program(NNX15AM85G), developed by <a href="http://stcenter.net/stc/">NSF Spatiotemporal Innovation Center</a> in collaboration with <a href="http://www.jpl.nasa.gov/">NASA JPL</a>. 
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
+	<script src="./resources/js/search.js"></script>
+</body>
 </html>

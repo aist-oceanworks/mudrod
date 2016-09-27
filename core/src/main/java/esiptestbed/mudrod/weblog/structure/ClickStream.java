@@ -20,11 +20,12 @@ import org.codehaus.jettison.json.JSONObject;
 
 /**
  * ClassName: ClickStream Function: user click stream data related operations.
- *
- * @author Yun
- *
  */
 public class ClickStream implements Serializable {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // keywords: query words related to the click behaviour
   private String keywords;
   // viewDataset: the dataset name user viewed
@@ -60,13 +61,17 @@ public class ClickStream implements Serializable {
 
   }
 
+  public String getSessionID() {
+	    return sessionID;
+  }
+
   /**
    * setKeyWords: Set the query user searched.
    *
    * @param query
    *          search words
    */
-  public void setKeyWords(String query) {
+     public void setKeyWords(String query) {
     this.keywords = query;
   }
 
@@ -185,8 +190,6 @@ public class ClickStream implements Serializable {
       data.setDownloadDataset(jsonData.getString("downloaddataset"));
 
     } catch (JSONException e) {
-
-      // TODO Auto-generated catch block
       e.printStackTrace();
 
     }
