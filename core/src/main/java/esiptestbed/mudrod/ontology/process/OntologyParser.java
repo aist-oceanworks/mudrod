@@ -15,6 +15,7 @@ package esiptestbed.mudrod.ontology.process;
 
 import java.util.Iterator;
 
+import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 
 /**
@@ -37,6 +38,6 @@ public interface OntologyParser {
    * @param ontModel the {@link org.apache.jena.ontology.OntModel}
    * @return an {@link java.util.Iterator} instance containing all root classes.
    */
-  public Iterator<?> rootClasses(OntModel ontModel);
+  public Iterator<OntClass> rootClasses(OntModel ontModel);
 
 }

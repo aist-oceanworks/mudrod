@@ -254,7 +254,9 @@ public class MudrodEngine {
    * instance.
    */
   public void end() {
-    es.close();
+    if (es != null) {
+      es.close();
+    }
   }
 
   /**

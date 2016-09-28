@@ -51,7 +51,7 @@ public interface Ontology {
   /**
    * Retreive all synonyms for a particular entity provided within the 
    * search term e.g.synonym-based query expansion.
-   * @param queryKeyPhrase
+   * @param queryKeyPhrase a phrase to undertake synonym expansion on.
    * @return an {@link java.util.Iterator} object containing synonym entries.
    */
   public Iterator<String> synonyms(String queryKeyPhrase);
