@@ -35,7 +35,7 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
  * Supports the ability to calculating ranking score
  */
 public class Ranker extends MudrodAbstract implements Serializable{
-  List<SResult> resultList = new ArrayList<SResult>();
+  transient List<SResult> resultList = new ArrayList<SResult>();
   String learnerType = null;
   Learner le = null;
 
@@ -81,7 +81,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
   {
     double mean = getMean(attribute, resultList);
     double temp = 0.0;
-    double val = 0.0;
+    double val;
     for(SResult a :resultList)
     {    
       val = (Double)SResult.get(a, attribute);
@@ -111,7 +111,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
    */
   private double getZscore(double val, double mean, double std)
   {
-    if(std!=0)
+    if(equalComp(std, 0))
     {
       return getNDForm((val-mean)/std);
     }
@@ -121,6 +121,10 @@ public class Ranker extends MudrodAbstract implements Serializable{
     }
   }
 
+  private boolean equalComp(double a, double b) {
+    return (Math.abs(a - b) < 0.0001);
+  }
+  
   /**
    * Get the first N decimals of a double value
    * @param d double value that needs to be processed
@@ -189,7 +193,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
     double[] ins = instList.stream().mapToDouble(i->i).toArray();
     LabeledPoint ins_point = new LabeledPoint(99.0, Vectors.dense(ins));
     double prediction = le.classify(ins_point);
-    if(prediction == 1.0)  //different from weka where the return value is 1 or 2
+    if(equalComp(prediction, 1))  //different from weka where the return value is 1 or 2
     {
       return 0;
     }else{

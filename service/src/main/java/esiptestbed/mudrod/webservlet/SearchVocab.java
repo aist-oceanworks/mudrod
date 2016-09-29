@@ -64,7 +64,7 @@ public class SearchVocab extends HttpServlet {
 
       JsonObject jsonKb = new JsonObject();
 
-      jsonKb.add("graph", li.getIngeratedListInJson(concept, 10));
+      jsonKb.add("graph", li.getIngeratedListInJson(concept));
       out.print(jsonKb.toString());
       out.flush();
     } else {

@@ -80,7 +80,7 @@ public abstract class MudrodAbstract implements Serializable {
     try {
       mappingJSON = new JSONObject(IOUtils.toString(mappingsStream));
     } catch (JSONException | IOException e1) {
-      LOG.error("Error reading Elasticsearch settings!", e1);
+      LOG.error("Error reading Elasticsearch mappings!", e1);
     }
 
     try {
