@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
@@ -400,7 +399,7 @@ public class ESDriver implements Serializable {
     Settings.Builder settingsBuilder = Settings.settingsBuilder();
 
     // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(clusterName))
+    if (!clusterName.isEmpty())
       settingsBuilder.put("cluster.name", clusterName);
 
     Settings settings = settingsBuilder.build();

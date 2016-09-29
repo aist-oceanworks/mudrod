@@ -11,31 +11,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services.recommendation;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Properties;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import esiptestbed.mudrod.main.MudrodConstants;
+import com.google.gson.JsonObject;
+
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.ssearch.Ranker;
-import esiptestbed.mudrod.ssearch.Searcher;
+import esiptestbed.mudrod.recommendation.structure.HybirdRecommendation;
 
 /**
- * Servlet implementation class SearchMetadata
+ * Servlet implementation class RecomDatasetsResource
  */
-public class SearchMetadata extends HttpServlet {
+@WebServlet("/HybirdRecomDatasetsResource")
+public class HybirdRecomDatasetsResource extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   /**
    * @see HttpServlet#HttpServlet()
    */
-  public SearchMetadata() {
+  public HybirdRecomDatasetsResource() {
     super();
   }
 
@@ -46,29 +48,30 @@ public class SearchMetadata extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-    String query = request.getParameter("query");
-    String operator = request.getParameter("operator").toLowerCase();
+    String shortName = request.getParameter("shortname");
+    PrintWriter out = null;
+    try {
+      out = response.getWriter();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-    MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
-        .getAttribute("MudrodInstance");
-    Searcher sr = (Searcher) request.getServletContext()
-        .getAttribute("MudrodSearcher");
-    Ranker rr = (Ranker) request.getServletContext()
-        .getAttribute("MudrodRanker");
-    Properties config = mudrod.getConfig();
-    String fileList = null;
+    if (shortName != null) {
+      response.setContentType("application/json");
+      response.setCharacterEncoding("UTF-8");
 
-    fileList = sr.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-        config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
-        query,
-        operator, //please replace it with and, or, phrase
-        rr);
-
-    PrintWriter out = response.getWriter();
-    out.print(fileList);
-    out.flush();
+      MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
+          .getAttribute("MudrodInstance");
+      HybirdRecommendation recom = new HybirdRecommendation(mudrod.getConfig(),
+          mudrod.getESDriver(), null);
+      JsonObject jsonKb = new JsonObject();
+      jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 10));
+      out.print(jsonKb.toString());
+      out.flush();
+    } else {
+      out.print("Please input metadata short name");
+      out.flush();
+    }
   }
 
   /**
@@ -78,6 +81,7 @@ public class SearchMetadata extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request,
       HttpServletResponse response) throws ServletException, IOException {
+    doGet(request, response);
   }
 
 }

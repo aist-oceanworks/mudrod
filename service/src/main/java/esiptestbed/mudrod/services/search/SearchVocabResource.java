@@ -11,43 +11,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services.search;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import com.google.gson.JsonObject;
 
+import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.weblog.structure.Session;
 
 /**
- * Servlet implementation class SessionDetail
+ * Servlet implementation class SearchVocabResource
  */
-@WebServlet("/SessionDetail")
-public class SessionDetail extends HttpServlet {
+public class SearchVocabResource extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Default constructor. 
+   * @see HttpServlet#HttpServlet()
    */
-  public SessionDetail() {
+  public SearchVocabResource() {
+    super();
   }
 
   /**
-   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+   *      response)
    */
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String sessionID = request.getParameter("SessionID");
-    String cleanupType = request.getParameter("CleanupType");
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    String concept = request.getParameter("concept");
     PrintWriter out = null;
     try {
       out = response.getWriter();
@@ -55,29 +54,32 @@ public class SessionDetail extends HttpServlet {
       e.printStackTrace();
     }
 
-    if(sessionID!=null)
-    {
-      response.setContentType("application/json");  
+    if (concept != null) {
+      response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
-
       MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
           .getAttribute("MudrodInstance");
+      LinkageIntegration li = new LinkageIntegration(mudrod.getConfig(),
+          mudrod.getESDriver(), null);
 
-      Session session = new Session(mudrod.getConfig(), mudrod.getESDriver());
-      JsonObject json = session.getSessionDetail(cleanupType, sessionID);
+      JsonObject jsonKb = new JsonObject();
 
-      out.print(json.toString());
+      jsonKb.add("graph", li.getIngeratedListInJson(concept, 10));
+      out.print(jsonKb.toString());
       out.flush();
-    }else{
-      out.print("Please input SessionID");
+    } else {
+      out.print("Please input query");
       out.flush();
     }
   }
 
   /**
-   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+   *      response)
    */
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    doGet(request, response);
+  @Override
+  protected void doPost(HttpServletRequest request,
+      HttpServletResponse response) throws ServletException, IOException {
   }
+
 }

@@ -39,14 +39,29 @@
       <artifactId>jdom</artifactId>
     </dependency>
 
+    <!-- Elasticsearch dependencies -->
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
     </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>hppc</artifactId>
+    </dependency>
+    <!-- End of Elasticsearch dependencies -->
 
+    <!-- Spark dependencies -->
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.11</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_2.11</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -55,9 +70,13 @@
     <dependency>
       <groupId>com.github.fommil.netlib</groupId>
       <artifactId>all</artifactId>
-      <version>1.1.2</version>
       <type>pom</type>
     </dependency>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+    </dependency>
+    <!-- End of Spark dependencies -->
 
     <dependency>
       <groupId>org.codehaus.jettison</groupId>
@@ -65,6 +84,10 @@
       <version>1.3.8</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
@@ -85,11 +108,10 @@
       <version>2.3</version>
     </dependency>
 
-      <dependency>
-        <groupId>org.apache.jena</groupId>
-        <artifactId>apache-jena-libs</artifactId>
-        <type>pom</type>
-      </dependency>
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-core</artifactId>
+    </dependency>
 
   </dependencies>
 

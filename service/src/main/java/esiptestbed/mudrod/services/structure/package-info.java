@@ -11,24 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet.structure;
-
-public class AutoCompleteData {
-  private final String label;
-  private final String value;
-
-  public AutoCompleteData(String label, String value) {
-    super();
-    this.label = label;
-    this.value = value;
-  }
-
-  public final String getLabel() {
-    return this.label;
-  }
-
-  public final String getValue() {
-    return this.value;
-  }
-
-}
+/**
+ * This package includes the data structures used by MUDROD web services.
+ */
+package esiptestbed.mudrod.services.structure;

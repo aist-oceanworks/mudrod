@@ -11,42 +11,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services.recommendation;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 
-import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.recommendation.structure.RecomData;
 
 /**
- * Servlet implementation class SearchVocab
+ * Servlet implementation class RecomDatasetsResource
  */
-public class SearchVocab extends HttpServlet {
+@WebServlet("/RecomDatasetsResource")
+public class RecomDatasetsResource extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
   /**
    * @see HttpServlet#HttpServlet()
    */
-  public SearchVocab() {
+  public RecomDatasetsResource() {
     super();
   }
 
   /**
-   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-   *      response)
+   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
    */
-  @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    String concept = request.getParameter("concept");
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    String shortName = request.getParameter("shortname");
     PrintWriter out = null;
     try {
       out = response.getWriter();
@@ -54,32 +52,28 @@ public class SearchVocab extends HttpServlet {
       e.printStackTrace();
     }
 
-    if (concept != null) {
+    if (shortName != null) {
       response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
-      MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
-          .getAttribute("MudrodInstance");
-      LinkageIntegration li = new LinkageIntegration(mudrod.getConfig(),
-          mudrod.getESDriver(), null);
+
+      MudrodEngine mudrod = (MudrodEngine) request.getServletContext().getAttribute("MudrodInstance");
+      RecomData recom = new RecomData(mudrod.getConfig(), mudrod.getESDriver(), null);
 
       JsonObject jsonKb = new JsonObject();
-
-      jsonKb.add("graph", li.getIngeratedListInJson(concept, 10));
+      jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 10));
       out.print(jsonKb.toString());
       out.flush();
     } else {
-      out.print("Please input query");
+      out.print("Please input metadata short name");
       out.flush();
     }
   }
 
   /**
-   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-   *      response)
+   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
    */
-  @Override
-  protected void doPost(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    doGet(request, response);
   }
 
 }

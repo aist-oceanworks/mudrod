@@ -35,7 +35,11 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
  * Supports the ability to calculating ranking score
  */
 public class Ranker extends MudrodAbstract implements Serializable{
-  List<SResult> resultList = new ArrayList<SResult>();
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+  transient List<SResult> resultList = new ArrayList<>();
   String learnerType = null;
   Learner le = null;
 
@@ -61,11 +65,9 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param resultList an array list of result
    * @return mean value
    */
-  private double getMean(String attribute, List<SResult> resultList)
-  {
+  private double getMean(String attribute, List<SResult> resultList) {
     double sum = 0.0;
-    for(SResult a : resultList)
-    { 
+    for(SResult a : resultList) { 
       sum += (double)SResult.get(a, attribute);    
     }
     return getNDForm(sum/resultList.size());
@@ -77,13 +79,11 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param resultList an array list of result
    * @return variance value
    */
-  private double getVariance(String attribute, List<SResult> resultList)
-  {
+  private double getVariance(String attribute, List<SResult> resultList) {
     double mean = getMean(attribute, resultList);
     double temp = 0.0;
     double val = 0.0;
-    for(SResult a :resultList)
-    {    
+    for(SResult a :resultList) {
       val = (Double)SResult.get(a, attribute);
       temp += (mean - val)*(mean - val);
     }
@@ -97,8 +97,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param resultList an array list of result
    * @return standard variance
    */
-  private double getStdDev(String attribute, List<SResult> resultList)
-  {
+  private double getStdDev(String attribute, List<SResult> resultList) {
     return getNDForm(Math.sqrt(getVariance(attribute, resultList)));
   }
 
@@ -109,14 +108,10 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param std the standard deviation of an attribute
    * @return Z score
    */
-  private double getZscore(double val, double mean, double std)
-  {
-    if(std!=0)
-    {
+  private double getZscore(double val, double mean, double std) {
+    if(std != 0) {
       return getNDForm((val-mean)/std);
-    }
-    else
-    {
+    } else {
       return 0;
     }
   }
@@ -126,10 +121,9 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param d double value that needs to be processed
    * @return processed double value
    */
-  private double getNDForm(double d)
-  {
-    DecimalFormat NDForm = new DecimalFormat("#.###");
-    return Double.valueOf(NDForm.format(d));
+  private double getNDForm(double d) {
+    DecimalFormat ndForm = new DecimalFormat("#.###");
+    return Double.valueOf(ndForm.format(d));
   }
 
   /**
@@ -137,36 +131,30 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param resultList result list
    * @return ranked result list
    */
-  public List<SResult> rank(List<SResult> resultList)
-  {
-    for(int i=0; i< resultList.size(); i++)
-    {
-      for(int m =0; m <SResult.rlist.length; m++)
-      {
+  public List<SResult> rank(List<SResult> resultList) {
+    for(int i=0; i< resultList.size(); i++) {
+      for(int m =0; m <SResult.rlist.length; m++) {
         String att = SResult.rlist[m].split("_")[0];
         double val = SResult.get(resultList.get(i), att);
         double mean = getMean(att, resultList);
         double std = getStdDev(att, resultList);
         double score = getZscore(val, mean, std);
-        String score_id = SResult.rlist[m];
-        SResult.set(resultList.get(i), score_id, score);
+        String scoreId = SResult.rlist[m];
+        SResult.set(resultList.get(i), scoreId, score);
       }
     }
 
     // using collection.sort directly would cause an "not transitive" error
     // this is because the training model is not a overfitting model
-    for(int j=0; j< resultList.size(); j++)
-    {
-      for(int k=0; k< resultList.size(); k++)
-      {
-        if(k!=j)
-        {
+    for(int j=0; j< resultList.size(); j++) {
+      for(int k=0; k< resultList.size(); k++) {
+        if(k!=j) {
           resultList.get(j).below += comp (resultList.get(j), resultList.get(k));
         }
       }
     }
 
-    Collections.sort(resultList, new ResultComparator());   
+    Collections.sort(resultList, new ResultComparator());
     return resultList;
   }
 
@@ -176,23 +164,20 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param o2 search result 2
    * @return 1 if o1 is greater than o2, 0 otherwise
    */
-  public int comp(SResult o1, SResult o2)
-  {
-    List<Double> instList = new ArrayList<Double>();
-    for(int i =0; i <SResult.rlist.length; i++)
-    {
-      double o2_score = SResult.get(o2, SResult.rlist[i]);
-      double o1_score = SResult.get(o1, SResult.rlist[i]);
-      instList.add(o2_score - o1_score);
-    }   
+  public int comp(SResult o1, SResult o2) {
+    List<Double> instList = new ArrayList<>();
+    for(int i =0; i <SResult.rlist.length; i++) {
+      double o2Score = SResult.get(o2, SResult.rlist[i]);
+      double o1Score = SResult.get(o1, SResult.rlist[i]);
+      instList.add(o2Score - o1Score);
+    }
 
     double[] ins = instList.stream().mapToDouble(i->i).toArray();
-    LabeledPoint ins_point = new LabeledPoint(99.0, Vectors.dense(ins));
-    double prediction = le.classify(ins_point);
-    if(prediction == 1.0)  //different from weka where the return value is 1 or 2
-    {
+    LabeledPoint insPoint = new LabeledPoint(99.0, Vectors.dense(ins));
+    double prediction = le.classify(insPoint);
+    if(prediction == 1.0) { //different from weka where the return value is 1 or 2 
       return 0;
-    }else{
+    } else {
       return 1;
     }
   }

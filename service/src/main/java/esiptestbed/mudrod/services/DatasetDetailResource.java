@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,20 +24,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
- * Servlet implementation class DatasetDetail
+ * Servlet implementation class DatasetDetailResource
  */
-@WebServlet("/DatasetDetail")
-public class DatasetDetail extends HttpServlet {
+@WebServlet("/DatasetDetailResource")
+public class DatasetDetailResource extends HttpServlet {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DatasetDetailResource.class);
   private static final long serialVersionUID = 1L;
 
   /**
    * @see HttpServlet#HttpServlet()
    */
-  public DatasetDetail() {
+  public DatasetDetailResource() {
     super();
   }
 
@@ -53,7 +58,7 @@ public class DatasetDetail extends HttpServlet {
     try {
       out = response.getWriter();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Error whilst obtaining PrintWriter from javax.servlet.http.HttpServletResponse", e);
     }
 
     if (shortName != null) {
@@ -69,16 +74,14 @@ public class DatasetDetail extends HttpServlet {
         fileList = mudrod.getESDriver().searchByQuery(
             config.getProperty(MudrodConstants.ES_INDEX_NAME),
             config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      } catch (ExecutionException e) {
-        e.printStackTrace();
+      } catch (InterruptedException | ExecutionException e) {
+        LOG.error("Error whilst searching for a Dataset-ShortName", e);
       }
-      out = response.getWriter();
-      out.print(fileList);
-      out.flush();
-    } else {
-      out.print("Please input metadata short name");
+      if (out != null) {
+        out.print(fileList);
+      } else {
+        out.print("Please input metadata short name");
+      }
       out.flush();
     }
   }
@@ -90,7 +93,11 @@ public class DatasetDetail extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request,
       HttpServletResponse response) throws ServletException, IOException {
-    doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (ServletException | IOException e) {
+      LOG.error("Error whilst executing POST!", e);
+    }
   }
 
 }

@@ -14,4 +14,4 @@
 /**
  * This package includes all the MUDROD web services.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services;

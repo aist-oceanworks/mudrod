@@ -66,9 +66,7 @@ public class OHCodeExtractor implements Serializable {
   public List<String> loadMetadataOHEncode(ESDriver es) {
     OHEncoder coder = new OHEncoder();
     List<String> fields = coder.CategoricalVars;
-    List<String> metadataCode = this.loadFieldsOHEncode(es, fields);
-
-    return metadataCode;
+    return this.loadFieldsOHEncode(es, fields);
   }
 
   /**
@@ -82,7 +80,7 @@ public class OHCodeExtractor implements Serializable {
    */
   public List<String> loadFieldsOHEncode(ESDriver es, List<String> fields) {
 
-    List<String> metedataCode = new ArrayList<String>();
+    List<String> metedataCode = new ArrayList<>();
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
@@ -128,7 +126,7 @@ public class OHCodeExtractor implements Serializable {
   public Map<String, Vector> loadFieldsOHEncodeMap(ESDriver es,
       List<String> fields) {
 
-    Map<String, Vector> metedataCode = new HashMap<String, Vector>();
+    Map<String, Vector> metedataCode = new HashMap<>();
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()

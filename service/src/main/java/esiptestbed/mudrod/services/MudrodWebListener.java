@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services;
 
 import java.util.Properties;
 
@@ -37,6 +37,7 @@ public class MudrodWebListener implements ServletContextListener {
    * Default constructor.
    */
   public MudrodWebListener() {
+    //default constructor
   }
 
   /**

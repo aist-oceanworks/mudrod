@@ -11,60 +11,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services.search;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.recommendation.structure.RecomData;
+import esiptestbed.mudrod.weblog.structure.Session;
 
 /**
- * Servlet implementation class RecomDatasets
+ * Servlet implementation class SessionDetail
  */
-@WebServlet("/RecomDatasets")
-public class RecomDatasets extends HttpServlet {
+@WebServlet("/SessionDetail")
+public class SessionDetailResource extends HttpServlet {
+  
+  private static final Logger LOG = LoggerFactory.getLogger(SessionDetailResource.class);
   private static final long serialVersionUID = 1L;
 
   /**
-   * @see HttpServlet#HttpServlet()
+   * Default constructor. 
    */
-  public RecomDatasets() {
-    super();
+  public SessionDetailResource() {
+    //default constructor
   }
 
   /**
    * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
    */
+  @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String shortName = request.getParameter("shortname");
+    String sessionID = request.getParameter("SessionID");
+    String cleanupType = request.getParameter("CleanupType");
     PrintWriter out = null;
     try {
       out = response.getWriter();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error("Error whilst obtaining the HttpServletResponse PrintWriter.", e);
     }
 
-    if (shortName != null) {
-      response.setContentType("application/json");
+    if(sessionID!=null) {
+      response.setContentType("application/json");  
       response.setCharacterEncoding("UTF-8");
 
-      MudrodEngine mudrod = (MudrodEngine) request.getServletContext().getAttribute("MudrodInstance");
-      RecomData recom = new RecomData(mudrod.getConfig(), mudrod.getESDriver(), null);
+      MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
+          .getAttribute("MudrodInstance");
 
-      JsonObject jsonKb = new JsonObject();
-      jsonKb.add("recomdata", recom.getRecomDataInJson(shortName, 10));
-      out.print(jsonKb.toString());
+      Session session = new Session(mudrod.getConfig(), mudrod.getESDriver());
+      JsonObject json = session.getSessionDetail(cleanupType, sessionID);
+
+      out.print(json.toString());
       out.flush();
     } else {
-      out.print("Please input metadata short name");
+      out.print("Please input SessionID");
       out.flush();
     }
   }
@@ -72,8 +82,12 @@ public class RecomDatasets extends HttpServlet {
   /**
    * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
    */
+  @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (ServletException | IOException e) {
+      LOG.error("There was an error whilst POST'ing the Session Detail.", e);
+    }
   }
-
 }
