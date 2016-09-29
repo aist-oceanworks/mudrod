@@ -44,7 +44,6 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
  * Supports ability to performance semantic search with a given query
  */
 public class Searcher extends MudrodAbstract implements Serializable {
-  private static final Logger LOG = LoggerFactory.getLogger(ESDriver.class);
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
 
@@ -63,7 +62,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
     if (pro == null) {
       return 1.0;
     }
-    Double proNum = 0.0;
+    Double proNum;
     Pattern p = Pattern.compile(".*[a-zA-Z].*");
     if (pro.matches("[0-9]{1}[a-zA-Z]{1}")) {
       proNum = Double.parseDouble(pro.substring(0, 1));
@@ -96,10 +95,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
     Double val = 0.0;
     if (strList != null) {
       String str = String.join(", ", strList);
-      if (str != null && str.length() != 0) {
-        if (str.toLowerCase().trim().contains(query)) {
-          val = 1.0;
-        }
+      if (str != null && str.length() != 0 && str.toLowerCase().trim().contains(query)) {
+        val = 1.0;
       }
     }
     return val;
@@ -124,7 +121,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
     boolean exists = es.getClient().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {
-      return null;
+      return new ArrayList<SResult>();
     }
 
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);

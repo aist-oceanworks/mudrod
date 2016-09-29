@@ -35,6 +35,7 @@ import com.google.gson.JsonParser;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.utils.HttpRequest;
 
 /**
@@ -88,8 +89,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         + "\r\n               \"analyzer\": \"english\"\r\n            }"
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
     es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
-        .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
-        .execute().actionGet();
+    .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
+    .execute().actionGet();
   }
 
   /**
@@ -98,26 +99,31 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoking this method.
    */
   private void importToES() {
-    File directory = new File(props.getProperty("raw_metadataPath"));
+    File directory = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
       try {
         is = new FileInputStream(file);
-        try {
-          String jsonTxt = IOUtils.toString(is);
-          JsonParser parser = new JsonParser();
-          JsonElement item = parser.parse(jsonTxt);
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-              props.getProperty("raw_metadataType")).source(item.toString());
-          es.getBulkProcessor().add(ir);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+        importSingleFileToES(is);
       } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        LOG.error("Error finding file!", e);
       }
 
+    }
+  }
+  
+  private void importSingleFileToES(InputStream is)
+  {
+    try {
+      String jsonTxt = IOUtils.toString(is);
+      JsonParser parser = new JsonParser();
+      JsonElement item = parser.parse(jsonTxt);
+      IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+          props.getProperty("raw_metadataType")).source(item.toString());
+      es.getBulkProcessor().add(ir);
+    } catch (IOException e) {
+      LOG.error("Error indexing metadata record!", e);
     }
   }
 
@@ -142,7 +148,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
       doc_length = docs.size();
 
-      File file = new File(props.getProperty("raw_metadataPath"));
+      File file = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
       if (!file.exists()) {
         if (file.mkdir()) {
           LOG.info("Directory is created!");
@@ -152,27 +158,28 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       }
       for (int i = 0; i < doc_length; i++) {
         JsonElement item = docs.get(i);
-
         int docId = startIndex + i;
         File itemfile = new File(
-            props.getProperty("raw_metadataPath") + "/" + docId + ".json");
-        try {
+            props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId + ".json");
+        
+        try (FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);){
           itemfile.createNewFile();
-          FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
-          BufferedWriter bw = new BufferedWriter(fw);
           bw.write(item.toString());
-          bw.close();
         } catch (IOException e) {
-          e.printStackTrace();
+          LOG.error("Error writing metadata to local file!", e);
         }
       }
 
       startIndex += 10;
+
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        LOG.error("Error entering Elasticsearch Mappings!", e);
+        Thread.currentThread().interrupt();
       }
+
     } while (doc_length != 0);
   }
 

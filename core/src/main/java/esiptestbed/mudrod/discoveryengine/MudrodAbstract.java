@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Properties;
 
+import javax.annotation.CheckForNull;
+
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
@@ -62,6 +64,7 @@ public abstract class MudrodAbstract implements Serializable {
   /**
    * Method of setting up essential configuration for MUDROD to start
    */
+  @CheckForNull
   protected void initMudrod(){
     InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
     InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
@@ -71,17 +74,20 @@ public abstract class MudrodAbstract implements Serializable {
     try {
       settingsJSON = new JSONObject(IOUtils.toString(settingsStream));
     } catch (JSONException | IOException e1) {
-      e1.printStackTrace();
+      LOG.error("Error reading Elasticsearch settings!", e1);
     }
 
     try {
       mappingJSON = new JSONObject(IOUtils.toString(mappingsStream));
     } catch (JSONException | IOException e1) {
-      e1.printStackTrace();
+      LOG.error("Error reading Elasticsearch mappings!", e1);
     }
 
     try {
-      this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
+      if(settingsJSON != null && mappingJSON != null )
+      {
+        this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
+      }
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }

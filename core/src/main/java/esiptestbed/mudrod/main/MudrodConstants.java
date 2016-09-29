@@ -88,6 +88,8 @@ public interface MudrodConstants {
   public static final String METADATA_W = "metadata_w";
 
   public static final String ONTOLOGY_W = "ontology_w";
+  
+  public static final String RAW_METADATA_PATH= "raw_metadataPath";
 
   /**
    * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.

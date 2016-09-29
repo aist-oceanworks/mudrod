@@ -338,28 +338,30 @@ public class MudrodEngine {
       me.es = new ESDriver(me.getConfig());
       me.spark = new SparkDriver();
       loadFullConfig(me, dataDir);
-
-      switch (processingType) {
-      case LOG_INGEST:
-        me.logIngest();
-        break;
-      case PROCESSING:
-        me.startProcessing();
-        break;
-      case SESSION_RECON:
-        me.sessionRestruction();
-        break;
-      case VOCAB_SIM_FROM_LOG:
-        me.vocabSimFromLog();
-        break;
-      case ADD_META_ONTO:
-        me.addMetaAndOntologySim();
-        break;
-      case FULL_INGEST:
-        me.startFullIngest();
-        break;
-      default:
-        break;
+      if(processingType != null)
+      {
+        switch (processingType) {
+        case LOG_INGEST:
+          me.logIngest();
+          break;
+        case PROCESSING:
+          me.startProcessing();
+          break;
+        case SESSION_RECON:
+          me.sessionRestruction();
+          break;
+        case VOCAB_SIM_FROM_LOG:
+          me.vocabSimFromLog();
+          break;
+        case ADD_META_ONTO:
+          me.addMetaAndOntologySim();
+          break;
+        case FULL_INGEST:
+          me.startFullIngest();
+          break;
+        default:
+          break;
+        }
       }
       me.end();
     } catch (Exception e) {
@@ -367,7 +369,8 @@ public class MudrodEngine {
       formatter.printHelp(
           "MudrodEngine: 'logDir' argument is mandatory. "
               + "User must also provide an ingest method.",
-          options, true);
+              options, true);
+      LOG.error("Error inputting command line!", e);
       return;
     }
   }
@@ -406,6 +409,6 @@ public class MudrodEngine {
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;
-    
+
   }
 }
