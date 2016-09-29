@@ -23,9 +23,6 @@ import java.util.stream.IntStream;
  * Supports ability to evaluating ranking results
  */
 public class Evaluator {
-  public Evaluator() {
-  }
-
   /**
    * Method of calculating NDCG score
    * @param list a list of integer with each integer element indicating 
@@ -136,12 +133,6 @@ public class Evaluator {
     int[] sortedArr = sortlist.stream().mapToInt(i->i).toArray();
     double idcg = this.getDCG(sortedArr, K);
     return idcg;
-  }
-
-  public static void main(String[] args) {
-    Evaluator eva = new Evaluator();
-    int[] list = {3, 2, 3, 0, 1 ,2};
-    System.out.println(eva.getNDCG(list, 6));
   }
 
 }
