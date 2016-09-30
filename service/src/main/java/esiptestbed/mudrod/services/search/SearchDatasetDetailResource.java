@@ -13,7 +13,9 @@
  */
 package esiptestbed.mudrod.services.search;
 
+import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -33,25 +35,18 @@ import com.google.gson.Gson;
 
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.ssearch.Ranker;
-import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
- * A Mudrod Metadata Search Resource
+ * A Dataset Detail Search Resource
  */
-@Path("/metadata")
-public class SearchMetadataResource {
+@Path("/datasetdetail")
+public class SearchDatasetDetailResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(SearchDatasetDetailResource.class);
   private MudrodEngine mEngine;
-  private Searcher searcher;
-  private Ranker ranker;
-
-  public SearchMetadataResource(@Context ServletContext sc) {
+  
+  public SearchDatasetDetailResource(@Context ServletContext sc) {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
-    this.searcher = (Searcher) sc.getAttribute("MudrodSearcher");
-    this.ranker = (Ranker) sc.getAttribute("MudrodRanker");
   }
 
   @GET
@@ -59,23 +54,28 @@ public class SearchMetadataResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD SearchMetadataResource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Dataset Detail Search Resource: running correctly...</h1>").build();
   }
 
   @POST
-  @Path("{query}-{operator}")
+  @Path("{shortname}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchMetadata(@PathParam("query") String query, @PathParam("term") String operator) {
-    Properties config = mEngine.getConfig();
-    String fileList = searcher.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-        config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
-        query,
-        operator, //please replace it with and, or, phrase
-        ranker);
-    String json = new Gson().toJson(fileList);
-    LOG.info("Response received: {}", json);
-    return Response.ok(json, MediaType.APPLICATION_JSON).build();
+  protected Response searchDatasetDetail(@PathParam("shortname") String shortName) {
+
+      Properties config = mEngine.getConfig();
+      String fileList = null;
+      try {
+        String query = "Dataset-ShortName:\"" + shortName + "\"";
+        fileList = mEngine.getESDriver().searchByQuery(
+            config.getProperty(MudrodConstants.ES_INDEX_NAME),
+            config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
+      } catch (InterruptedException | ExecutionException | IOException e) {
+        LOG.error("Error whilst searching for a Dataset-ShortName", e);
+      }
+      String json = new Gson().toJson(fileList);
+      LOG.info("Response received: {}", json);
+      return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
 
 }

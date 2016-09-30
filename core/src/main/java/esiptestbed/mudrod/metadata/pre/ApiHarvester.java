@@ -63,16 +63,15 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Metadata harvesting starts******************");
+    LOG.info("Starting Metadata harvesting.");
     startTime = System.currentTimeMillis();
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     addMetadataMapping();
     importToES();
     es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info(
-        "*****************Metadata harvesting ends******************Took {}s",
+    LOG.info("Metadata harvesting completed. Time elapsed: {}",
         (endTime - startTime) / 1000);
     return null;
   }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.services.structure;
+package esiptestbed.mudrod.services.autocomplete;
 
 public class AutoCompleteData {
   private final String label;

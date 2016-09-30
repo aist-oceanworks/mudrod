@@ -11,9 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.services.search;
+package esiptestbed.mudrod.services.autocomplete;
 
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -33,25 +34,18 @@ import com.google.gson.Gson;
 
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.ssearch.Ranker;
-import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
- * A Mudrod Metadata Search Resource
+ * An AutoCompleteResource for term autocompletion suggestion.
  */
-@Path("/metadata")
-public class SearchMetadataResource {
+@Path("/autocomplete")
+public class AutoCompleteResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(AutoCompleteResource.class);
   private MudrodEngine mEngine;
-  private Searcher searcher;
-  private Ranker ranker;
 
-  public SearchMetadataResource(@Context ServletContext sc) {
+  public AutoCompleteResource(@Context ServletContext sc) {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
-    this.searcher = (Searcher) sc.getAttribute("MudrodSearcher");
-    this.ranker = (Ranker) sc.getAttribute("MudrodRanker");
   }
 
   @GET
@@ -59,21 +53,21 @@ public class SearchMetadataResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD SearchMetadataResource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>").build();
   }
 
   @POST
-  @Path("{query}-{operator}")
+  @Path("{term}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchMetadata(@PathParam("query") String query, @PathParam("term") String operator) {
-    Properties config = mEngine.getConfig();
-    String fileList = searcher.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-        config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 
-        query,
-        operator, //please replace it with and, or, phrase
-        ranker);
-    String json = new Gson().toJson(fileList);
+  public Response autoComplete(@PathParam("term") String term) {
+    List<AutoCompleteData> result = new ArrayList<>();
+    List<String> suggestList = mEngine.getESDriver()
+        .autoComplete(mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
+    for (final String item : suggestList) {
+      result.add(new AutoCompleteData(item, item));
+    }
+    String json = new Gson().toJson(result);
     LOG.info("Response received: {}", json);
     return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }

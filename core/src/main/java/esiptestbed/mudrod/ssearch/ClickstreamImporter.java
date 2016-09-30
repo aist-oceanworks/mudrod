@@ -34,6 +34,11 @@ import esiptestbed.mudrod.driver.SparkDriver;
  * through .csv file
  */
 public class ClickstreamImporter extends MudrodAbstract {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   public ClickstreamImporter(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
     addClickStreamMapping();
@@ -76,8 +81,8 @@ public class ClickstreamImporter extends MudrodAbstract {
    * Method to import click stream CSV into Elasticsearch
    */
   public void importfromCSVtoES(){
-    es.deleteType(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType"));    
-    es.createBulkProcesser();
+    es.deleteType(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType"));
+    es.createBulkProcessor();
 
     BufferedReader br = null;
     String cvsSplitBy = ",";

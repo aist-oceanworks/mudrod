@@ -41,6 +41,7 @@ import org.elasticsearch.search.aggregations.metrics.stats.Stats;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
 import org.slf4j.Logger;
@@ -91,13 +92,13 @@ public class SessionStatistic extends DiscoveryStepAbstract {
  */
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     String inputType = this.cleanupType;
     String outputType = this.sessionStats;
 
     MetricsAggregationBuilder<?> statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
+    SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
         .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(0).subAggregation(statsAgg))

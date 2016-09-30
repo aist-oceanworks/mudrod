@@ -117,7 +117,7 @@ public class ImportLogFile extends DiscoveryStepAbstract{
    * of processing lines from log files.
    */
   public void readFile(){
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     String httplogpath = props.getProperty("logDir") + 
         props.getProperty("httpPrefix") + 

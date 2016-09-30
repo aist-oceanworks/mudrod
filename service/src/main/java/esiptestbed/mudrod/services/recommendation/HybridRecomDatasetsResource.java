@@ -27,17 +27,17 @@ import javax.ws.rs.core.Response;
 import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.recommendation.structure.RecommendationData;
+import esiptestbed.mudrod.recommendation.structure.HybridRecommendation;
 
 /**
- * A Dataset recommendation resource.
+ * A hybrid recommendation resource for datasets.
  */
-@Path("/recommendation")
-public class RecomDatasetsResource {
+@Path("/hrecommendation")
+public class HybridRecomDatasetsResource {
 
   private MudrodEngine mEngine;
 
-  public RecomDatasetsResource(@Context ServletContext sc) {
+  public HybridRecomDatasetsResource(@Context ServletContext sc) {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
   }
 
@@ -46,7 +46,7 @@ public class RecomDatasetsResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD Recommendation Datasets Resource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>").build();
   }
 
   @PUT
@@ -56,10 +56,12 @@ public class RecomDatasetsResource {
   public Response hybridRecommendation(@PathParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
-      RecommendationData recom = new RecommendationData(mEngine.getConfig(), mEngine.getESDriver(), null);
+      HybridRecommendation recom = new HybridRecommendation(mEngine.getConfig(),
+          mEngine.getESDriver(), null);
       json = new JsonObject();
-      json.add("RecommendationData", recom.getRecomDataInJson(shortName, 10));
+      json.add("HybridRecommendationData", recom.getRecomDataInJson(shortName, 10));
     }
     return Response.ok(json.toString(), MediaType.APPLICATION_JSON).build();
   }
+
 }

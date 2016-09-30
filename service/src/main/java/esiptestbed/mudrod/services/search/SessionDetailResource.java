@@ -13,15 +13,16 @@
  */
 package esiptestbed.mudrod.services.search;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,60 +35,40 @@ import esiptestbed.mudrod.weblog.structure.Session;
 /**
  * Servlet implementation class SessionDetail
  */
-@WebServlet("/SessionDetail")
-public class SessionDetailResource extends HttpServlet {
-  
+@Path("/sessiondetail")
+public class SessionDetailResource {
+
   private static final Logger LOG = LoggerFactory.getLogger(SessionDetailResource.class);
-  private static final long serialVersionUID = 1L;
+  private MudrodEngine mEngine;
 
   /**
    * Default constructor. 
    */
-  public SessionDetailResource() {
-    //default constructor
+  public SessionDetailResource(@Context ServletContext sc) {
+    this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
   }
 
-  /**
-   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-   */
-  @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String sessionID = request.getParameter("SessionID");
-    String cleanupType = request.getParameter("CleanupType");
-    PrintWriter out = null;
-    try {
-      out = response.getWriter();
-    } catch (IOException e) {
-      LOG.error("Error whilst obtaining the HttpServletResponse PrintWriter.", e);
-    }
+  @GET
+  @Path("/status")
+  @Produces("text/html")
+  public Response status() {
+    return Response
+        .ok("<h1>This is MUDROD Session Detail Search Resource: running correctly...</h1>").build();
+  }
 
+  @POST
+  @Path("{CleanupType}-{SessionID}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes("text/plain")
+  protected Response searchSessionDetail(
+      @PathParam("CleanupType") String cleanupType, @PathParam("SessionID") String sessionID) {
+
+    JsonObject json = new JsonObject();
     if(sessionID!=null) {
-      response.setContentType("application/json");  
-      response.setCharacterEncoding("UTF-8");
-
-      MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
-          .getAttribute("MudrodInstance");
-
-      Session session = new Session(mudrod.getConfig(), mudrod.getESDriver());
-      JsonObject json = session.getSessionDetail(cleanupType, sessionID);
-
-      out.print(json.toString());
-      out.flush();
-    } else {
-      out.print("Please input SessionID");
-      out.flush();
+      Session session = new Session(mEngine.getConfig(), mEngine.getESDriver());
+      json = session.getSessionDetail(cleanupType, sessionID);
     }
-  }
-
-  /**
-   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-   */
-  @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    try {
-      doGet(request, response);
-    } catch (ServletException | IOException e) {
-      LOG.error("There was an error whilst POST'ing the Session Detail.", e);
-    }
+    LOG.info("Response received: {}", json);
+    return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
 }

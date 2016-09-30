@@ -12,6 +12,6 @@
  * limitations under the License.
  */
 /**
- * This package includes all the MUDROD web services.
+ * This package includes base listeners, etc. for Mudrod services.
  */
 package esiptestbed.mudrod.services;

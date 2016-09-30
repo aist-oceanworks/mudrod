@@ -123,7 +123,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    * @throws IOException IOException
    */
   public void checkByRate() throws InterruptedException, IOException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
     SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))

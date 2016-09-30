@@ -14,12 +14,21 @@
 package esiptestbed.mudrod.services.search;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -27,59 +36,46 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
 import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
- * Servlet implementation class SearchVocabResource
+ * A Mudrod Search Vocabulary Resource
  */
-public class SearchVocabResource extends HttpServlet {
-  private static final long serialVersionUID = 1L;
+@Path("vocabulary")
+public class SearchVocabResource {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
+
+  private MudrodEngine mEngine;
 
   /**
    * @see HttpServlet#HttpServlet()
    */
-  public SearchVocabResource() {
-    super();
+  public SearchVocabResource(@Context ServletContext sc) {
+    this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
   }
 
-  /**
-   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-   *      response)
-   */
-  @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  @GET
+  @Path("/status")
+  @Produces("text/html")
+  public Response status() {
+    return Response
+        .ok("<h1>This is MUDROD SearchVocabResource: running correctly...</h1>").build();
+  }
+
+  @POST
+  @Path("{concept}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes("text/plain")
+  public Response searchVocabulary(@PathParam("query") String concept)
       throws ServletException, IOException {
-    String concept = request.getParameter("concept");
-    PrintWriter out = null;
-    try {
-      out = response.getWriter();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
 
+    JsonObject json = new JsonObject();
     if (concept != null) {
-      response.setContentType("application/json");
-      response.setCharacterEncoding("UTF-8");
-      MudrodEngine mudrod = (MudrodEngine) request.getServletContext()
-          .getAttribute("MudrodInstance");
-      LinkageIntegration li = new LinkageIntegration(mudrod.getConfig(),
-          mudrod.getESDriver(), null);
-
-      JsonObject jsonKb = new JsonObject();
-
-      jsonKb.add("graph", li.getIngeratedListInJson(concept));
-      out.print(jsonKb.toString());
-      out.flush();
-    } else {
-      out.print("Please input query");
-      out.flush();
+      LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),
+          mEngine.getESDriver(), null);
+      json = new JsonObject();
+      json.add("graph", li.getIngeratedListInJson(concept));
     }
-  }
-
-  /**
-   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-   *      response)
-   */
-  @Override
-  protected void doPost(HttpServletRequest request,
-      HttpServletResponse response) throws ServletException, IOException {
+    LOG.info("Response received: {}", json);
+    return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
 
 }

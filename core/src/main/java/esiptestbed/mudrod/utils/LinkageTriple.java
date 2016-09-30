@@ -40,6 +40,10 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 public class LinkageTriple implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // keyAId: ID of term A
   public long keyAId;
   // keyBId: ID of term B
@@ -80,7 +84,7 @@ public class LinkageTriple implements Serializable {
       LinkageTriple.addMapping(es, index, type);
     }
 
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     int size = triples.size();
     for (int i = 0; i < size; i++) {
 
@@ -131,14 +135,13 @@ public class LinkageTriple implements Serializable {
       es.getClient().admin().indices().preparePutMapping(index).setType(type)
           .setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
 
   public static void standardTriples(ESDriver es, String index, String type)
       throws IOException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     SearchResponse sr = es.getClient().prepareSearch(index).setTypes(type)
         .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
@@ -164,7 +167,7 @@ public class LinkageTriple implements Serializable {
           Map<String, Object> metadata = hit.getSource();
           double sim = (double) metadata.get("weight");
           double newSim = sim / maxSim;
-          UpdateRequest ur = es.genUpdateRequest(index, type, hit.getId(),
+          UpdateRequest ur = es.generateUpdateRequest(index, type, hit.getId(),
               "weight", Double.parseDouble(df.format(newSim)));
           es.getBulkProcessor().add(ur);
         }

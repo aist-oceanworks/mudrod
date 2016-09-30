@@ -77,11 +77,11 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   public void generateSession() {
     try {
-      es.createBulkProcesser();
+      es.createBulkProcessor();
       genSessionByReferer(Integer.parseInt(props.getProperty("timegap")));
       es.destroyBulkProcessor();
 
-      es.createBulkProcesser();
+      es.createBulkProcessor();
       combineShortSessions(Integer.parseInt(props.getProperty("timegap")));
       es.destroyBulkProcessor();
     } catch (ElasticsearchException e) {

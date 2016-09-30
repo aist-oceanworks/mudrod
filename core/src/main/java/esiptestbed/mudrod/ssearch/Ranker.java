@@ -109,10 +109,6 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @param std the standard deviation of an attribute
    * @return Z score
    */
-
-  private double getZscore(double val, double mean, double std) {
-    if(std != 0) {
-
   private double getZscore(double val, double mean, double std) {
     if(equalComp(std, 0)) {
       return getNDForm((val-mean)/std);
@@ -122,7 +118,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
   }
 
   private boolean equalComp(double a, double b) {
-    return (Math.abs(a - b) < 0.0001);
+    return Math.abs(a - b) < 0.0001;
   }
   
   /**
@@ -182,8 +178,8 @@ public class Ranker extends MudrodAbstract implements Serializable{
     }
 
     double[] ins = instList.stream().mapToDouble(i->i).toArray();
-    LabeledPoint ins_point = new LabeledPoint(99.0, Vectors.dense(ins));
-    double prediction = le.classify(ins_point);
+    LabeledPoint insPoint = new LabeledPoint(99.0, Vectors.dense(ins));
+    double prediction = le.classify(insPoint);
     if(equalComp(prediction, 1)) { //different from weka where the return value is 1 or 2
       return 0;
     } else {
