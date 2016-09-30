@@ -28,7 +28,7 @@
         <param-value>
           esiptestbed.mudrod.services.autocomplete.AutoCompleteResource,
           esiptestbed.mudrod.services.search.SearchDatasetDetailResource,
-          esiptestbed.mudrod.services.recommendation.HybirdRecomDatasetsResource,
+          esiptestbed.mudrod.services.recommendation.HybridRecomDatasetsResource,
           esiptestbed.mudrod.services.recommendation.RecomDatasetsResource,
           esiptestbed.mudrod.services.search.SearchMetadataResource,
           esiptestbed.mudrod.services.search.SearchVocabResource,
