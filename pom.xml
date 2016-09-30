@@ -395,7 +395,7 @@
       <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>2.3.5</version>
+        <version>5.0.0-beta1</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
@@ -411,9 +411,9 @@
         <scope>compile</scope>
       </dependency>
 	  <dependency>
-		<groupId>org.elasticsearch</groupId>
-		<artifactId>elasticsearch-spark_2.10</artifactId>
-		<version>2.3.1</version>
+	    <groupId>org.elasticsearch</groupId>
+	    <artifactId>elasticsearch-spark-20_2.11</artifactId>
+	    <version>5.0.0-beta1</version>
 	  </dependency>
       <dependency>
         <groupId>com.github.fommil.netlib</groupId>
