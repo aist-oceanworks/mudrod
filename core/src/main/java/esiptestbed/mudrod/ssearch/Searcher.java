@@ -13,6 +13,10 @@
  */
 package esiptestbed.mudrod.ssearch;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -21,15 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -38,6 +39,8 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.ssearch.ranking.AttributeExtractor;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
@@ -46,60 +49,10 @@ import esiptestbed.mudrod.ssearch.structure.SResult;
 public class Searcher extends MudrodAbstract implements Serializable {
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
+  AttributeExtractor attEx = new AttributeExtractor();
 
   public Searcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-  }
-
-  /**
-   * Method of converting processing level string into a number
-   *
-   * @param pro
-   *          processing level string
-   * @return processing level number
-   */
-  public Double getProLevelNum(String pro) {
-    if (pro == null) {
-      return 1.0;
-    }
-    Double proNum;
-    Pattern p = Pattern.compile(".*[a-zA-Z].*");
-    if (pro.matches("[0-9]{1}[a-zA-Z]{1}")) {
-      proNum = Double.parseDouble(pro.substring(0, 1));
-    } else if (p.matcher(pro).find()) {
-      proNum = 1.0;
-    } else {
-      proNum = Double.parseDouble(pro);
-    }
-
-    return proNum;
-  }
-
-  public Double getPop(Double pop) {
-    if (pop > 1000) {
-      pop = 1000.0;
-    }
-    return pop;
-  }
-
-  /**
-   * Method of checking if query exists in a certain attribute
-   *
-   * @param strList
-   *          attribute value in the form of ArrayList
-   * @param query
-   *          query string
-   * @return 1 means query exists, 0 otherwise
-   */
-  public Double exists(ArrayList<String> strList, String query) {
-    Double val = 0.0;
-    if (strList != null) {
-      String str = String.join(", ", strList);
-      if (str != null && str.length() != 0 && str.toLowerCase().trim().contains(query)) {
-        val = 1.0;
-      }
-    }
-    return val;
   }
 
   /**
@@ -154,26 +107,40 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
+      ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
+      String version=null;
+      if(versionList!=null)
+      {
+        if(versionList.size()>0)
+        {
+          version = versionList.get(0);
+        }
+      }
+      Double versionNum = attEx.getVersionNum(version);
       String processingLevel = (String) result.get("Dataset-ProcessingLevel");
-      Double proNum = getProLevelNum(processingLevel);
+      Double proNum = attEx.getProLevelNum(processingLevel);
 
-      Double userPop = getPop(
+      Double userPop = attEx.getPop(
           ((Integer) result.get("Dataset-UserPopularity")).doubleValue());
-      Double allPop = getPop(
+      Double allPop = attEx.getPop(
           ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
-      Double monthPop = getPop(
+      Double monthPop = attEx.getPop(
           ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
+      Double spatialR = attEx.getSpatialR(result);
+      Double temporalR = attEx.getTemporalR(result);
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
-
       SResult.set(re, "term", relevance);
       SResult.set(re, "releaseDate",
           Long.valueOf(longdate.get(0)).doubleValue());
+      SResult.set(re, "versionNum", versionNum);
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);
       SResult.set(re, "allPop", allPop);
       SResult.set(re, "monthPop", monthPop);
+      SResult.set(re, "spatialR", spatialR);
+      SResult.set(re, "temporalR", temporalR);
 
       QueryBuilder query_label_search = QueryBuilders.boolQuery()
           .must(QueryBuilders.termQuery("query", query))
@@ -235,5 +202,46 @@ public class Searcher extends MudrodAbstract implements Serializable {
     JsonObject PDResults = new JsonObject();
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
+  }
+
+
+  public static void main(String[] args) throws IOException {
+    String learnerType = "SparkSVM";
+
+    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+        "saline density", "pathfinder", "gravity", "ocean pressure", "radar", "sea ice"};
+    //String[] query_list = {"ocean wind"};
+
+    MudrodEngine me = new MudrodEngine();
+    Properties props = me.loadConfig();
+    me.setESDriver(new ESDriver(props));
+    me.setSparkDriver(new SparkDriver());
+
+    Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
+    for(String q:query_list)
+    {
+      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + q + "_" + learnerType + ".csv");
+      if (file.exists()) {
+        file.delete();
+      }
+
+      file.createNewFile();
+
+      FileWriter fw = new FileWriter(file.getAbsoluteFile());
+      BufferedWriter bw = new BufferedWriter(fw); 
+      bw.write(SResult.getHeader(","));
+
+      List<SResult> resultList = sr.searchByQuery(me.getConfig().getProperty("indexName"), 
+          me.getConfig().getProperty("raw_metadataType"), q, "phrase");
+      Ranker rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType);
+      List<SResult> li = rr.rank(resultList);
+      for(int i =0; i< li.size(); i++)
+      {
+        bw.write(li.get(i).toString(","));
+      }
+      bw.close();
+    }
+
+    me.end();   
   }
 }

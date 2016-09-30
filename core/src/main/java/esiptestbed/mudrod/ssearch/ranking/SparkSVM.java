@@ -32,17 +32,26 @@ public class SparkSVM {
     MudrodEngine me = new MudrodEngine();
 
     JavaSparkContext jsc = me.startSparkDriver().sc;
-
-    String path = SparkSVM.class.getClassLoader().getResource("inputDataForSVM_spark.txt").toString();
+    //SparkContext sc = JavaSparkContext.toSparkContext(jsc);
+    
+    String path = "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt";
     JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), path).toJavaRDD();
+
+    // Split initial RDD into two... [60% training data, 40% testing data].
+    /*JavaRDD<LabeledPoint> training = data.sample(false, 0.6, 11L);
+    training.cache();
+    JavaRDD<LabeledPoint> test = data.subtract(training);*/
 
     // Run training algorithm to build the model.
     int numIterations = 100;
+    //final SVMModel model = SVMWithSGD.train(training.rdd(), numIterations);
     final SVMModel model = SVMWithSGD.train(data.rdd(), numIterations);
 
     // Save and load model
-    model.save(jsc.sc(), SparkSVM.class.getClassLoader().getResource("javaSVMWithSGDModel").toString());
-
+    model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model0930");
+    
+    //SVMModel Model = SVMModel.load(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
+    
     jsc.sc().stop();
 
   }

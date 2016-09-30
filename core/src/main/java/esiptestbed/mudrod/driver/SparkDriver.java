@@ -30,6 +30,7 @@ public class SparkDriver implements Serializable {
   public SparkDriver() {
     SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]")
         .set("spark.hadoop.validateOutputSpecs", "false")
+        .set("spark.sql.warehouse.dir", "file:///c:/tmp/spark-warehouse")
         .set("spark.files.overwrite", "true");
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);

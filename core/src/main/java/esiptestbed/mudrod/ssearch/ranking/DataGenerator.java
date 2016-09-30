@@ -346,5 +346,12 @@ public class DataGenerator {
       e.printStackTrace();
     }
   }
+  
+  public static void main(String[] args) {
+    DataGenerator dg = new DataGenerator("C:/mudrodCoreTestData/rankingResults/test/dataforSVM", 
+        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv", 
+        true);
+    dg.process();
+  }
 
 }

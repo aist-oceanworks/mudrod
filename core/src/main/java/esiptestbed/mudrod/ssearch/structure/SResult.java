@@ -19,8 +19,8 @@ import java.lang.reflect.Field;
  * Data structure class for search result 
  */
 public class SResult {
-  public static final String rlist[] = {"term_score", "releaseDate_score", /*"versionNum_score",*/ "processingL_score", 
-      "allPop_score", "monthPop_score", "userPop_score"/*, "termAndv_score"*/};
+  public static final String rlist[] = {"term_score", "releaseDate_score", "versionNum_score", "processingL_score", 
+      "allPop_score", "monthPop_score", "userPop_score", "spatialR_score", "temporalR_score"};
   String shortName = null;
   String longName = null;
   String topic = null;
@@ -36,23 +36,17 @@ public class SResult {
   public Double allPop_score = 0.0;
   public Double monthPop_score = 0.0;
   public Double userPop_score = 0.0;
-  public Double termAndv_score = 0.0;
+  public Double spatialR_score = 0.0;
+  public Double temporalR_score = 0.0;
   public Integer below = 0;
-  
-  public Double Dataset_LongName_score = null;
-  public Double Dataset_Metadata_score = null;
-  public Double DatasetParameter_Term_score = null; 
-  public Double DatasetSource_Source_LongName_score = null;
-  public Double DatasetSource_Sensor_LongName_score = null;
   
   public String version = null;
   public String processingLevel = null;
   public String latency = null;
   public String stopDateLong = null;
   public String stopDateFormat = null;
-  public Double spatialR_Sat = null;
-  public Double spatialR_Grid = null;
-  public String temporalR = null;
+  public Double spatialR = null;
+  public Double temporalR = null;
   
   public Double releaseDate = null;
   public Double click = null;
@@ -63,12 +57,6 @@ public class SResult {
   public Double monthPop = null;
   public Double userPop = null;
   public Double termAndv = null;
-  
-  public Double Dataset_LongName = null;
-  public Double Dataset_Metadata = null;
-  public Double DatasetParameter_Term = null; 
-  public Double DatasetSource_Source_LongName = null;
-  public Double DatasetSource_Sensor_LongName = null;
   
   public Double prediction = 0.0;
   public String label = null;
@@ -106,8 +94,10 @@ public class SResult {
     {
       str += rlist[i] + delimiter;
     }
+    //str = str + "label,spatialR,temporalR" + "\n";
     str = str + "label" + "\n";
-    return "ShortName" + delimiter + "below" + delimiter + str;
+    //return "ShortName" + delimiter + "below" + delimiter + str;
+    return str;
   }
  
   /**
@@ -122,8 +112,10 @@ public class SResult {
       double score = get(this, rlist[i]);
       str += score + delimiter;
     }
+    //str = str + label + delimiter + spatialR + delimiter + temporalR + "\n";
     str = str + label + "\n";
-    return shortName + delimiter + below + delimiter + str;
+    //return shortName + delimiter + below + delimiter + str;
+    return str;
   }
 
   /**

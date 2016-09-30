@@ -41,8 +41,8 @@ public class Learner implements Serializable{
     if(classifierName.equals(SPARKSVM)) {
       sc = skd.sc.sc();
       //String svmSgdModel = getClass().getClassLoader().getResource("javaSVMWithSGDModel").toString();
-      String svmSgdModel = "file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel";
-      sc.addFile(svmSgdModel, true);
+      String svmSgdModel = "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model0930";
+      //sc.addFile(svmSgdModel, true);
       model = SVMModel.load(sc, svmSgdModel);
     }
   }

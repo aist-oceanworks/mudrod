@@ -110,7 +110,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @return Z score
    */
   private double getZscore(double val, double mean, double std) {
-    if(equalComp(std, 0)) {
+    if(!equalComp(std, 0)) {
       return getNDForm((val-mean)/std);
     } else {
       return 0;
@@ -118,9 +118,12 @@ public class Ranker extends MudrodAbstract implements Serializable{
   }
 
   private boolean equalComp(double a, double b) {
-    return Math.abs(a - b) < 0.0001;
+    if(Math.abs(a - b) < 0.0001)
+      return true;
+    else
+      return false;
   }
-  
+
   /**
    * Get the first N decimals of a double value
    * @param d double value that needs to be processed
