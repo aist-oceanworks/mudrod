@@ -63,6 +63,8 @@
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
   
+  <para name="svmSgdModel">file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel</para>
+  
   <!-- 
   The ontology service implementation. Possible values include
    EsipSRI - esiptestbed.mudrod.ontology.process.EsipSRI

@@ -37,11 +37,9 @@ public class Learner implements Serializable{
    * @param classifierName classifier type
    * @param skd an instance of spark driver
    */
-  public Learner(String classifierName, SparkDriver skd) {
+  public Learner(String classifierName, SparkDriver skd, String svmSgdModel) {
     if(classifierName.equals(SPARKSVM)) {
       sc = skd.sc.sc();
-      //String svmSgdModel = getClass().getClassLoader().getResource("javaSVMWithSGDModel").toString();
-      String svmSgdModel = "file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel";
       sc.addFile(svmSgdModel, true);
       model = SVMModel.load(sc, svmSgdModel);
     }
