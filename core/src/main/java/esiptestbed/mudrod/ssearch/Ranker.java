@@ -28,6 +28,7 @@ import java.util.List;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.ssearch.ranking.Learner;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
@@ -47,7 +48,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
   public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
-    le = new Learner(learnerType, spark);
+    le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.SVM_SGD_MODEL));
   }
 
   /**
