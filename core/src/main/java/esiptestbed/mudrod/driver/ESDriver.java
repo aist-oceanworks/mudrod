@@ -14,7 +14,6 @@
 package esiptestbed.mudrod.driver;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,10 +38,9 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.action.suggest.SuggestRequestBuilder;
-import org.elasticsearch.action.suggest.SuggestResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -52,7 +50,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -60,7 +57,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.suggest.Suggest;
-import org.elasticsearch.search.suggest.completion.CompletionSuggestionFuzzyBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +105,8 @@ public class ESDriver implements Serializable {
   }
 
   public void createBulkProcesser() {
-    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", 1000, 2500500);
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
+        1000, 2500500);
     setBulkProcessor(
         BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
           @Override
@@ -126,10 +126,10 @@ public class ESDriver implements Serializable {
                 + ", failure: " + failure, failure);
           }
         }).setBulkActions(1000)
-        .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
-        .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
-            TimeValue.timeValueMillis(100), 10))
-        .setConcurrentRequests(1).build());
+            .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
+            .setBackoffPolicy(BackoffPolicy
+                .exponentialBackoff(TimeValue.timeValueMillis(100), 10))
+            .setConcurrentRequests(1).build());
   }
 
   public void destroyBulkProcessor() {
@@ -152,10 +152,10 @@ public class ESDriver implements Serializable {
     }
 
     getClient().admin().indices().prepareCreate(indexName)
-    .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
-    .actionGet();
+        .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
+        .actionGet();
     getClient().admin().indices().preparePutMapping(indexName)
-    .setType("_default_").setSource(mappingJson).execute().actionGet();
+        .setType("_default_").setSource(mappingJson).execute().actionGet();
   }
 
   public String customAnalyzing(String indexName, String str)
@@ -195,7 +195,7 @@ public class ESDriver implements Serializable {
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcesser();
     SearchResponse scrollResp = getClient().prepareSearch(index)
-        .setSearchType(SearchType.SCAN).setTypes(type)
+        .setSearchType(SearchType.QUERY_AND_FETCH).setTypes(type)
         .setScroll(new TimeValue(60000)).setQuery(query).setSize(10000)
         .execute().actionGet();
 
@@ -250,7 +250,7 @@ public class ESDriver implements Serializable {
   @SuppressWarnings("unchecked")
   public String searchByQuery(String index, String Type, String query,
       Boolean bDetail)
-          throws IOException, InterruptedException, ExecutionException {
+      throws IOException, InterruptedException, ExecutionException {
     boolean exists = getClient().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {
@@ -347,18 +347,12 @@ public class ESDriver implements Serializable {
 
     List<String> suggestList = new ArrayList<>();
 
-    CompletionSuggestionFuzzyBuilder suggestionsBuilder = new CompletionSuggestionFuzzyBuilder(
-        "completeMe");
-    suggestionsBuilder.text(chars);
-    suggestionsBuilder.size(10);
-    suggestionsBuilder.field("name_suggest");
-    suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));
+    SearchRequestBuilder suggestRequestBuilder = getClient()
+        .prepareSearch(index)
+        .suggest(new SuggestBuilder().addSuggestion("completeMe",
+            SuggestBuilders.completionSuggestion("field").text(chars)));
 
-    SuggestRequestBuilder suggestRequestBuilder = getClient()
-        .prepareSuggest(index).addSuggestion(suggestionsBuilder);
-
-    SuggestResponse suggestResponse = suggestRequestBuilder.execute()
-        .actionGet();
+    SearchResponse suggestResponse = suggestRequestBuilder.get();
 
     Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = suggestResponse
         .getSuggest().getSuggestion("completeMe").iterator().next().getOptions()
@@ -397,7 +391,7 @@ public class ESDriver implements Serializable {
     String portStr = props.getProperty(MudrodConstants.ES_TRANSPORT_TCP_PORT);
     int port = Integer.parseInt(portStr);
 
-    Settings.Builder settingsBuilder = Settings.settingsBuilder();
+    Settings.Builder settingsBuilder = Settings.builder();
 
     // Set the cluster name and build the settings
     if (StringUtils.isNotBlank(clusterName))
@@ -409,14 +403,13 @@ public class ESDriver implements Serializable {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
-      TransportClient transportClient = TransportClient.builder()
-          .settings(settings).build();
+      TransportClient transportClient = new PreBuiltTransportClient(settings);
       for (String host : hosts)
         transportClient.addTransportAddress(
             new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
     } else if (clusterName != null) {
-      node = nodeBuilder().settings(settings).client(true).node();
+      node = new Node(settings);
       client = node.client();
     }
 
@@ -458,7 +451,8 @@ public class ESDriver implements Serializable {
   }
 
   /**
-   * @param bulkProcessor the bulkProcessor to set  
+   * @param bulkProcessor
+   *          the bulkProcessor to set
    */
   public void setBulkProcessor(BulkProcessor bulkProcessor) {
     this.bulkProcessor = bulkProcessor;

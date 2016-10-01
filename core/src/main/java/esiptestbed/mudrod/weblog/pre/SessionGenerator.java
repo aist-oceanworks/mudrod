@@ -24,30 +24,30 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
+import org.elasticsearch.search.aggregations.metrics.stats.StatsAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.structure.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Supports ability to generate user session by time threshold and referrer
@@ -58,7 +58,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(SessionGenerator.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SessionGenerator.class);
 
   public SessionGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -71,7 +72,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     generateSession();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Session generating complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
+    LOG.info("Session generating complete. Time elapsed {} seconds.",
+        (endTime - startTime) / 1000);
     return null;
   }
 
@@ -94,17 +96,23 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   /**
    * Method to generate session by time threshold and referrer
-   * @param timeThres value of time threshold (s)
-   * @throws ElasticsearchException ElasticsearchException
-   * @throws IOException IOException
+   * 
+   * @param timeThres
+   *          value of time threshold (s)
+   * @throws ElasticsearchException
+   *           ElasticsearchException
+   * @throws IOException
+   *           IOException
    */
   public void genSessionByReferer(int timeThres)
       throws ElasticsearchException, IOException {
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
+    SearchRequestBuilder srBuilder = es.getClient()
+        .prepareSearch(props.getProperty("indexName"))
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0)
-        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
-        .execute().actionGet();
+        .addAggregation(AggregationBuilders.terms("Users").field("IP"));
+
+    SearchResponse sr = srBuilder.execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
 
     int sessionCount = 0;
@@ -114,15 +122,13 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       int sessionCountIn = 0;
 
       QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("IP", entry.getKey()));
-      QueryBuilder querySearch = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
 
       SearchResponse scrollResp = es.getClient()
-          .prepareSearch(props.getProperty("indexName")).setTypes(this.cleanupType)
-          .setScroll(new TimeValue(60000)).setQuery(querySearch)
-          .addSort("Time", SortOrder.ASC) 
-          .setSize(100).execute().actionGet();
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
+          .setQuery(filterSearch).addSort("Time", SortOrder.ASC).setSize(100)
+          .execute().actionGet();
 
       Map<String, Map<String, DateTime>> sessionReqs = new HashMap<>();
       String request = "";
@@ -170,8 +176,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
                   break;
                 }
-                ArrayList<String> keys = new ArrayList<>(
-                    requests.keySet());
+                ArrayList<String> keys = new ArrayList<>(requests.keySet());
                 boolean bFindRefer = false;
 
                 for (int i = keys.size() - 1; i >= 0; i--) {
@@ -182,10 +187,10 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                     // click num, start a new session
                     if (Math.abs(
                         Seconds.secondsBetween(requests.get(keys.get(i)), time)
-                        .getSeconds()) < timeThres * rollbackNum) {
+                            .getSeconds()) < timeThres * rollbackNum) {
                       sessionReqs.get(ip + "@" + count).put(request, time);
-                      update(props.getProperty("indexName"), this.cleanupType, id,
-                          "SessionID", ip + "@" + count);
+                      update(props.getProperty("indexName"), this.cleanupType,
+                          id, "SessionID", ip + "@" + count);
                     } else {
                       sessionCount++;
                       sessionCountIn++;
@@ -193,8 +198,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                           new HashMap<String, DateTime>());
                       sessionReqs.get(ip + "@" + sessionCountIn).put(request,
                           time);
-                      update(props.getProperty("indexName"), this.cleanupType, id,
-                          "SessionID", ip + "@" + sessionCountIn);
+                      update(props.getProperty("indexName"), this.cleanupType,
+                          id, "SessionID", ip + "@" + sessionCountIn);
                     }
 
                     break;
@@ -213,10 +218,10 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
                   sessionReqs.put(ip + "@" + sessionCountIn,
                       new HashMap<String, DateTime>());
-                  sessionReqs.get(ip + "@" + sessionCountIn).put(request,
-                      time);
-                  update(props.getProperty(MudrodConstants.ES_INDEX_NAME), this.cleanupType, id,
-                      "SessionID", ip + "@" + sessionCountIn);
+                  sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
+                  update(props.getProperty(MudrodConstants.ES_INDEX_NAME),
+                      this.cleanupType, id, "SessionID",
+                      ip + "@" + sessionCountIn);
 
                   break;
                 }
@@ -235,7 +240,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
               int size = keys.size();
               if (Math.abs(
                   Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-                  .getSeconds()) > timeThres) {
+                      .getSeconds()) > timeThres) {
                 sessionCount += 1;
                 sessionCountIn += 1;
                 sessionReqs.put(ip + "@" + sessionCountIn,
@@ -243,50 +248,55 @@ public class SessionGenerator extends DiscoveryStepAbstract {
               }
             }
             sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
-            update(props.getProperty("indexName"), this.cleanupType, id, "SessionID",
-                ip + "@" + sessionCountIn);
+            update(props.getProperty("indexName"), this.cleanupType, id,
+                "SessionID", ip + "@" + sessionCountIn);
           }
         }
 
-        scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
+        scrollResp = es.getClient()
+            .prepareSearchScroll(scrollResp.getScrollId())
             .setScroll(new TimeValue(600000)).execute().actionGet();
       }
     }
+
+    LOG.info("Initial session count: {}", Integer.toString(sessionCount));
   }
 
   public void combineShortSessions(int Timethres)
       throws ElasticsearchException, IOException {
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
+
+    SearchRequestBuilder srBuilder = es.getClient()
+        .prepareSearch(props.getProperty("indexName"))
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
-        .execute().actionGet();
+        .setSize(0)
+        .addAggregation(AggregationBuilders.terms("Users").field("IP"));
+
+    SearchResponse sr = srBuilder.execute().actionGet();
+
     Terms users = sr.getAggregations().get("Users");
 
     for (Terms.Bucket entry : users.getBuckets()) {
       QueryBuilder filterAll = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("IP", entry.getKey()));
-      QueryBuilder queryAll = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filterAll);
+          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
       SearchResponse checkAll = es.getClient()
-          .prepareSearch(props.getProperty("indexName")).setTypes(this.cleanupType)
-          .setScroll(new TimeValue(60000)).setQuery(queryAll).setSize(0)
-          .execute().actionGet();
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
+          .setQuery(filterAll).setSize(0).execute().actionGet();
 
       long all = checkAll.getHits().getTotalHits();
 
       QueryBuilder filterCheck = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("IP", entry.getKey()))
-          .must(QueryBuilders.termQuery("Referer", "-"));
-      QueryBuilder queryCheck = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filterCheck);
+          .filter(QueryBuilders.termQuery("IP", entry.getKey()))
+          .filter(QueryBuilders.termQuery("Referer", "-"));
+
       SearchResponse checkReferer = es.getClient()
-          .prepareSearch(props.getProperty("indexName")).setTypes(this.cleanupType)
-          .setScroll(new TimeValue(60000)).setQuery(queryCheck).setSize(0)
-          .execute().actionGet();
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
+          .setQuery(filterCheck).setSize(0).execute().actionGet();
 
       long numInvalid = checkReferer.getHits().getTotalHits();
 
-      double invalidRate = (float) (numInvalid / all);
+      double invalidRate = numInvalid / all;
 
       if (invalidRate >= 0.8 || all < 3) {
         deleteInvalid(entry.getKey().toString());
@@ -294,17 +304,16 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       }
 
       QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("IP", entry.getKey()));
-      QueryBuilder querySearch = QueryBuilders
-          .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
 
-      MetricsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
+      StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
           .field("Time");
       SearchResponse sr_session = es.getClient()
-          .prepareSearch(props.getProperty("indexName")).setTypes(this.cleanupType)
-          .setScroll(new TimeValue(60000)).setQuery(querySearch)
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
+          .setQuery(filterSearch)
           .addAggregation(AggregationBuilders.terms("Sessions")
-              .field("SessionID").size(0).subAggregation(statsAgg))
+              .field("SessionID")/*.size(0)*/.subAggregation(statsAgg))
           .execute().actionGet();
 
       Terms sessions = sr_session.getAggregations().get("Sessions");
@@ -335,13 +344,12 @@ public class SessionGenerator extends DiscoveryStepAbstract {
             }
 
             QueryBuilder fs = QueryBuilders.boolQuery()
-                .must(QueryBuilders.termQuery("SessionID", s.getID()));
-            QueryBuilder qs = QueryBuilders
-                .filteredQuery(QueryBuilders.matchAllQuery(), fs);
+                .filter(QueryBuilders.termQuery("SessionID", s.getID()));
+
             SearchResponse scrollResp = es.getClient()
                 .prepareSearch(props.getProperty("indexName"))
                 .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-                .setQuery(qs).setSize(100).execute().actionGet();
+                .setQuery(fs).setSize(100).execute().actionGet();
             while (true) {
               for (SearchHit hit : scrollResp.getHits().getHits()) {
                 if (lastnewID == null) {
@@ -372,23 +380,26 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   /**
    * Method to remove invalid logs through IP address
-   * @param ip invalid IP address
-   * @throws ElasticsearchException ElasticsearchException
-   * @throws IOException IOException
+   * 
+   * @param ip
+   *          invalid IP address
+   * @throws ElasticsearchException
+   *           ElasticsearchException
+   * @throws IOException
+   *           IOException
    */
   public void deleteInvalid(String ip) throws IOException {
     QueryBuilder filterAll = QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery("IP", ip));
-    QueryBuilder queryAll = QueryBuilders
-        .filteredQuery(QueryBuilders.matchAllQuery(), filterAll);
+        .filter(QueryBuilders.termQuery("IP", ip));
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(props.getProperty("indexName"))
+    SearchResponse scrollResp = es.getClient()
+        .prepareSearch(props.getProperty("indexName"))
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(queryAll).setSize(100).execute().actionGet();
+        .setQuery(filterAll).setSize(100).execute().actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
-        update(props.getProperty("indexName"), cleanupType, hit.getId(), "SessionID",
-            "invalid");
+        update(props.getProperty("indexName"), cleanupType, hit.getId(),
+            "SessionID", "invalid");
       }
 
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
@@ -401,15 +412,22 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   /**
    * Method to update a Elasticsearch record/document by id, field, and value
-   * @param index index name is Elasticsearch
-   * @param type type name
-   * @param id ID of the document that needs to be updated
-   * @param field1 field of the document that needs to be updated
-   * @param value1 value of the document that needs to be changed to
+   * 
+   * @param index
+   *          index name is Elasticsearch
+   * @param type
+   *          type name
+   * @param id
+   *          ID of the document that needs to be updated
+   * @param field1
+   *          field of the document that needs to be updated
+   * @param value1
+   *          value of the document that needs to be changed to
    * @throws ElasticsearchException
    * @throws IOException
    */
-  private void update(String index, String type, String id, String field1, Object value1) throws IOException {
+  private void update(String index, String type, String id, String field1,
+      Object value1) throws IOException {
     UpdateRequest ur = new UpdateRequest(index, type, id)
         .doc(jsonBuilder().startObject().field(field1, value1).endObject());
     es.getBulkProcessor().add(ur);

@@ -361,11 +361,10 @@ public class MudrodEngine {
       }
       me.end();
     } catch (Exception e) {
+      LOG.error(e.getMessage());
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp(
-          "MudrodEngine: 'logDir' argument is mandatory. "
-              + "User must also provide an ingest method.",
-          options, true);
+      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
+          + "User must also provide an ingest method.", options, true);
       return;
     }
   }
@@ -392,6 +391,7 @@ public class MudrodEngine {
 
   /**
    * Obtain the spark implementation.
+   * 
    * @return the {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public SparkDriver getSparkDriver() {
@@ -400,10 +400,12 @@ public class MudrodEngine {
 
   /**
    * Set the {@link esiptestbed.mudrod.driver.SparkDriver}
-   * @param sparkDriver a configured {@link esiptestbed.mudrod.driver.SparkDriver}
+   * 
+   * @param sparkDriver
+   *          a configured {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;
-    
+
   }
 }

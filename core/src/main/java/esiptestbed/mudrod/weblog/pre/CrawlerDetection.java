@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -46,17 +47,18 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
 
 /**
- * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract} implementation
- * which detects a known list of Web crawlers which may may be present within, and 
- * pollute various logs acting as input to Mudrod.
+ * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract}
+ * implementation which detects a known list of Web crawlers which may may be
+ * present within, and pollute various logs acting as input to Mudrod.
  */
 public class CrawlerDetection extends DiscoveryStepAbstract {
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
-  
+  private static final Logger LOG = LoggerFactory
+      .getLogger(CrawlerDetection.class);
+
   public static final String CRAWLER = "crawler";
   public static final String GOOGLE_BOT = "googlebot";
   public static final String BING_BOT = "bingbot";
@@ -64,7 +66,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   public static final String YACY_BOT = "yacybot";
   public static final String ROGER_BOT = "rogerbot";
   public static final String YANDEX_BOT = "yandexbot";
-  
+
   public static final String NO_AGENT_BOT = "-";
   public static final String PERL_BOT = "libwww-perl/";
   public static final String APACHE_HHTP = "apache-httpclient/";
@@ -72,11 +74,17 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   public static final String CURL = "curl/";
 
   /**
-   * Paramterized constructor to instantiate a configured instance of 
+   * Paramterized constructor to instantiate a configured instance of
    * {@link esiptestbed.mudrod.weblog.pre.CrawlerDetection}
-   * @param props populated {@link java.util.Properties} object
-   * @param es {@link esiptestbed.mudrod.driver.ESDriver} object to use in crawler detection preprocessing.
-   * @param spark {@link esiptestbed.mudrod.driver.SparkDriver} object to use in crawler detection preprocessing.
+   * 
+   * @param props
+   *          populated {@link java.util.Properties} object
+   * @param es
+   *          {@link esiptestbed.mudrod.driver.ESDriver} object to use in
+   *          crawler detection preprocessing.
+   * @param spark
+   *          {@link esiptestbed.mudrod.driver.SparkDriver} object to use in
+   *          crawler detection preprocessing.
    */
   public CrawlerDetection(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -97,13 +105,16 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Crawler detection complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
+    LOG.info("Crawler detection complete. Time elapsed {} seconds",
+        (endTime - startTime) / 1000);
     return null;
   }
 
   /**
    * Check known crawler through crawler agent name list
-   * @param agent name of a log line
+   * 
+   * @param agent
+   *          name of a log line
    * @return 1 if the log is initiated by crawler, 0 otherwise
    */
   public boolean checkKnownCrawler(String agent) {
@@ -111,7 +122,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT)
         || agent.contains(BING_BOT) || agent.contains(APACHE_HHTP)
         || agent.contains(PERL_BOT) || agent.contains(YAHOO_BOT)
-        || agent.contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT)       
+        || agent.contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT)
         || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP)
         || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
       return true;
@@ -122,18 +133,23 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   }
 
   /**
-   * Check crawler by request sending rate, which is read from configruation file
-   * @throws InterruptedException InterruptedException
-   * @throws IOException IOException
+   * Check crawler by request sending rate, which is read from configruation
+   * file
+   * 
+   * @throws InterruptedException
+   *           InterruptedException
+   * @throws IOException
+   *           IOException
    */
   public void checkByRate() throws InterruptedException, IOException {
     es.createBulkProcesser();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+    SearchRequestBuilder srbuilder = es.getClient()
+        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
         .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
-        .execute().actionGet();
+        .addAggregation(AggregationBuilders.terms("Users").field("IP"));
+    SearchResponse sr = srbuilder.execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
 
     int userCount = 0;
@@ -142,19 +158,16 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     Matcher matcher;
     for (Terms.Bucket entry : users.getBuckets()) {
       QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("IP", entry.getKey()));
-      QueryBuilder querySearch = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
 
       AggregationBuilder aggregation = AggregationBuilders
-          .dateHistogram("by_minute")
-          .field("Time")
-          .interval(DateHistogramInterval.MINUTE)
+          .dateHistogram("by_minute").field("Time")
+          .dateHistogramInterval(DateHistogramInterval.MINUTE)
           .order(Order.COUNT_DESC);
       SearchResponse checkRobot = es.getClient()
-          .prepareSearch(props.getProperty("indexName")).setTypes(httpType, ftpType)
-          .setQuery(querySearch).setSize(0)
-          .addAggregation(aggregation)
-          .execute().actionGet();
+          .prepareSearch(props.getProperty("indexName"))
+          .setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0)
+          .addAggregation(aggregation).execute().actionGet();
 
       Histogram agg = checkRobot.getAggregations().get("by_minute");
 
@@ -168,7 +181,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
         SearchResponse scrollResp = es.getClient()
             .prepareSearch(props.getProperty("indexName"))
             .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
-            .setQuery(querySearch).setSize(100).execute().actionGet();
+            .setQuery(filterSearch).setSize(100).execute().actionGet();
         while (true) {
           for (SearchHit hit : scrollResp.getHits().getHits()) {
             Map<String, Object> result = hit.getSource();
@@ -187,7 +200,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
                 result.put("RequestUrl", request);
               }
             } else {
-              result.put("RequestUrl", (String) result.get("Request"));
+              result.put("RequestUrl", result.get("Request"));
             }
 
             DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -206,7 +219,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
             dt1 = dt2;
           }
 
-          scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
+          scrollResp = es.getClient()
+              .prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
           if (scrollResp.getHits().getHits().length == 0) {
             break;
@@ -263,16 +277,15 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     Matcher matcher;
 
     QueryBuilder filterSearch = QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery("IP", user));
-    QueryBuilder querySearch = QueryBuilders
-        .filteredQuery(QueryBuilders.matchAllQuery(), filterSearch);
+        .filter(QueryBuilders.termQuery("IP", user));
 
     AggregationBuilder aggregation = AggregationBuilders
         .dateHistogram("by_minute").field("Time")
-        .interval(DateHistogramInterval.MINUTE).order(Order.COUNT_DESC);
+        .dateHistogramInterval(DateHistogramInterval.MINUTE)
+        .order(Order.COUNT_DESC);
     SearchResponse checkRobot = es.getClient()
         .prepareSearch(props.getProperty("indexName"))
-        .setTypes(httpType, ftpType).setQuery(querySearch).setSize(0)
+        .setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0)
         .addAggregation(aggregation).execute().actionGet();
 
     Histogram agg = checkRobot.getAggregations().get("by_minute");
@@ -287,7 +300,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
       SearchResponse scrollResp = es.getClient()
           .prepareSearch(props.getProperty("indexName"))
           .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
-          .setQuery(querySearch).setSize(100).execute().actionGet();
+          .setQuery(filterSearch).setSize(100).execute().actionGet();
       while (true) {
         for (SearchHit hit : scrollResp.getHits().getHits()) {
           Map<String, Object> result = hit.getSource();
