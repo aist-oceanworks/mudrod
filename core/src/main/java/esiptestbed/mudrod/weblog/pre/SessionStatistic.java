@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
 /**
@@ -100,13 +101,15 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     String inputType = this.cleanupType;
     String outputType = this.sessionStats;
 
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, inputType);
+
     StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr = es.getClient()
-        .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
-        .setQuery(QueryBuilders.matchAllQuery())
+    SearchResponse sr = es.getClient().prepareSearch(indexName)
+        .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .subAggregation(statsAgg))
+            .size(docCount).subAggregation(statsAgg))
         .execute().actionGet();
 
     Terms Sessions = sr.getAggregations().get("Sessions");
@@ -144,10 +147,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         QueryBuilder filter_search = QueryBuilders.boolQuery()
             .filter(QueryBuilders.termQuery("SessionID", entry.getKey()));
 
-        SearchResponse scrollResp = es.getClient()
-            .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
-            .setScroll(new TimeValue(60000)).setQuery(filter_search)
-            .setSize(100).execute().actionGet();
+        SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
+            .setTypes(inputType).setScroll(new TimeValue(60000))
+            .setQuery(filter_search).setSize(100).execute().actionGet();
 
         while (true) {
           for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -221,7 +223,6 @@ public class SessionStatistic extends DiscoveryStepAbstract {
                 }
               }
             }
-
           }
 
           scrollResp = es.getClient()
@@ -250,28 +251,25 @@ public class SessionStatistic extends DiscoveryStepAbstract {
               + "&sessionType=" + outputType + "&requestType=" + inputType;
           session_count++;
 
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-              outputType).source(
-                  jsonBuilder().startObject().field("SessionID", entry.getKey())
-                      .field("SessionURL", sessionURL)
-                      .field("Request_count", entry.getDocCount())
-                      .field("Duration", duration)
-                      .field("Number of Keywords", keywords_num)
-                      .field("Time", min).field("End_time", max)
-                      .field("searchDataListRequest_count",
-                          searchDataListRequest_count)
-                      .field("searchDataListRequest_byKeywords_count",
-                          searchDataListRequest_byKeywords_count)
-                      .field("searchDataRequest_count", searchDataRequest_count)
-                      .field("keywords",
-                          es.customAnalyzing(props.getProperty("indexName"),
-                              keywords))
-                      .field("views", views).field("downloads", downloads)
-                      .field("request_rate", request_rate).field("Comments", "")
-                      .field("Validation", 0).field("Produceby", 0)
-                      .field("Correlation", 0).field("IP", IP)
-                      // .field("Coordinates", loc.latlon)
-                      .endObject());
+          IndexRequest ir = new IndexRequest(indexName, outputType).source(
+              jsonBuilder().startObject().field("SessionID", entry.getKey())
+                  .field("SessionURL", sessionURL)
+                  .field("Request_count", entry.getDocCount())
+                  .field("Duration", duration)
+                  .field("Number of Keywords", keywords_num).field("Time", min)
+                  .field("End_time", max)
+                  .field("searchDataListRequest_count",
+                      searchDataListRequest_count)
+                  .field("searchDataListRequest_byKeywords_count",
+                      searchDataListRequest_byKeywords_count)
+                  .field("searchDataRequest_count", searchDataRequest_count)
+                  .field("keywords", es.customAnalyzing(indexName, keywords))
+                  .field("views", views).field("downloads", downloads)
+                  .field("request_rate", request_rate).field("Comments", "")
+                  .field("Validation", 0).field("Produceby", 0)
+                  .field("Correlation", 0).field("IP", IP)
+                  // .field("Coordinates", loc.latlon)
+                  .endObject());
 
           es.getBulkProcessor().add(ir);
         }

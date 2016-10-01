@@ -490,4 +490,14 @@ public class ESDriver implements Serializable {
     return ur;
   }
 
+  public int getDocCount(String index, String... type) {
+
+    SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index)
+        .setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setSize(0);
+    SearchResponse countSr = countSrBuilder.execute().actionGet();
+    int docCount = (int) countSr.getHits().getTotalHits();
+    return docCount;
+
+  }
+
 }

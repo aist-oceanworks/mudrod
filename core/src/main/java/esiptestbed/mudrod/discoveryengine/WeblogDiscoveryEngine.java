@@ -27,6 +27,7 @@ import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
+import esiptestbed.mudrod.weblog.pre.RemoveRawLog;
 import esiptestbed.mudrod.weblog.pre.SessionGenerator;
 import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
@@ -103,8 +104,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       startTime = System.currentTimeMillis();
       LOG.info("Processing logs dated {}", inputList.get(i));
 
-      /*DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
-      im.execute();*/
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+          this.spark);
+      im.execute();
 
       DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
           this.spark);
@@ -118,9 +120,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
           this.spark);
       ss.execute();
 
-      /*DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
           this.spark);
-      rr.execute();*/
+      rr.execute();
 
       endTime = System.currentTimeMillis();
 
@@ -197,9 +199,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
           this.spark);
       ss.execute();
 
-      /* DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
           this.spark);
-      rr.execute();*/
+      rr.execute();
 
       endTime = System.currentTimeMillis();
     }

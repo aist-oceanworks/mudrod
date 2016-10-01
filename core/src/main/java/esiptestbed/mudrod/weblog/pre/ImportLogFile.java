@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.structure.ApacheAccessLog;
 import esiptestbed.mudrod.weblog.structure.FtpLog;
 
@@ -144,10 +145,10 @@ public class ImportLogFile extends DiscoveryStepAbstract {
 
     es.createBulkProcesser();
     try {
-      readLogFile(httplogpath, "http", props.getProperty("indexName"),
-          this.httpType);
-      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"),
-          this.ftpType);
+      readLogFile(httplogpath, "http",
+          props.getProperty(MudrodConstants.ES_INDEX_NAME), this.httpType);
+      readLogFile(ftplogpath, "FTP",
+          props.getProperty(MudrodConstants.ES_INDEX_NAME), this.ftpType);
 
     } catch (IOException e) {
       LOG.error("Error whilst reading log file.", e);

@@ -106,11 +106,14 @@ public class SessionGenerator extends DiscoveryStepAbstract {
    */
   public void genSessionByReferer(int timeThres)
       throws ElasticsearchException, IOException {
-    SearchRequestBuilder srBuilder = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, cleanupType);
+
+    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(indexName)
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0)
-        .addAggregation(AggregationBuilders.terms("Users").field("IP"));
+        .setSize(0).addAggregation(
+            AggregationBuilders.terms("Users").field("IP").size(docCount));
 
     SearchResponse sr = srBuilder.execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
@@ -265,8 +268,10 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   public void combineShortSessions(int Timethres)
       throws ElasticsearchException, IOException {
 
-    SearchRequestBuilder srBuilder = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, cleanupType);
+
+    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(indexName)
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0)
         .addAggregation(AggregationBuilders.terms("Users").field("IP"));

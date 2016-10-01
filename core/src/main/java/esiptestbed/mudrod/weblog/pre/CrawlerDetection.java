@@ -145,12 +145,19 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     es.createBulkProcesser();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
-    SearchRequestBuilder srbuilder = es.getClient()
-        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, httpType);
+
+    SearchRequestBuilder srbuilder = es.getClient().prepareSearch(indexName)
         .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(AggregationBuilders.terms("Users").field("IP"));
+        .addAggregation(
+            AggregationBuilders.terms("Users").field("IP").size(docCount));
+
     SearchResponse sr = srbuilder.execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
+
+    LOG.info("Original User count: {}",
+        Integer.toString(users.getBuckets().size()));
 
     int userCount = 0;
 
