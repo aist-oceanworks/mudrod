@@ -68,12 +68,20 @@ Once Tomcat hot deploys the .war artifact, you will be able to browse to the run
 
 # Documentation
 
-## API Documentation
+## Java API Documentation
 
 ```
 $ mvn javadoc:aggregate
 $ open target/site/apidocs/index.html
 ```
+
+## REST API Documentation
+
+```
+$ mvn clean install
+$ open service/target/miredot/index.html
+```
+The REST API documentation can also be seen at [https://mudrod.github.io/miredot](https://mudrod.github.io/miredot).
 
 # Team members:
 
