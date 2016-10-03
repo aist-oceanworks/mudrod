@@ -28,6 +28,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -124,8 +125,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       String startTime = null;
       int sessionCountIn = 0;
 
-      QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
+      BoolQueryBuilder filterSearch = new BoolQueryBuilder();
+      filterSearch.must(QueryBuilders.termQuery("IP", entry.getKey()));
 
       SearchResponse scrollResp = es.getClient()
           .prepareSearch(props.getProperty("indexName"))
@@ -281,18 +282,19 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     Terms users = sr.getAggregations().get("Users");
 
     for (Terms.Bucket entry : users.getBuckets()) {
-      QueryBuilder filterAll = QueryBuilders.boolQuery()
-          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
+      BoolQueryBuilder filterSearch = new BoolQueryBuilder();
+      filterSearch.must(QueryBuilders.termQuery("IP", entry.getKey()));
+
       SearchResponse checkAll = es.getClient()
           .prepareSearch(props.getProperty("indexName"))
           .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-          .setQuery(filterAll).setSize(0).execute().actionGet();
+          .setQuery(filterSearch).setSize(0).execute().actionGet();
 
       long all = checkAll.getHits().getTotalHits();
 
-      QueryBuilder filterCheck = QueryBuilders.boolQuery()
-          .filter(QueryBuilders.termQuery("IP", entry.getKey()))
-          .filter(QueryBuilders.termQuery("Referer", "-"));
+      BoolQueryBuilder filterCheck = new BoolQueryBuilder();
+      filterCheck.must(QueryBuilders.termQuery("IP", entry.getKey()))
+          .must(QueryBuilders.termQuery("Referer", "-"));
 
       SearchResponse checkReferer = es.getClient()
           .prepareSearch(props.getProperty("indexName"))
@@ -307,9 +309,6 @@ public class SessionGenerator extends DiscoveryStepAbstract {
         deleteInvalid(entry.getKey().toString());
         continue;
       }
-
-      QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
 
       StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
           .field("Time");

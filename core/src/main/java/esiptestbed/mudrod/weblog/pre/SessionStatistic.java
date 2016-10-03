@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -144,8 +144,10 @@ public class SessionStatistic extends DiscoveryStepAbstract {
         String keywords = "";
         String views = "";
         String downloads = "";
-        QueryBuilder filter_search = QueryBuilders.boolQuery()
-            .filter(QueryBuilders.termQuery("SessionID", entry.getKey()));
+
+        BoolQueryBuilder filter_search = new BoolQueryBuilder();
+        filter_search
+            .must(QueryBuilders.termQuery("SessionID", entry.getKey()));
 
         SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
             .setTypes(inputType).setScroll(new TimeValue(60000))

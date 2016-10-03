@@ -25,6 +25,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -164,8 +165,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
     for (Terms.Bucket entry : users.getBuckets()) {
-      QueryBuilder filterSearch = QueryBuilders.boolQuery()
-          .filter(QueryBuilders.termQuery("IP", entry.getKey()));
+      BoolQueryBuilder filterSearch = new BoolQueryBuilder();
+      filterSearch.must(QueryBuilders.termQuery("IP", entry.getKey()));
 
       AggregationBuilder aggregation = AggregationBuilders
           .dateHistogram("by_minute").field("Time")
