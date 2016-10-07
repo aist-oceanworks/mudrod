@@ -15,18 +15,21 @@ package esiptestbed.mudrod.weblog.pre;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.Function2;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -46,6 +49,7 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
+import esiptestbed.mudrod.weblog.structure.LogTool;
 
 /**
  * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract}
@@ -130,7 +134,15 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     } else {
       return false;
     }
+  }
 
+  public void checkByRate() throws InterruptedException, IOException {
+    int parallel = Integer.parseInt(props.getProperty("parallel"));
+    if (parallel == 0) {
+      checkByRateInSequential();
+    } else if (parallel == 1) {
+      checkByRateInParallel();
+    }
   }
 
   /**
@@ -142,13 +154,14 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    * @throws IOException
    *           IOException
    */
-  public void checkByRate() throws InterruptedException, IOException {
+  public void checkByRateInSequential()
+      throws InterruptedException, IOException {
     es.createBulkProcesser();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
+
     String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
     int docCount = es.getDocCount(indexName, httpType);
-
     SearchRequestBuilder srbuilder = es.getClient().prepareSearch(indexName)
         .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(
@@ -161,131 +174,61 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
         Integer.toString(users.getBuckets().size()));
 
     int userCount = 0;
-
-    Pattern pattern = Pattern.compile("get (.*?) http/*");
-    Matcher matcher;
     for (Terms.Bucket entry : users.getBuckets()) {
-      BoolQueryBuilder filterSearch = new BoolQueryBuilder();
-      filterSearch.must(QueryBuilders.termQuery("IP", entry.getKey()));
-
-      AggregationBuilder aggregation = AggregationBuilders
-          .dateHistogram("by_minute").field("Time")
-          .dateHistogramInterval(DateHistogramInterval.MINUTE)
-          .order(Order.COUNT_DESC);
-      SearchResponse checkRobot = es.getClient()
-          .prepareSearch(props.getProperty("indexName"))
-          .setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0)
-          .addAggregation(aggregation).execute().actionGet();
-
-      Histogram agg = checkRobot.getAggregations().get("by_minute");
-
-      List<? extends Histogram.Bucket> botList = agg.getBuckets();
-      long maxCount = botList.get(0).getDocCount();
-      if (maxCount >= rate) {
-      } else {
-        userCount++;
-        DateTime dt1 = null;
-        int toLast = 0;
-        SearchResponse scrollResp = es.getClient()
-            .prepareSearch(props.getProperty("indexName"))
-            .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
-            .setQuery(filterSearch).setSize(100).execute().actionGet();
-        while (true) {
-          for (SearchHit hit : scrollResp.getHits().getHits()) {
-            Map<String, Object> result = hit.getSource();
-            String logtype = (String) result.get("LogType");
-            if (logtype.equals("PO.DAAC")) {
-              String request = (String) result.get("Request");
-              matcher = pattern.matcher(request.trim().toLowerCase());
-              boolean find = false;
-              while (matcher.find()) {
-                request = matcher.group(1);
-                result.put("RequestUrl",
-                    "http://podaac.jpl.nasa.gov" + request);
-                find = true;
-              }
-              if (!find) {
-                result.put("RequestUrl", request);
-              }
-            } else {
-              result.put("RequestUrl", result.get("Request"));
-            }
-
-            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-            DateTime dt2 = fmt.parseDateTime((String) result.get("Time"));
-
-            if (dt1 == null) {
-              toLast = 0;
-            } else {
-              toLast = Math.abs(Seconds.secondsBetween(dt1, dt2).getSeconds());
-            }
-            result.put("ToLast", toLast);
-            IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-                cleanupType).source(result);
-
-            es.getBulkProcessor().add(ir);
-            dt1 = dt2;
-          }
-
-          scrollResp = es.getClient()
-              .prepareSearchScroll(scrollResp.getScrollId())
-              .setScroll(new TimeValue(600000)).execute().actionGet();
-          if (scrollResp.getHits().getHits().length == 0) {
-            break;
-          }
-        }
-
-      }
+      String user = entry.getKey().toString();
+      int count = checkByRate(es, user);
+      userCount += count;
     }
     es.destroyBulkProcessor();
     LOG.info("User count: {}", Integer.toString(userCount));
   }
 
-  private List<String> getAllUsers() {
+  public void checkByRateInParallel() throws InterruptedException, IOException {
 
-    SearchResponse sr = es.getClient()
-        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
-        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(0))
-        .execute().actionGet();
-    Terms users = sr.getAggregations().get("Users");
-    List<String> userList = new ArrayList<String>();
-    for (Terms.Bucket entry : users.getBuckets()) {
-      String ip = (String) entry.getKey();
-      userList.add(ip);
-    }
+    LogTool tool = new LogTool();
+    List<String> users = tool.getAllUsers(es, props, httpType);
+    JavaRDD<String> userRDD = spark.sc.parallelize(users);
 
-    return userList;
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, cleanupType);
+
+    int userCount = 0;
+    userCount = userRDD
+        .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
+          @Override
+          public Iterator<Integer> call(Iterator<String> arg0)
+              throws Exception {
+            // TODO Auto-generated method stub
+            ESDriver tmpES = new ESDriver(props);
+            tmpES.createBulkProcesser();
+            List<Integer> realUserNums = new ArrayList<Integer>();
+            while (arg0.hasNext()) {
+              String s = arg0.next();
+              Integer realUser = checkByRate(tmpES, s);
+              realUserNums.add(realUser);
+            }
+            tmpES.destroyBulkProcessor();
+            return realUserNums.iterator();
+          }
+        }).reduce(new Function2<Integer, Integer, Integer>() {
+          @Override
+          public Integer call(Integer a, Integer b) {
+            return a + b;
+          }
+        });
+
+    LOG.info("Initial User count: {}", Integer.toString(users.size()));
+    LOG.info("User count: {}", Integer.toString(userCount));
   }
 
-  /* public void checkByRate() throws InterruptedException, IOException {
-    es.createBulkProcesser();
-  
-    int userCount = 0;
-    List<String> users = this.getAllUsers();
-    JavaRDD<String> userRDD = spark.sc.parallelize(users);
-  
-    Broadcast<ESDriver> broadcastVar = spark.sc.broadcast(es);
-    userRDD.foreach(new VoidFunction<String>() {
-      @Override
-      public void call(String arg0) throws Exception {
-        // TODO Auto-generated method stub
-        checkByRate(broadcastVar.value(), arg0);
-      }
-    });
-  
-    LOG.info("User count: {}", Integer.toString(userCount));
-  }*/
+  private int checkByRate(ESDriver es, String user) {
 
-  private boolean checkByRate(ESDriver es, String user) {
-
-    // System.out.println(es);
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
 
-    QueryBuilder filterSearch = QueryBuilders.boolQuery()
-        .filter(QueryBuilders.termQuery("IP", user));
+    BoolQueryBuilder filterSearch = new BoolQueryBuilder();
+    filterSearch.must(QueryBuilders.termQuery("IP", user));
 
     AggregationBuilder aggregation = AggregationBuilders
         .dateHistogram("by_minute").field("Time")
@@ -301,7 +244,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     List<? extends Histogram.Bucket> botList = agg.getBuckets();
     long maxCount = botList.get(0).getDocCount();
     if (maxCount >= rate) {
-      return false;
+      return 0;
     } else {
       DateTime dt1 = null;
       int toLast = 0;
@@ -355,7 +298,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
     }
 
-    return true;
+    return 1;
   }
 
   @Override

@@ -63,4 +63,5 @@
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
 
+  <para name="parallel">0</para>
 </Config>

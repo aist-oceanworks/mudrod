@@ -52,6 +52,7 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
@@ -492,12 +493,16 @@ public class ESDriver implements Serializable {
 
   public int getDocCount(String index, String... type) {
 
+    MatchAllQueryBuilder search = QueryBuilders.matchAllQuery();
+    return this.getDocCount(index, search, type);
+  }
+
+  public int getDocCount(String index, QueryBuilder filterSearch,
+      String... type) {
     SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index)
-        .setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setSize(0);
+        .setTypes(type).setQuery(filterSearch).setSize(0);
     SearchResponse countSr = countSrBuilder.execute().actionGet();
     int docCount = (int) countSr.getHits().getTotalHits();
     return docCount;
-
   }
-
 }

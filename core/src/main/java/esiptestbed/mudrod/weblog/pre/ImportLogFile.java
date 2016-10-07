@@ -126,12 +126,9 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     }
     return time;
   }
+  
+  public void readFile(){
 
-  /**
-   * Read the FTP or HTTP log path with the intention of processing lines from
-   * log files.
-   */
-  public void readFile() {
     String httplogpath = props.getProperty("logDir")
         + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
         + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX);
@@ -140,39 +137,41 @@ public class ImportLogFile extends DiscoveryStepAbstract {
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX);
 
-    // importHttpfile(httplogpath);
-    // importFtpfile(ftplogpath);
+    int parallel = Integer.parseInt(props.getProperty("parallel"));
+    if (parallel == 0) {
+      readFileInSequential(httplogpath, ftplogpath);
+    } else if (parallel == 1) {
+      readFileInParallel(httplogpath, ftplogpath);
+    }
+  }
 
+  /**
+   * Read the FTP or HTTP log path with the intention of processing lines from
+   * log files.
+   */
+  public void readFileInSequential(String httplogpath, String ftplogpath) {
     es.createBulkProcesser();
     try {
-      readLogFile(httplogpath, "http",
-          props.getProperty(MudrodConstants.ES_INDEX_NAME), this.httpType);
-      readLogFile(ftplogpath, "FTP",
-          props.getProperty(MudrodConstants.ES_INDEX_NAME), this.ftpType);
+      readLogFile(httplogpath, "http", props.getProperty("indexName"),
+          this.httpType);
+      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"),
+          this.ftpType);
 
     } catch (IOException e) {
       LOG.error("Error whilst reading log file.", e);
     }
     es.destroyBulkProcessor();
   }
+  
+  /**
+   * Read the FTP or HTTP log path with the intention of processing lines from
+   * log files.
+   */
+  public void readFileInParallel(String httplogpath, String ftplogpath) {
 
-  /*  public void importHttpfile(String httplogpath) {
-    // import http logs
-    JavaRDD<ApacheAccessLog> accessLogs = spark.sc.textFile(httplogpath)
-        .map(s -> ApacheAccessLog.parseFromLogLine(s))
-        .filter(ApacheAccessLog::checknull);
-    JavaEsSpark.saveToEs(accessLogs,
-        props.getProperty("indexName") + "/" + this.httpType);
+    importHttpfile(httplogpath);
+    importFtpfile(ftplogpath);
   }
-  
-  public void importFtpfile(String ftplogpath) {
-    // import ftp logs
-    JavaRDD<FtpLog> ftpLogs = spark.sc.textFile(ftplogpath)
-        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
-  
-    JavaEsSpark.saveToEs(ftpLogs,
-        props.getProperty("indexName") + "/" + this.ftpType);
-  }*/
 
   public void importHttpfile(String httplogpath) {
     // import http logs
