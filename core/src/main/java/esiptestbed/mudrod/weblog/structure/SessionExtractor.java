@@ -211,13 +211,15 @@ public class SessionExtractor implements Serializable {
    */
   protected List<String> getSessions(Properties props, ESDriver es,
       String cleanupType) {
+
+    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    int docCount = es.getDocCount(indexName, cleanupType);
+
     List<String> sessionIDList = new ArrayList<>();
-    SearchResponse sr = es.getClient()
-        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+    SearchResponse sr = es.getClient().prepareSearch(indexName)
         .setTypes(cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0)
-        .addAggregation(
-            AggregationBuilders.terms("Sessions").field("SessionID").size(0))
+        .setSize(0).addAggregation(AggregationBuilders.terms("Sessions")
+            .field("SessionID").size(docCount))
         .execute().actionGet();
     Terms sessions = sr.getAggregations().get("Sessions");
     for (Terms.Bucket entry : sessions.getBuckets()) {
@@ -334,7 +336,7 @@ public class SessionExtractor implements Serializable {
               @Override
               public Tuple2<String, Double> call(
                   Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
-                      throws Exception {
+                  throws Exception {
 
                 Tuple2<Double, Optional<String>> test = arg0._2;
                 Optional<String> optStr = test._2;
