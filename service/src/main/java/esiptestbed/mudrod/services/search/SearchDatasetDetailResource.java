@@ -49,6 +49,10 @@ public class SearchDatasetDetailResource {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
   }
 
+  /**
+   * A simple health status checker for this resource.
+   * @return
+   */
   @GET
   @Path("/status")
   @Produces("text/html")

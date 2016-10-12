@@ -59,7 +59,7 @@ public class SearchMetadataResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD SearchMetadataResource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Metadata Search Resource: running correctly...</h1>").build();
   }
 
   @POST

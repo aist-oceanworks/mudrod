@@ -14,70 +14,134 @@
   -->
 <html lang="en">
 <head>
-  <title>Session structure</title>
-  <link rel="icon" href="./resources/images/NASALogo.png">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="http://d3js.org/d3.v3.min.js"></script>
+<title>Session structure</title>
+<link rel="icon" href="./resources/images/NASALogo.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+  href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+  src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script
+  src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
+<link rel="stylesheet"
+  href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
-  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-  <style>
-	.node {cursor: pointer;}
-	.node circle {fill: #fff;stroke: steelblue;stroke-width: 3px;}
-	.node text {font: 12px sans-serif;}
-	.link {fill: none;stroke: #ccc;stroke-width: 2px;}
-	.glyphicon{font-size: 2em;}
-	.navigation{background:#101010; height:45px}
-	.navigation ul{display: inline-block; margin-left:-30px}
-	.navigation ul li a{color:white;vertical-align:middle;font-size:midium;margin-top:-15px}
-	.d3-tip {line-height: 1;padding: 12px;background: rgba(0, 0, 0, 0.8);color: #fff;border-radius: 2px;}
-	.comments{margin-left:20px;margin-right:20px;}
-	.comments p{font-size: 14px;}
-	.comments textarea{width:100%; height:100px;}
-	.comments button{float:right}
-	.context{padding-bottom:20px;}
-	#requestTable tr.hover {background-color: #F00}
-   </style>
+<script
+  src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
+<script
+  src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<style>
+.node {
+	cursor: pointer;
+}
+
+.node circle {
+	fill: #fff;
+	stroke: steelblue;
+	stroke-width: 3px;
+}
+
+.node text {
+	font: 12px sans-serif;
+}
+
+.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 2px;
+}
+
+.glyphicon {
+	font-size: 2em;
+}
+
+.navigation {
+	background: #101010;
+	height: 45px
+}
+
+.navigation ul {
+	display: inline-block;
+	margin-left: -30px
+}
+
+.navigation ul li a {
+	color: white;
+	vertical-align: middle;
+	font-size: midium;
+	margin-top: -15px
+}
+
+.d3-tip {
+	line-height: 1;
+	padding: 12px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+}
+
+.comments {
+	margin-left: 20px;
+	margin-right: 20px;
+}
+
+.comments p {
+	font-size: 14px;
+}
+
+.comments textarea {
+	width: 100%;
+	height: 100px;
+}
+
+.comments button {
+	float: right
+}
+
+.context {
+	padding-bottom: 20px;
+}
+
+#requestTable tr.hover {
+	background-color: #F00
+}
+</style>
 </head>
 <body>
-<div class="navigation">
- <img src="./resources/images/download.png"/>
- <ul>
- <li><a class="navbar-brand">Session Structure</a></li>
- </ul>
-</div>
-<div class="context">
-<div id="treediv" style="width:100%;overflow-x: hidden;"></div>
-<div style="margin-left:20px;margin-right:20px;">
-	<table id="requestTable" class="table">
-	</table>
-</div>
-</div>
+  <div class="navigation">
+    <img src="./resources/images/download.png" />
+    <ul>
+      <li><a class="navbar-brand">Session Structure</a></li>
+    </ul>
+  </div>
+  <div class="context">
+    <div id="treediv" style="width: 100%; overflow-x: hidden;"></div>
+    <div style="margin-left: 20px; margin-right: 20px;">
+      <table id="requestTable" class="table">
+      </table>
+    </div>
+  </div>
 </body>
 
 <script type="text/javascript">
+	var SessionID = "";
+	var SessionType = "";
+	var CleanupType = "";
 
-var SessionID = "";
-var SessionType = "";
-var CleanupType = "";
+	if (window.location.href.indexOf("&") > -1) {
+		SessionID = window.location.href.split("&")[0].split("=")[1];
+		SessionType = window.location.href.split("&")[1].split("=")[1];
+		CleanupType = window.location.href.split("&")[2].split("=")[1];
+	}
 
-if(window.location.href.indexOf("&") > -1){
-	SessionID=window.location.href.split("&")[0].split("=")[1];
-	SessionType=window.location.href.split("&")[1].split("=")[1];
-	CleanupType=window.location.href.split("&")[2].split("=")[1];
-}
-
-$(document).ready(function(){
-	createtable();
-	if (SessionID != "") {
+	$(document).ready(function() {
+		createtable();
+		if (SessionID != "") {
 			$.ajax({
 				url : "SessionDetail",
 				data : {
@@ -87,15 +151,15 @@ $(document).ready(function(){
 				success : success
 			});
 		}
-});
+	});
 
-function success(data) {
-	var treeData = [];
-	treeData.push(data.treeData);
-	var requestList = data.RequestList;
-	generateTree(treeData);
-	$('#requestTable').bootstrapTable('load', requestList);
-}
+	function success(data) {
+		var treeData = [];
+		treeData.push(data.treeData);
+		var requestList = data.RequestList;
+		generateTree(treeData);
+		$('#requestTable').bootstrapTable('load', requestList);
+	}
 
 	function createtable() {
 		var layout = {
@@ -109,7 +173,7 @@ function success(data) {
 			columns : [ {
 				'title' : 'No',
 				'field' : 'Seq',
-			},{
+			}, {
 				'title' : 'Time',
 				'field' : 'Time',
 				"sorter" : Timesorter,
@@ -129,8 +193,7 @@ function success(data) {
 			} ]
 
 		};
-		
-		
+
 		$('#requestTable').bootstrapTable(layout);
 	}
 
@@ -164,18 +227,15 @@ function success(data) {
 			return [ d.y, d.x ];
 		});
 
-		var tip = d3.tip().attr('class', 'd3-tip').html(
-				function(d) {
-					return "<span style='color:white'>" + d.name + "</span>";
-				})
-				.direction('ne');
+		var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+			return "<span style='color:white'>" + d.name + "</span>";
+		}).direction('ne');
 
-		 var svg = d3.select("#treediv").append("svg").attr("width",
+		var svg = d3.select("#treediv").append("svg").attr("width",
 				width + margin.right + margin.left).attr("height",
 				height + margin.top + margin.bottom).append("g").attr(
 				"transform",
-				"translate(" + margin.left + "," + margin.top + ")"); 
-				
+				"translate(" + margin.left + "," + margin.top + ")");
 
 		svg.call(tip);
 
@@ -186,7 +246,6 @@ function success(data) {
 		update(root);
 
 		d3.select(self.frameElement).style("height", "500px");
-		
 
 		function update(source) {
 
@@ -214,11 +273,9 @@ function success(data) {
 
 			nodeEnter.append("image").attr("xlink:href", function(d) {
 				return d.icon;
-			}).attr("x", "-12px").attr("y", "-12px")
-			.attr("width", "24px")
-			.attr("height", "24px")
-			.on('mouseover', tip.show) 
-			.on('mouseout', tip.hide);
+			}).attr("x", "-12px").attr("y", "-12px").attr("width", "24px")
+					.attr("height", "24px").on('mouseover', tip.show).on(
+							'mouseout', tip.hide);
 
 			var preyoffset = 20;
 			nodeEnter.append("text").attr("x", function(d) {
@@ -323,6 +380,5 @@ function success(data) {
 			}
 		}
 	}
-
 </script>
 </html>
