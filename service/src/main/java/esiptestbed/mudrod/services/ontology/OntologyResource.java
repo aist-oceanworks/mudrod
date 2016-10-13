@@ -20,10 +20,9 @@ import java.util.List;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -56,11 +55,11 @@ public class OntologyResource {
         .ok("<h1>This is MUDROD Ontology-driven User Query Augmentation Resource: running correctly...</h1>").build();
   }
 
-  @PUT
-  @Path("/synonym/{term}")
+  @GET
+  @Path("/synonym")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response getOntologySynonyms(@PathParam("term") String term) {
+  public Response getOntologySynonyms(@QueryParam("query") String term) {
     List<String> result = new ArrayList<>();
     if (term != null) {
       OntologyFactory ontFactory = new OntologyFactory(mEngine.getConfig());
@@ -74,11 +73,11 @@ public class OntologyResource {
     return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
 
-  @PUT
-  @Path("/subclasses/{term}")
+  @GET
+  @Path("/subclass")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response getOntologySubclasses(@PathParam("term") String term) {
+  public Response getOntologySubclasses(@QueryParam("query") String term) {
     List<String> result = new ArrayList<>();
     if (term != null) {
       OntologyFactory ontFactory = new OntologyFactory(mEngine.getConfig());

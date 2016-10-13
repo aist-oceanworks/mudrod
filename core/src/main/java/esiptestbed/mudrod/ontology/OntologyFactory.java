@@ -76,6 +76,7 @@ public class OntologyFactory {
       LOG.error("The ontology implementation defined within config.xml key 'mudrod.ontology.implementation'"
           + " is not recognized. Options include 'EsipSRI' and 'Local'. Please fix and recompile.");
     }
+    ontImpl.load();
     return ontImpl;
   }
 

@@ -56,8 +56,10 @@ function search(query) {
 		$("#searchResultContainer").show();
 		$("#searchContainer h2.title").css("font-size", "24px");
 		var search_operator = $("input[name='searchOption']:checked").val();
+		
+		// invoke SearchMetadataResource.java
 		$.ajax({
-			url : "services/metadata/" + query + "-" + search_operator,
+			url : "services/metadata/search",
 			data : {
 				"query" : $("#query").val(),
 				"operator": $("input[name='searchOption']:checked").val()
@@ -65,7 +67,6 @@ function search(query) {
 			success : function completeHandler(response) {
 				if (response != null) {
 					$("#searchLoading").hide();
-
 					var searchResults = response.PDResults;
 					if (searchResults.length == 0) {
 						$("#NotFound").show();
@@ -82,8 +83,9 @@ function search(query) {
 			}
 		});
 
+		// invoke SearchVocabResource.java
 		$.ajax({
-			url: "services/vocabulary",
+			url: "services/vocabulary/search",
 			data: {
 				"concept": $("#query").val().toLowerCase(),
 				"operator": $("input[name='searchOption']:checked").val()
@@ -92,12 +94,40 @@ function search(query) {
 				if (response != null) {
 					var ontologyResults = response.graph.ontology;
 					if(ontologyResults.length == 0) {
-
+						//TODO return a simple JSON response indicating no hits.
 					} else {
 						for(var i = 0; i < ontologyResults.length; i++){
 							$("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word  + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
 						}
 					}
+				}
+			}
+		});
+
+		// invoke OntologyResource.java synonym search
+		$.ajax({
+			url: "services/ontology/synonym",
+			data : {
+				"query" : $("#query").val(),
+				"operator": $("input[name='searchOption']:checked").val()
+			},
+			success: function completeHandler(response) {
+				if (response != null) {
+					//TODO
+				}
+			}
+		});
+
+		// invoke OntologyResource.java subclass search
+		$.ajax({
+			url: "services/ontology/subclass",
+			data : {
+				"query" : $("#query").val(),
+				"operator": $("input[name='searchOption']:checked").val()
+			},
+			success: function completeHandler(response) {
+				if (response != null) {
+					//TODO
 				}
 			}
 		});

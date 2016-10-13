@@ -18,10 +18,9 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -62,11 +61,11 @@ public class SearchMetadataResource {
         .ok("<h1>This is MUDROD Metadata Search Resource: running correctly...</h1>").build();
   }
 
-  @POST
-  @Path("{query}-{operator}")
+  @GET
+  @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchMetadata(@PathParam("query") String query, @PathParam("term") String operator) {
+  public Response searchMetadata(@QueryParam("query") String query, @QueryParam("operator") String operator) {
     Properties config = mEngine.getConfig();
     String fileList = searcher.ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
         config.getProperty(MudrodConstants.RAW_METADATA_TYPE), 

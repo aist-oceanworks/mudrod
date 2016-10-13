@@ -52,8 +52,6 @@ import esiptestbed.mudrod.ontology.OntologyFactory;
  * whcih are cached locally and available on the runtime classpath e.g.
  * in <code>src/main/resource/ontology/...</code>.
  * From here we can test and iterate on how use of ontology can enhance search.
- * 
- * @author lewismc
  */
 public class LocalOntology implements Ontology {
 
@@ -79,12 +77,16 @@ public class LocalOntology implements Ontology {
       parser = new OwlParser();
       ontology = this;
     }
-
     if (ontologyModel == null)
       ontologyModel =
       ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
   }
 
+  /**
+   * Static accessor for {@link esiptestbed.mudrod.ontology.process.LocalOntology}
+   * instance implementation defined within <code>config.xml</code>.
+   * @return a {@link esiptestbed.mudrod.ontology.process.LocalOntology}
+   */
   public static Ontology getInstance () {
     if (ontology == null) {
       ontology = new LocalOntology();
@@ -93,7 +95,28 @@ public class LocalOntology implements Ontology {
   }
 
   /**
-   * 
+   * Load the default <i>ontology</i> directory contained within Mudrod.
+   * This contains at a minimum SWEET v2.3.
+   */
+  @Override
+  public void load() {
+    File ontDir = new File(LocalOntology.class.getClassLoader().getResource("ontology").getFile());
+
+    //Fail if the input is not a directory.
+    if (ontDir.isDirectory()) {
+      List<String> owlFiles = new ArrayList<>();
+      for (File owlFile : ontDir.listFiles()) {
+        owlFiles.add(owlFile.toString());
+      }
+      //convert to correct iput for ontology loading.
+      String[] owlArray = new String[owlFiles.size()];
+      owlArray = owlFiles.toArray(owlArray);
+      load(owlArray);
+    }
+  }
+
+  /**
+   * Load a string array of local URIs which refernece .owl files.
    */
   @Override
   public void load (String[] urls) {

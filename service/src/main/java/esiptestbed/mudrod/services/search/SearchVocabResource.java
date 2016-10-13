@@ -16,10 +16,9 @@ package esiptestbed.mudrod.services.search;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,11 +53,11 @@ public class SearchVocabResource {
         .ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>").build();
   }
 
-  @POST
-  @Path("{concept}")
+  @GET
+  @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchVocabulary(@PathParam("query") String concept) {
+  public Response searchVocabulary(@QueryParam("query") String concept) {
     JsonObject json = new JsonObject();
     if (concept != null) {
       LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),

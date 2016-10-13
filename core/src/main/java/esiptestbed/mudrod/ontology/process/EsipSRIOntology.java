@@ -30,6 +30,13 @@ public class EsipSRIOntology implements Ontology {
     // TODO Auto-generated constructor stub
   }
 
+
+  @Override
+  public void load() {
+    // TODO Auto-generated method stub
+
+  }
+
   /* (non-Javadoc)
    * @see esiptestbed.mudrod.ontology.Ontology#load(java.lang.String[])
    */
