@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.ontology.OntologyFactory;
+import esiptestbed.mudrod.ontology.Ontology;
 
 /**
  * A ontology-driven resource for user query augmentation.
@@ -41,10 +40,10 @@ import esiptestbed.mudrod.ontology.OntologyFactory;
 public class OntologyResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(OntologyResource.class);
-  private MudrodEngine mEngine;
+  private Ontology ontImpl;
 
   public OntologyResource(@Context ServletContext sc) {
-    this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
+    this.ontImpl = (Ontology) sc.getAttribute("Ontology");
   }
 
   @GET
@@ -62,8 +61,7 @@ public class OntologyResource {
   public Response getOntologySynonyms(@QueryParam("query") String term) {
     List<String> result = new ArrayList<>();
     if (term != null) {
-      OntologyFactory ontFactory = new OntologyFactory(mEngine.getConfig());
-      Iterator<String> synonyms = ontFactory.getOntology().synonyms(term);
+      Iterator<String> synonyms = ontImpl.synonyms(term);
       while (synonyms.hasNext()) {
         result.add((String) synonyms.next());
       }
@@ -80,8 +78,7 @@ public class OntologyResource {
   public Response getOntologySubclasses(@QueryParam("query") String term) {
     List<String> result = new ArrayList<>();
     if (term != null) {
-      OntologyFactory ontFactory = new OntologyFactory(mEngine.getConfig());
-      Iterator<String> subclasses = ontFactory.getOntology().subclasses(term);
+      Iterator<String> subclasses = ontImpl.subclasses(term);
       while (subclasses.hasNext()) {
         result.add((String) subclasses.next());
       }
