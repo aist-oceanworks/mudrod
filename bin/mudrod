@@ -56,18 +56,22 @@ MUDROD_HOME="`cd "$THIS_DIR/.." ; pwd`"
 
 # figure out which class to run
 if [ "$COMMAND" = "logingest" ] ; then
-  CLASS=esiptestbed.mudrod.weblog.pre.ImportLogFile
+  CLASS=esiptestbed.mudrod.main.MudrodEngine
   MODULE=core
-#elif [ "$COMMAND" = "ioNutch" ] ; then
-#  CLASS=com.digitalpebble.behemoth.io.nutch.NutchSegmentConverterJob
-#  MODULE=io
+#elif [ "$COMMAND" = "xyz" ] ; then
+#  CLASS=esiptestbed.mudrod...
+#  MODULE=xyz
 else
   echo "unknown command"
   exit -1;
 fi
 
-MUDROD_JOB=$MUDROD_HOME/$MODULE/target/mudrod-$MODULE-*-SNAPSHOT.jar
-EXEC_CALL="spark-submit --class $CLASS $MUDROD_JOB -Xss5m"
+for f in "$MUDROD_HOME"/core/lib/*.jar; do
+  CLASSPATH=$f,$CLASSPATH
+done
+
+MUDROD_JOB=$MUDROD_HOME/$MODULE/target/mudrod-$MODULE-0.0.1-SNAPSHOT.jar
+EXEC_CALL="spark-submit -classpath $CLASSPATH --jars $CLASSPATH --class $CLASS $MUDROD_JOB"
 
 # check that spark can be found on the path
 if [ $(which spark-submit | wc -l ) -eq 0 ]; then
@@ -76,5 +80,6 @@ if [ $(which spark-submit | wc -l ) -eq 0 ]; then
 fi
 
 # run it
-exec $EXEC_CALL $CLASS "$@"
+printf "%s %s %s %s" "$EXEC_CALL" "$1" "$2" "$3" 
+exec $EXEC_CALL $1 $2 $3
 

@@ -32,6 +32,7 @@ import org.apache.jena.rdf.model.Literal;
 public class OwlParser implements OntologyParser {
 
   public OwlParser () {
+    //default constructor
   }
 
   /**
@@ -130,10 +131,10 @@ public class OwlParser implements OntologyParser {
     Pattern p = Pattern.compile("([a-z0-9])([A-Z])");
     Matcher m = p.matcher(idString);
 
-    String labelString = new String(idString);
+    String labelString = idString;
     while(m.find()) {
       labelString = labelString.replaceAll(m.group(1)+m.group(2),
-          m.group(1)+" "+m.group(2));
+          m.group(1) + " " + m.group(2));
     }
     return labelString;
   }

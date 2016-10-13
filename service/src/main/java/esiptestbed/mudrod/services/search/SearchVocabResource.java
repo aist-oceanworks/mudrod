@@ -13,16 +13,12 @@
  */
 package esiptestbed.mudrod.services.search;
 
-import java.io.IOException;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,16 +34,13 @@ import esiptestbed.mudrod.main.MudrodEngine;
 /**
  * A Mudrod Search Vocabulary Resource
  */
-@Path("vocabulary")
+@Path("/vocabulary")
 public class SearchVocabResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
 
   private MudrodEngine mEngine;
 
-  /**
-   * @see HttpServlet#HttpServlet()
-   */
   public SearchVocabResource(@Context ServletContext sc) {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
   }
@@ -57,16 +50,14 @@ public class SearchVocabResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD SearchVocabResource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>").build();
   }
 
-  @POST
-  @Path("{concept}")
+  @GET
+  @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchVocabulary(@PathParam("query") String concept)
-      throws ServletException, IOException {
-
+  public Response searchVocabulary(@QueryParam("query") String concept) {
     JsonObject json = new JsonObject();
     if (concept != null) {
       LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),

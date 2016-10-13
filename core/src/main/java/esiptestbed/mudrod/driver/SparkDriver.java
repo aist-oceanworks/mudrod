@@ -18,8 +18,39 @@ import java.io.Serializable;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SQLContext;
+//import org.apache.spark.sql.SparkSession;
 
 public class SparkDriver implements Serializable {
+  
+  //TODO the commented out code below is the API uprgade
+  //for Spark 2.0.0. It requires a large upgrade and simplification
+  //across the mudrod codebase so should be done in an individual ticket.
+  //  /**
+  //   *
+  //   */
+  //  private static final long serialVersionUID = 1L;
+  //  private SparkSession builder;
+  //
+  //  public SparkDriver() {
+  //    builder = SparkSession.builder()
+  //        .master("local[2]")
+  //        .config("spark.hadoop.validateOutputSpecs", "false")
+  //        .config("spark.files.overwrite", "true")
+  //        .getOrCreate();
+  //  }
+  //
+  //  public SparkSession getBuilder() {
+  //    return builder;
+  //  }
+  //
+  //  public void setBuilder(SparkSession builder) {
+  //    this.builder = builder;
+  //  }
+  //
+  //  public void close() {
+  //    builder.stop();
+  //  }
+
   /**
    *
    */
@@ -34,7 +65,7 @@ public class SparkDriver implements Serializable {
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
   }
-  
+
   public void close()
   {
     sc.sc().stop();

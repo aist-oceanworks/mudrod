@@ -67,7 +67,8 @@
   
   <!-- 
   The ontology service implementation. Possible values include
-   EsipSRI - esiptestbed.mudrod.ontology.process.EsipSRI
+   EsipPortal - esiptestbed.mudrod.ontology.process.EsipPortalOntology
+   EsipCOR - esiptestbed.mudrod.ontology.process.EsipCOROntology
    Local - esiptestbed.mudrod.ontology.process.Local
    -->
   <para name="mudrod.ontology.implementation">Local</para>
