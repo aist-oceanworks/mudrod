@@ -63,7 +63,7 @@ public class LocalOntology implements Ontology {
   private static Hashtable searchTerms = new Hashtable<>();
   private static OntologyParser parser;
   private static OntModel ontologyModel;
-  private static Ontology ontology = null;
+  private static Ontology ontology;
   private static Map mAnonIDs = new HashMap<>();
   private static int mAnonCount = 0;
 
@@ -71,15 +71,14 @@ public class LocalOntology implements Ontology {
     //only initialize all the static variables
     //if first time called to this ontology constructor
     if (ontology == null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Creating new ontology");
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Creating new ontology");
       }
       parser = new OwlParser();
       ontology = this;
     }
     if (ontologyModel == null)
-      ontologyModel =
-      ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
+      ontologyModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
   }
 
   /**
@@ -130,10 +129,10 @@ public class LocalOntology implements Ontology {
 
   private void load (Object m, String url) {
     try {
-      if (LOG.isDebugEnabled()) { 
-        LOG.debug("Reading {}", url); 
+      if (LOG.isInfoEnabled()) { 
+        LOG.info("Reading {}", url); 
       }
-      ((OntModel)m).read(url);
+      ((OntModel)m).read(url, null, null);
     } catch (Exception e) {
       LOG.error("Failed whilst attempting to read ontology {}", url, e);
     }

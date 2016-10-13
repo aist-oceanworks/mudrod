@@ -19,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.main.MudrodConstants;
-import esiptestbed.mudrod.ontology.process.EsipSRIOntology;
+import esiptestbed.mudrod.ontology.process.EsipCOROntology;
+import esiptestbed.mudrod.ontology.process.EsipPortalOntology;
 import esiptestbed.mudrod.ontology.process.LocalOntology;
 
 /**
@@ -61,20 +62,18 @@ public class OntologyFactory {
 
     String ontologyImpl = this.props.getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Using ontology extension: " + ontologyImpl);
-    }
-    Ontology ontImpl = null;
+    LOG.info("Using ontology extension: " + ontologyImpl);
+    Ontology ontImpl;
     switch (ontologyImpl) {
-    case "EsipSRI":
-      ontImpl = new EsipSRIOntology();
+    case "EsipCOR":
+      ontImpl = new EsipCOROntology();
       break;
-    case "Local":
-      ontImpl = new LocalOntology();
+    case "EsipPortal":
+      ontImpl = new EsipPortalOntology();
       break;
     default:
-      LOG.error("The ontology implementation defined within config.xml key 'mudrod.ontology.implementation'"
-          + " is not recognized. Options include 'EsipSRI' and 'Local'. Please fix and recompile.");
+      ontImpl = new LocalOntology();
+      break;
     }
     ontImpl.load();
     return ontImpl;
