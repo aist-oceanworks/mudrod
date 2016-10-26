@@ -103,7 +103,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
   public void processSessionInSequential()
       throws IOException, InterruptedException, ExecutionException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     String inputType = this.cleanupType;
     String outputType = this.sessionStats;
 
@@ -169,7 +169,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
               throws Exception {
             // TODO Auto-generated method stub
             ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcesser();
+            tmpES.createBulkProcessor();
             List<Integer> sessionNums = new ArrayList<Integer>();
             while (arg0.hasNext()) {
               String s = arg0.next();

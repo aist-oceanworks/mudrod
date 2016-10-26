@@ -1,8 +1,8 @@
 /*
- * Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,25 +39,20 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
- * Recommend metadata using combination all two methods, including content-based
- * similarity and session-level similarity
+ * This class is used to test recommendation result similarity and session-level
+ * similarity 
  */
-public class HybirdRecommendation extends DiscoveryStepAbstract {
+public class RecommendationData extends DiscoveryStepAbstract {
+
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
-  // recommended metadata list
   protected transient List<LinkedTerm> termList = new ArrayList<>();
-  // format decimal
   DecimalFormat df = new DecimalFormat("#.00");
-  // index name
   protected static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
 
-  /**
-   * recommended data class Date: Sep 12, 2016 2:25:28 AM
-   */
   class LinkedTerm {
     public String term = null;
     public double weight = 0;
@@ -70,8 +65,7 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     }
   }
 
-  public HybirdRecommendation(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public RecommendationData(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -85,69 +79,24 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return null;
   }
 
-  /**
-   * Get recommended data for a giving dataset
-   *
-   * @param input:
-   *          a giving dataset
-   * @param num:
-   *          the number of recommended dataset
-   * @return recommended dataset in json format
-   */
   public JsonObject getRecomDataInJson(String input, int num) {
-    String type = props.getProperty("metadataCodeSimType");
+    String type = props.getProperty("metadataSessionBasedSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
+    JsonElement linkedJson = mapToJson(sortedOBSimMap, num);
 
     type = props.getProperty("metadataTopicSimType");
+
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
+    JsonElement relatedJson = mapToJson(sortedMBSimMap, num);
 
-    type = props.getProperty("metadataSessionBasedSimType");
-    Map<String, Double> sortedSBSimMap = getRelatedData(type, input, num + 5);
-
-    Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
-
-    for (String name : sortedOBSimMap.keySet()) {
-      hybirdSimMap.put(name, sortedOBSimMap.get(name));
-    }
-
-    for (String name : sortedMBSimMap.keySet()) {
-      if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name) + sortedMBSimMap.get(name);
-        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
-      } else {
-        double sim = sortedMBSimMap.get(name);
-        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
-      }
-    }
-
-    for (String name : sortedSBSimMap.keySet()) {
-      if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name) + sortedSBSimMap.get(name);
-        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
-      } else {
-        double sim = sortedSBSimMap.get(name);
-        hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
-      }
-    }
-
-    Map<String, Double> sortedHybirdSimMap = this.sortMapByValue(hybirdSimMap);
-
-    JsonElement linkedJson = mapToJson(sortedHybirdSimMap, num);
     JsonObject json = new JsonObject();
+
     json.add("linked", linkedJson);
+    json.add("related", relatedJson);
 
     return json;
   }
 
-  /**
-   * Method of converting hashmap to JSON
-   *
-   * @param wordweights
-   *          a map from related metadata to weights
-   * @param num
-   *          the number of converted elements
-   * @return converted JSON object
-   */
   protected JsonElement mapToJson(Map<String, Double> wordweights, int num) {
     Gson gson = new Gson();
 
@@ -165,25 +114,9 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
         break;
       }
     }
-
-    String nodesJson = gson.toJson(nodes);
-    JsonElement nodesElement = gson.fromJson(nodesJson, JsonElement.class);
-
-    return nodesElement;
+    return gson.fromJson(gson.toJson(nodes), JsonElement.class);
   }
 
-  /**
-   * Get recommend dataset for a giving dataset
-   *
-   * @param type
-   *          recommend method
-   * @param input
-   *          a giving dataset
-   * @param num
-   *          the number of recommended dataset
-   * @return recommended dataset map, key is dataset name, value is similarity
-   *         value
-   */
   public Map<String, Double> getRelatedData(String type, String input,
       int num) {
     termList = new ArrayList<>();
@@ -204,20 +137,8 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
-  /**
-   * Get recommend dataset for a giving dataset
-   *
-   * @param type
-   *          recommend method
-   * @param input
-   *          a giving dataset
-   * @param num
-   *          the number of recommended dataset
-   * @return recommended dataset list
-   */
   public List<LinkedTerm> getRelatedDataFromES(String type, String input,
       int num) {
-
     SearchRequestBuilder builder = es.getClient()
         .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
         .setQuery(QueryBuilders.termQuery("concept_A", input))
@@ -239,13 +160,6 @@ public class HybirdRecommendation extends DiscoveryStepAbstract {
     return termList;
   }
 
-  /**
-   * Method of sorting a map by value
-   * 
-   * @param passedMap
-   *          input map
-   * @return sorted map
-   */
   public Map<String, Double> sortMapByValue(Map<String, Double> passedMap) {
     List<String> mapKeys = new ArrayList<>(passedMap.keySet());
     List<Double> mapValues = new ArrayList<>(passedMap.values());

@@ -90,7 +90,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
   }
 
   private void TranformAllMetadata() {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     SearchResponse scrollResp = es.getClient()
         .prepareSearch(props.getProperty("indexName")).setTypes(metadataType)
@@ -102,7 +102,7 @@ public class TranformMetadata extends DiscoveryStepAbstract {
         Map<String, Object> metadatacode;
         try {
           metadatacode = TranformMetadata(metadata);
-          UpdateRequest ur = es.genUpdateRequest(props.getProperty("indexName"),
+          UpdateRequest ur = es.generateUpdateRequest(props.getProperty("indexName"),
               metadataType, hit.getId(), metadatacode);
           es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {

@@ -86,11 +86,11 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   public void generateSession() {
     try {
-      es.createBulkProcesser();
+      es.createBulkProcessor();
       genSessionByReferer(Integer.parseInt(props.getProperty("timegap")));
       es.destroyBulkProcessor();
 
-      es.createBulkProcesser();
+      es.createBulkProcessor();
       combineShortSessions(Integer.parseInt(props.getProperty("timegap")));
       es.destroyBulkProcessor();
     } catch (ElasticsearchException e) {
@@ -259,7 +259,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
           public Iterator<Integer> call(Iterator<String> arg0)
               throws Exception {
             ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcesser();
+            tmpES.createBulkProcessor();
             List<Integer> sessionNums = new ArrayList<Integer>();
             while (arg0.hasNext()) {
               String s = arg0.next();
@@ -432,7 +432,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       @Override
       public void call(Iterator<String> arg0) throws Exception {
         ESDriver tmpES = new ESDriver(props);
-        tmpES.createBulkProcesser();
+        tmpES.createBulkProcessor();
         while (arg0.hasNext()) {
           String s = arg0.next();
           combineShortSessions(tmpES, s, timeThres);

@@ -35,6 +35,9 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Supports ability to generate search history (queries) for each individual
  * user (IP)
@@ -77,9 +80,8 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       FileWriter fw = new FileWriter(file.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
 
-      ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
-          props.getProperty("indexName"),
-          props.getProperty("SessionStats_prefix"));
+      ArrayList<String> cleanupTypeList = (ArrayList<String>) es.getTypeListWithPrefix(
+          props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("SessionStats_prefix"));
 
       bw.write("Num" + ",");
 

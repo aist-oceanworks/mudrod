@@ -12,6 +12,6 @@
  * limitations under the License.
  */
 /**
- * This package includes the data structures used by MUDROD web services.
+ * Mudrod Autocompletion resources.
  */
-package esiptestbed.mudrod.webservlet.structure;
+package esiptestbed.mudrod.services.autocomplete;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services;
 
 import java.util.Properties;
 
@@ -27,16 +27,17 @@ import esiptestbed.mudrod.ssearch.Ranker;
 import esiptestbed.mudrod.ssearch.Searcher;
 
 /**
- * Application Lifecycle Listener implementation class MudrodWebListener
+ * Application Lifecycle Listener implementation class MudrodContextListener
  *
  */
 @WebListener
-public class MudrodWebListener implements ServletContextListener {
+public class MudrodContextListener implements ServletContextListener {
   MudrodEngine me = null;
   /**
    * Default constructor.
    */
-  public MudrodWebListener() {
+  public MudrodContextListener() {
+    //default constructor
   }
 
   /**
@@ -58,11 +59,11 @@ public class MudrodWebListener implements ServletContextListener {
     me.setSparkDriver(new SparkDriver());
 
     ServletContext ctx = arg0.getServletContext();
-    Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
-    Ranker rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), "SparkSVM");
+    Searcher searcher = new Searcher(me.getConfig(), me.getESDriver(), null);
+    Ranker ranker = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), "SparkSVM");
     ctx.setAttribute("MudrodInstance", me);
-    ctx.setAttribute("MudrodSearcher", sr);
-    ctx.setAttribute("MudrodRanker", rr);
+    ctx.setAttribute("MudrodSearcher", searcher);
+    ctx.setAttribute("MudrodRanker", ranker);
   }
 
 }

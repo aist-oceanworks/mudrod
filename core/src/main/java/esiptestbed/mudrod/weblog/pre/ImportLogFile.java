@@ -150,7 +150,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
    * log files.
    */
   public void readFileInSequential(String httplogpath, String ftplogpath) {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     try {
       readLogFile(httplogpath, "http", props.getProperty("indexName"),
           this.httpType);

@@ -71,7 +71,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
   @Override
   public Object execute() {
     es.deleteType(props.getProperty("indexName"), props.getProperty("ontologyLinkageType"));
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     BufferedReader br = null;
     String line = "";

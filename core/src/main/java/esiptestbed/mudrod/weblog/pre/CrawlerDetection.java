@@ -156,7 +156,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
    */
   public void checkByRateInSequential()
       throws InterruptedException, IOException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
 
@@ -200,7 +200,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
               throws Exception {
             // TODO Auto-generated method stub
             ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcesser();
+            tmpES.createBulkProcessor();
             List<Integer> realUserNums = new ArrayList<Integer>();
             while (arg0.hasNext()) {
               String s = arg0.next();

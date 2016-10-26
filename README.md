@@ -3,7 +3,7 @@
 
 [![license](https://img.shields.io/github/license/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/) [![](https://images.microbadger.com/badges/image/mudrod/mudrod.svg)](https://microbadger.com/images/mudrod/mudrod "Get your own image badge on microbadger.com")
 [![codecov](https://codecov.io/gh/mudrod/mudrod/branch/master/graph/badge.svg)](https://codecov.io/gh/mudrod/mudrod)
 [![SonarQube Tech Debt](https://img.shields.io/sonar/http/nemo.sonarqube.org/esiptestbed:mudrod-parent/tech_debt.svg?maxAge=2592000?style=plastic)](http://nemo.sonarqube.org/dashboard/index/esiptestbed:mudrod-parent)
 
@@ -68,12 +68,20 @@ Once Tomcat hot deploys the .war artifact, you will be able to browse to the run
 
 # Documentation
 
-## API Documentation
+## Java API Documentation
 
 ```
 $ mvn javadoc:aggregate
 $ open target/site/apidocs/index.html
 ```
+
+## REST API Documentation
+
+```
+$ mvn clean install
+$ open service/target/miredot/index.html
+```
+The REST API documentation can also be seen at [https://mudrod.github.io/miredot](https://mudrod.github.io/miredot).
 
 # Team members:
 
@@ -90,3 +98,4 @@ $ open target/site/apidocs/index.html
 This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
 copy of which is shipped with this project.
 
+ 

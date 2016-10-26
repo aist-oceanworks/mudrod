@@ -15,14 +15,12 @@ package esiptestbed.mudrod.integration;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -99,39 +97,38 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   public Map<String, Double> appyMajorRule(String input) {
     termList = new ArrayList<>();
     Map<String, Double> termsMap = new HashMap<>();
-    Map<String, Double> sortedMap = new HashMap<>();
+    Map<String, List<LinkedTerm>> map = new HashMap<>();
     try {
-      Map<String, List<LinkedTerm>> map = aggregateRelatedTermsFromAllmodel(
+      map = aggregateRelatedTermsFromAllmodel(
           es.customAnalyzing(props.getProperty(INDEX_NAME), input));
-
-      for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {
-        List<LinkedTerm> list = entry.getValue();
-        double sumModelWeight = 0;
-        double tmp = 0;
-        for (LinkedTerm element : list) {
-          sumModelWeight += getModelweight(element.model);
-
-          if (element.weight > tmp) {
-            tmp = element.weight;
-          }
-        }
-
-        double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
-        if (finalWeight < 0) {
-          finalWeight = 0;
-        }
-
-        if (finalWeight > 1) {
-          finalWeight = 1;
-        }
-        termsMap.put(entry.getKey(), Double.parseDouble(df.format(finalWeight)));
-      }
-      sortedMap = sortMapByValue(termsMap); // terms_map will be empty after
-      // this step
     } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
+      LOG.error("Error applying majority rule", e);
     }
-    return sortedMap;
+
+    for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {
+      List<LinkedTerm> list = entry.getValue();
+      double sumModelWeight = 0;
+      double tmp = 0;
+      for (LinkedTerm element : list) {
+        sumModelWeight += getModelweight(element.model);
+
+        if (element.weight > tmp) {
+          tmp = element.weight;
+        }
+      }
+
+      double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
+      if (finalWeight < 0) {
+        finalWeight = 0;
+      }
+
+      if (finalWeight > 1) {
+        finalWeight = 1;
+      }
+      termsMap.put(entry.getKey(), Double.parseDouble(df.format(finalWeight)));
+    }
+
+    return sortMapByValue(termsMap);
   }
 
   /**
@@ -158,10 +155,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   /**
    * Method of getting integrated results
    * @param input query string
-   * @param num the number of most related terms
    * @return a JSON object of related terms along with corresponding similarities
    */
-  public JsonObject getIngeratedListInJson(String input, int num) {
+  public JsonObject getIngeratedListInJson(String input) {
     Map<String, Double> sortedMap = appyMajorRule(input);
     int count = 0;
     Map<String, Double> trimmedMap = new LinkedHashMap<>();
@@ -175,7 +171,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
     }
 
-    return mapToJson(input, trimmedMap);
+    return mapToJson(trimmedMap);
   }
 
   /**
@@ -309,73 +305,29 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
- /* *//**
-   * Method of converting hashmap to JSON
-   * @param word input query
-   * @param wordweights a map from related terms to weights
-   * @return converted JSON object
-   *//*
-  private JsonObject mapToJson(String word, Map<String, Double> wordweights) {
-    Gson gson = new Gson();
-    JsonObject json = new JsonObject();
-
-    List<JsonObject> nodes = new ArrayList<>();
-    JsonObject firstNode = new JsonObject();
-    firstNode.addProperty("name", word);
-    firstNode.addProperty("group", 1);
-    nodes.add(firstNode);
-    Set<String> words = wordweights.keySet();
-    for (String wordB : words) {
-      JsonObject node = new JsonObject();
-      node.addProperty("name", wordB);
-      node.addProperty("group", 10);
-      nodes.add(node);
-    }
-    JsonElement nodesElement = gson.toJsonTree(nodes);
-    json.add("nodes", nodesElement);
-
-    List<JsonObject> links = new ArrayList<>();
-
-    Collection<Double> weights = wordweights.values();
-    int num = 1;
-    for (double weight : weights) {
-      JsonObject link = new JsonObject();
-      link.addProperty("source", num);
-      link.addProperty("target", 0);
-      link.addProperty("value", weight);
-      links.add(link);
-      num += 1;
-    }
-    JsonElement linksElement = gson.toJsonTree(links);
-    json.add("links", linksElement);
-
-    return json;
-  }*/
-  
   /**
    * Method of converting hashmap to JSON
    * @param word input query
    * @param wordweights a map from related terms to weights
    * @return converted JSON object
    */
-  private JsonObject mapToJson(String word, Map<String, Double> wordweights) {
+  private JsonObject mapToJson(Map<String, Double> wordweights) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();
-
     List<JsonObject> nodes = new ArrayList<>();
-    
-    for(String linkword : wordweights.keySet()){
-    	
-    	 JsonObject node = new JsonObject();
-    	    node.addProperty("word", linkword);
-    	    node.addProperty("weight", wordweights.get(linkword));
-    	    nodes.add(node);
+
+    for(Entry<String, Double> entry : wordweights.entrySet()){   	
+      JsonObject node = new JsonObject();
+      String key = entry.getKey();
+      Double value = entry.getValue();
+      node.addProperty("word", key);
+      node.addProperty("weight", wordweights.get(value));
+      nodes.add(node);
     }
-   
+
     JsonElement nodesElement = gson.toJsonTree(nodes);
     json.add("ontology", nodesElement);
-
-
+    
     return json;
   }
 

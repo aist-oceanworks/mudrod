@@ -24,7 +24,8 @@ import esiptestbed.mudrod.main.MudrodEngine;
 
 public class SparkSVM {
 
-  public SparkSVM() {
+  private SparkSVM() {
+    //public constructor
   }
 
   public static void main(String[] args) {

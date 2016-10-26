@@ -132,7 +132,7 @@ public class OHEncoder {
    */
   public void OHEncodeaAllMetadata(ESDriver es) {
 
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
@@ -144,7 +144,7 @@ public class OHEncoder {
         Map<String, Object> metadatacode;
         try {
           metadatacode = OHEncodeMetadata(es, metadata);
-          UpdateRequest ur = es.genUpdateRequest(indexName, metadataType,
+          UpdateRequest ur = es.generateUpdateRequest(indexName, metadataType,
               hit.getId(), metadatacode);
           es.getBulkProcessor().add(ur);
         } catch (InterruptedException | ExecutionException e1) {

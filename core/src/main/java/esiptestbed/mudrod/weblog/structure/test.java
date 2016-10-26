@@ -21,7 +21,7 @@ public class test implements Serializable {
 
   public void checkByRate(ESDriver es, SparkDriver spark, Properties props,
       String httpType) throws InterruptedException, IOException {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
 
     List<String> users = this.getAllUsers(es, props, httpType);
     JavaRDD<String> userRDD = spark.sc.parallelize(users);

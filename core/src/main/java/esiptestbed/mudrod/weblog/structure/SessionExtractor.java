@@ -90,7 +90,7 @@ public class SessionExtractor implements Serializable {
    */
   protected List<ClickStream> getClickStreamList(Properties props,
       ESDriver es) {
-    ArrayList<String> cleanupTypeList = es.getTypeListWithPrefix(
+    ArrayList<String> cleanupTypeList = (ArrayList<String>) es.getTypeListWithPrefix(
         props.getProperty(MudrodConstants.ES_INDEX_NAME),
         props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX));
     List<ClickStream> result = new ArrayList<>();
@@ -355,7 +355,7 @@ public class SessionExtractor implements Serializable {
   public JavaPairRDD<String, List<String>> bulidSessionItermRDD(
       Properties props, ESDriver es, SparkDriver spark) {
 
-    ArrayList<String> sessionstatic_typeList = es.getTypeListWithPrefix(
+    ArrayList<String> sessionstatic_typeList = (ArrayList<String>) es.getTypeListWithPrefix(
         props.getProperty("indexName"),
         props.getProperty("SessionStats_prefix"));
     List<String> result = new ArrayList<>();
