@@ -71,5 +71,6 @@
    Local - esiptestbed.mudrod.ontology.process.Local
    -->
   <para name="mudrod.ontology.implementation">Local</para>
+  <!-- 0 for seqential processing, 1 for parallel processing -->
   <para name="parallel">0</para>
 </Config>
