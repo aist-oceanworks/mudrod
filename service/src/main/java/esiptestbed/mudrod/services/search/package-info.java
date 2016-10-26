@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes all the MUDROD web services.
+ * Mudrod search-related resources.
+ *
  */
-package esiptestbed.mudrod.webservlet;
+package esiptestbed.mudrod.services.search;

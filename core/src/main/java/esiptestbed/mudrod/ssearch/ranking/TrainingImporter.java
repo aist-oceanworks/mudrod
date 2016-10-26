@@ -29,16 +29,22 @@ import org.elasticsearch.index.query.QueryBuilders;
 import esiptestbed.mudrod.discoveryengine.MudrodAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
  * Supports the ability to importing training set into Elasticsearch
  */
 public class TrainingImporter extends MudrodAbstract {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   public TrainingImporter(Properties props, ESDriver es,
       SparkDriver spark) {
     super(props, es, spark);
-    es.deleteAllByQuery(props.getProperty("indexName"),
+    es.deleteAllByQuery(props.getProperty(MudrodConstants.ES_INDEX_NAME),
         "trainingranking", QueryBuilders.matchAllQuery());
     addMapping();
   }
@@ -78,7 +84,7 @@ public class TrainingImporter extends MudrodAbstract {
    */
   public void importTrainingSet(String dataFolder) throws IOException
   {
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     
     File[] files = new File(dataFolder).listFiles();
     for (File file : files) {

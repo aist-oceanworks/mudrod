@@ -54,10 +54,10 @@ public class MudrodEngine {
   private SparkDriver spark = null;
   private static final String LOG_INGEST = "logIngest";
   private static final String FULL_INGEST = "fullIngest";
-  private static final String Processing = "processingWithPreResults";
-  private static final String Session_Recon = "sessionReconstruction";
-  private static final String Vocab_Sim_From_LOG = "vocabSimFromLog";
-  private static final String Add_Meta_Onto = "addSimFromMetadataAndOnto";
+  private static final String PROCESSING = "processingWithPreResults";
+  private static final String SESSION_RECON = "sessionReconstruction";
+  private static final String VOCAB_SIM_FROM_LOG = "vocabSimFromLog";
+  private static final String ADD_META_ONTO = "addSimFromMetadataAndOnto";
   private static final String LOG_DIR = "logDir";
 
   /**
@@ -254,7 +254,9 @@ public class MudrodEngine {
    * instance.
    */
   public void end() {
-    es.close();
+    if (es != null) {
+      es.close();
+    }
   }
 
   /**
@@ -273,21 +275,21 @@ public class MudrodEngine {
     Option fullIngestOpt = new Option("f", FULL_INGEST, false,
         "begin full ingest Mudrod workflow");
     // processing only, assuming that preprocessing results is in logDir
-    Option processingOpt = new Option("p", Processing, false,
+    Option processingOpt = new Option("p", PROCESSING, false,
         "begin processing with preprocessing results");
 
     // import raw web log into Elasticsearch
     Option logIngestOpt = new Option("l", LOG_INGEST, false,
         "begin log ingest without any processing only");
     // preprocessing web log, assuming web log has already been imported
-    Option sessionReconOpt = new Option("s", Session_Recon, false,
+    Option sessionReconOpt = new Option("s", SESSION_RECON, false,
         "begin session reconstruction");
     // calculate vocab similarity from session reconstrution results
-    Option vocabSimFromOpt = new Option("v", Vocab_Sim_From_LOG, false,
+    Option vocabSimFromOpt = new Option("v", VOCAB_SIM_FROM_LOG, false,
         "begin similarity calulation from web log Mudrod workflow");
     // add metadata and ontology preprocessing and processing results into web
     // log vocab similarity
-    Option addMetaOntoOpt = new Option("a", Add_Meta_Onto, false,
+    Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false,
         "begin adding metadata and ontology results");
 
     // argument options
@@ -315,14 +317,14 @@ public class MudrodEngine {
         processingType = LOG_INGEST;
       } else if (line.hasOption(FULL_INGEST)) {
         processingType = FULL_INGEST;
-      } else if (line.hasOption(Processing)) {
-        processingType = Processing;
-      } else if (line.hasOption(Session_Recon)) {
-        processingType = Session_Recon;
-      } else if (line.hasOption(Vocab_Sim_From_LOG)) {
-        processingType = Vocab_Sim_From_LOG;
-      } else if (line.hasOption(Add_Meta_Onto)) {
-        processingType = Add_Meta_Onto;
+      } else if (line.hasOption(PROCESSING)) {
+        processingType = PROCESSING;
+      } else if (line.hasOption(SESSION_RECON)) {
+        processingType = SESSION_RECON;
+      } else if (line.hasOption(VOCAB_SIM_FROM_LOG)) {
+        processingType = VOCAB_SIM_FROM_LOG;
+      } else if (line.hasOption(ADD_META_ONTO)) {
+        processingType = ADD_META_ONTO;
       }
 
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
@@ -336,35 +338,39 @@ public class MudrodEngine {
       me.es = new ESDriver(me.getConfig());
       me.spark = new SparkDriver();
       loadFullConfig(me, dataDir);
-
-      switch (processingType) {
-      case LOG_INGEST:
-        me.logIngest();
-        break;
-      case Processing:
-        me.startProcessing();
-        break;
-      case Session_Recon:
-        me.sessionRestruction();
-        break;
-      case Vocab_Sim_From_LOG:
-        me.vocabSimFromLog();
-        break;
-      case Add_Meta_Onto:
-        me.addMetaAndOntologySim();
-        break;
-      case FULL_INGEST:
-        me.startFullIngest();
-        break;
-      default:
-        break;
+      if(processingType != null)
+      {
+        switch (processingType) {
+        case LOG_INGEST:
+          me.logIngest();
+          break;
+        case PROCESSING:
+          me.startProcessing();
+          break;
+        case SESSION_RECON:
+          me.sessionRestruction();
+          break;
+        case VOCAB_SIM_FROM_LOG:
+          me.vocabSimFromLog();
+          break;
+        case ADD_META_ONTO:
+          me.addMetaAndOntologySim();
+          break;
+        case FULL_INGEST:
+          me.startFullIngest();
+          break;
+        default:
+          break;
+        }
       }
       me.end();
     } catch (Exception e) {
-      LOG.error(e.getMessage());
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
-          + "User must also provide an ingest method.", options, true);
+      formatter.printHelp(
+          "MudrodEngine: 'logDir' argument is mandatory. "
+              + "User must also provide an ingest method.",
+              options, true);
+      LOG.error("Error inputting command line!", e);
       return;
     }
   }
@@ -400,9 +406,7 @@ public class MudrodEngine {
 
   /**
    * Set the {@link esiptestbed.mudrod.driver.SparkDriver}
-   * 
-   * @param sparkDriver
-   *          a configured {@link esiptestbed.mudrod.driver.SparkDriver}
+   * @param sparkDriver a configured {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;

@@ -92,7 +92,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
     es.deleteType(props.getProperty("indexName"),
         props.getProperty("recom_metadataType"));
 
-    es.createBulkProcesser();
+    es.createBulkProcessor();
     File directory = new File(props.getProperty("raw_metadataPath"));
     File[] fList = directory.listFiles();
     for (File file : fList) {

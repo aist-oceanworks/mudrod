@@ -21,6 +21,8 @@ package esiptestbed.mudrod.main;
  */
 public interface MudrodConstants {
 
+  public static final String MUDROD = "mudrod";
+
   public static final String LOG_LEVEL = "loglevel";
 
   public static final String HTTP_PREFIX = "httpPrefix";
@@ -87,5 +89,17 @@ public interface MudrodConstants {
 
   public static final String ONTOLOGY_W = "ontology_w";
 
+  public static final String RAW_METADATA_PATH = "raw_metadataPath";
+
+  /** 
+   * Absolute local location of javaSVMWithSGDModel directory. This is typically
+   * <code>file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel</code>
+   */
+  public static final String SVM_SGD_MODEL = "svmSgdModel";
+
+  /**
+   * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.
+   */
+  public static final String ONTOLOGY_IMPL = MUDROD + "ontology.implementation";
 
 }

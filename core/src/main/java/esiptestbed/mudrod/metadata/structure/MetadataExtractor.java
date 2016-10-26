@@ -34,6 +34,11 @@ import scala.Tuple2;
 
 public class MetadataExtractor implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   public MetadataExtractor() {
   }
 
@@ -133,6 +138,11 @@ public class MetadataExtractor implements Serializable {
     JavaRDD<PODAACMetadata> metadataRDD = sc.parallelize(metadatas);
     JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD
         .mapToPair(new PairFunction<PODAACMetadata, String, List<String>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Tuple2<String, List<String>> call(PODAACMetadata metadata)
               throws Exception {
@@ -141,6 +151,11 @@ public class MetadataExtractor implements Serializable {
           }
         })
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public List<String> call(List<String> v1, List<String> v2)
               throws Exception {

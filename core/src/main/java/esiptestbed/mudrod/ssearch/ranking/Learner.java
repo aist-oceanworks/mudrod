@@ -30,17 +30,18 @@ public class Learner implements Serializable{
   private static final long serialVersionUID = 1L;
   private static final String SPARKSVM = "SparkSVM";
   SVMModel model = null;
-  SparkContext sc = null;
+  transient SparkContext sc = null;
 
   /**
    * Constructor to load in spark SVM classifier
    * @param classifierName classifier type
    * @param skd an instance of spark driver
    */
-  public Learner(String classifierName, SparkDriver skd) {
+  public Learner(String classifierName, SparkDriver skd, String svmSgdModel) {
     if(classifierName.equals(SPARKSVM)) {
       sc = skd.sc.sc();
-      model = SVMModel.load(sc, Learner.class.getClassLoader().getResource("javaSVMWithSGDModel").toString());
+      sc.addFile(svmSgdModel, true);
+      model = SVMModel.load(sc, svmSgdModel);
     }
   }
 
@@ -49,10 +50,8 @@ public class Learner implements Serializable{
    * @param p the instance that needs to be classified
    * @return the class id
    */
-  public double classify(LabeledPoint p)
-  {
-    Double score = model.predict(p.features());
-    return score;
+  public double classify(LabeledPoint p) {
+    return model.predict(p.features());
   }
 
 }
