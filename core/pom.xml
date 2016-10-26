@@ -208,12 +208,7 @@
                            </excludes>
                         </filter>
                      </filters>
-                     <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                           <mainClass>esiptestbed.mudrod.main.MudrodEngine</mainClass>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                     </transformers>
+                     <finalName>mudrod</finalName>
                   </configuration>
                </execution>
             </executions>
