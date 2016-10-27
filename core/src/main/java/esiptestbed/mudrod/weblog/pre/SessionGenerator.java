@@ -108,20 +108,20 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
   public void genSessionByReferer(int timeThres)
       throws InterruptedException, IOException {
-    int parallel = Integer.parseInt(props.getProperty("parallel"));
-    if (parallel == 0) {
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       genSessionByRefererInSequential(timeThres);
-    } else if (parallel == 1) {
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
       genSessionByRefererInParallel(timeThres);
     }
   }
 
   public void combineShortSessions(int timeThres)
       throws InterruptedException, IOException {
-    int parallel = Integer.parseInt(props.getProperty("parallel"));
-    if (parallel == 0) {
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       combineShortSessionsInSequential(timeThres);
-    } else if (parallel == 1) {
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
       combineShortSessionsInParallel(timeThres);
     }
   }

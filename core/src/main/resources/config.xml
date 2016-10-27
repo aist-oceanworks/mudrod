@@ -71,6 +71,10 @@
    Local - esiptestbed.mudrod.ontology.process.Local
    -->
   <para name="mudrod.ontology.implementation">Local</para>
-  <!-- 0 for seqential processing, 1 for parallel processing -->
-  <para name="parallel">0</para>
+  <!-- 
+   Log processing type. Possible values include
+   sequential - esiptestbed.mudrod.main.MudrodConstants.SEQUENTIAL_PROCESS
+   parallel - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_PROCESS
+   -->
+  <para name="processingType">parallel</para>
 </Config>

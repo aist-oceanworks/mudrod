@@ -126,8 +126,8 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     }
     return time;
   }
-  
-  public void readFile(){
+
+  public void readFile() {
 
     String httplogpath = props.getProperty("logDir")
         + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
@@ -137,10 +137,10 @@ public class ImportLogFile extends DiscoveryStepAbstract {
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
         + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX);
 
-    int parallel = Integer.parseInt(props.getProperty("parallel"));
-    if (parallel == 0) {
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       readFileInSequential(httplogpath, ftplogpath);
-    } else if (parallel == 1) {
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
       readFileInParallel(httplogpath, ftplogpath);
     }
   }
@@ -162,7 +162,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     }
     es.destroyBulkProcessor();
   }
-  
+
   /**
    * Read the FTP or HTTP log path with the intention of processing lines from
    * log files.

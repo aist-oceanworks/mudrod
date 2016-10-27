@@ -14,10 +14,9 @@
 package esiptestbed.mudrod.main;
 
 /**
- * Class contains static constant keys and values relating
- * to Mudrod configuration properties.
- * Property values are read from 
- * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>
+ * Class contains static constant keys and values relating to Mudrod
+ * configuration properties. Property values are read from <a href=
+ * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>
  */
 public interface MudrodConstants {
 
@@ -91,7 +90,11 @@ public interface MudrodConstants {
 
   public static final String RAW_METADATA_PATH = "raw_metadataPath";
 
-  /** 
+  public static final String SEQUENTIAL_PROCESS = "sequential";
+
+  public static final String PARALLEL_PROCESS = "parallel";
+
+  /**
    * Absolute local location of javaSVMWithSGDModel directory. This is typically
    * <code>file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel</code>
    */

@@ -93,10 +93,10 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
   public void processSession()
       throws InterruptedException, IOException, ExecutionException {
-    int parallel = Integer.parseInt(props.getProperty("parallel"));
-    if (parallel == 0) {
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       processSessionInSequential();
-    } else if (parallel == 1) {
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
       processSessionInParallel();
     }
   }

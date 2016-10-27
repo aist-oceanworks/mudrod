@@ -137,10 +137,10 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
   }
 
   public void checkByRate() throws InterruptedException, IOException {
-    int parallel = Integer.parseInt(props.getProperty("parallel"));
-    if (parallel == 0) {
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       checkByRateInSequential();
-    } else if (parallel == 1) {
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
       checkByRateInParallel();
     }
   }
