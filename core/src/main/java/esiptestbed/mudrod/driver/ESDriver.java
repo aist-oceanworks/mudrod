@@ -56,7 +56,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +66,7 @@ import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
+import esiptestbed.mudrod.utils.ESTransportClient;
 
 /**
  * Driver implementation for all Elasticsearch functionality.
@@ -411,13 +411,16 @@ public class ESDriver implements Serializable {
     if (!clusterName.isEmpty())
       settingsBuilder.put("cluster.name", clusterName);
 
+    settingsBuilder.put("http.type", "netty3");
+    settingsBuilder.put("transport.type", "netty3");
+
     Settings settings = settingsBuilder.build();
 
     Client client = null;
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
-      TransportClient transportClient = new PreBuiltTransportClient(settings);
+      TransportClient transportClient = new ESTransportClient(settings);
       for (String host : hosts)
         transportClient.addTransportAddress(
             new InetSocketTransportAddress(InetAddress.getByName(host), port));

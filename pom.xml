@@ -390,6 +390,12 @@
 	    <artifactId>transport</artifactId>
 	    <version>5.0.0-beta1</version>
 	    <scope>compile</scope>
+	    <exclusions>
+          <exclusion>
+             <groupId>org.elasticsearch.plugin</groupId>
+			 <artifactId>transport-netty4-client</artifactId>
+          </exclusion>
+        </exclusions>
 	  </dependency>
 	  <dependency>
 	    <groupId>org.elasticsearch</groupId>
