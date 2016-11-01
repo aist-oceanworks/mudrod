@@ -59,6 +59,9 @@ public class MudrodEngine {
   private static final String VOCAB_SIM_FROM_LOG = "vocabSimFromLog";
   private static final String ADD_META_ONTO = "addSimFromMetadataAndOnto";
   private static final String LOG_DIR = "logDir";
+  private static final String ES_HOST = "esHost";
+  private static final String ES_TCP_PORT = "esTCPPort";
+  private static final String ES_HTTP_PORT = "esPort";
 
   /**
    * Public constructor for this class.
@@ -85,7 +88,7 @@ public class MudrodEngine {
    * @return fully provisioned {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public SparkDriver startSparkDriver() {
-    return new SparkDriver();
+    return new SparkDriver(props);
   }
 
   /**
@@ -297,6 +300,18 @@ public class MudrodEngine {
         .hasArg(true).desc("the log directory to be processed by Mudrod")
         .argName(LOG_DIR).build();
 
+    Option esHostOpt = Option.builder(ES_HOST).required(false).numberOfArgs(1)
+        .hasArg(true).desc("elasticsearch cluster unicast host")
+        .argName(ES_HOST).build();
+
+    Option esTCPPortOpt = Option.builder(ES_TCP_PORT).required(false)
+        .numberOfArgs(1).hasArg(true).desc("elasticsearch transport TCP port")
+        .argName(ES_TCP_PORT).build();
+
+    Option esPortOpt = Option.builder(ES_HTTP_PORT).required(false)
+        .numberOfArgs(1).hasArg(true).desc("elasticsearch HTTP/REST port")
+        .argName(ES_HTTP_PORT).build();
+
     // create the options
     Options options = new Options();
     options.addOption(helpOpt);
@@ -307,6 +322,9 @@ public class MudrodEngine {
     options.addOption(vocabSimFromOpt);
     options.addOption(addMetaOntoOpt);
     options.addOption(logDirOpt);
+    options.addOption(esHostOpt);
+    options.addOption(esTCPPortOpt);
+    options.addOption(esPortOpt);
 
     CommandLineParser parser = new DefaultParser();
     try {
@@ -335,11 +353,26 @@ public class MudrodEngine {
       MudrodEngine me = new MudrodEngine();
       me.loadConfig();
       me.props.put(LOG_DIR, dataDir);
+
+      if (line.hasOption(ES_HOST)) {
+        String es_host = line.getOptionValue(ES_HOST);
+        me.props.put(MudrodConstants.ES_UNICAST_HOSTS, es_host);
+      }
+
+      if (line.hasOption(ES_TCP_PORT)) {
+        String es_tcp_port = line.getOptionValue(ES_TCP_PORT);
+        me.props.put(MudrodConstants.ES_TRANSPORT_TCP_PORT, es_tcp_port);
+      }
+
+      if (line.hasOption(ES_HTTP_PORT)) {
+        String es_http_port = line.getOptionValue(ES_HTTP_PORT);
+        me.props.put(MudrodConstants.ES_HTTP_PORT, es_http_port);
+      }
+
       me.es = new ESDriver(me.getConfig());
-      me.spark = new SparkDriver();
+      me.spark = new SparkDriver(me.getConfig());
       loadFullConfig(me, dataDir);
-      if(processingType != null)
-      {
+      if (processingType != null) {
         switch (processingType) {
         case LOG_INGEST:
           me.logIngest();
@@ -366,10 +399,8 @@ public class MudrodEngine {
       me.end();
     } catch (Exception e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp(
-          "MudrodEngine: 'logDir' argument is mandatory. "
-              + "User must also provide an ingest method.",
-              options, true);
+      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
+          + "User must also provide an ingest method.", options, true);
       LOG.error("Error inputting command line!", e);
       return;
     }
@@ -406,7 +437,9 @@ public class MudrodEngine {
 
   /**
    * Set the {@link esiptestbed.mudrod.driver.SparkDriver}
-   * @param sparkDriver a configured {@link esiptestbed.mudrod.driver.SparkDriver}
+   * 
+   * @param sparkDriver
+   *          a configured {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;

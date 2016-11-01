@@ -90,14 +90,14 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
     </dependency>
-    <dependency>
+   <!--  <dependency>
 	    <groupId>org.apache.hadoop</groupId>
 	    <artifactId>hadoop-hdfs</artifactId>
 	 </dependency>
 	 <dependency>
 	    <groupId>org.apache.hadoop</groupId>
 	    <artifactId>hadoop-common</artifactId>
-	  </dependency>
+	  </dependency> -->
     <!-- End of Spark dependencies -->
 
     <dependency>

@@ -14,10 +14,13 @@
 package esiptestbed.mudrod.driver;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SQLContext;
+
+import esiptestbed.mudrod.main.MudrodConstants;
 
 public class SparkDriver implements Serializable {
   /**
@@ -28,15 +31,35 @@ public class SparkDriver implements Serializable {
   public SQLContext sqlContext;
 
   public SparkDriver() {
+    /*SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]")
+        .set("spark.hadoop.validateOutputSpecs", "false")
+        .set("spark.files.overwrite", "true");
+    
+    sc = new JavaSparkContext(conf);
+    sqlContext = new SQLContext(sc);*/
+  }
+
+  public SparkDriver(Properties props) {
     SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]")
         .set("spark.hadoop.validateOutputSpecs", "false")
         .set("spark.files.overwrite", "true");
+
+    String esHost = props.getProperty(MudrodConstants.ES_UNICAST_HOSTS);
+    String esPort = props.getProperty(MudrodConstants.ES_HTTP_PORT);
+
+    if (!esHost.equals("")) {
+      conf.set("es.nodes", esHost);
+    }
+
+    if (!esPort.equals("")) {
+      conf.set("es.port", esPort);
+    }
+
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
   }
-  
-  public void close()
-  {
+
+  public void close() {
     sc.sc().stop();
   }
 }

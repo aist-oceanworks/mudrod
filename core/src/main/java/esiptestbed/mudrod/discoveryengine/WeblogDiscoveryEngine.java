@@ -14,9 +14,16 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Properties;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,18 +68,46 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    * @return a list of log files
    */
   public ArrayList<String> getFileList(String path) {
-    File directory = new File(path);
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
-          && file.getName().contains(props.getProperty("httpPrefix"))) {
-        inputList
-            .add(file.getName().replace(props.getProperty("httpPrefix"), ""));
+    String logDir = props.getProperty("logDir");
+    ArrayList<String> inputList = new ArrayList<>();
+    if (!logDir.startsWith("hdfs://")) {
+      File directory = new File(logDir);
+      File[] fList = directory.listFiles();
+      for (File file : fList) {
+        if (file.isFile()) {
+          // don't do anything with files, we are only interested in logs which
+          // are kept within directories.
+        } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+            && file.getName()
+                .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+          inputList.add(file.getName()
+              .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
+        }
+      }
+    } else {
+      try {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(new URI(logDir), conf);
+        FileStatus[] fileStatus;
+        fileStatus = fs.listStatus(new Path(logDir));
+        for (FileStatus status : fileStatus) {
+          System.out.println(status.getPath().toString());
+          String path1 = status.getPath().toString();
+          if (path1.matches(".*\\d+.*") && path1
+              .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+
+            String time = path1.substring(path1.lastIndexOf(".") + 1);
+            inputList.add(time);
+            System.out.println(time);
+          }
+        }
+      } catch (IllegalArgumentException | IOException | URISyntaxException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
     }
+
     return inputList;
   }
 
@@ -84,19 +119,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void preprocess() {
     LOG.info("Starting Web log preprocessing.");
 
-    File directory = new File(props.getProperty("logDir"));
-
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
-
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
-          && file.getName().contains(props.getProperty("httpPrefix"))) {
-        inputList
-            .add(file.getName().replace(props.getProperty("httpPrefix"), ""));
-      }
-    }
+    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
 
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
@@ -149,23 +172,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void logIngest() {
     LOG.info("Starting Web log ingest.");
-
-    File directory = new File(props.getProperty("logDir"));
-
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
-        // don't do anything with files, we are only interested in logs which
-        // are kept within directories.
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
-          && file.getName()
-              .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
-        inputList.add(file.getName()
-            .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
-      }
-    }
-
+    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
       props.put("TimeSuffix", timeSuffix);
@@ -206,13 +213,13 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       endTime = System.currentTimeMillis();
     }
 
-    /*DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es,
-        this.spark);
-    hg.execute();
-    
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es,
-        this.spark);
-    cg.execute();*/
+    /*
+     * DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es,
+     * this.spark); hg.execute();
+     * 
+     * DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es,
+     * this.spark); cg.execute();
+     */
     LOG.info("Session reconstruction complete.");
   }
 

@@ -36,6 +36,8 @@ public interface MudrodConstants {
 
   public static final String ES_UNICAST_HOSTS = "ES_unicast_hosts";
 
+  public static final String ES_HTTP_PORT = "ES_HTTP_port";
+
   public static final String ES_INDEX_NAME = "indexName";
 
   public static final String HTTP_TYPE_PREFIX = "HTTP_type_prefix";

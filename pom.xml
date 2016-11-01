@@ -449,7 +449,7 @@
         <version>2.11.8</version>
         <scope>compile</scope>
       </dependency>
-      <dependency>
+      <!-- <dependency>
 	    <groupId>org.apache.hadoop</groupId>
 	    <artifactId>hadoop-hdfs</artifactId>
 	    <version>2.4.1</version>
@@ -460,7 +460,7 @@
 	    <artifactId>hadoop-common</artifactId>
 	    <version>2.4.1</version>
 	    <scope>compile</scope>
-	  </dependency>
+	  </dependency> -->
       <!-- End of Spark dependencies-->
 
       <!-- Jena dependencies -->

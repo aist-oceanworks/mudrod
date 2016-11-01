@@ -58,7 +58,7 @@ public class ESTransportClient extends TransportClient {
   @Override
   public void close() {
     super.close();
-    if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
+    /*if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
         || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings)
             .equals(Netty3Plugin.NETTY_TRANSPORT_NAME)) {
       try {
@@ -71,7 +71,7 @@ public class ESTransportClient extends TransportClient {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       }
-    }
+    }*/
   }
 
 }
