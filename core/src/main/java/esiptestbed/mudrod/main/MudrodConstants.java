@@ -106,5 +106,9 @@ public interface MudrodConstants {
    * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.
    */
   public static final String ONTOLOGY_IMPL = MUDROD + "ontology.implementation";
+  
+  public static final String SPARK_MASTER = "spark.master";
+  
+  public static final String SPARK_APP_NAME = "spark.app.name";
 
 }
