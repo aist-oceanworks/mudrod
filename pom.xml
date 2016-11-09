@@ -15,26 +15,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>esiptestbed</groupId>
   <artifactId>mudrod-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  
+
   <name>Mudrod :: Parent</name>
   <url>https://github.com/mudrod/mudrod.git</url>
   <description>MUDROD: Mining and Utilizing Dataset Relevancy from Oceanographic Datasets 
     to Improve Data Discovery and Access. MUDROD is a semantic discovery and search project 
     funded by NASA AIST (NNX15AM85G).
   </description>
-  
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-  
+
   <organization>
     <name>George Mason University</name>
     <url>https://www2.gmu.edu/</url>
@@ -78,7 +78,7 @@
     <system>TravisCI</system>
     <url>https://travis-ci.org/mudrod/mudrod</url>
   </ciManagement>
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
@@ -90,15 +90,16 @@
     <xml.maven.version>1.0.1</xml.maven.version>
     <jacoco.version>0.7.7.201606060606</jacoco.version>
     <jena.version>3.1.0</jena.version>
+    <elastic.version>5.0.0</elastic.version>
   </properties>
-  
+
   <scm>
     <developerConnection>scm:git:https://github.com/mudrod/mudrod.git</developerConnection>
     <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
     <url>https://github.com/mudrod/mudrod.git</url>
     <tag>HEAD</tag>
   </scm>
-  
+
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
@@ -109,19 +110,19 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </pluginRepository>
   </pluginRepositories>
-  
+
   <modules>
     <module>core</module>
     <module>service</module>
   </modules>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -216,7 +217,8 @@
         <version>2.19.1</version>
         <configuration>
           <reuseForks>true</reuseForks>
-          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M ${itCoverageAgent}</argLine>
+          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M
+            ${itCoverageAgent}</argLine>
         </configuration>
         <executions>
           <execution>
@@ -299,8 +301,8 @@
       <build>
         <pluginManagement>
           <plugins>
-            <!--This plugin's configuration is used to store Eclipse m2e settings 
-              only. It has no influence on the Maven build itself. -->
+            <!--This plugin's configuration is used to store Eclipse m2e 
+              settings only. It has no influence on the Maven build itself. -->
             <plugin>
               <groupId>org.eclipse.m2e</groupId>
               <artifactId>lifecycle-mapping</artifactId>
@@ -374,7 +376,7 @@
       </build>
     </profile>
   </profiles>
-  
+
   <dependencyManagement>
     <dependencies>
 
@@ -382,27 +384,27 @@
       <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>5.0.0-beta1</version>
+        <version>${elastic.version}</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
-	    <groupId>org.elasticsearch.client</groupId>
-	    <artifactId>transport</artifactId>
-	    <version>5.0.0-beta1</version>
-	    <scope>compile</scope>
-	    <exclusions>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>transport</artifactId>
+        <version>${elastic.version}</version>
+        <scope>compile</scope>
+        <exclusions>
           <exclusion>
-             <groupId>org.elasticsearch.plugin</groupId>
-			 <artifactId>transport-netty4-client</artifactId>
+            <groupId>org.elasticsearch.plugin</groupId>
+            <artifactId>transport-netty4-client</artifactId>
           </exclusion>
         </exclusions>
-	  </dependency>
-	  <dependency>
-	    <groupId>org.elasticsearch</groupId>
-	    <artifactId>elasticsearch-spark-20_2.11</artifactId>
-	    <version>5.0.0-beta1</version>
-	    <scope>compile</scope>
-	  </dependency>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch-spark-20_2.11</artifactId>
+        <version>${elastic.version}</version>
+        <scope>compile</scope>
+      </dependency>
       <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
@@ -417,7 +419,7 @@
       </dependency>
       <!-- End of Elasticsearch dependencies -->
 
-      <!-- Spark dependencies-->
+      <!-- Spark dependencies -->
       <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-core_2.11</artifactId>
@@ -449,19 +451,7 @@
         <version>2.11.8</version>
         <scope>compile</scope>
       </dependency>
-      <!-- <dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-hdfs</artifactId>
-	    <version>2.4.1</version>
-	    <scope>provide</scope>
-	  </dependency>
-	  <dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-common</artifactId>
-	    <version>2.4.1</version>
-	    <scope>compile</scope>
-	  </dependency> -->
-      <!-- End of Spark dependencies-->
+      <!-- End of Spark dependencies -->
 
       <!-- Jena dependencies -->
       <dependency>
@@ -488,23 +478,23 @@
       <dependency>
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
-        <version>1.3.1</version>
+        <version>1.2</version>
       </dependency>
       <!-- End of Misc dependencies -->
 
-      <!-- Logging dependencies -->      
+      <!-- Logging dependencies -->
       <dependency>
-	    <groupId>org.apache.logging.log4j</groupId>
-	    <artifactId>log4j-api</artifactId>
-	    <version>2.6.2</version>
-	    <scope>compile</scope>
-	  </dependency>
-	  <dependency>
-	    <groupId>org.apache.logging.log4j</groupId>
-	    <artifactId>log4j-core</artifactId>
-	    <version>2.6.2</version>
-	    <scope>runtime</scope>
-	  </dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.6.2</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.6.2</version>
+        <scope>runtime</scope>
+      </dependency>
       <!-- End of Logging dependencies -->
 
       <!-- Webservices Dependencies -->
