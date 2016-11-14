@@ -1,7 +1,11 @@
 {
    "index":{
       "number_of_replicas":0,
-      "refresh_interval":"-1"
+      "refresh_interval":"-1",
+      "number_of_shards": "5",
+      "translog.flush_threshold_size": "1g",
+      "translog.sync_interval": "30s",
+      "warmer.enabled": "false"
    },
    "analysis":{
       "filter":{
@@ -9,7 +13,7 @@
             "type":"stop",
             "stopwords":"_english_"
          },
-         "cody_stemmer":{
+           "cody_stemmer":{
             "type":"stemmer",
             "language":"light_english"
          }

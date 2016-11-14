@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.serializer.KryoSerializer;
 import org.apache.spark.sql.SQLContext;
 
 import esiptestbed.mudrod.main.MudrodConstants;
@@ -31,18 +32,19 @@ public class SparkDriver implements Serializable {
   public SQLContext sqlContext;
 
   public SparkDriver() {
-    //empty default constructor
+    // empty default constructor
   }
 
   public SparkDriver(Properties props) {
     SparkConf conf = new SparkConf()
-        .setAppName(props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
+        .setAppName(
+            props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
         .setMaster(props.getProperty(MudrodConstants.SPARK_MASTER, null))
         .set("spark.hadoop.validateOutputSpecs", "false")
         .set("spark.files.overwrite", "true");
 
     String esHost = props.getProperty(MudrodConstants.ES_UNICAST_HOSTS);
-    String esPort = props.getProperty(MudrodConstants.ES_TRANSPORT_TCP_PORT);
+    String esPort = props.getProperty(MudrodConstants.ES_HTTP_PORT);
 
     if (!"".equals(esHost)) {
       conf.set("es.nodes", esHost);
@@ -51,6 +53,9 @@ public class SparkDriver implements Serializable {
     if (!"".equals(esPort)) {
       conf.set("es.port", esPort);
     }
+
+    conf.set("spark.serializer", KryoSerializer.class.getName());
+    conf.set("es.batch.size.entries", "8000");
 
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
