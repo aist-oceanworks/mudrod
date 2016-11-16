@@ -40,7 +40,6 @@ public abstract class MudrodAbstract implements Serializable {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final String TIME_SUFFIX = "TimeSuffix";
   protected Properties props = new Properties();
   protected ESDriver es = null;
   protected SparkDriver spark = null;
@@ -95,10 +94,10 @@ public abstract class MudrodAbstract implements Serializable {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
 
-    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
-    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
-    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) + props.getProperty(TIME_SUFFIX);
-    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) + props.getProperty(TIME_SUFFIX);
+    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
   }
 
   /**

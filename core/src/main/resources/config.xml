@@ -20,7 +20,7 @@
 
   <para name="clusterName">MudrodES</para>
   <para name="ES_Transport_TCP_Port">9300</para>
-  <para name="ES_unicast_hosts">127.0.0.1</para>
+  <para name="ES_unicast_hosts">192.168.1.76</para>
   <para name="ES_HTTP_port">9200</para>
   <para name="indexName">mudrod</para>
 
