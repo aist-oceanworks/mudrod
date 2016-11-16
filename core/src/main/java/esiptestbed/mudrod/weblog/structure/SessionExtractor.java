@@ -350,7 +350,7 @@ public class SessionExtractor implements Serializable {
     return filteredSessionItemRDD;
   }
 
-  public JavaPairRDD<String, List<String>> bulidSessionItermRDD(
+  public JavaPairRDD<String, List<String>> bulidSessionDatasetRDD(
       Properties props, ESDriver es, SparkDriver spark) {
 
     ArrayList<String> sessionstatic_typeList = (ArrayList<String>) es.getTypeListWithPrefix(

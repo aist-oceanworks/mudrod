@@ -9,6 +9,7 @@
 
 package esiptestbed.mudrod.recommendation.pre;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.recommendation.structure.LDAModel;
+import esiptestbed.mudrod.recommendation.structure.MetadataOpt;
 import esiptestbed.mudrod.utils.LabeledRowMatrix;
 import esiptestbed.mudrod.utils.MatrixUtil;
 
@@ -53,22 +54,13 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
         "*****************Dataset TF_IDF Matrix Generator starts******************");
 
     startTime = System.currentTimeMillis();
-
-    LDAModel lda = new LDAModel(props);
     try {
-      JavaPairRDD<String, List<String>> metadataVecs = lda.loadData(es, spark);
-      LabeledRowMatrix dataTopicMatrix = lda.getTFIDF(metadataVecs, spark,
-          props.getProperty("metadata_topic"));
-      MatrixUtil.exportToCSV(dataTopicMatrix.wordDocMatrix,
-          dataTopicMatrix.words, dataTopicMatrix.docs,
-          props.getProperty("metadata_topic_matrix"));
-
+      generateWordBasedTFIDF();
+      generateTermBasedTFIDF();
     } catch (Exception e) {
-
-      // TODO Auto-generated catch block
       e.printStackTrace();
-
     }
+    endTime = System.currentTimeMillis();
 
     LOG.info(
         "*****************Dataset TF_IDF Matrix Generator ends******************Took {}s",
@@ -84,4 +76,45 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
     return null;
   }
 
+  public LabeledRowMatrix generateWordBasedTFIDF() throws Exception {
+
+    MetadataOpt opt = new MetadataOpt(props);
+
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark);
+
+    JavaPairRDD<String, List<String>> metadataWords = opt
+        .tokenizeData(metadataContents, " ");
+
+    LabeledRowMatrix wordtfidfMatrix = opt.TFIDFTokens(metadataWords, spark);
+
+    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys,
+        wordtfidfMatrix.colkeys,
+        props.getProperty("metadata_word_tfidf_matrix"));
+
+    return wordtfidfMatrix;
+  }
+
+  public LabeledRowMatrix generateTermBasedTFIDF() throws Exception {
+
+    MetadataOpt opt = new MetadataOpt(props);
+
+    List<String> variables = new ArrayList<String>();
+    variables.add("DatasetParameter-Term");
+    variables.add("DatasetParameter-Variable");
+    variables.add("Dataset-ExtractTerm");
+
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark,
+        variables);
+
+    JavaPairRDD<String, List<String>> metadataTokens = opt
+        .tokenizeData(metadataContents, ",");
+
+    LabeledRowMatrix tokentfidfMatrix = opt.TFIDFTokens(metadataTokens, spark);
+
+    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys,
+        tokentfidfMatrix.colkeys,
+        props.getProperty("metadata_term_tfidf_matrix"));
+
+    return tokentfidfMatrix;
+  }
 }

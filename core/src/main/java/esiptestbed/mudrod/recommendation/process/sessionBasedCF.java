@@ -18,8 +18,9 @@ import org.slf4j.LoggerFactory;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.recommendation.structure.ItemSimCalculator;
+import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
+import esiptestbed.mudrod.utils.SimilarityUtil;
 
 /**
  * ClassName: Recommend metedata based on session level co-occurrence 
@@ -50,11 +51,11 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     try {
-      String session_metadatFile = props.getProperty("session_item_Matrix");
-      ItemSimCalculator simcal = new ItemSimCalculator(props);
-      List<LinkageTriple> triples = simcal.CalItemSimfromMatrix(spark,
-          session_metadatFile, 1);
-      LinkageTriple.insertTriples(es, triples, props.getProperty("indexName"),
+      String session_metadatFile = props.getProperty("session_metadata_Matrix");
+      SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
+      List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(
+          session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
+      analyzer.saveToES(triples, props.getProperty("indexName"),
           props.getProperty("metadataSessionBasedSimType"), true, false);
 
     } catch (Exception e) {
