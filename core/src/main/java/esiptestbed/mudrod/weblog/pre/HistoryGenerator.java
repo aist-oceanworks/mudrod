@@ -35,9 +35,6 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Supports ability to generate search history (queries) for each individual
  * user (IP)
@@ -53,13 +50,13 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************HistoryGenerator starts******************");
+    LOG.info("Starting HistoryGenerator.");
     startTime = System.currentTimeMillis();
 
-    GenerateBinaryMatrix();
+    generateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************HistoryGenerator ends******************Took {}s",
+    LOG.info("HistoryGenerator complete. Time elapsed {} seconds",
         (endTime - startTime) / 1000);
     return null;
   }
@@ -68,7 +65,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
    * Method to generate a binary user*query matrix (stored in temporary .csv
    * file)
    */
-  public void GenerateBinaryMatrix() {
+  public void generateBinaryMatrix() {
     try {
       File file = new File(props.getProperty("userHistoryMatrix"));
       if (file.exists()) {
@@ -81,7 +78,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       BufferedWriter bw = new BufferedWriter(fw);
 
       ArrayList<String> cleanupTypeList = (ArrayList<String>) es.getTypeListWithPrefix(
-          props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("SessionStats_prefix"));
+          props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.SESSION_STATS_PREFIX));
 
       bw.write("Num" + ",");
 
@@ -100,7 +97,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : ips.getBuckets()) {
         if (entry.getDocCount() > Integer
-            .parseInt(props.getProperty("mini_userHistory"))) { // filter out
+            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter out
                                                                 // less
           // active users/ips
           ipList.add(entry.getKey().toString());
@@ -125,7 +122,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
         int distinctUser = ipAgg.getBuckets().size();
         if (distinctUser > Integer
-            .parseInt(props.getProperty("mini_userHistory"))) {
+            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : ipAgg.getBuckets()) {
 

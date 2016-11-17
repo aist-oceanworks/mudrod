@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -49,16 +50,14 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(WeblogDiscoveryEngine.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
+  public String timeSuffix = null;
 
   public WeblogDiscoveryEngine(Properties props, ESDriver es,
       SparkDriver spark) {
     super(props, es, spark);
     LOG.info("Started Mudrod Weblog Discovery Engine.");
   }
-
-  public String timeSuffix = null;
 
   /**
    * Get log file list from a directory
@@ -67,9 +66,9 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    *          folder directory
    * @return a list of log files
    */
-  public ArrayList<String> getFileList(String path) {
+  public List<String> getFileList(String path) {
 
-    String logDir = props.getProperty("logDir");
+    String logDir = props.getProperty(MudrodConstants.LOG_DIR);
     ArrayList<String> inputList = new ArrayList<>();
     if (!logDir.startsWith("hdfs://")) {
       File directory = new File(logDir);
@@ -86,25 +85,21 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
         }
       }
     } else {
-      try {
-        Configuration conf = new Configuration();
-        FileSystem fs = FileSystem.get(new URI(logDir), conf);
+      Configuration conf = new Configuration();
+      try (FileSystem fs = FileSystem.get(new URI(logDir), conf)){
         FileStatus[] fileStatus;
         fileStatus = fs.listStatus(new Path(logDir));
         for (FileStatus status : fileStatus) {
-          System.out.println(status.getPath().toString());
           String path1 = status.getPath().toString();
           if (path1.matches(".*\\d+.*") && path1
               .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
 
-            String time = path1.substring(path1.lastIndexOf(".") + 1);
+            String time = path1.substring(path1.lastIndexOf('.') + 1);
             inputList.add(time);
-            System.out.println(time);
           }
         }
       } catch (IllegalArgumentException | IOException | URISyntaxException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.error("An error occured whilst obtaining the log file list.", e);
       }
     }
 
@@ -119,11 +114,11 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void preprocess() {
     LOG.info("Starting Web log preprocessing.");
 
-    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
 
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
-      props.put("TimeSuffix", timeSuffix);
+      props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
       startTime = System.currentTimeMillis();
       LOG.info("Processing logs dated {}", inputList.get(i));
 
@@ -150,7 +145,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       endTime = System.currentTimeMillis();
 
       LOG.info(
-          "Web log preprocessing for duration {} complete. Time elapsed {} seconds.",
+          "Web log preprocessing for logs dated {} complete. Time elapsed {} seconds.",
           inputList.get(i), (endTime - startTime) / 1000);
     }
 
@@ -162,8 +157,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
         this.spark);
     cg.execute();
 
-    LOG.info(
-        "Web log preprocessing (user history and clickstream finished) complete.");
+    LOG.info("Web log preprocessing (user history and clickstream) complete.");
 
   }
 
@@ -172,7 +166,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void logIngest() {
     LOG.info("Starting Web log ingest.");
-    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
       props.put("TimeSuffix", timeSuffix);
@@ -190,10 +184,10 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void sessionRestruct() {
     LOG.info("Starting Session reconstruction.");
-    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i); // change timeSuffix dynamically
-      props.put("TimeSuffix", timeSuffix);
+      props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
       DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
           this.spark);
       cd.execute();
@@ -212,14 +206,6 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
       endTime = System.currentTimeMillis();
     }
-
-    /*
-     * DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es,
-     * this.spark); hg.execute();
-     * 
-     * DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es,
-     * this.spark); cg.execute();
-     */
     LOG.info("Session reconstruction complete.");
   }
 
@@ -243,6 +229,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   @Override
   public void output() {
+    //not implemented yet!
   }
 
 }

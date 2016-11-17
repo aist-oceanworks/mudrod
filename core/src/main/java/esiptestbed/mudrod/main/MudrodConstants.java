@@ -22,6 +22,10 @@ public interface MudrodConstants {
 
   public static final String MUDROD = "mudrod";
 
+  public static final String TIME_SUFFIX = "TimeSuffix";
+
+  public static final String LOG_DIR = "logDir";
+
   public static final String LOG_LEVEL = "loglevel";
 
   public static final String HTTP_PREFIX = "httpPrefix";
@@ -106,9 +110,9 @@ public interface MudrodConstants {
    * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.
    */
   public static final String ONTOLOGY_IMPL = MUDROD + "ontology.implementation";
-  
+
   public static final String SPARK_MASTER = "spark.master";
-  
+
   public static final String SPARK_APP_NAME = "spark.app.name";
 
 }

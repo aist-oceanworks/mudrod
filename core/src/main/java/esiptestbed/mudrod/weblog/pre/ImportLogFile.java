@@ -44,10 +44,7 @@ import esiptestbed.mudrod.weblog.structure.FtpLog;
  */
 public class ImportLogFile extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(ImportLogFile.class);
-
-  private static final String TIME_SUFFIX = "TimeSuffix";
+  private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
 
   /**
    * 
@@ -59,7 +56,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
 
   public static final int NUM_FIELDS = 9;
   Pattern p = Pattern.compile(logEntryPattern);
-  Matcher matcher;
+  transient Matcher matcher;
 
   /**
    * Constructor supporting a number of parameters documented below.
@@ -98,7 +95,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
    *          the input {@link java.lang.String} to convert to int.
    * @return the converted Month as an int.
    */
-  public String SwitchtoNum(String time) {
+  public String switchtoNum(String time) {
     if (time.contains("Jan")) {
       time = time.replace("Jan", "1");
     } else if (time.contains("Feb")) {
@@ -130,12 +127,12 @@ public class ImportLogFile extends DiscoveryStepAbstract {
   public void readFile() {
 
     String httplogpath = props.getProperty("logDir")
-        + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
-        + props.getProperty("httpPrefix") + props.getProperty(TIME_SUFFIX);
+        + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
+        + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String ftplogpath = props.getProperty("logDir")
-        + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX) + "/"
-        + props.getProperty("ftpPrefix") + props.getProperty(TIME_SUFFIX);
+        + props.getProperty("ftpPrefix") + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
+        + props.getProperty("ftpPrefix") + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
@@ -152,9 +149,9 @@ public class ImportLogFile extends DiscoveryStepAbstract {
   public void readFileInSequential(String httplogpath, String ftplogpath) {
     es.createBulkProcessor();
     try {
-      readLogFile(httplogpath, "http", props.getProperty("indexName"),
+      readLogFile(httplogpath, "http", props.getProperty(MudrodConstants.ES_INDEX_NAME),
           this.httpType);
-      readLogFile(ftplogpath, "FTP", props.getProperty("indexName"),
+      readLogFile(ftplogpath, "FTP", props.getProperty(MudrodConstants.ES_INDEX_NAME),
           this.ftpType);
 
     } catch (IOException e) {
@@ -254,7 +251,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
     String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":"
         + log.split(" +")[3] + ":" + log.split(" +")[4];
 
-    time = SwitchtoNum(time);
+    time = switchtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
     Date date = null;
     try {
@@ -302,7 +299,7 @@ public class ImportLogFile extends DiscoveryStepAbstract {
       return;
     }
     String time = matcher.group(4);
-    time = SwitchtoNum(time);
+    time = switchtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     Date date = null;
     try {
