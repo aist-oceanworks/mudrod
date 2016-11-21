@@ -458,26 +458,26 @@ public class SessionGenerator extends DiscoveryStepAbstract {
 
     long all = checkAll.getHits().getTotalHits();
 
-    BoolQueryBuilder filterCheck = new BoolQueryBuilder();
+    if (all < 3) {
+      deleteInvalid(es, user);
+      return;
+    }
+
+    /* BoolQueryBuilder filterCheck = new BoolQueryBuilder();
     filterCheck.must(QueryBuilders.termQuery("IP", user))
         .must(QueryBuilders.termQuery("Referer", "-"));
     SearchResponse checkReferer = es.getClient()
         .prepareSearch(props.getProperty("indexName"))
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterCheck).setSize(0).execute().actionGet();
+    
+    long numInvalid = checkReferer.getHits().getTotalHits();*/
 
-    long numInvalid = checkReferer.getHits().getTotalHits();
-
-    if (all < 3) {
-      deleteInvalid(es, user);
-      return;
-    }
-
-    double invalidRate = numInvalid / all;
+    /*double invalidRate = numInvalid / all;
     if (invalidRate >= 0.8) {
       deleteInvalid(es, user);
       return;
-    }
+    }*/
 
     StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");

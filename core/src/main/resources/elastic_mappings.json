@@ -15,7 +15,8 @@
          },
          "RequestUrl":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "IP":{
             "type":"string",
@@ -23,15 +24,18 @@
          },
          "Browser":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "SessionURL":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "Referer":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "SessionID":{
             "type":"string",
@@ -39,14 +43,22 @@
          },
          "Response":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "Request":{
             "type":"string",
-            "index":"not_analyzed"
+            "include_in_all": false,
+            "index": "no"
          },
          "Coordinates":{
-            "type":"geo_point"
+            "type":"geo_point",
+            "include_in_all": false,
+            "index": "no"
+         },
+         "LogType":{
+            "type":"string",
+            "index":"not_analyzed"
          }
       }
    }

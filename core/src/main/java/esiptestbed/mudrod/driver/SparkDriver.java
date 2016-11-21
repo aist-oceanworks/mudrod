@@ -55,7 +55,7 @@ public class SparkDriver implements Serializable {
     }
 
     conf.set("spark.serializer", KryoSerializer.class.getName());
-    conf.set("es.batch.size.entries", "8000");
+    conf.set("es.batch.size.entries", "6000");
 
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);
