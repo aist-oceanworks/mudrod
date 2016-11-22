@@ -2,8 +2,9 @@
    "_default_":{
       "properties":{
          "keywords":{
-            "type":"string",
-            "analyzer":"csv"
+            "type":"text",
+            "analyzer":"csv",
+            "fielddata": true
          },
          "views":{
             "type":"string",
@@ -19,7 +20,7 @@
             "index": "no"
          },
          "IP":{
-            "type":"string",
+            "type":"keyword",
             "index":"not_analyzed"
          },
          "Browser":{
