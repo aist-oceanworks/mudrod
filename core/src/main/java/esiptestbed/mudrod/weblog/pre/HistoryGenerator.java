@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -30,7 +31,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
@@ -39,7 +39,7 @@ import esiptestbed.mudrod.main.MudrodConstants;
  * Supports ability to generate search history (queries) for each individual
  * user (IP)
  */
-public class HistoryGenerator extends DiscoveryStepAbstract {
+public class HistoryGenerator extends LogAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
       .getLogger(HistoryGenerator.class);
@@ -67,6 +67,8 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
    */
   public void generateBinaryMatrix() {
     try {
+
+      System.out.println(props.getProperty("userHistoryMatrix"));
       File file = new File(props.getProperty("userHistoryMatrix"));
       if (file.exists()) {
         file.delete();
@@ -76,20 +78,19 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
       FileWriter fw = new FileWriter(file.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw);
-
-      ArrayList<String> cleanupTypeList = (ArrayList<String>) es.getTypeListWithPrefix(
-          props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.SESSION_STATS_PREFIX));
-
       bw.write("Num" + ",");
 
       // step 1: write first row of csv
-      String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-      int docCount = es.getDocCount(indexName,
-          cleanupTypeList.toArray(new String[0]));
+      List<String> logIndexList = es
+          .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
 
-      SearchResponse sr = es.getClient().prepareSearch(indexName)
-          .setTypes(cleanupTypeList.toArray(new String[0]))
-          .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+      String[] logIndices = logIndexList.toArray(new String[0]);
+      String[] statictypeArray = new String[] { this.sessionStats };
+      int docCount = es.getDocCount(logIndices, statictypeArray);
+
+      SearchResponse sr = es.getClient().prepareSearch(logIndices)
+          .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
+          .setSize(0)
           .addAggregation(
               AggregationBuilders.terms("IPs").field("IP").size(docCount))
           .execute().actionGet();
@@ -97,26 +98,28 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
       List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : ips.getBuckets()) {
         if (entry.getDocCount() > Integer
-            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter out
-                                                                // less
+            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
+                                                                               // out
+          // less
           // active users/ips
           ipList.add(entry.getKey().toString());
         }
       }
-
       bw.write(String.join(",", ipList) + "\n");
 
       // step 2: step the rest rows of csv
-      SearchResponse sr2 = es.getClient().prepareSearch(indexName)
-          .setTypes(cleanupTypeList.toArray(new String[0]))
-          .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-          .addAggregation(
+      SearchRequestBuilder sr2Builder = es.getClient().prepareSearch(logIndices)
+          .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
+          .setSize(0).addAggregation(
               AggregationBuilders.terms("KeywordAgg").field("keywords")
                   .size(docCount).subAggregation(AggregationBuilders
-                      .terms("IPAgg").field("IP").size(docCount)))
-          .execute().actionGet();
+                      .terms("IPAgg").field("IP").size(docCount)));
+
+      SearchResponse sr2 = sr2Builder.execute().actionGet();
       Terms keywords = sr2.getAggregations().get("KeywordAgg");
+
       for (Terms.Bucket keyword : keywords.getBuckets()) {
+
         Map<String, Integer> ipMap = new HashMap<>();
         Terms ipAgg = keyword.getAggregations().get("IPAgg");
 
@@ -143,6 +146,7 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
   }
 
   @Override

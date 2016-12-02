@@ -32,7 +32,6 @@ import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
@@ -42,9 +41,10 @@ import esiptestbed.mudrod.weblog.structure.FtpLog;
 /**
  * Supports ability to parse and process FTP and HTTP log files
  */
-public class ImportLogFile extends DiscoveryStepAbstract {
+public class ImportLogFile extends LogAbstract {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ImportLogFile.class);
 
   /**
    * 
@@ -77,7 +77,8 @@ public class ImportLogFile extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("Starting Log Import.");
+    LOG.info("Starting Log Import {}",
+        props.getProperty(MudrodConstants.TIME_SUFFIX));
     startTime = System.currentTimeMillis();
     readFile();
     endTime = System.currentTimeMillis();
@@ -127,12 +128,16 @@ public class ImportLogFile extends DiscoveryStepAbstract {
   public void readFile() {
 
     String httplogpath = props.getProperty("logDir")
-        + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
-        + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+        + props.getProperty(MudrodConstants.HTTP_PREFIX)
+        + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
+        + props.getProperty(MudrodConstants.HTTP_PREFIX)
+        + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String ftplogpath = props.getProperty("logDir")
-        + props.getProperty("ftpPrefix") + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
-        + props.getProperty("ftpPrefix") + props.getProperty(MudrodConstants.TIME_SUFFIX);
+        + props.getProperty("ftpPrefix")
+        + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
+        + props.getProperty("ftpPrefix")
+        + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
@@ -149,10 +154,8 @@ public class ImportLogFile extends DiscoveryStepAbstract {
   public void readFileInSequential(String httplogpath, String ftplogpath) {
     es.createBulkProcessor();
     try {
-      readLogFile(httplogpath, "http", props.getProperty(MudrodConstants.ES_INDEX_NAME),
-          this.httpType);
-      readLogFile(ftplogpath, "FTP", props.getProperty(MudrodConstants.ES_INDEX_NAME),
-          this.ftpType);
+      readLogFile(httplogpath, "http", logIndex, httpType);
+      readLogFile(ftplogpath, "FTP", logIndex, ftpType);
 
     } catch (IOException e) {
       LOG.error("Error whilst reading log file.", e);
@@ -172,20 +175,19 @@ public class ImportLogFile extends DiscoveryStepAbstract {
 
   public void importHttpfile(String httplogpath) {
     // import http logs
-    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath)
+    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath, this.partition)
         .map(s -> ApacheAccessLog.parseFromLogLine(s))
         .filter(ApacheAccessLog::checknull);
-    JavaEsSpark.saveJsonToEs(accessLogs,
-        props.getProperty("indexName") + "/" + this.httpType);
+
+    JavaEsSpark.saveJsonToEs(accessLogs, logIndex + "/" + this.httpType);
   }
 
   public void importFtpfile(String ftplogpath) {
     // import ftp logs
-    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath)
+    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath, this.partition)
         .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
 
-    JavaEsSpark.saveJsonToEs(ftpLogs,
-        props.getProperty("indexName") + "/" + this.ftpType);
+    JavaEsSpark.saveJsonToEs(ftpLogs, logIndex + "/" + this.ftpType);
   }
 
   /**

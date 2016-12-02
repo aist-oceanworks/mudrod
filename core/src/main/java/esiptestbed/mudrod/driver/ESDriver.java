@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse.AnalyzeToken;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -241,6 +242,24 @@ public class ESDriver implements Serializable {
           e);
     }
     return typeList;
+  }
+
+  public List<String> getIndexListWithPrefix(Object object) {
+
+    System.out.println(object.toString());
+    String[] indices = client.admin().indices().getIndex(new GetIndexRequest())
+        .actionGet().getIndices();
+
+    ArrayList<String> indexList = new ArrayList<>();
+    int length = indices.length;
+    for (int i = 0; i < length; i++) {
+      String indexName = indices[i];
+      if (indexName.startsWith(object.toString())) {
+        indexList.add(indexName);
+      }
+    }
+
+    return indexList;
   }
 
   public String searchByQuery(String index, String type, String query)
@@ -509,13 +528,18 @@ public class ESDriver implements Serializable {
   }
 
   public int getDocCount(String index, String... type) {
-
     MatchAllQueryBuilder search = QueryBuilders.matchAllQuery();
-    return this.getDocCount(index, search, type);
+    String[] indexArr = new String[] { index };
+    return this.getDocCount(indexArr, type, search);
   }
 
-  public int getDocCount(String index, QueryBuilder filterSearch,
-      String... type) {
+  public int getDocCount(String[] index, String[] type) {
+    MatchAllQueryBuilder search = QueryBuilders.matchAllQuery();
+    return this.getDocCount(index, type, search);
+  }
+
+  public int getDocCount(String[] index, String[] type,
+      QueryBuilder filterSearch) {
     SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index)
         .setTypes(type).setQuery(filterSearch).setSize(0);
     SearchResponse countSr = countSrBuilder.execute().actionGet();

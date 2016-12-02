@@ -35,8 +35,7 @@
          },
          "Referer":{
             "type":"string",
-            "include_in_all": false,
-            "index": "no"
+            "index": "not_analyzed"
          },
          "SessionID":{
             "type":"string",

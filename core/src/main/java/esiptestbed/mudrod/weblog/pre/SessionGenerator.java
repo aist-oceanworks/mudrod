@@ -29,7 +29,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
@@ -49,17 +48,15 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
-import esiptestbed.mudrod.weblog.structure.LogTool;
 import esiptestbed.mudrod.weblog.structure.Session;
 
 /**
  * Supports ability to generate user session by time threshold and referrer
  */
-public class SessionGenerator extends DiscoveryStepAbstract {
+public class SessionGenerator extends LogAbstract {
 
   /**
    * 
@@ -139,16 +136,16 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   public void genSessionByRefererInSequential(int timeThres)
       throws ElasticsearchException, IOException {
 
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, cleanupType);
-
-    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(indexName)
+    /* int docCount = es.getDocCount(logIndex, cleanupType);
+    
+    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0).addAggregation(
             AggregationBuilders.terms("Users").field("IP").size(docCount));
-
+    
     SearchResponse sr = srBuilder.execute().actionGet();
-    Terms users = sr.getAggregations().get("Users");
+    Terms users = sr.getAggregations().get("Users");*/
+    Terms users = this.getUserTerms(this.cleanupType);
 
     int sessionCount = 0;
     for (Terms.Bucket entry : users.getBuckets()) {
@@ -164,20 +161,19 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   public void combineShortSessionsInSequential(int Timethres)
       throws ElasticsearchException, IOException {
 
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, cleanupType);
-
-    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(indexName)
+    /*int docCount = es.getDocCount(logIndex, cleanupType);
+    
+    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .setSize(0).addAggregation(
             AggregationBuilders.terms("Users").field("IP").size(docCount));
-
+    
     SearchResponse sr = srBuilder.execute().actionGet();
+    
+    Terms users = sr.getAggregations().get("Users");*/
 
-    Terms users = sr.getAggregations().get("Users");
-
+    Terms users = this.getUserTerms(this.cleanupType);
     for (Terms.Bucket entry : users.getBuckets()) {
-
       String user = entry.getKey().toString();
       combineShortSessions(es, user, Timethres);
     }
@@ -194,22 +190,16 @@ public class SessionGenerator extends DiscoveryStepAbstract {
    *           IOException
    */
   public void deleteInvalid(ESDriver es, String ip) throws IOException {
-    /*
-     * QueryBuilder filterAll = QueryBuilders.boolQuery()
-     * .filter(QueryBuilders.termQuery("IP", ip));
-     */
 
     BoolQueryBuilder filterAll = new BoolQueryBuilder();
     filterAll.must(QueryBuilders.termQuery("IP", ip));
 
-    SearchResponse scrollResp = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterAll).setSize(100).execute().actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
-        update(es, props.getProperty("indexName"), cleanupType, hit.getId(),
-            "SessionID", "invalid");
+        update(es, logIndex, cleanupType, hit.getId(), "SessionID", "invalid");
       }
 
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
@@ -248,9 +238,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   public void genSessionByRefererInParallel(int timeThres)
       throws InterruptedException, IOException {
 
-    LogTool tool = new LogTool();
-    List<String> users = tool.getAllUsers(es, props, httpType);
-    JavaRDD<String> userRDD = spark.sc.parallelize(users);
+    JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
 
     int sessionCount = 0;
     sessionCount = userRDD
@@ -288,8 +276,7 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
     filterSearch.must(QueryBuilders.termQuery("IP", user));
 
-    SearchResponse scrollResp = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterSearch).addSort("Time", SortOrder.ASC).setSize(100)
         .execute().actionGet();
@@ -321,8 +308,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                 new HashMap<String, DateTime>());
             sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
 
-            update(es, props.getProperty("indexName"), this.cleanupType, id,
-                "SessionID", ip + "@" + sessionCountIn);
+            update(es, logIndex, this.cleanupType, id, "SessionID",
+                ip + "@" + sessionCountIn);
 
           } else {
             int count = sessionCountIn;
@@ -334,8 +321,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                 sessionReqs.put(ip + "@" + count,
                     new HashMap<String, DateTime>());
                 sessionReqs.get(ip + "@" + count).put(request, time);
-                update(es, props.getProperty("indexName"), this.cleanupType, id,
-                    "SessionID", ip + "@" + count);
+                update(es, logIndex, this.cleanupType, id, "SessionID",
+                    ip + "@" + count);
 
                 break;
               }
@@ -352,16 +339,16 @@ public class SessionGenerator extends DiscoveryStepAbstract {
                       Seconds.secondsBetween(requests.get(keys.get(i)), time)
                           .getSeconds()) < timeThres * rollbackNum) {
                     sessionReqs.get(ip + "@" + count).put(request, time);
-                    update(es, props.getProperty("indexName"), this.cleanupType,
-                        id, "SessionID", ip + "@" + count);
+                    update(es, logIndex, this.cleanupType, id, "SessionID",
+                        ip + "@" + count);
                   } else {
                     sessionCountIn++;
                     sessionReqs.put(ip + "@" + sessionCountIn,
                         new HashMap<String, DateTime>());
                     sessionReqs.get(ip + "@" + sessionCountIn).put(request,
                         time);
-                    update(es, props.getProperty("indexName"), this.cleanupType,
-                        id, "SessionID", ip + "@" + sessionCountIn);
+                    update(es, logIndex, this.cleanupType, id, "SessionID",
+                        ip + "@" + sessionCountIn);
                   }
 
                   break;
@@ -407,8 +394,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
             }
           }
           sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
-          update(es, props.getProperty("indexName"), this.cleanupType, id,
-              "SessionID", ip + "@" + sessionCountIn);
+          update(es, logIndex, this.cleanupType, id, "SessionID",
+              ip + "@" + sessionCountIn);
         }
       }
 
@@ -422,12 +409,11 @@ public class SessionGenerator extends DiscoveryStepAbstract {
   public void combineShortSessionsInParallel(int timeThres)
       throws InterruptedException, IOException {
 
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, cleanupType);
+    // int docCount = es.getDocCount(logIndex, cleanupType);
+    // System.out.println("doc count" + docCount);
 
-    LogTool tool = new LogTool();
-    List<String> users = tool.getAllUsers(es, props, httpType);
-    JavaRDD<String> userRDD = spark.sc.parallelize(users);
+    JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
+
     userRDD.foreachPartition(new VoidFunction<Iterator<String>>() {
       @Override
       public void call(Iterator<String> arg0) throws Exception {
@@ -448,41 +434,46 @@ public class SessionGenerator extends DiscoveryStepAbstract {
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
     filterSearch.must(QueryBuilders.termQuery("IP", user));
 
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, filterSearch, cleanupType);
+    String[] indexArr = new String[] { logIndex };
+    String[] typeArr = new String[] { cleanupType };
+    int docCount = es.getDocCount(indexArr, typeArr, filterSearch);
+    System.out.println(user + ", doc count: " + docCount);
 
-    SearchResponse checkAll = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
-        .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterSearch).setSize(0).execute().actionGet();
+    // SearchResponse checkAll = es.getClient().prepareSearch(logIndex)
+    // .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
+    // .setQuery(filterSearch).setSize(0).execute().actionGet();
+    //
+    // long all = checkAll.getHits().getTotalHits();
+    // System.out.println(all);
 
-    long all = checkAll.getHits().getTotalHits();
-
-    if (all < 3) {
+    if (docCount < 3) {
       deleteInvalid(es, user);
       return;
     }
 
-    /* BoolQueryBuilder filterCheck = new BoolQueryBuilder();
+    BoolQueryBuilder filterCheck = new BoolQueryBuilder();
     filterCheck.must(QueryBuilders.termQuery("IP", user))
         .must(QueryBuilders.termQuery("Referer", "-"));
-    SearchResponse checkReferer = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    SearchResponse checkReferer = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterCheck).setSize(0).execute().actionGet();
-    
-    long numInvalid = checkReferer.getHits().getTotalHits();*/
 
-    /*double invalidRate = numInvalid / all;
+    long numInvalid = checkReferer.getHits().getTotalHits();
+    double invalidRate = numInvalid / docCount;
+
+    System.out.println(user + ", invalid doc count: " + numInvalid);
+    System.out.println(user + ", invalid rate: " + invalidRate);
+
     if (invalidRate >= 0.8) {
+      System.out.println(user + ", delete invalid doc");
+
       deleteInvalid(es, user);
       return;
-    }*/
+    }
 
     StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr_session = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    SearchResponse sr_session = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterSearch)
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
@@ -498,6 +489,8 @@ public class SessionGenerator extends DiscoveryStepAbstract {
           agg.getMaxAsString(), session.getKey().toString());
       sessionList.add(sess);
     }
+
+    System.out.println(user + ", session number: " + sessionList.size());
 
     Collections.sort(sessionList);
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -520,18 +513,17 @@ public class SessionGenerator extends DiscoveryStepAbstract {
           QueryBuilder fs = QueryBuilders.boolQuery()
               .filter(QueryBuilders.termQuery("SessionID", s.getID()));
 
-          SearchResponse scrollResp = es.getClient()
-              .prepareSearch(props.getProperty("indexName"))
+          SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
               .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
               .setQuery(fs).setSize(100).execute().actionGet();
           while (true) {
             for (SearchHit hit : scrollResp.getHits().getHits()) {
               if (lastnewID == null) {
-                update(es, props.getProperty("indexName"), this.cleanupType,
-                    hit.getId(), "SessionID", lastoldID);
+                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID",
+                    lastoldID);
               } else {
-                update(es, props.getProperty("indexName"), this.cleanupType,
-                    hit.getId(), "SessionID", lastnewID);
+                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID",
+                    lastnewID);
               }
             }
 
@@ -549,6 +541,9 @@ public class SessionGenerator extends DiscoveryStepAbstract {
       lastnewID = s.getNewID();
       last = current;
     }
+
+    System.out.println(user + ", finished iterating sessions");
+
   }
 
   @Override

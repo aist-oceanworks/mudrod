@@ -39,7 +39,8 @@ public class SparkDriver implements Serializable {
     SparkConf conf = new SparkConf()
         .setAppName(
             props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
-        .setMaster(props.getProperty(MudrodConstants.SPARK_MASTER, null))
+        .setIfMissing("spark.master",
+            props.getProperty(MudrodConstants.SPARK_MASTER))
         .set("spark.hadoop.validateOutputSpecs", "false")
         .set("spark.files.overwrite", "true");
 
@@ -55,7 +56,7 @@ public class SparkDriver implements Serializable {
     }
 
     conf.set("spark.serializer", KryoSerializer.class.getName());
-    conf.set("es.batch.size.entries", "6000");
+    conf.set("es.batch.size.entries", "1500");
 
     sc = new JavaSparkContext(conf);
     sqlContext = new SQLContext(sc);

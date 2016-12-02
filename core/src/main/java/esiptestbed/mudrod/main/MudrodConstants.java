@@ -26,6 +26,8 @@ public interface MudrodConstants {
 
   public static final String LOG_DIR = "logDir";
 
+  public static final String LOG_INDEX = "logIndexName";
+
   public static final String LOG_LEVEL = "loglevel";
 
   public static final String HTTP_PREFIX = "httpPrefix";

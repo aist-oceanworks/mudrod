@@ -26,7 +26,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -45,18 +44,16 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
-import esiptestbed.mudrod.weblog.structure.LogTool;
 
 /**
  * An {@link esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract}
  * implementation which detects a known list of Web crawlers which may may be
  * present within, and pollute various logs acting as input to Mudrod.
  */
-public class CrawlerDetection extends DiscoveryStepAbstract {
+public class CrawlerDetection extends LogAbstract {
   /**
    * 
    */
@@ -101,7 +98,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("Starting Crawler detection.");
+    LOG.info("Starting Crawler detection {}.", httpType);
     startTime = System.currentTimeMillis();
     try {
       checkByRate();
@@ -160,16 +157,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
 
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, httpType);
-    SearchRequestBuilder srbuilder = es.getClient().prepareSearch(indexName)
-        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(
-            AggregationBuilders.terms("Users").field("IP").size(docCount));
-
-    SearchResponse sr = srbuilder.execute().actionGet();
-    Terms users = sr.getAggregations().get("Users");
-
+    Terms users = this.getUserTerms(this.httpType);
     LOG.info("Original User count: {}",
         Integer.toString(users.getBuckets().size()));
 
@@ -183,14 +171,10 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     LOG.info("User count: {}", Integer.toString(userCount));
   }
 
-  public void checkByRateInParallel() throws InterruptedException, IOException {
+  void checkByRateInParallel() throws InterruptedException, IOException {
 
-    LogTool tool = new LogTool();
-    List<String> users = tool.getAllUsers(es, props, httpType);
-    JavaRDD<String> userRDD = spark.sc.parallelize(users);
-
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, cleanupType);
+    JavaRDD<String> userRDD = getUserRDD(this.httpType);
+    LOG.info("Original User count: {}", userRDD.count());
 
     int userCount = 0;
     userCount = userRDD
@@ -217,7 +201,6 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
           }
         });
 
-    LOG.info("Initial User count: {}", Integer.toString(users.size()));
     LOG.info("User count: {}", Integer.toString(userCount));
   }
 
@@ -234,8 +217,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
         .dateHistogram("by_minute").field("Time")
         .dateHistogramInterval(DateHistogramInterval.MINUTE)
         .order(Order.COUNT_DESC);
-    SearchResponse checkRobot = es.getClient()
-        .prepareSearch(props.getProperty("indexName"))
+    SearchResponse checkRobot = es.getClient().prepareSearch(logIndex)
         .setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0)
         .addAggregation(aggregation).execute().actionGet();
 
@@ -248,8 +230,7 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
     } else {
       DateTime dt1 = null;
       int toLast = 0;
-      SearchResponse scrollResp = es.getClient()
-          .prepareSearch(props.getProperty("indexName"))
+      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
           .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
           .setQuery(filterSearch).setSize(100).execute().actionGet();
       while (true) {
@@ -281,8 +262,8 @@ public class CrawlerDetection extends DiscoveryStepAbstract {
             toLast = Math.abs(Seconds.secondsBetween(dt1, dt2).getSeconds());
           }
           result.put("ToLast", toLast);
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-              cleanupType).source(result);
+          IndexRequest ir = new IndexRequest(logIndex, cleanupType)
+              .source(result);
 
           es.getBulkProcessor().add(ir);
           dt1 = dt2;

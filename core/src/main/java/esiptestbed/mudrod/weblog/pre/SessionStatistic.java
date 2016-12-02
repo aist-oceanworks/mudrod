@@ -46,11 +46,9 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
-import esiptestbed.mudrod.weblog.structure.LogTool;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
 /**
@@ -58,7 +56,7 @@ import esiptestbed.mudrod.weblog.structure.RequestUrl;
  * and filtering
  *
  */
-public class SessionStatistic extends DiscoveryStepAbstract {
+public class SessionStatistic extends LogAbstract {
 
   /**
    * 
@@ -104,19 +102,18 @@ public class SessionStatistic extends DiscoveryStepAbstract {
   public void processSessionInSequential()
       throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcessor();
-    String inputType = this.cleanupType;
+    /*String inputType = this.cleanupType;
     String outputType = this.sessionStats;
-
-    String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    int docCount = es.getDocCount(indexName, inputType);
-
-    SearchResponse sr = es.getClient().prepareSearch(indexName)
+    
+    int docCount = es.getDocCount(logIndex, inputType);
+    SearchResponse sr = es.getClient().prepareSearch(logIndex)
         .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(docCount))
         .execute().actionGet();
-
-    Terms Sessions = sr.getAggregations().get("Sessions");
+    
+    Terms Sessions = sr.getAggregations().get("Sessions");*/
+    Terms Sessions = this.getSessionTerms();
     int session_count = 0;
     for (Terms.Bucket entry : Sessions.getBuckets()) {
       if (entry.getDocCount() >= 3 && !entry.getKey().equals("invalid")) {
@@ -157,9 +154,8 @@ public class SessionStatistic extends DiscoveryStepAbstract {
   public void processSessionInParallel()
       throws InterruptedException, IOException {
 
-    LogTool tool = new LogTool();
-    List<String> sessions = tool.getAllSessions(es, props, cleanupType);
-    JavaRDD<String> sessionRDD = spark.sc.parallelize(sessions);
+    List<String> sessions = this.getSessions();
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(sessions, partition);
 
     int sessionCount = 0;
     sessionCount = sessionRDD
@@ -171,9 +167,11 @@ public class SessionStatistic extends DiscoveryStepAbstract {
             ESDriver tmpES = new ESDriver(props);
             tmpES.createBulkProcessor();
             List<Integer> sessionNums = new ArrayList<Integer>();
+            sessionNums.add(0);
             while (arg0.hasNext()) {
               String s = arg0.next();
               Integer sessionNum = processSession(tmpES, s);
+              // System.out.println(s + ", session number: " + sessionNum);
               sessionNums.add(sessionNum);
             }
             tmpES.destroyBulkProcessor();
@@ -212,9 +210,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     BoolQueryBuilder filter_search = new BoolQueryBuilder();
     filter_search.must(QueryBuilders.termQuery("SessionID", sessionId));
 
-    SearchResponse sr = es.getClient()
-        .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
-        .setQuery(filter_search).addAggregation(statsAgg).execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(logIndex)
+        .setTypes(inputType).setQuery(filter_search).addAggregation(statsAgg)
+        .execute().actionGet();
 
     Stats agg = sr.getAggregations().get("Stats");
     min = agg.getMinAsString();
@@ -235,10 +233,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     String views = "";
     String downloads = "";
 
-    SearchResponse scrollResp = es.getClient()
-        .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
-        .setScroll(new TimeValue(60000)).setQuery(filter_search).setSize(100)
-        .execute().actionGet();
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
+        .setTypes(inputType).setScroll(new TimeValue(60000))
+        .setQuery(filter_search).setSize(100).execute().actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -340,25 +337,20 @@ public class SessionStatistic extends DiscoveryStepAbstract {
           + "&sessionType=" + outputType + "&requestType=" + inputType;
       session_count = 1;
 
-      IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-          outputType).source(jsonBuilder().startObject()
-              .field("SessionID", sessionId).field("SessionURL", sessionURL)
-              // .field("Request_count", entry.getDocCount())
-              .field("Duration", duration)
+      IndexRequest ir = new IndexRequest(logIndex, outputType)
+          .source(jsonBuilder().startObject().field("SessionID", sessionId)
+              .field("SessionURL", sessionURL).field("Duration", duration)
               .field("Number of Keywords", keywords_num).field("Time", min)
               .field("End_time", max)
               .field("searchDataListRequest_count", searchDataListRequest_count)
               .field("searchDataListRequest_byKeywords_count",
                   searchDataListRequest_byKeywords_count)
               .field("searchDataRequest_count", searchDataRequest_count)
-              .field("keywords",
-                  es.customAnalyzing(props.getProperty("indexName"), keywords))
+              .field("keywords", es.customAnalyzing(logIndex, keywords))
               .field("views", views).field("downloads", downloads)
               .field("request_rate", request_rate).field("Comments", "")
               .field("Validation", 0).field("Produceby", 0)
-              .field("Correlation", 0).field("IP", IP)
-              // .field("Coordinates", loc.latlon)
-              .endObject());
+              .field("Correlation", 0).field("IP", IP).endObject());
 
       es.getBulkProcessor().add(ir);
     }

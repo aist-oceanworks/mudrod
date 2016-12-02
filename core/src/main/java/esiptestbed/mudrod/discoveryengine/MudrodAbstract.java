@@ -20,22 +20,23 @@ import java.util.Properties;
 
 import javax.annotation.CheckForNull;
 
-import esiptestbed.mudrod.driver.ESDriver;
-import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.main.MudrodConstants;
-
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodConstants;
+
 /**
  * This is the most generic class of Mudrod
  */
 public abstract class MudrodAbstract implements Serializable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MudrodAbstract.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MudrodAbstract.class);
   /**
    * 
    */
@@ -45,21 +46,21 @@ public abstract class MudrodAbstract implements Serializable {
   protected SparkDriver spark = null;
   protected long startTime;
   protected long endTime;
-  public String httpType = null;
+  /*public String httpType = null;
   public String ftpType = null;
   public String cleanupType = null;
-  public String sessionStats = null;
+  public String sessionStats = null;*/
 
-  private static final String ES_SETTINGS = "elastic_settings.json";
-  private static final String ES_MAPPINGS = "elastic_mappings.json";
+  protected static final String ES_SETTINGS = "elastic_settings.json";
+  protected static final String ES_MAPPINGS = "elastic_mappings.json";
 
-  public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark){
+  public MudrodAbstract(Properties props, ESDriver es, SparkDriver spark) {
     this.props = props;
     this.es = es;
     this.spark = spark;
-    
-    if(this.props != null){
-    	this.initMudrod();
+
+    if (this.props != null) {
+      this.initMudrod();
     }
   }
 
@@ -67,9 +68,11 @@ public abstract class MudrodAbstract implements Serializable {
    * Method of setting up essential configuration for MUDROD to start
    */
   @CheckForNull
-  protected void initMudrod(){
-    InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
-    InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
+  protected void initMudrod() {
+    InputStream settingsStream = getClass().getClassLoader()
+        .getResourceAsStream(ES_SETTINGS);
+    InputStream mappingsStream = getClass().getClassLoader()
+        .getResourceAsStream(ES_MAPPINGS);
     JSONObject settingsJSON = null;
     JSONObject mappingJSON = null;
 
@@ -86,33 +89,39 @@ public abstract class MudrodAbstract implements Serializable {
     }
 
     try {
-      if(settingsJSON != null && mappingJSON != null )
-      {
-        this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
+      if (settingsJSON != null && mappingJSON != null) {
+        this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME),
+            settingsJSON.toString(), mappingJSON.toString());
       }
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
 
-    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    // httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) +
+    // props.getProperty(MudrodConstants.TIME_SUFFIX);
+    // ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) +
+    // props.getProperty(MudrodConstants.TIME_SUFFIX);
+    // cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) +
+    // props.getProperty(MudrodConstants.TIME_SUFFIX);
+    // sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) +
+    // props.getProperty(MudrodConstants.TIME_SUFFIX);
   }
 
   /**
    * Get driver of Elasticsearch
+   * 
    * @return driver of Elasticsearch
    */
-  public ESDriver getES(){
+  public ESDriver getES() {
     return this.es;
   }
 
   /**
    * Get configuration of MUDROD (read from configuration file)
-   * @return configuration of MUDROD 
+   * 
+   * @return configuration of MUDROD
    */
-  public Properties getConfig(){
+  public Properties getConfig() {
     return this.props;
   }
 }
