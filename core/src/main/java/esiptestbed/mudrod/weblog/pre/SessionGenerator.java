@@ -161,17 +161,6 @@ public class SessionGenerator extends LogAbstract {
   public void combineShortSessionsInSequential(int Timethres)
       throws ElasticsearchException, IOException {
 
-    /*int docCount = es.getDocCount(logIndex, cleanupType);
-    
-    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0).addAggregation(
-            AggregationBuilders.terms("Users").field("IP").size(docCount));
-    
-    SearchResponse sr = srBuilder.execute().actionGet();
-    
-    Terms users = sr.getAggregations().get("Users");*/
-
     Terms users = this.getUserTerms(this.cleanupType);
     for (Terms.Bucket entry : users.getBuckets()) {
       String user = entry.getKey().toString();
@@ -409,9 +398,6 @@ public class SessionGenerator extends LogAbstract {
   public void combineShortSessionsInParallel(int timeThres)
       throws InterruptedException, IOException {
 
-    // int docCount = es.getDocCount(logIndex, cleanupType);
-    // System.out.println("doc count" + docCount);
-
     JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
 
     userRDD.foreachPartition(new VoidFunction<Iterator<String>>() {
@@ -437,7 +423,6 @@ public class SessionGenerator extends LogAbstract {
     String[] indexArr = new String[] { logIndex };
     String[] typeArr = new String[] { cleanupType };
     int docCount = es.getDocCount(indexArr, typeArr, filterSearch);
-    System.out.println(user + ", doc count: " + docCount);
 
     // SearchResponse checkAll = es.getClient().prepareSearch(logIndex)
     // .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
@@ -461,12 +446,7 @@ public class SessionGenerator extends LogAbstract {
     long numInvalid = checkReferer.getHits().getTotalHits();
     double invalidRate = numInvalid / docCount;
 
-    System.out.println(user + ", invalid doc count: " + numInvalid);
-    System.out.println(user + ", invalid rate: " + invalidRate);
-
     if (invalidRate >= 0.8) {
-      System.out.println(user + ", delete invalid doc");
-
       deleteInvalid(es, user);
       return;
     }
@@ -489,8 +469,6 @@ public class SessionGenerator extends LogAbstract {
           agg.getMaxAsString(), session.getKey().toString());
       sessionList.add(sess);
     }
-
-    System.out.println(user + ", session number: " + sessionList.size());
 
     Collections.sort(sessionList);
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -541,8 +519,6 @@ public class SessionGenerator extends LogAbstract {
       lastnewID = s.getNewID();
       last = current;
     }
-
-    System.out.println(user + ", finished iterating sessions");
 
   }
 
