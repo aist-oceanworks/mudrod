@@ -41,6 +41,7 @@ import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ssearch.ranking.AttributeExtractor;
+import esiptestbed.mudrod.ssearch.ranking.Evaluator;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
@@ -142,6 +143,30 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult.set(re, "spatialR", spatialR);
       SResult.set(re, "temporalR", temporalR);
 
+      /***************************set click count*********************************/
+      //important to convert shortName to lowercase
+      QueryBuilder qb_clicks = dp.createQueryForClicks(query, 1.0, shortName.toLowerCase()); 
+      SearchResponse clicks_res = es.getClient().prepareSearch(index)
+          .setTypes(props.getProperty("clickstreamMatrixType"))            
+          .setQuery(qb_clicks)
+          .setSize(500)
+          .execute()
+          .actionGet();
+
+      Double click_count = (double) 0;
+      Map<String, Double> selected_Map = dp.getRelatedTermsByT(query, 1.0);
+      for (SearchHit item : clicks_res.getHits().getHits()) {
+        Map<String,Object> click = item.getSource();
+        Double click_frequency = Double.parseDouble((String) click.get("clicks"));
+        String query_str = (String) click.get("query");
+        Double query_weight = selected_Map.get(query_str);
+        if(query_weight!=null)
+        {
+          click_count += click_frequency * query_weight;
+        }
+      }
+      SResult.set(re, "click", click_count);
+      /***************************************************************************/     
       QueryBuilder query_label_search = QueryBuilders.boolQuery()
           .must(QueryBuilders.termQuery("query", query))
           .must(QueryBuilders.termQuery("dataID", shortName));
@@ -204,13 +229,47 @@ public class Searcher extends MudrodAbstract implements Serializable {
     return PDResults.toString();
   }
 
+  public int getRankNum(String str)
+  {
+    switch (str) {
+    case "Excellent":
+      return 7;
+    case "Very good":
+      return 6;
+    case "Good":
+      return 5;
+    case "OK":
+      return 4;
+    case "Bad":
+      return 3;
+    case "Very bad":
+      return 2;
+    case "Terrible":
+      return 1;
+    default:
+      break;
+    }
+    return 0;
+  }
 
   public static void main(String[] args) throws IOException {
-    String learnerType = "SparkSVM";
+    //String learnerType = "SparkSVM";
 
-    String[] query_list = {"ocean wind", "ocean temperature", "sea surface topography", "quikscat",
+    String learnerType = "SingleVar&term_score";
+    String var = null;
+
+    if(learnerType.split("&").length > 1)
+    {
+      var = learnerType.split("&")[1];
+    }
+
+    String evaType = "precision";
+    int eva_K = 200;
+
+    String[] query_list = {"ocean wind", "ocean temperature", "quikscat",
         "saline density", "pathfinder", "gravity", "ocean pressure", "radar", "sea ice"};
     //String[] query_list = {"ocean wind"};
+    Evaluator eva = new Evaluator();
 
     MudrodEngine me = new MudrodEngine();
     Properties props = me.loadConfig();
@@ -218,30 +277,86 @@ public class Searcher extends MudrodAbstract implements Serializable {
     me.setSparkDriver(new SparkDriver());
 
     Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
+
+    File dir = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType);
+    if (!dir.exists()) {
+      if (dir.mkdir()) {
+        System.out.println("Directory is created!");
+      } else {
+        System.out.println("Failed to create directory!");
+      }
+    }
+
+
+    File file_eva = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "_" + evaType + ".csv");
+    if (file_eva.exists()) {
+      file_eva.delete();
+      file_eva.createNewFile();
+    }
+    FileWriter fw_eva = new FileWriter(file_eva.getAbsoluteFile());
+    BufferedWriter bw_eva = new BufferedWriter(fw_eva); 
+
     for(String q:query_list)
     {
-      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + q + "_" + learnerType + ".csv");
+      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "/" + q + ".csv");
       if (file.exists()) {
         file.delete();
+        file.createNewFile();
       }
-
-      file.createNewFile();
 
       FileWriter fw = new FileWriter(file.getAbsoluteFile());
       BufferedWriter bw = new BufferedWriter(fw); 
       bw.write(SResult.getHeader(","));
 
+      bw_eva.write(q + ",");
+
       List<SResult> resultList = sr.searchByQuery(me.getConfig().getProperty("indexName"), 
           me.getConfig().getProperty("raw_metadataType"), q, "phrase");
-      Ranker rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType);
+
+      Ranker rr = null;
+      if(var == null)
+      {
+        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType);
+      }else{
+        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType, var);
+      }
       List<SResult> li = rr.rank(resultList);
-      for(int i =0; i< li.size(); i++)
+      int[] rank_array = new int[li.size()];
+      for(int i = 0; i < li.size(); i++)
       {
         bw.write(li.get(i).toString(","));
+        rank_array[i] = sr.getRankNum(li.get(i).label);
       }
+
+      for(int j = 0; j < eva_K; j++)
+      {
+        if(evaType.equals("precision"))
+        {
+          if(j < (eva_K-1))
+          {
+            bw_eva.write(eva.getPrecision(rank_array, j + 1) + ",");
+          }else{
+            bw_eva.write(eva.getPrecision(rank_array, j + 1) + "\n");
+          }
+        }
+
+        if(evaType.equals("ndcg"))
+        {
+          if(j < (eva_K-1))
+          {
+            bw_eva.write(eva.getNDCG(rank_array, j + 1) + ",");
+          }else{
+            bw_eva.write(eva.getNDCG(rank_array, j + 1) + "\n");
+          }
+        }
+      }
+      /*double precision = eva.getPrecision(rank_array, 200);
+      double ndcg = eva.getNDCG(rank_array, 200);     
+      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);*/
+
       bw.close();
     }
-
+    bw_eva.close();
     me.end();   
   }
 }

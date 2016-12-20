@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
  */
 public class SResult {
   public static final String rlist[] = {"term_score", "releaseDate_score", "versionNum_score", "processingL_score", 
-      "allPop_score", "monthPop_score", "userPop_score", "spatialR_score", "temporalR_score"};
+      "allPop_score", "monthPop_score", "userPop_score", "spatialR_score", "temporalR_score", "click_score"};
   String shortName = null;
   String longName = null;
   String topic = null;
@@ -94,9 +94,9 @@ public class SResult {
     {
       str += rlist[i] + delimiter;
     }
-    //str = str + "label,spatialR,temporalR" + "\n";
+    //return "ShortName" + delimiter + "final_score" + delimiter + str + "\n";
     str = str + "label" + "\n";
-    //return "ShortName" + delimiter + "below" + delimiter + str;
+
     return str;
   }
  
@@ -112,9 +112,9 @@ public class SResult {
       double score = get(this, rlist[i]);
       str += score + delimiter;
     }
-    //str = str + label + delimiter + spatialR + delimiter + temporalR + "\n";
+    
+    //return shortName + delimiter + final_score + delimiter + str + "\n";
     str = str + label + "\n";
-    //return shortName + delimiter + below + delimiter + str;
     return str;
   }
 

@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,29 +39,6 @@ public class Dispatcher extends MudrodAbstract {
 
   public Dispatcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-  }
-
-  /**
-   * Method of getting semantically most related terms by number
-   * 
-   * @param input
-   *          regular input query
-   * @param num
-   *          the number of most related terms
-   * @return a map from term to similarity
-   */
-  public Map<String, Double> getRelatedTerms(String input, int num) {
-    LinkageIntegration li = new LinkageIntegration(props, this.es, null);
-    Map<String, Double> sortedMap = li.appyMajorRule(input);
-    Map<String, Double> selected_Map = new HashMap<>();
-    int count = 0;
-    for (Entry<String, Double> entry : sortedMap.entrySet()) {
-      if (count < num) {
-        selected_Map.put(entry.getKey(), entry.getValue());
-      }
-      count++;
-    }
-    return selected_Map;
   }
 
   /**
@@ -99,6 +77,7 @@ public class Dispatcher extends MudrodAbstract {
   public BoolQueryBuilder createSemQuery(String input, double T,
       String query_operator) {
     Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
+    //Map<String, Double> selected_Map = new HashMap<>();
     selected_Map.put(input, (double) 1);
 
     String fieldsList[] = { "Dataset-Metadata", "Dataset-ShortName",
@@ -135,9 +114,22 @@ public class Dispatcher extends MudrodAbstract {
             .operator(MatchQueryBuilder.Operator.OR).tieBreaker((float) 0.5));
       }
     }
-
-    // LOG.info(qb.toString());
     return qb;
+  }
+  
+  public QueryBuilder createQueryForClicks(String input, double T, String shortName){   
+    Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
+    selected_Map.put(input, (double) 1);
+
+    BoolQueryBuilder bf = new BoolQueryBuilder();
+    bf.must(QueryBuilders.termQuery("dataID", shortName));
+
+    for (Map.Entry<String, Double> entry : selected_Map.entrySet()){
+      bf.should(QueryBuilders.termQuery("query", entry.getKey()));      
+    }
+    QueryBuilder click_search = QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), bf);
+
+    return click_search;
   }
 
 }

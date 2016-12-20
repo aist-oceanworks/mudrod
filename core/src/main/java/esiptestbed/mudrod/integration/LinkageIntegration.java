@@ -147,8 +147,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
       count++;
     }
-    LOG.info("\n************************Integrated results***************************");
-    LOG.info(output);
+    /*LOG.info("\n************************Integrated results***************************");
+    LOG.info(output);*/
     return output;
   }
 
@@ -231,7 +231,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
 
-    LOG.info("\n************************ {} results***************************", model);
+    //LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String keywords = (String) result.get("keywords");
@@ -240,7 +240,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       if (!relatedKey.equals(input)) {
         LinkedTerm lTerm = new LinkedTerm(relatedKey,
             (double) result.get(WEIGHT), model);
-        LOG.info("( {} {} )", relatedKey, (double) result.get(WEIGHT));
+        //LOG.info("( {} {} )", relatedKey, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
 
@@ -256,14 +256,14 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
-    LOG.info("\n************************ {} results***************************", model);
+    //LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String conceptB = (String) result.get("concept_B");
       if (!conceptB.equals(input)) {
         LinkedTerm lTerm = new LinkedTerm(conceptB,
             (double) result.get(WEIGHT), model);
-        LOG.info("( {} {} )", conceptB, (double) result.get(WEIGHT));
+        //LOG.info("( {} {} )", conceptB, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
     }

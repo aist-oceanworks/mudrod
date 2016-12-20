@@ -48,7 +48,7 @@ public class SparkSVM {
     final SVMModel model = SVMWithSGD.train(data.rdd(), numIterations);
 
     // Save and load model
-    model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model0930");
+    model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model1003");
     
     //SVMModel Model = SVMModel.load(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
     

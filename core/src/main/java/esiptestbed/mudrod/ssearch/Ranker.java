@@ -44,20 +44,40 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
   String learnerType = null;
   Learner le = null;
+  
+  String var = null;
 
   public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
     le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.SVM_SGD_MODEL));
   }
+  
+  public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType, String var) {
+    super(props, es, spark);
+    this.learnerType = learnerType;
+    this.var = var;
+  }
 
   /**
-   * Method of comparing results based on final score
+   * Method of comparing results based on below
    */
   public class ResultComparator implements Comparator<SResult> {
     @Override
     public int compare(SResult o1, SResult o2) {
       return o2.below.compareTo(o1.below);
+    }
+  }
+  
+  /**
+   * Method of comparing results based on a single var/score
+   */
+  public class ResultComparator_Single implements Comparator<SResult> {
+    @Override
+    public int compare(SResult o1, SResult o2) {
+      Double score1 = (Double)SResult.get(o1, var);
+      Double score2 = (Double)SResult.get(o2, var);
+      return score2.compareTo(score1);
     }
   }
 
@@ -155,15 +175,32 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
     // using collection.sort directly would cause an "not transitive" error
     // this is because the training model is not a overfitting model
-    for(int j=0; j< resultList.size(); j++) {
-      for(int k=0; k< resultList.size(); k++) {
-        if(k!=j) {
-          resultList.get(j).below += comp (resultList.get(j), resultList.get(k));
+    if(learnerType.equals("SparkSVM"))
+    {
+      for(int j=0; j< resultList.size(); j++) {
+        for(int k=0; k< resultList.size(); k++) {
+          if(k!=j) {
+            resultList.get(j).below += comp (resultList.get(j), resultList.get(k));
+          }
         }
       }
+      
+      Collections.sort(resultList, new ResultComparator());
+    }
+    
+    if(learnerType.contains("SingleVar"))
+    {
+      Collections.sort(resultList, new ResultComparator_Single());
     }
 
-    Collections.sort(resultList, new ResultComparator());
+    /*if(learnerType.equals("pointwise"))
+    {
+      for(int j=0; j< resultList.size(); j++) {
+        resultList.get(j).final_score =  predict(resultList.get(j));
+      }
+    }*/
+
+    
     return resultList;
   }
 
@@ -190,5 +227,22 @@ public class Ranker extends MudrodAbstract implements Serializable{
       return 1;
     }
   }
+
+  /**
+   * Prediction method of weka ordinal regression
+   * @param o1
+   * @return
+   */
+  /*public double predict(SResult o1)
+  {
+    List<Double> instList = new ArrayList<>();
+    for(int i =0; i <SResult.rlist.length; i++) {
+      double o1Score = SResult.get(o1, SResult.rlist[i]);
+      instList.add(o1Score);
+    }
+    instList.add(3.0);
+    double[] ins1 = instList.stream().mapToDouble(i->i).toArray();
+    return le.classify(ins1);
+  }*/
 
 }

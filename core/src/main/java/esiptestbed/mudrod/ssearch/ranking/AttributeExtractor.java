@@ -28,10 +28,10 @@ public class AttributeExtractor {
     }else
     {
       versionNum = Double.parseDouble(version);
-      /*if(versionNum >=5)
+      if(versionNum >=5)
       {
         versionNum = 20.0;
-      }*/
+      }
     }
     return versionNum;
   }
