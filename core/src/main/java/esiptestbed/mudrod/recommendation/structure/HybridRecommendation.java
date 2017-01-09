@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.recommendation.structure;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
  * Recommend metadata using combination all two methods, including content-based
@@ -95,37 +97,54 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
    * @return recommended dataset in json format
    */
   public JsonObject getRecomDataInJson(String input, int num) {
-    String type = props.getProperty("metadataCodeSimType");
-    Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
+    JsonObject resultJson = new JsonObject();
 
-    type = props.getProperty("metadataTopicSimType");
-    Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
+    String type = props.getProperty("metadataCodeSimType");
+    Map<String, Double> sortedVariableSimMap = getRelatedData(type, input,
+        num + 10);
+
+    type = props.getProperty("metadataWordTFIDFSimType");
+    Map<String, Double> sortedAbstractSimMap = getRelatedData(type, input,
+        num + 10);
 
     type = props.getProperty("metadataSessionBasedSimType");
-    Map<String, Double> sortedSBSimMap = getRelatedData(type, input, num + 5);
+    Map<String, Double> sortedSessionSimMap = getRelatedData(type, input,
+        num + 10);
+
+    JsonElement variableSimJson = mapToJson(sortedVariableSimMap, num);
+    resultJson.add("variableSim", variableSimJson);
+    JsonElement abstractSimJson = mapToJson(sortedAbstractSimMap, num);
+    resultJson.add("abstractSim", abstractSimJson);
+    JsonElement sessionSimJson = mapToJson(sortedSessionSimMap, num);
+    resultJson.add("sessionSim", sessionSimJson);
 
     Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
 
-    for (String name : sortedOBSimMap.keySet()) {
-      hybirdSimMap.put(name, sortedOBSimMap.get(name));
+    for (String name : sortedAbstractSimMap.keySet()) {
+      hybirdSimMap.put(name, sortedAbstractSimMap.get(name) /** 0.4 */
+      );
     }
 
-    for (String name : sortedMBSimMap.keySet()) {
+    for (String name : sortedVariableSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name) + sortedMBSimMap.get(name);
+        double sim = hybirdSimMap.get(name)
+            + sortedVariableSimMap.get(name) /** 0.3 */
+        ;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
-        double sim = sortedMBSimMap.get(name);
+        double sim = sortedVariableSimMap.get(name);
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       }
     }
 
-    for (String name : sortedSBSimMap.keySet()) {
+    for (String name : sortedSessionSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name) + sortedSBSimMap.get(name);
+        double sim = hybirdSimMap.get(name)
+            + sortedSessionSimMap.get(name) /** 0.1 */
+        ;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
-        double sim = sortedSBSimMap.get(name);
+        double sim = sortedSessionSimMap.get(name);
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       }
     }
@@ -133,10 +152,9 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
     Map<String, Double> sortedHybirdSimMap = this.sortMapByValue(hybirdSimMap);
 
     JsonElement linkedJson = mapToJson(sortedHybirdSimMap, num);
-    JsonObject json = new JsonObject();
-    json.add("linked", linkedJson);
+    resultJson.add("linked", linkedJson);
 
-    return json;
+    return resultJson;
   }
 
   /**
@@ -273,5 +291,19 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
       }
     }
     return sortedMap;
+  }
+
+  public static void main(String[] args) throws IOException {
+
+    MudrodEngine me = new MudrodEngine();
+    Properties props = me.loadConfig();
+    ESDriver es = new ESDriver(me.getConfig());
+    HybridRecommendation test = new HybridRecommendation(props, es, null);
+
+    // String input = "NSCAT_LEVEL_1.7_V2";
+    String input = "AQUARIUS_L3_SSS_SMIA_MONTHLY-CLIMATOLOGY_V4";
+    JsonObject json = test.getRecomDataInJson(input, 10);
+
+    System.out.println(json.toString());
   }
 }

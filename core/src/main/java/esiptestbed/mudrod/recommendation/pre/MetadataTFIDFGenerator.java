@@ -27,11 +27,11 @@ import esiptestbed.mudrod.utils.MatrixUtil;
 /**
  * ClassName: Generate TFIDF information of all metadata
  */
-public class TFIDFGenerator extends DiscoveryStepAbstract {
+public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
-      .getLogger(TFIDFGenerator.class);
+      .getLogger(MetadataTFIDFGenerator.class);
 
   /**
    * Creates a new instance of MatrixGenerator.
@@ -43,7 +43,8 @@ public class TFIDFGenerator extends DiscoveryStepAbstract {
    * @param spark
    *          the spark drive
    */
-  public TFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
+  public MetadataTFIDFGenerator(Properties props, ESDriver es,
+      SparkDriver spark) {
     super(props, es, spark);
   }
 

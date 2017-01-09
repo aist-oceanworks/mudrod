@@ -82,11 +82,12 @@ public class RecomData extends DiscoveryStepAbstract {
   }
 
   public JsonObject getRecomDataInJson(String input, int num) {
-    String type = props.getProperty("metadataWordTFIDFSimType");
+    String type = props.getProperty("metadataTermTFIDFSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
     JsonElement linkedJson = mapToJson(sortedOBSimMap, num);
 
-    type = props.getProperty("metadataTermTFIDFSimType");
+    // type = props.getProperty("metadataTermTFIDFSimType");
+    type = props.getProperty("metadataCodeSimType");
 
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
     JsonElement relatedJson = mapToJson(sortedMBSimMap, num);

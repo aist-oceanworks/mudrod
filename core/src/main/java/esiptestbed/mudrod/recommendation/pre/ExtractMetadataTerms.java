@@ -19,7 +19,7 @@ public class ExtractMetadataTerms extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
-      .getLogger(OHEncodeMetadata.class);
+      .getLogger(ExtractMetadataTerms.class);
 
   /**
    * Creates a new instance of OHEncodeMetadata.

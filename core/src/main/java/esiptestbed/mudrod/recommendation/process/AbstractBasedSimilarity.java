@@ -25,9 +25,10 @@ import esiptestbed.mudrod.utils.LinkageTriple;
 /**
  * ClassName: Recommend metedata based on data content semantic similarity
  */
-public class TFIDFBasedCF extends DiscoveryStepAbstract {
+public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TFIDFBasedCF.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(AbstractBasedSimilarity.class);
 
   /**
    * Creates a new instance of TopicBasedCF.
@@ -39,7 +40,8 @@ public class TFIDFBasedCF extends DiscoveryStepAbstract {
    * @param spark
    *          the spark drive
    */
-  public TFIDFBasedCF(Properties props, ESDriver es, SparkDriver spark) {
+  public AbstractBasedSimilarity(Properties props, ESDriver es,
+      SparkDriver spark) {
     super(props, es, spark);
   }
 

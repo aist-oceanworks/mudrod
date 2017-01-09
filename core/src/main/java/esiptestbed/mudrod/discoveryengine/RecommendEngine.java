@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.recommendation.pre.ProcessMetadataVariables;
-import esiptestbed.mudrod.recommendation.process.VariableBasedSimilarity;
+import esiptestbed.mudrod.recommendation.pre.ExtractMetadataTerms;
+import esiptestbed.mudrod.recommendation.pre.MetadataTFIDFGenerator;
+import esiptestbed.mudrod.recommendation.process.AbstractBasedSimilarity;
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
@@ -34,36 +35,21 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.spark);
     harvester.execute();*/
 
-    /* DiscoveryStepAbstract extractor = new ExtractMetadataTerms(this.props,
+    DiscoveryStepAbstract extractor = new ExtractMetadataTerms(this.props,
         this.es, this.spark);
     extractor.execute();
-    
-    DiscoveryStepAbstract tfidf = new TFIDFGenerator(this.props, this.es,
-        this.spark);
-    tfidf.execute();*/
+
+    DiscoveryStepAbstract tfidf = new MetadataTFIDFGenerator(this.props,
+        this.es, this.spark);
+    tfidf.execute();
 
     /*DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props,
         this.es, this.spark);
     sessionMatrixGen.execute();*/
 
-    DiscoveryStepAbstract transformer = new ProcessMetadataVariables(this.props,
+    /*DiscoveryStepAbstract transformer = new NormalizeVariables(this.props,
         this.es, this.spark);
-    transformer.execute();
-
-    /*   DiscoveryStepAbstract transformer = new ProcessMetadataVariables(this.props,
-        this.es, this.spark);
-    transformer.execute();
-    
-    DiscoveryStepAbstract obencoder = new OHEncodeMetadata(this.props, this.es,
-        this.spark);
-    obencoder.execute();
-    
-    DiscoveryStepAbstract matrixGen = new OHCodeMatrixGenerator(this.props,
-        this.es, this.spark);
-    matrixGen.execute();
-    
-    
-    */
+    transformer.execute();*/
 
     endTime = System.currentTimeMillis();
 
@@ -80,25 +66,17 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 
     startTime = System.currentTimeMillis();
 
-    /* DiscoveryStepAbstract tfCF = new TFIDFBasedCF(this.props, this.es,
-        this.spark);
-    tfCF.execute();*/
-
-    /* DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
-        this.spark);
-    sbCF.execute();*/
-
-    DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props,
+    DiscoveryStepAbstract tfCF = new AbstractBasedSimilarity(this.props,
         this.es, this.spark);
-    cbCF.execute();
+    tfCF.execute();
 
-    /*DiscoveryStepAbstract cbCF = new ContentBasedCF(this.props, this.es,
-        this.spark);
+    /*DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props,
+        this.es, this.spark);
     cbCF.execute();*/
 
-    /*DiscoveryStepAbstract tbCF = new TopicBasedCF(this.props, this.es,
-        this.spark);
-    tbCF.execute();*/
+    /* DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
+    this.spark);
+    sbCF.execute();*/
 
     endTime = System.currentTimeMillis();
 
