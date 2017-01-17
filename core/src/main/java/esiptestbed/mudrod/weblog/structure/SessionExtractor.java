@@ -478,4 +478,119 @@ public class SessionExtractor implements Serializable {
     return sessionItemRDD;
   }
 
+  /**
+   * extractClickStreamFromES:Extract click streams from logs stored in
+   * Elasticsearch
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   * @return clickstream list in JavaRDD format
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  public JavaRDD<RankingTrainData> extractRankingTrainData(Properties props,
+      ESDriver es, SparkDriver spark) {
+
+    /* String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+      List<ClickStream> queryList = this.extractRankingTrainData(props, es);
+      return spark.sc.parallelize(queryList);
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+      return extractRankingTrainDataInParallel(props, spark, es);
+    }
+    
+    return null;*/
+
+    List<RankingTrainData> queryList = this.extractRankingTrainData(props, es);
+    return spark.sc.parallelize(queryList);
+
+  }
+
+  /**
+   * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @return clickstream list
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  protected List<RankingTrainData> extractRankingTrainData(Properties props,
+      ESDriver es) {
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
+    System.out.println(logIndexList.toString());
+
+    List<RankingTrainData> result = new ArrayList<>();
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      List<String> sessionIdList;
+      try {
+        sessionIdList = this.getSessions(props, es, logIndex);
+        Session session = new Session(props, es);
+        int sessionNum = sessionIdList.size();
+        for (int i = 0; i < sessionNum; i++) {
+          String[] sArr = sessionIdList.get(i).split(",");
+          List<RankingTrainData> datas = session.getRankingTrainData(sArr[1],
+              sArr[2], sArr[0]);
+          result.addAll(datas);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    return result;
+  }
+
+  protected JavaRDD<RankingTrainData> extractRankingTrainDataInParallel(
+      Properties props, SparkDriver spark, ESDriver es) {
+
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
+    System.out.print(logIndexList.toString());
+
+    List<String> sessionIdList = new ArrayList<String>();
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      List<String> tmpsessionList = this.getSessions(props, es, logIndex);
+      sessionIdList.addAll(tmpsessionList);
+    }
+
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(sessionIdList, 16);
+
+    JavaRDD<RankingTrainData> ClickStreamRDD = sessionRDD.mapPartitions(
+        new FlatMapFunction<Iterator<String>, RankingTrainData>() {
+          @Override
+          public Iterator<RankingTrainData> call(Iterator<String> arg0)
+              throws Exception {
+            // TODO Auto-generated method stub
+            ESDriver tmpES = new ESDriver(props);
+            tmpES.createBulkProcessor();
+
+            Session session = new Session(props, tmpES);
+            List<RankingTrainData> clickstreams = new ArrayList<RankingTrainData>();
+            while (arg0.hasNext()) {
+              String s = arg0.next();
+              String[] sArr = s.split(",");
+              List<RankingTrainData> clicks = session
+                  .getRankingTrainData(sArr[1], sArr[2], sArr[0]);
+              clickstreams.addAll(clicks);
+            }
+            tmpES.destroyBulkProcessor();
+            return clickstreams.iterator();
+          }
+        });
+
+    System.out.println("click stream number:" + ClickStreamRDD.count());
+
+    return ClickStreamRDD;
+  }
+
 }

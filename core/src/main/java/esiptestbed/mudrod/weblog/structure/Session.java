@@ -304,4 +304,34 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     JsonElement jsonElement = gson.toJsonTree(requestList);
     return jsonElement;
   }
+
+  /**
+   * getClickStreamList: Extracted ranking training data from current session.
+   *
+   * @param cleanuptype:
+   *          Session type name in Elasticsearch
+   * @param sessionID:
+   *          Session ID
+   * @return Click stram data list
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  public List<RankingTrainData> getRankingTrainData(String indexName,
+      String cleanuptype, String sessionID) {
+    SessionTree tree = null;
+    try {
+      tree = this.getSessionTree(indexName, cleanuptype, sessionID);
+    } catch (UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    List<RankingTrainData> trainData = null;
+    try {
+      trainData = tree.getRankingTrainData(indexName, cleanuptype, sessionID);
+    } catch (UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return trainData;
+  }
 }

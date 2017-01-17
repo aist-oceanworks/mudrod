@@ -32,6 +32,8 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import esiptestbed.mudrod.discoveryengine.DiscoveryEngineAbstract;
 import esiptestbed.mudrod.discoveryengine.MetadataDiscoveryEngine;
 import esiptestbed.mudrod.discoveryengine.OntologyDiscoveryEngine;
@@ -40,6 +42,8 @@ import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
+import esiptestbed.mudrod.weblog.structure.RankingTrainData;
+import esiptestbed.mudrod.weblog.structure.Session;
 
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
@@ -173,9 +177,9 @@ public class MudrodEngine {
     LinkageIntegration li = new LinkageIntegration(props, es, spark);
     li.execute();
 
-    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    recom.preprocess();
-    recom.process();
+    // DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
+    // recom.preprocess();
+    // recom.process();
   }
 
   /**
@@ -297,21 +301,24 @@ public class MudrodEngine {
         "begin adding metadata and ontology results");
 
     // argument options
-    Option logDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/log/directory").hasArgs(1)
+    Option logDirOpt = OptionBuilder.hasArg(true)
+        .withArgName("/path/to/log/directory").hasArgs(1)
         .withDescription("the log directory to be processed by Mudrod")
         .withLongOpt("logDirectory").isRequired().create(LOG_DIR);
 
-    Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name").hasArgs(1)
-        .withDescription("elasticsearch cluster unicast host")
+    Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name")
+        .hasArgs(1).withDescription("elasticsearch cluster unicast host")
         .withLongOpt("elasticSearchHost").isRequired(false).create(ES_HOST);
 
-    Option esTCPPortOpt = OptionBuilder.hasArg(true).withArgName("port_num").hasArgs(1)
-        .withDescription("elasticsearch transport TCP port")
-        .withLongOpt("elasticSearchTransportTCPPort").isRequired(false).create(ES_TCP_PORT);
+    Option esTCPPortOpt = OptionBuilder.hasArg(true).withArgName("port_num")
+        .hasArgs(1).withDescription("elasticsearch transport TCP port")
+        .withLongOpt("elasticSearchTransportTCPPort").isRequired(false)
+        .create(ES_TCP_PORT);
 
-    Option esPortOpt = OptionBuilder.hasArg(true).withArgName("port_num").hasArgs(1)
-        .withDescription("elasticsearch HTTP/REST port")
-        .withLongOpt("elasticSearchHTTPPort").isRequired(false).create(ES_HTTP_PORT);
+    Option esPortOpt = OptionBuilder.hasArg(true).withArgName("port_num")
+        .hasArgs(1).withDescription("elasticsearch HTTP/REST port")
+        .withLongOpt("elasticSearchHTTPPort").isRequired(false)
+        .create(ES_HTTP_PORT);
 
     // create the options
     Options options = new Options();
@@ -444,5 +451,60 @@ public class MudrodEngine {
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;
 
+  }
+
+  public static void main1(String[] args) {
+
+    MudrodEngine mudrodEngine = new MudrodEngine();
+    ESDriver es = new ESDriver(mudrodEngine.loadConfig());
+    Properties prop = mudrodEngine.getConfig();
+
+    String indexName = "podaaclog201401";
+    prop.setProperty("indexName", indexName);
+    String cleanupType = "cleanupLog";
+    String sessionID = "193.136.157.66@9";
+    // String sessionID = "60.49.170.210@75";
+    // String sessionID = "194.35.219.99@3";
+    // String sessionID = "80.110.36.21@1";
+
+    /*  SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
+        .setSearchType(SearchType.QUERY_AND_FETCH).setTypes("sessionstats")
+        .setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
+        .setSize(100).execute().actionGet();
+    
+    int n = 0;
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        Map<String, Object> result = hit.getSource();
+        String view = (String) result.get("views");
+        String[] viewArr = view.split(",");
+        int viewSize = viewArr.length;
+        String download = (String) result.get("downloads");
+        String sessionId = (String) result.get("SessionID");
+        if (viewSize > 4 && !download.equals("")) {
+          System.out.println(sessionId);
+        }
+        n += 1;
+      }
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
+    
+    }
+    System.out.println(n);*/
+
+    JsonObject json = new JsonObject();
+
+    Session session = new Session(prop, es);
+    json = session.getSessionDetail(indexName, cleanupType, sessionID);
+
+    List<RankingTrainData> trainData = session.getRankingTrainData(indexName,
+        cleanupType, sessionID);
+    for (int i = 0; i < trainData.size(); i++) {
+      System.out.println(trainData.get(i).toJson());
+    }
+    System.out.println(json.toString());
   }
 }
