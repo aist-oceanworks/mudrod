@@ -42,6 +42,8 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.ssearch.ranking.AttributeExtractor;
 import esiptestbed.mudrod.ssearch.ranking.Evaluator;
+import esiptestbed.mudrod.ssearch.similarity.Bbox;
+import esiptestbed.mudrod.ssearch.similarity.GeoSimModel;
 import esiptestbed.mudrod.ssearch.structure.SResult;
 
 /**
@@ -129,6 +131,20 @@ public class Searcher extends MudrodAbstract implements Serializable {
           ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
       Double spatialR = attEx.getSpatialR(result);
       Double temporalR = attEx.getTemporalR(result);
+      
+      //
+      double top = (double) result.get("DatasetCoverage-Derivative-NorthLat");
+      double bottom = (double) result.get("DatasetCoverage-Derivative-SouthLat");
+      double left = (double) result.get("DatasetCoverage-Derivative-WestLon");
+      double right = (double) result.get("DatasetCoverage-Derivative-EastLon");
+      Bbox b1 = new Bbox(top, bottom, right, left);
+      
+      Bbox bq = new Bbox(68.616, -83.0204773, 20,-83.2160952);
+      
+      GeoSimModel simM = new GeoSimModel(b1, bq);
+      simM.getSimilarity();
+      
+      //
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
       SResult.set(re, "term", relevance);
