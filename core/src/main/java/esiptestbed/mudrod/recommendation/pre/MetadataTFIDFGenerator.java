@@ -57,7 +57,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
     try {
       generateWordBasedTFIDF();
-      generateTermBasedTFIDF();
+      // generateTermBasedTFIDF();
     } catch (Exception e) {
       e.printStackTrace();
     }

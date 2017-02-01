@@ -7,9 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.recommendation.pre.ExtractMetadataTerms;
+import esiptestbed.mudrod.recommendation.pre.ImportMetadata;
 import esiptestbed.mudrod.recommendation.pre.MetadataTFIDFGenerator;
+import esiptestbed.mudrod.recommendation.pre.NormalizeVariables;
+import esiptestbed.mudrod.recommendation.pre.SessionCooccurence;
 import esiptestbed.mudrod.recommendation.process.AbstractBasedSimilarity;
+import esiptestbed.mudrod.recommendation.process.VariableBasedSimilarity;
+import esiptestbed.mudrod.recommendation.process.sessionBasedCF;
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
@@ -31,25 +35,21 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 
     startTime = System.currentTimeMillis();
 
-    /* DiscoveryStepAbstract harvester = new ImportMetadata(this.props, this.es,
+    DiscoveryStepAbstract harvester = new ImportMetadata(this.props, this.es,
         this.spark);
-    harvester.execute();*/
-
-    DiscoveryStepAbstract extractor = new ExtractMetadataTerms(this.props,
-        this.es, this.spark);
-    extractor.execute();
+    harvester.execute();
 
     DiscoveryStepAbstract tfidf = new MetadataTFIDFGenerator(this.props,
         this.es, this.spark);
     tfidf.execute();
 
-    /*DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props,
+    DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props,
         this.es, this.spark);
-    sessionMatrixGen.execute();*/
+    sessionMatrixGen.execute();
 
-    /*DiscoveryStepAbstract transformer = new NormalizeVariables(this.props,
+    DiscoveryStepAbstract transformer = new NormalizeVariables(this.props,
         this.es, this.spark);
-    transformer.execute();*/
+    transformer.execute();
 
     endTime = System.currentTimeMillis();
 
@@ -70,13 +70,13 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
         this.es, this.spark);
     tfCF.execute();
 
-    /*DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props,
+    DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props,
         this.es, this.spark);
-    cbCF.execute();*/
+    cbCF.execute();
 
-    /* DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
-    this.spark);
-    sbCF.execute();*/
+    DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
+        this.spark);
+    sbCF.execute();
 
     endTime = System.currentTimeMillis();
 
