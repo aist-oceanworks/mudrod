@@ -167,6 +167,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * getSessionDetail:Get detail of current session, which is used for session
    * tree reconstruct
    *
+   * @param indexName name of index from which you wish to obtain session detail.
    * @param cleanuptype:
    *          Session type name in Elasticsearch
    * @param sessionID:
@@ -176,7 +177,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   public JsonObject getSessionDetail(String indexName, String cleanuptype,
       String sessionID) {
     JsonObject sessionResults = new JsonObject();
-    Gson gson = new Gson();
     // for session tree
     SessionTree tree = null;
     JsonElement jsonRequest = null;
