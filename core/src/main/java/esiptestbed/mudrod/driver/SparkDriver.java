@@ -29,7 +29,7 @@ public class SparkDriver implements Serializable {
    */
   private static final long serialVersionUID = 1L;
   public transient JavaSparkContext sc;
-  public SQLContext sqlContext;
+  public transient SQLContext sqlContext;
 
   public SparkDriver() {
     // empty default constructor
