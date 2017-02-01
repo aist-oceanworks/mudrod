@@ -117,8 +117,8 @@ public class ESDriver implements Serializable {
           @Override
           public void afterBulk(long executionId, BulkRequest request,
               BulkResponse response) {
-            // throw new UnsupportedOperationException(
-            // "afterBulk is not implemented yet!");
+            // throw new UnsupportedOperationException("afterBulk is not
+            // implemented yet!");
           }
 
           @Override

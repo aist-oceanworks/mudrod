@@ -173,9 +173,9 @@ public class MudrodEngine {
     LinkageIntegration li = new LinkageIntegration(props, es, spark);
     li.execute();
 
-    // DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    // recom.preprocess();
-    // recom.process();
+    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
+    recom.preprocess();
+    recom.process();
   }
 
   /**
@@ -421,9 +421,15 @@ public class MudrodEngine {
         dataDir + "metadataSVDMatrix_tmp.csv");
     me.props.put("raw_metadataPath", dataDir + "RawMetadata");
 
-    me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
-    me.props.put("session_item_Matrix",
+    me.props.put("jtopia", dataDir + "jtopiaModel");
+    me.props.put("metadata_term_tfidf_matrix",
+        dataDir + "metadata_term_tfidf.csv");
+    me.props.put("metadata_word_tfidf_matrix",
+        dataDir + "metadata_word_tfidf.csv");
+    me.props.put("session_metadata_Matrix",
         dataDir + "metadata_session_coocurrence_matrix.csv");
+
+    me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
     me.props.put("metadata_topic", dataDir + "metadata_topic");
     me.props.put("metadata_topic_matrix",
         dataDir + "metadata_topic_matrix.csv");
