@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import com.google.gson.JsonObject;
 
 import esiptestbed.mudrod.main.MudrodEngine;
-import esiptestbed.mudrod.recommendation.structure.RecommendationData;
+import esiptestbed.mudrod.recommendation.structure.RecomData;;
 
 /**
  * A Dataset recommendation resource.
@@ -56,7 +56,7 @@ public class RecomDatasetsResource {
   public Response hybridRecommendation(@PathParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
-      RecommendationData recom = new RecommendationData(mEngine.getConfig(), mEngine.getESDriver(), null);
+      RecomData recom = new RecomData(mEngine.getConfig(), mEngine.getESDriver(), null);
       json = new JsonObject();
       json.add("RecommendationData", recom.getRecomDataInJson(shortName, 10));
     }

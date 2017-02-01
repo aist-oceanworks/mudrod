@@ -70,7 +70,7 @@ public class SVDUtil extends MudrodAbstract {
     LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
         spark.sc);
     RowMatrix TFIDFMatrix = MatrixUtil
-        .createTFIDFMatrix(wordDocMatrix.wordDocMatrix, spark.sc);
+        .createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
     svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
     this.svdMatrix = svdMatrix;
     this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);

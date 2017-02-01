@@ -71,6 +71,17 @@ public class SemanticAnalyzer extends MudrodAbstract {
     return SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
   }
 
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
+      int simType, int skipRow) {
+
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
+        csvFileName, skipRow);
+    JavaRDD<LinkageTriple> triples = SimilarityUtil
+        .CalSimilarityFromVector(importRDD, simType);
+
+    return triples.collect();
+  }
+
   public void saveToES(List<LinkageTriple> triple_List, String index,
       String type) {
     try {

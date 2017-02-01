@@ -15,7 +15,9 @@ package esiptestbed.mudrod.weblog.structure;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -63,8 +65,8 @@ public class SessionTree extends MudrodAbstract {
    * @param cleanupType:
    *          session type
    */
-  public SessionTree(Properties props, ESDriver es,
-      SessionNode rootData, String sessionID, String cleanupType) {
+  public SessionTree(Properties props, ESDriver es, SessionNode rootData,
+      String sessionID, String cleanupType) {
     super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     tmpnode = root;
@@ -438,5 +440,98 @@ public class SessionTree extends MudrodAbstract {
     }
 
     return viewnodes;
+  }
+
+  private List<SessionNode> getQueryNodes(SessionNode node) {
+    return this.getNodes(node, "datasetlist");
+  }
+
+  private List<SessionNode> getNodes(SessionNode node, String nodeKey) {
+
+    List<SessionNode> nodes = new ArrayList<SessionNode>();
+    if (node.getKey().equals(nodeKey)) {
+      nodes.add(node);
+    }
+
+    if (node.children.size() != 0) {
+      for (int i = 0; i < node.children.size(); i++) {
+        SessionNode childNode = node.children.get(i);
+        nodes.addAll(getNodes(childNode, nodeKey));
+      }
+    }
+
+    return nodes;
+  }
+
+  /**
+   * getClickStreamList: Get click stream list in the session
+   *
+   * @return {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   * @throws UnsupportedEncodingException
+   */
+  public List<RankingTrainData> getRankingTrainData(String indexName,
+      String cleanuptype, String sessionID)
+      throws UnsupportedEncodingException {
+
+    List<RankingTrainData> trainDatas = new ArrayList<>();
+
+    List<SessionNode> queryNodes = this.getQueryNodes(this.root);
+    for (int i = 0; i < queryNodes.size(); i++) {
+      SessionNode querynode = queryNodes.get(i);
+      List<SessionNode> children = querynode.getChildren();
+      int size = children.size();
+
+      LinkedHashMap<String, Boolean> datasetOpt = new LinkedHashMap<>();
+      int ndownload = 0;
+      for (int j = 0; j < size; j++) {
+        SessionNode node = children.get(j);
+        if (node.getKey().equals("dataset")) {
+          Boolean bDownload = false;
+          List<SessionNode> nodeChildren = node.getChildren();
+          int childSize = nodeChildren.size();
+          for (int k = 0; k < childSize; k++) {
+            if (nodeChildren.get(k).getKey().equals("ftp")) {
+              bDownload = true;
+              ndownload += 1;
+              break;
+            }
+          }
+          datasetOpt.put(node.datasetId, bDownload);
+        }
+      }
+
+      // method 1: The priority of download data are higher
+      if (datasetOpt.size() > 1 && ndownload > 0) {
+        // query
+        RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
+        String queryUrl = querynode.getRequest();
+        String query = requestURL.getSearchInfo(queryUrl);
+        Map<String, String> filter = requestURL.getFilterInfo(queryUrl);
+
+        for (String datasetA : datasetOpt.keySet()) {
+          Boolean bDownloadA = datasetOpt.get(datasetA);
+          if (bDownloadA) {
+            for (String datasetB : datasetOpt.keySet()) {
+              Boolean bDownloadB = datasetOpt.get(datasetB);
+              if (!bDownloadB) {
+
+                String[] queries = query.split(",");
+                for (int l = 0; l < queries.length; l++) {
+                  RankingTrainData trainData = new RankingTrainData(queries[l],
+                      datasetA, datasetB);
+
+                  trainData.setSessionId(this.sessionID);
+                  trainData.setIndex(indexName);
+                  trainData.setFilter(filter);
+                  trainDatas.add(trainData);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return trainDatas;
   }
 }

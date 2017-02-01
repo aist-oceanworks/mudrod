@@ -36,7 +36,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import esiptestbed.mudrod.driver.ESDriver;
 
 /**
- * ClassName: LinkageTriple Function: Vocabulary linkage operations 
+ * ClassName: LinkageTriple Function: Vocabulary linkage operations
  */
 public class LinkageTriple implements Serializable {
 
@@ -101,6 +101,7 @@ public class LinkageTriple implements Serializable {
 
       jsonBuilder.field("weight",
           Double.parseDouble(df.format(triples.get(i).weight)));
+      jsonBuilder.endObject();
 
       IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
       es.getBulkProcessor().add(ir);
@@ -112,6 +113,8 @@ public class LinkageTriple implements Serializable {
 
         symmetryJsonBuilder.field("weight",
             Double.parseDouble(df.format(triples.get(i).weight)));
+
+        symmetryJsonBuilder.endObject();
 
         IndexRequest symmetryir = new IndexRequest(index, type)
             .source(symmetryJsonBuilder);

@@ -18,15 +18,16 @@ import org.slf4j.LoggerFactory;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
-import esiptestbed.mudrod.semantics.SemanticAnalyzer;
+import esiptestbed.mudrod.semantics.SVDAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
 /**
  * ClassName: Recommend metedata based on data content semantic similarity
  */
-public class TopicBasedCF extends DiscoveryStepAbstract {
+public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TopicBasedCF.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(AbstractBasedSimilarity.class);
 
   /**
    * Creates a new instance of TopicBasedCF.
@@ -38,7 +39,8 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
    * @param spark
    *          the spark drive
    */
-  public TopicBasedCF(Properties props, ESDriver es, SparkDriver spark) {
+  public AbstractBasedSimilarity(Properties props, ESDriver es,
+      SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -46,16 +48,25 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
   public Object execute() {
 
     LOG.info(
-        "*****************Topic based dataset similarity calculation starts******************");
+        "*****************abstract similarity calculation starts******************");
     startTime = System.currentTimeMillis();
 
     try {
-      String topicMatrixFile = props.getProperty("metadata_topic_matrix");
+      /*String topicMatrixFile = props.getProperty("metadata_term_tfidf_matrix");
       SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
       List<LinkageTriple> triples = analyzer
-          .calTermSimfromMatrix(topicMatrixFile, 1);
+          .calTermSimfromMatrix(topicMatrixFile);
       analyzer.saveToES(triples, props.getProperty("indexName"),
-          props.getProperty("metadataTopicSimType"), true, true);
+          props.getProperty("metadataTermTFIDFSimType"), true, true);*/
+
+      // for comparison
+      SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
+      svd.getSVDMatrix(props.getProperty("metadata_word_tfidf_matrix"), 150,
+          props.getProperty("metadata_word_tfidf_matrix"));
+      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(
+          props.getProperty("metadata_word_tfidf_matrix"));
+      svd.saveToES(tripleList, props.getProperty("indexName"),
+          props.getProperty("metadataWordTFIDFSimType"), true, true);
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -63,7 +74,7 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     LOG.info(
-        "*****************Topic based dataset similarity calculation ends******************Took {}s",
+        "*****************abstract similarity calculation ends******************Took {}s",
         (endTime - startTime) / 1000);
 
     return null;
@@ -73,5 +84,4 @@ public class TopicBasedCF extends DiscoveryStepAbstract {
   public Object execute(Object o) {
     return null;
   }
-
 }

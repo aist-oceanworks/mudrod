@@ -69,6 +69,11 @@ public class MatrixUtil {
    *         dimension.
    */
   public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension) {
+    int matrixCol = (int) tfidfMatrix.numCols();
+    if (matrixCol < dimension) {
+      dimension = matrixCol;
+    }
+
     SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix
         .computeSVD(dimension, true, 1.0E-9d);
     RowMatrix u = svd.U();
@@ -233,9 +238,9 @@ public class MatrixUtil {
     RowMatrix wordDocMatrix = new RowMatrix(word_vectorRDD.values().rdd());
 
     LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
-    labeledRowMatrix.wordDocMatrix = wordDocMatrix;
-    labeledRowMatrix.words = word_vectorRDD.keys().collect();
-    labeledRowMatrix.docs = uniqueDocRDD.keys().collect();
+    labeledRowMatrix.rowMatrix = wordDocMatrix;
+    labeledRowMatrix.rowkeys = word_vectorRDD.keys().collect();
+    labeledRowMatrix.colkeys = uniqueDocRDD.keys().collect();
     return labeledRowMatrix;
   }
 
@@ -317,7 +322,7 @@ public class MatrixUtil {
 
     JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> testRDD = word_docnum_RDD
         .leftOuterJoin(wordIDRDD);
-    
+
     int wordsize = (int) wordIDRDD.count();
     JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
         new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
@@ -391,9 +396,9 @@ public class MatrixUtil {
     RowMatrix docwordMatrix = new RowMatrix(doc_vectorRDD.values().rdd());
 
     LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
-    labeledRowMatrix.wordDocMatrix = docwordMatrix;
-    labeledRowMatrix.words = doc_vectorRDD.keys().collect();
-    labeledRowMatrix.docs = wordIDRDD.keys().collect();
+    labeledRowMatrix.rowMatrix = docwordMatrix;
+    labeledRowMatrix.rowkeys = doc_vectorRDD.keys().collect();
+    labeledRowMatrix.colkeys = wordIDRDD.keys().collect();
 
     return labeledRowMatrix;
   }
@@ -498,6 +503,11 @@ public class MatrixUtil {
    */
   public static void exportToCSV(RowMatrix matrix, List<String> rowKeys,
       List<String> colKeys, String fileName) {
+
+    if (matrix.rows().isEmpty()) {
+      return;
+    }
+
     int rownum = (int) matrix.numRows();
     int colnum = (int) matrix.numCols();
     List<Vector> rows = matrix.rows().toJavaRDD().collect();

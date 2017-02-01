@@ -81,9 +81,9 @@ public class MetadataExtractor implements Serializable {
       String type) {
 
     List<PODAACMetadata> metadatas = new ArrayList<PODAACMetadata>();
-    SearchResponse scrollResp = es.getClient().prepareSearch(index).setTypes(type)
-        .setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000))
-        .setSize(100).execute().actionGet();
+    SearchResponse scrollResp = es.getClient().prepareSearch(index)
+        .setTypes(type).setQuery(QueryBuilders.matchAllQuery())
+        .setScroll(new TimeValue(60000)).setSize(100).execute().actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -97,12 +97,16 @@ public class MetadataExtractor implements Serializable {
             .get("DatasetParameter-Variable");
         List<String> longname = (List<String>) result
             .get("DatasetProject-Project-LongName");
+
+        List<String> region = (List<String>) result.get("DatasetRegion-Region");
+
         PODAACMetadata metadata = null;
         try {
           metadata = new PODAACMetadata(shortname, longname,
               es.customAnalyzing(index, topic), es.customAnalyzing(index, term),
               es.customAnalyzing(index, variable),
-              es.customAnalyzing(index, keyword));
+              es.customAnalyzing(index, keyword),
+              es.customAnalyzing(index, region));
         } catch (InterruptedException | ExecutionException e) {
           e.printStackTrace();
 

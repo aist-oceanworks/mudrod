@@ -24,12 +24,12 @@ import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 public class LabeledRowMatrix {
 
   // words: matrix row titles
-  public List<String> words;
+  public List<String> rowkeys;
   // docs: matrix column titles
-  public List<String> docs;
+  public List<String> colkeys;
   // wordDocMatrix: a matrix in which each row is corresponding to a term and
   // each column is a doc.
-  public RowMatrix wordDocMatrix;
+  public RowMatrix rowMatrix;
 
   public LabeledRowMatrix() {
     // TODO Auto-generated constructor stub

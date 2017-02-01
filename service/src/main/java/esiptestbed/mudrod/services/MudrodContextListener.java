@@ -33,11 +33,12 @@ import esiptestbed.mudrod.ssearch.Searcher;
 @WebListener
 public class MudrodContextListener implements ServletContextListener {
   MudrodEngine me = null;
+
   /**
    * Default constructor.
    */
   public MudrodContextListener() {
-    //default constructor
+    // default constructor
   }
 
   /**
@@ -56,11 +57,12 @@ public class MudrodContextListener implements ServletContextListener {
     me = new MudrodEngine();
     Properties props = me.loadConfig();
     me.setESDriver(new ESDriver(props));
-    me.setSparkDriver(new SparkDriver());
+    me.setSparkDriver(new SparkDriver(props));
 
     ServletContext ctx = arg0.getServletContext();
     Searcher searcher = new Searcher(me.getConfig(), me.getESDriver(), null);
-    Ranker ranker = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), "SparkSVM");
+    Ranker ranker = new Ranker(me.getConfig(), me.getESDriver(),
+        me.getSparkDriver(), "SparkSVM");
     ctx.setAttribute("MudrodInstance", me);
     ctx.setAttribute("MudrodSearcher", searcher);
     ctx.setAttribute("MudrodRanker", ranker);
