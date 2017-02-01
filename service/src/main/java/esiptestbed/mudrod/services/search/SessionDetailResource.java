@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.weblog.structure.Session;
 
@@ -66,7 +67,8 @@ public class SessionDetailResource {
     JsonObject json = new JsonObject();
     if(sessionID!=null) {
       Session session = new Session(mEngine.getConfig(), mEngine.getESDriver());
-      json = session.getSessionDetail(cleanupType, sessionID);
+      json = session.getSessionDetail(mEngine.getConfig()
+          .getProperty(MudrodConstants.ES_INDEX_NAME, "mudrod"), cleanupType, sessionID);
     }
     LOG.info("Response received: {}", json);
     return Response.ok(json, MediaType.APPLICATION_JSON).build();
