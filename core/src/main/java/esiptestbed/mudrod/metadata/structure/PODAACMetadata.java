@@ -59,6 +59,8 @@ public class PODAACMetadata implements Serializable {
   private List<String> sourceList;
   // projectList: data set project list
   private List<String> projectList;
+  // regionList: data set region list
+  private List<String> regionList;
 
   public PODAACMetadata() {
     // TODO Auto-generated constructor stub
@@ -82,13 +84,14 @@ public class PODAACMetadata implements Serializable {
    */
   public PODAACMetadata(String shortname, List<String> longname,
       List<String> topics, List<String> terms, List<String> variables,
-      List<String> keywords) {
+      List<String> keywords, List<String> region) {
     this.shortname = shortname;
     this.longnameList = longname;
     this.keywordList = keywords;
     this.termList = terms;
     this.topicList = topics;
     this.variableList = variables;
+    this.regionList = region;
   }
 
   /**
@@ -305,6 +308,10 @@ public class PODAACMetadata implements Serializable {
 
     if (this.variableList != null && this.variableList.size() > 0) {
       allterms.addAll(this.variableList);
+    }
+
+    if (this.regionList != null && this.regionList.size() > 0) {
+      allterms.addAll(this.regionList);
     }
 
     // reserved

@@ -14,14 +14,19 @@
 package esiptestbed.mudrod.main;
 
 /**
- * Class contains static constant keys and values relating
- * to Mudrod configuration properties.
- * Property values are read from 
- * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>
+ * Class contains static constant keys and values relating to Mudrod
+ * configuration properties. Property values are read from <a href=
+ * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>
  */
 public interface MudrodConstants {
 
   public static final String MUDROD = "mudrod";
+
+  public static final String TIME_SUFFIX = "TimeSuffix";
+
+  public static final String LOG_DIR = "logDir";
+
+  public static final String LOG_INDEX = "logIndexName";
 
   public static final String LOG_LEVEL = "loglevel";
 
@@ -36,6 +41,8 @@ public interface MudrodConstants {
   public static final String ES_TRANSPORT_TCP_PORT = "ES_Transport_TCP_Port";
 
   public static final String ES_UNICAST_HOSTS = "ES_unicast_hosts";
+
+  public static final String ES_HTTP_PORT = "ES_HTTP_port";
 
   public static final String ES_INDEX_NAME = "indexName";
 
@@ -91,7 +98,11 @@ public interface MudrodConstants {
 
   public static final String RAW_METADATA_PATH = "raw_metadataPath";
 
-  /** 
+  public static final String SEQUENTIAL_PROCESS = "sequential";
+
+  public static final String PARALLEL_PROCESS = "parallel";
+
+  /**
    * Absolute local location of javaSVMWithSGDModel directory. This is typically
    * <code>file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel</code>
    */
@@ -101,5 +112,9 @@ public interface MudrodConstants {
    * An {@link esiptestbed.mudrod.ontology.Ontology} implementation.
    */
   public static final String ONTOLOGY_IMPL = MUDROD + "ontology.implementation";
+
+  public static final String SPARK_MASTER = "spark.master";
+
+  public static final String SPARK_APP_NAME = "spark.app.name";
 
 }

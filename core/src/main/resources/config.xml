@@ -18,11 +18,12 @@
 
   <para name="metadataurl">null</para>
 
-  <para name="clusterName">elasticsearch</para>
+  <para name="clusterName">MudrodES</para>
   <para name="ES_Transport_TCP_Port">9300</para>
   <para name="ES_unicast_hosts">127.0.0.1</para>
+  <para name="ES_HTTP_port">9200</para>
   <para name="indexName">mudrod</para>
-
+  <para name="logIndexName">podaaclog</para>
   <para name="HTTP_type_prefix">rawhttp</para>
   <para name="FTP_type_prefix">rawftp</para>
   <para name="Cleanup_type_prefix">cleanupLog</para>
@@ -59,6 +60,9 @@
   <para name="metadata_w">1</para>
   <para name="ontology_w">2</para>
   
+  <!-- recommendation -->
+  <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
+  <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
   <para name="metadataCodeSimType">MetadataCodeSim</para>
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
@@ -72,5 +76,24 @@
    Local - esiptestbed.mudrod.ontology.process.Local
    -->
   <para name="mudrod.ontology.implementation">Local</para>
-
+  <!-- 
+   Log processing type. Possible values include
+   sequential - esiptestbed.mudrod.main.MudrodConstants.SEQUENTIAL_PROCESS
+   parallel - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_PROCESS
+   -->
+  <para name="processingType">parallel</para>
+   <!-- 
+   Log processing parallel optimization type. Possible values include
+   default - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
+   repartition - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
+   -->
+  <para name="parallelOptimization">repartition</para>
+  
+  <!-- 
+  The default Spark cluster manager to connect to. See the list of allowed master URL's. 
+  For more information, consult http://spark.apache.org/docs/latest/submitting-applications.html#master-urls
+  -->
+  <para name="spark.master">local[4]</para>
+  <!-- The name of your application. This will appear in the UI and in log data.-->
+  <para name="spark.app.name">MudrodSparkApp</para>
 </Config>

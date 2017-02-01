@@ -13,6 +13,7 @@
  */
 package esiptestbed.mudrod.recommendation.structure;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,12 +38,13 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.main.MudrodEngine;
 
 /**
  * This class is used to test recommendation result similarity and session-level
- * similarity 
+ * similarity
  */
-public class RecommendationData extends DiscoveryStepAbstract {
+public class RecomData extends DiscoveryStepAbstract {
 
   /**
    * 
@@ -65,7 +67,7 @@ public class RecommendationData extends DiscoveryStepAbstract {
     }
   }
 
-  public RecommendationData(Properties props, ESDriver es, SparkDriver spark) {
+  public RecomData(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -80,19 +82,20 @@ public class RecommendationData extends DiscoveryStepAbstract {
   }
 
   public JsonObject getRecomDataInJson(String input, int num) {
-    String type = props.getProperty("metadataSessionBasedSimType");
+    String type = props.getProperty("metadataTermTFIDFSimType");
     Map<String, Double> sortedOBSimMap = getRelatedData(type, input, num + 5);
     JsonElement linkedJson = mapToJson(sortedOBSimMap, num);
 
-    type = props.getProperty("metadataTopicSimType");
+    // type = props.getProperty("metadataTermTFIDFSimType");
+    type = props.getProperty("metadataCodeSimType");
 
     Map<String, Double> sortedMBSimMap = getRelatedData(type, input, num + 5);
     JsonElement relatedJson = mapToJson(sortedMBSimMap, num);
 
     JsonObject json = new JsonObject();
 
-    json.add("linked", linkedJson);
-    json.add("related", relatedJson);
+    json.add("TFIDFSim", linkedJson);
+    json.add("TopicSim", relatedJson);
 
     return json;
   }
@@ -114,7 +117,11 @@ public class RecommendationData extends DiscoveryStepAbstract {
         break;
       }
     }
-    return gson.fromJson(gson.toJson(nodes), JsonElement.class);
+
+    String nodesJson = gson.toJson(nodes);
+    JsonElement nodesElement = gson.fromJson(nodesJson, JsonElement.class);
+
+    return nodesElement;
   }
 
   public Map<String, Double> getRelatedData(String type, String input,
@@ -187,5 +194,18 @@ public class RecommendationData extends DiscoveryStepAbstract {
       }
     }
     return sortedMap;
+  }
+
+  public static void main(String[] args) throws IOException {
+
+    MudrodEngine me = new MudrodEngine();
+    Properties props = me.loadConfig();
+    ESDriver es = new ESDriver(me.getConfig());
+    RecomData test = new RecomData(props, es, null);
+
+    String input = "AQUARIUS_L3_SSS_SMIA_MONTHLY-CLIMATOLOGY_V4";
+    JsonObject json = test.getRecomDataInJson(input, 10);
+
+    System.out.println(json.toString());
   }
 }

@@ -34,13 +34,14 @@ import esiptestbed.mudrod.ssearch.Searcher;
  */
 @WebListener
 public class MudrodContextListener implements ServletContextListener {
-  MudrodEngine me;
+
+  MudrodEngine me = null;
 
   /**
    * Default constructor.
    */
   public MudrodContextListener() {
-    //default constructor
+    // default constructor
   }
 
   /**
@@ -59,7 +60,7 @@ public class MudrodContextListener implements ServletContextListener {
     me = new MudrodEngine();
     Properties props = me.loadConfig();
     me.setESDriver(new ESDriver(props));
-    me.setSparkDriver(new SparkDriver());
+    me.setSparkDriver(new SparkDriver(props));
 
     ServletContext ctx = arg0.getServletContext();
     Searcher searcher = new Searcher(props, me.getESDriver(), null);

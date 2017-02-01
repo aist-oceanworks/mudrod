@@ -44,31 +44,28 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Logging Dependencies -->
+    <!-- Logging dependencies -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
-    <!-- End of Logging deps -->
-    
+    <!-- End of Logging dependencies -->
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
     </dependency>
-      <dependency>
+
+    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
     </dependency>
@@ -76,7 +73,7 @@
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -93,15 +90,16 @@
         <configuration>
           <port>8181</port>
           <systemProperties>
-            <CATALINA_OPTS>-Djava.awt.headless=true -Dfile.encoding=UTF-8
-                           -server -Xms1536m -Xmx1536m
-                           -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
-                           -XX:MaxPermSize=512m -XX:+DisableExplicitGC
-                           -XX:+UseConcMarkSweepGC
-                           -XX:+CMSIncrementalMode
-                           -XX:+CMSIncrementalPacing
-                           -XX:CMSIncrementalDutyCycleMin=0
-                           -XX:-TraceClassUnloading
+            <CATALINA_OPTS>-Djava.awt.headless=true
+              -Dfile.encoding=UTF-8
+              -server -Xms1536m -Xmx1536m
+              -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
+              -XX:MaxPermSize=512m -XX:+DisableExplicitGC
+              -XX:+UseConcMarkSweepGC
+              -XX:+CMSIncrementalMode
+              -XX:+CMSIncrementalPacing
+              -XX:CMSIncrementalDutyCycleMin=0
+              -XX:-TraceClassUnloading
             </CATALINA_OPTS>
           </systemProperties>
           <contextFile>${basedir}/src/main/webapp/META-INF/context.xml</contextFile>
@@ -196,7 +194,8 @@
           </execution>
         </executions>
         <configuration>
-          <!-- The license key expires on October 1st, 2018, after which we can apply to Miredot for a new key.-->
+          <!-- The license key expires on October 1st, 2018, after which 
+            we can apply to Miredot for a new key. -->
           <licence>cHJvamVjdHxlc2lwdGVzdGJlZC5tdWRyb2Qtc2VydmljZXwyMDE4LTEwLTAxfHRydWV8LTEjTUN3Q0ZEd3lnZS85bmFYWlNXNHA4cE9sbGl2VzAwU29BaFI1V25YN1JXU3BEWWgyUWlZMFJQN3pQWW96MEE9PQ==</licence>
           <organizationId>f3f4ce56-816e-4f1d-963e-e7936ee846c5</organizationId>
           <restModel>

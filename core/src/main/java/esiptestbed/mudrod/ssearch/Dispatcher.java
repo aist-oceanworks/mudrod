@@ -128,11 +128,13 @@ public class Dispatcher extends MudrodAbstract {
       } else if (query_operator.equals("and")) {
         qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
             .boost(entry.getValue().floatValue())
-            .operator(MatchQueryBuilder.Operator.AND).tieBreaker((float) 0.5));
+            .operator(MatchQueryBuilder.DEFAULT_OPERATOR.AND)
+            .tieBreaker((float) 0.5));
       } else {
         qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
             .boost(entry.getValue().floatValue())
-            .operator(MatchQueryBuilder.Operator.OR).tieBreaker((float) 0.5));
+            .operator(MatchQueryBuilder.DEFAULT_OPERATOR.OR)
+            .tieBreaker((float) 0.5));
       }
     }
 

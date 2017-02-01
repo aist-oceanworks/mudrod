@@ -14,8 +14,19 @@
 package esiptestbed.mudrod.discoveryengine;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -30,9 +41,6 @@ import esiptestbed.mudrod.weblog.pre.SessionStatistic;
 import esiptestbed.mudrod.weblog.process.ClickStreamAnalyzer;
 import esiptestbed.mudrod.weblog.process.UserHistoryAnalyzer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Supports to preprocess and process web log
  */
@@ -42,89 +50,116 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(WeblogDiscoveryEngine.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(WeblogDiscoveryEngine.class);
+  public String timeSuffix = null;
 
-  public WeblogDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark){
+  public WeblogDiscoveryEngine(Properties props, ESDriver es,
+      SparkDriver spark) {
     super(props, es, spark);
     LOG.info("Started Mudrod Weblog Discovery Engine.");
   }
 
-  public String timeSuffix = null;
-  
   /**
    * Get log file list from a directory
-   * @param path folder directory
+   * 
+   * @param path
+   *          folder directory
    * @return a list of log files
    */
-  public ArrayList<String> getFileList(String path){
-    File directory = new File(path);
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
+  public List<String> getFileList(String path) {
 
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") 
-          && file.getName().contains(props.getProperty("httpPrefix"))) {
-        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
+    String logDir = props.getProperty(MudrodConstants.LOG_DIR);
+    ArrayList<String> inputList = new ArrayList<>();
+    if (!logDir.startsWith("hdfs://")) {
+      File directory = new File(logDir);
+      File[] fList = directory.listFiles();
+      for (File file : fList) {
+        if (file.isFile()) {
+          // don't do anything with files, we are only interested in logs which
+          // are kept within directories.
+        } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
+            && file.getName()
+                .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+          inputList.add(file.getName()
+              .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
+        }
+      }
+    } else {
+      Configuration conf = new Configuration();
+      try (FileSystem fs = FileSystem.get(new URI(logDir), conf)) {
+        FileStatus[] fileStatus;
+        fileStatus = fs.listStatus(new Path(logDir));
+        for (FileStatus status : fileStatus) {
+          String path1 = status.getPath().toString();
+          if (path1.matches(".*\\d+.*") && path1
+              .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+
+            String time = path1.substring(path1.lastIndexOf('.') + 1);
+            inputList.add(time);
+          }
+        }
+      } catch (IllegalArgumentException | IOException | URISyntaxException e) {
+        LOG.error("An error occured whilst obtaining the log file list.", e);
       }
     }
+
     return inputList;
   }
 
   /**
-   * Method of preprocessing web logs, generating vocab similarity based on web logs
+   * Method of preprocessing web logs, generating vocab similarity based on web
+   * logs
    */
   @Override
   public void preprocess() {
     LOG.info("Starting Web log preprocessing.");
 
-    File directory = new File(props.getProperty("logDir"));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(
+        props.getProperty(MudrodConstants.LOG_DIR));
 
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
-
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty("httpPrefix"))) {
-        inputList.add(file.getName().replace(props.getProperty("httpPrefix"), ""));
-      }
-    }
-
-    for(int i =0; i < inputList.size(); i++){
+    for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
-      props.put("TimeSuffix", timeSuffix);
-      startTime=System.currentTimeMillis();
+      props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
+      startTime = System.currentTimeMillis();
       LOG.info("Processing logs dated {}", inputList.get(i));
 
-      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+          this.spark);
       im.execute();
 
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
+          this.spark);
       cd.execute();
 
-      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es, this.spark);
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es,
+          this.spark);
       sg.execute();
 
-      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es,
+          this.spark);
       ss.execute();
 
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
+          this.spark);
       rr.execute();
 
-      endTime=System.currentTimeMillis();
+      endTime = System.currentTimeMillis();
 
-      LOG.info("Web log preprocessing for duration {} complete. Time elapsed {} seconds.", 
-          inputList.get(i), (endTime-startTime)/1000);
+      LOG.info(
+          "Web log preprocessing for logs dated {} complete. Time elapsed {} seconds.",
+          inputList.get(i), (endTime - startTime) / 1000);
     }
 
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
+    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es,
+        this.spark);
     hg.execute();
 
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es, this.spark);
+    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es,
+        this.spark);
     cg.execute();
 
-    LOG.info("Web log preprocessing (user history and clickstream finished) complete.");
-
+    LOG.info("Web log preprocessing (user history and clickstream) complete.");
   }
 
   /**
@@ -132,23 +167,13 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void logIngest() {
     LOG.info("Starting Web log ingest.");
-
-    File directory = new File(props.getProperty("logDir"));
-
-    ArrayList<String> inputList = new ArrayList<>();
-    File[] fList = directory.listFiles();
-    for (File file : fList) {
-      if (file.isFile()) {
-        // don't do anything with files, we are only interested in logs which are kept within directories.
-      } else if (file.isDirectory() && file.getName().matches(".*\\d+.*") && file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
-        inputList.add(file.getName().replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
-      }
-    }
-
-    for(int i =0; i < inputList.size(); i++){
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(
+        props.getProperty(MudrodConstants.LOG_DIR));
+    for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
       props.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
+      DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es,
+          this.spark);
       im.execute();
     }
 
@@ -161,50 +186,52 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void sessionRestruct() {
     LOG.info("Starting Session reconstruction.");
-    ArrayList<String> inputList = getFileList(props.getProperty("logDir"));
-    for(int i =0; i < inputList.size(); i++){
-      timeSuffix = inputList.get(i);   // change timeSuffix dynamically
-      props.put("TimeSuffix", timeSuffix);
-      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(
+        props.getProperty(MudrodConstants.LOG_DIR));
+    for (int i = 0; i < inputList.size(); i++) {
+      timeSuffix = inputList.get(i); // change timeSuffix dynamically
+      props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
+      DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
+          this.spark);
       cd.execute();
 
-      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es, this.spark);
+      DiscoveryStepAbstract sg = new SessionGenerator(this.props, this.es,
+          this.spark);
       sg.execute();
 
-      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es, this.spark);
+      DiscoveryStepAbstract ss = new SessionStatistic(this.props, this.es,
+          this.spark);
       ss.execute();
 
-      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es, this.spark);
+      DiscoveryStepAbstract rr = new RemoveRawLog(this.props, this.es,
+          this.spark);
       rr.execute();
 
-      endTime=System.currentTimeMillis();
+      endTime = System.currentTimeMillis();
     }
-    
-    DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
-    hg.execute();
-
-    DiscoveryStepAbstract cg = new ClickStreamGenerator(this.props, this.es, this.spark);
-    cg.execute();
     LOG.info("Session reconstruction complete.");
   }
 
   @Override
   public void process() {
     LOG.info("Starting Web log processing.");
-    startTime=System.currentTimeMillis();
+    startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.props, this.es, this.spark);
+    DiscoveryStepAbstract svd = new ClickStreamAnalyzer(this.props, this.es,
+        this.spark);
     svd.execute();
 
-    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.props, this.es, this.spark);
+    DiscoveryStepAbstract ua = new UserHistoryAnalyzer(this.props, this.es,
+        this.spark);
     ua.execute();
 
-    endTime=System.currentTimeMillis();
-    LOG.info("Web log processing complete. Time elaspsed {} seconds.", (endTime-startTime)/1000);
+    endTime = System.currentTimeMillis();
+    LOG.info("Web log processing complete. Time elaspsed {} seconds.",
+        (endTime - startTime) / 1000);
   }
 
   @Override
   public void output() {
+    // not implemented yet!
   }
-
 }

@@ -16,27 +16,24 @@ package esiptestbed.mudrod.weblog.pre;
 import java.util.Properties;
 
 import org.elasticsearch.index.query.QueryBuilders;
-
-import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
-import esiptestbed.mudrod.driver.ESDriver;
-import esiptestbed.mudrod.driver.SparkDriver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import esiptestbed.mudrod.driver.ESDriver;
+import esiptestbed.mudrod.driver.SparkDriver;
 
 /**
  * Supports ability to remove raw logs after processing is finished
  */
-public class RemoveRawLog extends DiscoveryStepAbstract {
-  
+public class RemoveRawLog extends LogAbstract {
+
   /**
    * 
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RemoveRawLog.class);
 
-  public RemoveRawLog(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public RemoveRawLog(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -44,13 +41,12 @@ public class RemoveRawLog extends DiscoveryStepAbstract {
   public Object execute() {
     LOG.info("Starting raw log removal.");
     startTime = System.currentTimeMillis();
-    es.deleteAllByQuery(props.getProperty("indexName"), httpType,
-        QueryBuilders.matchAllQuery());
-    es.deleteAllByQuery(props.getProperty("indexName"), ftpType,
-        QueryBuilders.matchAllQuery());
+    es.deleteAllByQuery(logIndex, httpType, QueryBuilders.matchAllQuery());
+    es.deleteAllByQuery(logIndex, ftpType, QueryBuilders.matchAllQuery());
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Raw log removal complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
+    LOG.info("Raw log removal complete. Time elapsed {} seconds.",
+        (endTime - startTime) / 1000);
     return null;
   }
 

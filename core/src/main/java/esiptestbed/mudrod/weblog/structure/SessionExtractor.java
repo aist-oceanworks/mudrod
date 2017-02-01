@@ -32,8 +32,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
@@ -69,13 +67,16 @@ public class SessionExtractor implements Serializable {
    */
   public JavaRDD<ClickStream> extractClickStreamFromES(Properties props,
       ESDriver es, SparkDriver spark) {
-    List<ClickStream> queryList = null;
-    try {
-      queryList = this.getClickStreamList(props, es);
-    } catch (Exception e) {
-      e.printStackTrace();
+
+    String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+      List<ClickStream> queryList = this.getClickStreamList(props, es);
+      return spark.sc.parallelize(queryList);
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+      return getClickStreamListInParallel(props, spark, es);
     }
-    return spark.sc.parallelize(queryList);
+
+    return null;
   }
 
   /**
@@ -90,20 +91,21 @@ public class SessionExtractor implements Serializable {
    */
   protected List<ClickStream> getClickStreamList(Properties props,
       ESDriver es) {
-    ArrayList<String> cleanupTypeList = (ArrayList<String>) es.getTypeListWithPrefix(
-        props.getProperty(MudrodConstants.ES_INDEX_NAME),
-        props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX));
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
     List<ClickStream> result = new ArrayList<>();
-    for (int n = 0; n < cleanupTypeList.size(); n++) {
-      String cleanupType = cleanupTypeList.get(n);
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
       List<String> sessionIdList;
       try {
-        sessionIdList = this.getSessions(props, es, cleanupType);
+        sessionIdList = this.getSessions(props, es, logIndex);
         Session session = new Session(props, es);
         int sessionNum = sessionIdList.size();
         for (int i = 0; i < sessionNum; i++) {
-          List<ClickStream> datas = session.getClickStreamList(cleanupType,
-              sessionIdList.get(i));
+          String[] sArr = sessionIdList.get(i).split(",");
+          List<ClickStream> datas = session.getClickStreamList(sArr[1], sArr[2],
+              sArr[0]);
           result.addAll(datas);
         }
       } catch (Exception e) {
@@ -112,6 +114,51 @@ public class SessionExtractor implements Serializable {
     }
 
     return result;
+  }
+
+  protected JavaRDD<ClickStream> getClickStreamListInParallel(Properties props,
+      SparkDriver spark, ESDriver es) {
+
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
+    System.out.print(logIndexList.toString());
+
+    List<String> sessionIdList = new ArrayList<String>();
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      List<String> tmpsessionList = this.getSessions(props, es, logIndex);
+      sessionIdList.addAll(tmpsessionList);
+    }
+
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(sessionIdList, 16);
+
+    JavaRDD<ClickStream> ClickStreamRDD = sessionRDD
+        .mapPartitions(new FlatMapFunction<Iterator<String>, ClickStream>() {
+          @Override
+          public Iterator<ClickStream> call(Iterator<String> arg0)
+              throws Exception {
+            // TODO Auto-generated method stub
+            ESDriver tmpES = new ESDriver(props);
+            tmpES.createBulkProcessor();
+
+            Session session = new Session(props, tmpES);
+            List<ClickStream> clickstreams = new ArrayList<ClickStream>();
+            while (arg0.hasNext()) {
+              String s = arg0.next();
+              String[] sArr = s.split(",");
+              List<ClickStream> clicks = session.getClickStreamList(sArr[1],
+                  sArr[2], sArr[0]);
+              clickstreams.addAll(clicks);
+            }
+            tmpES.destroyBulkProcessor();
+            return clickstreams.iterator();
+          }
+        });
+
+    System.out.println("click stream number:" + ClickStreamRDD.count());
+
+    return ClickStreamRDD;
   }
 
   // This function is reserved and not being used for now
@@ -210,20 +257,33 @@ public class SessionExtractor implements Serializable {
    * @return list of session names
    */
   protected List<String> getSessions(Properties props, ESDriver es,
-      String cleanupType) {
-    List<String> sessionIDList = new ArrayList<>();
-    SearchResponse sr = es.getClient()
-        .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
-        .setTypes(cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0)
-        .addAggregation(
-            AggregationBuilders.terms("Sessions").field("SessionID").size(0))
-        .execute().actionGet();
-    Terms sessions = sr.getAggregations().get("Sessions");
-    for (Terms.Bucket entry : sessions.getBuckets()) {
-      sessionIDList.add(entry.getKey().toString());
+      String logIndex) {
+
+    String cleanupPrefix = props
+        .getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX);
+    String sessionStatPrefix = props
+        .getProperty(MudrodConstants.SESSION_STATS_PREFIX);
+
+    List<String> sessions = new ArrayList<String>();
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
+        .setTypes(sessionStatPrefix).setScroll(new TimeValue(60000))
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+        .actionGet();
+    while (true) {
+      for (SearchHit hit : scrollResp.getHits().getHits()) {
+        Map<String, Object> session = hit.getSource();
+        String sessionID = (String) session.get("SessionID");
+        sessions.add(sessionID + "," + logIndex + "," + cleanupPrefix);
+      }
+
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
+          .setScroll(new TimeValue(600000)).execute().actionGet();
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
     }
-    return sessionIDList;
+
+    return sessions;
   }
 
   public JavaPairRDD<String, Double> bulidUserItermRDD(
@@ -334,7 +394,7 @@ public class SessionExtractor implements Serializable {
               @Override
               public Tuple2<String, Double> call(
                   Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
-                      throws Exception {
+                  throws Exception {
 
                 Tuple2<Double, Optional<String>> test = arg0._2;
                 Optional<String> optStr = test._2;
@@ -350,12 +410,12 @@ public class SessionExtractor implements Serializable {
     return filteredSessionItemRDD;
   }
 
-  public JavaPairRDD<String, List<String>> bulidSessionItermRDD(
+  public JavaPairRDD<String, List<String>> bulidSessionDatasetRDD(
       Properties props, ESDriver es, SparkDriver spark) {
 
-    ArrayList<String> sessionstatic_typeList = (ArrayList<String>) es.getTypeListWithPrefix(
-        props.getProperty("indexName"),
-        props.getProperty("SessionStats_prefix"));
+    ArrayList<String> sessionstatic_typeList = (ArrayList<String>) es
+        .getTypeListWithPrefix(props.getProperty("indexName"),
+            props.getProperty("SessionStats_prefix"));
     List<String> result = new ArrayList<>();
     for (int n = 0; n < sessionstatic_typeList.size(); n++) {
 
@@ -416,6 +476,121 @@ public class SessionExtractor implements Serializable {
         });
 
     return sessionItemRDD;
+  }
+
+  /**
+   * extractClickStreamFromES:Extract click streams from logs stored in
+   * Elasticsearch
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   * @return clickstream list in JavaRDD format
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  public JavaRDD<RankingTrainData> extractRankingTrainData(Properties props,
+      ESDriver es, SparkDriver spark) {
+
+    /* String processingType = props.getProperty("processingType");
+    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+      List<ClickStream> queryList = this.extractRankingTrainData(props, es);
+      return spark.sc.parallelize(queryList);
+    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+      return extractRankingTrainDataInParallel(props, spark, es);
+    }
+    
+    return null;*/
+
+    List<RankingTrainData> queryList = this.extractRankingTrainData(props, es);
+    return spark.sc.parallelize(queryList);
+
+  }
+
+  /**
+   * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
+   *
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @return clickstream list
+   *         {@link esiptestbed.mudrod.weblog.structure.ClickStream}
+   */
+  protected List<RankingTrainData> extractRankingTrainData(Properties props,
+      ESDriver es) {
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
+    System.out.println(logIndexList.toString());
+
+    List<RankingTrainData> result = new ArrayList<>();
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      List<String> sessionIdList;
+      try {
+        sessionIdList = this.getSessions(props, es, logIndex);
+        Session session = new Session(props, es);
+        int sessionNum = sessionIdList.size();
+        for (int i = 0; i < sessionNum; i++) {
+          String[] sArr = sessionIdList.get(i).split(",");
+          List<RankingTrainData> datas = session.getRankingTrainData(sArr[1],
+              sArr[2], sArr[0]);
+          result.addAll(datas);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    return result;
+  }
+
+  protected JavaRDD<RankingTrainData> extractRankingTrainDataInParallel(
+      Properties props, SparkDriver spark, ESDriver es) {
+
+    List<String> logIndexList = es
+        .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+
+    System.out.print(logIndexList.toString());
+
+    List<String> sessionIdList = new ArrayList<String>();
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      List<String> tmpsessionList = this.getSessions(props, es, logIndex);
+      sessionIdList.addAll(tmpsessionList);
+    }
+
+    JavaRDD<String> sessionRDD = spark.sc.parallelize(sessionIdList, 16);
+
+    JavaRDD<RankingTrainData> ClickStreamRDD = sessionRDD.mapPartitions(
+        new FlatMapFunction<Iterator<String>, RankingTrainData>() {
+          @Override
+          public Iterator<RankingTrainData> call(Iterator<String> arg0)
+              throws Exception {
+            // TODO Auto-generated method stub
+            ESDriver tmpES = new ESDriver(props);
+            tmpES.createBulkProcessor();
+
+            Session session = new Session(props, tmpES);
+            List<RankingTrainData> clickstreams = new ArrayList<RankingTrainData>();
+            while (arg0.hasNext()) {
+              String s = arg0.next();
+              String[] sArr = s.split(",");
+              List<RankingTrainData> clicks = session
+                  .getRankingTrainData(sArr[1], sArr[2], sArr[0]);
+              clickstreams.addAll(clicks);
+            }
+            tmpES.destroyBulkProcessor();
+            return clickstreams.iterator();
+          }
+        });
+
+    System.out.println("click stream number:" + ClickStreamRDD.count());
+
+    return ClickStreamRDD;
   }
 
 }

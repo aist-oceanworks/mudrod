@@ -48,8 +48,7 @@ public class RequestUrl extends MudrodAbstract {
    * @param spark
    *          the spark drive
    */
-  public RequestUrl(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public RequestUrl(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -186,7 +185,7 @@ public class RequestUrl extends MudrodAbstract {
       for (int i = 0; i < l; i++) {
         if (ids[i].equals("collections") || ids[i].equals("measurement")
             || ids[i].equals("sensor") || ids[i].equals("platform")
-            || ids[i].equals("variable")) {
+            || ids[i].equals("variable") || ids[i].equals("spatialcoverage")) {
           try {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)

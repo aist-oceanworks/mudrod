@@ -26,9 +26,10 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
@@ -357,9 +358,8 @@ public class LocalOntology implements Ontology {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
     // argument options
-    Option ontDirOpt = Option.builder(ONT_DIR).required(true).numberOfArgs(1)
-        .hasArg(true).desc("A directory containing .owl files.")
-        .argName(ONT_DIR).build();
+    Option ontDirOpt = OptionBuilder.hasArg(true).withArgName(ONT_DIR)
+        .withDescription("A directory containing .owl files.").isRequired(false).create();
 
     // create the options
     Options options = new Options();
@@ -367,7 +367,7 @@ public class LocalOntology implements Ontology {
     options.addOption(ontDirOpt);
 
     String ontDir;
-    CommandLineParser parser = new DefaultParser();
+    CommandLineParser parser = new GnuParser();
     try {
       CommandLine line = parser.parse(options, args);
 
