@@ -48,9 +48,8 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    LOG.info("*****************ClickStreamAnalyzer starts******************");
+    LOG.info("Starting ClickStreamAnalyzer...");
     startTime = System.currentTimeMillis();
-
     try {
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
       svd.getSVDMatrix(props.getProperty("clickstreamMatrix"),
@@ -61,7 +60,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
       svd.saveToES(tripleList, props.getProperty("indexName"),
           props.getProperty("clickStreamLinkageType"));
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Encountered an error during execution of ClickStreamAnalyzer.", e);
     }
     
     //Store click stream in ES for the ranking use
@@ -70,7 +69,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************ClickStreamAnalyzer ends******************Took {}s",
+    LOG.info("ClickStreamAnalyzer complete. Time elapsed: {}s",
         (endTime - startTime) / 1000);
     return null;
   }

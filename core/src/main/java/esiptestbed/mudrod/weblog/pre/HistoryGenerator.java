@@ -50,13 +50,13 @@ public class HistoryGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************HistoryGenerator starts******************");
+    LOG.info("Starting history generator.");
     startTime = System.currentTimeMillis();
 
     GenerateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************HistoryGenerator ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("History generation complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

@@ -27,10 +27,15 @@ import java.util.Iterator;
 public interface Ontology {
 
   /**
-   * Indicates loading of URLs containing ontology resources
+   * Loading an array URIs which resolve to ontology resources.
    * @param urls a {@link java.lang.String} containing ontology URIs.
    */
   public void load(String[] urls);
+  
+  /**
+   * Load a collection of default ontological resources.
+   */
+  public void load();
 
   /**
    * merge relevant ontology subgraphs into a new subgraph which can 

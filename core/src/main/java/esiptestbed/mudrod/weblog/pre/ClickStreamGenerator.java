@@ -47,7 +47,7 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("Starting click stream generator.");
+    LOG.info("Starting ClickStreamGenerator...");
     startTime = System.currentTimeMillis();
 
     String clickstremMatrixFile = props.getProperty("clickstreamMatrix");
@@ -68,7 +68,7 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("Click stream generation complete. Time elapsed {} seconds.",
+    LOG.info("ClickStreamGenerator complete. Time elapsed {} seconds.",
         (endTime - startTime) / 1000);
     return null;
   }

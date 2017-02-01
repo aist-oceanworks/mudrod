@@ -19,9 +19,10 @@ jdk:
   - oraclejdk8
 
 script:
-  - mvn clean javadoc:aggregate test jacoco:report org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=803861c9f2087ac0b7ca049677f0f7382b8476b7 -Ptest-coverage
-
+  - jdk_switcher use oraclejdk8
+  - mvn test javadoc:aggregate
 after_success:
+  - mvn jacoco:report org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=803861c9f2087ac0b7ca049677f0f7382b8476b7
   - bash <(curl -s https://codecov.io/bash)
 
 notifications:

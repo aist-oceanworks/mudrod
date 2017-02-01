@@ -21,13 +21,13 @@ import esiptestbed.mudrod.ontology.Ontology;
  * @author lewismc
  *
  */
-public class EsipSRIOntology implements Ontology {
+public class EsipPortalOntology implements Ontology {
 
   /**
    * 
    */
-  public EsipSRIOntology() {
-    // TODO Auto-generated constructor stub
+  public EsipPortalOntology() {
+    //default constructor
   }
 
   /* (non-Javadoc)
@@ -35,8 +35,15 @@ public class EsipSRIOntology implements Ontology {
    */
   @Override
   public void load(String[] urls) {
-    // TODO Auto-generated method stub
+    // to be completed
+  }
 
+  /* (non-Javadoc)
+   * @see esiptestbed.mudrod.ontology.Ontology#load()
+   */
+  @Override
+  public void load() {
+    // to be completed
   }
 
   /* (non-Javadoc)
@@ -44,8 +51,7 @@ public class EsipSRIOntology implements Ontology {
    */
   @Override
   public void merge(Ontology o) {
-    // TODO Auto-generated method stub
-
+    // to be completed
   }
 
   /* (non-Javadoc)
@@ -53,7 +59,6 @@ public class EsipSRIOntology implements Ontology {
    */
   @Override
   public Iterator<String> subclasses(String entitySearchTerm) {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -62,7 +67,6 @@ public class EsipSRIOntology implements Ontology {
    */
   @Override
   public Iterator<String> synonyms(String queryKeyPhrase) {
-    // TODO Auto-generated method stub
     return null;
   }
 
