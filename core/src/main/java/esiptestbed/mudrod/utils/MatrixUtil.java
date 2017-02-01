@@ -69,6 +69,11 @@ public class MatrixUtil {
    *         dimension.
    */
   public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension) {
+    int matrixCol = (int) tfidfMatrix.numCols();
+    if (matrixCol < dimension) {
+      dimension = matrixCol;
+    }
+
     SingularValueDecomposition<RowMatrix, Matrix> svd = tfidfMatrix
         .computeSVD(dimension, true, 1.0E-9d);
     RowMatrix u = svd.U();
@@ -317,7 +322,7 @@ public class MatrixUtil {
 
     JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> testRDD = word_docnum_RDD
         .leftOuterJoin(wordIDRDD);
-    
+
     int wordsize = (int) wordIDRDD.count();
     JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
         new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
@@ -498,6 +503,11 @@ public class MatrixUtil {
    */
   public static void exportToCSV(RowMatrix matrix, List<String> rowKeys,
       List<String> colKeys, String fileName) {
+
+    if (matrix.rows().isEmpty()) {
+      return;
+    }
+
     int rownum = (int) matrix.numRows();
     int colnum = (int) matrix.numCols();
     List<Vector> rows = matrix.rows().toJavaRDD().collect();

@@ -19,7 +19,6 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.semantics.SVDAnalyzer;
-import esiptestbed.mudrod.semantics.SemanticAnalyzer;
 import esiptestbed.mudrod.utils.LinkageTriple;
 
 /**
@@ -49,16 +48,16 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
   public Object execute() {
 
     LOG.info(
-        "*****************Topic based dataset similarity calculation starts******************");
+        "*****************abstract similarity calculation starts******************");
     startTime = System.currentTimeMillis();
 
     try {
-      String topicMatrixFile = props.getProperty("metadata_term_tfidf_matrix");
+      /*String topicMatrixFile = props.getProperty("metadata_term_tfidf_matrix");
       SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
       List<LinkageTriple> triples = analyzer
           .calTermSimfromMatrix(topicMatrixFile);
       analyzer.saveToES(triples, props.getProperty("indexName"),
-          props.getProperty("metadataTermTFIDFSimType"), true, true);
+          props.getProperty("metadataTermTFIDFSimType"), true, true);*/
 
       // for comparison
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
@@ -75,7 +74,7 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     LOG.info(
-        "*****************Topic based dataset similarity calculation ends******************Took {}s",
+        "*****************abstract similarity calculation ends******************Took {}s",
         (endTime - startTime) / 1000);
 
     return null;
@@ -85,5 +84,4 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
   public Object execute(Object o) {
     return null;
   }
-
 }

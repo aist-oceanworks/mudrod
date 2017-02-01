@@ -114,6 +114,8 @@ public class LinkageTriple implements Serializable {
         symmetryJsonBuilder.field("weight",
             Double.parseDouble(df.format(triples.get(i).weight)));
 
+        symmetryJsonBuilder.endObject();
+
         IndexRequest symmetryir = new IndexRequest(index, type)
             .source(symmetryJsonBuilder);
         es.getBulkProcessor().add(symmetryir);
