@@ -106,6 +106,8 @@ public class ImportMetadata extends DiscoveryStepAbstract {
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               props.getProperty("recom_metadataType")).source(item.toString());
 
+          // preprocessdata
+
           es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();

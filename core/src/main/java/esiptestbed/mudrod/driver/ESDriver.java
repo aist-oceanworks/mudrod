@@ -107,17 +107,21 @@ public class ESDriver implements Serializable {
   }
 
   public void createBulkProcessor() {
-    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", 1000, 2500500);
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
+        1000, 2500500);
     setBulkProcessor(
         BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
           @Override
           public void beforeBulk(long executionId, BulkRequest request) {
-            throw new UnsupportedOperationException("beforeBulk is not implemented yet!");
+            // throw new UnsupportedOperationException("beforeBulk is not
+            // implemented yet!");
           }
 
           @Override
-          public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-            throw new UnsupportedOperationException("afterBulk is not implemented yet!");
+          public void afterBulk(long executionId, BulkRequest request,
+              BulkResponse response) {
+            // throw new UnsupportedOperationException("afterBulk is not
+            // implemented yet!");
           }
 
           @Override
@@ -128,10 +132,10 @@ public class ESDriver implements Serializable {
                 + ", failure: " + failure, failure);
           }
         }).setBulkActions(1000)
-        .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
-        .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
-            TimeValue.timeValueMillis(100), 10))
-        .setConcurrentRequests(1).build());
+            .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
+            .setBackoffPolicy(BackoffPolicy
+                .exponentialBackoff(TimeValue.timeValueMillis(100), 10))
+            .setConcurrentRequests(1).build());
   }
 
   public void destroyBulkProcessor() {
@@ -154,10 +158,10 @@ public class ESDriver implements Serializable {
     }
 
     getClient().admin().indices().prepareCreate(indexName)
-    .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
-    .actionGet();
+        .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
+        .actionGet();
     getClient().admin().indices().preparePutMapping(indexName)
-    .setType("_default_").setSource(mappingJson).execute().actionGet();
+        .setType("_default_").setSource(mappingJson).execute().actionGet();
   }
 
   public String customAnalyzing(String indexName, String str)
@@ -222,8 +226,7 @@ public class ESDriver implements Serializable {
     this.deleteAllByQuery(index, type, QueryBuilders.matchAllQuery());
   }
 
-  public List<String> getTypeListWithPrefix(Object object,
-      Object object2) {
+  public List<String> getTypeListWithPrefix(Object object, Object object2) {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
@@ -251,7 +254,7 @@ public class ESDriver implements Serializable {
 
   public String searchByQuery(String index, String type, String query,
       Boolean bDetail)
-          throws IOException, InterruptedException, ExecutionException {
+      throws IOException, InterruptedException, ExecutionException {
     boolean exists = getClient().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {
@@ -325,10 +328,8 @@ public class ESDriver implements Serializable {
             String.join(", ", categories));
 
         @SuppressWarnings("unchecked")
-        List<String> variables = (List<String>) result
-            .get(DS_PARAM_VAR);
-        file.addProperty(DS_PARAM_VAR,
-            String.join(", ", variables));
+        List<String> variables = (List<String>) result.get(DS_PARAM_VAR);
+        file.addProperty(DS_PARAM_VAR, String.join(", ", variables));
 
         @SuppressWarnings("unchecked")
         List<String> terms = (List<String>) result.get("DatasetParameter-Term");
@@ -350,7 +351,7 @@ public class ESDriver implements Serializable {
     boolean exists = node.client().admin().indices().prepareExists(index)
         .execute().actionGet().isExists();
     if (!exists) {
-      //return empty list
+      // return empty list
       return new ArrayList<>();
     }
 
@@ -467,14 +468,15 @@ public class ESDriver implements Serializable {
   }
 
   /**
-   * @param bulkProcessor the bulkProcessor to set  
+   * @param bulkProcessor
+   *          the bulkProcessor to set
    */
   public void setBulkProcessor(BulkProcessor bulkProcessor) {
     this.bulkProcessor = bulkProcessor;
   }
 
-  public UpdateRequest generateUpdateRequest(String index, String type, String id,
-      String field1, Object value1) {
+  public UpdateRequest generateUpdateRequest(String index, String type,
+      String id, String field1, Object value1) {
 
     UpdateRequest ur = null;
     try {
@@ -487,8 +489,8 @@ public class ESDriver implements Serializable {
     return ur;
   }
 
-  public UpdateRequest generateUpdateRequest(String index, String type, String id,
-      Map<String, Object> filedValueMap) {
+  public UpdateRequest generateUpdateRequest(String index, String type,
+      String id, Map<String, Object> filedValueMap) {
 
     UpdateRequest ur = null;
     try {

@@ -59,6 +59,9 @@
   <para name="metadata_w">1</para>
   <para name="ontology_w">2</para>
   
+  <!-- recommendation -->
+  <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
+  <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
   <para name="metadataCodeSimType">MetadataCodeSim</para>
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>

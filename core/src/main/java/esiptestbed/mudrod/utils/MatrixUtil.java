@@ -233,9 +233,9 @@ public class MatrixUtil {
     RowMatrix wordDocMatrix = new RowMatrix(word_vectorRDD.values().rdd());
 
     LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
-    labeledRowMatrix.wordDocMatrix = wordDocMatrix;
-    labeledRowMatrix.words = word_vectorRDD.keys().collect();
-    labeledRowMatrix.docs = uniqueDocRDD.keys().collect();
+    labeledRowMatrix.rowMatrix = wordDocMatrix;
+    labeledRowMatrix.rowkeys = word_vectorRDD.keys().collect();
+    labeledRowMatrix.colkeys = uniqueDocRDD.keys().collect();
     return labeledRowMatrix;
   }
 
@@ -391,9 +391,9 @@ public class MatrixUtil {
     RowMatrix docwordMatrix = new RowMatrix(doc_vectorRDD.values().rdd());
 
     LabeledRowMatrix labeledRowMatrix = new LabeledRowMatrix();
-    labeledRowMatrix.wordDocMatrix = docwordMatrix;
-    labeledRowMatrix.words = doc_vectorRDD.keys().collect();
-    labeledRowMatrix.docs = wordIDRDD.keys().collect();
+    labeledRowMatrix.rowMatrix = docwordMatrix;
+    labeledRowMatrix.rowkeys = doc_vectorRDD.keys().collect();
+    labeledRowMatrix.colkeys = wordIDRDD.keys().collect();
 
     return labeledRowMatrix;
   }

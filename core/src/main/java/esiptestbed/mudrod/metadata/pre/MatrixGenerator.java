@@ -67,11 +67,13 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
     String metadataMatrixFile = props.getProperty("metadataMatrix");
     try {
       MetadataExtractor extractor = new MetadataExtractor();
-      JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc,
-          props.getProperty("indexName"), props.getProperty("raw_metadataType"));
-      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD, spark.sc);
-      MatrixUtil.exportToCSV(wordDocMatrix.wordDocMatrix, wordDocMatrix.words, wordDocMatrix.docs,
-          metadataMatrixFile);
+      JavaPairRDD<String, List<String>> metadataTermsRDD = extractor
+          .loadMetadata(this.es, this.spark.sc, props.getProperty("indexName"),
+              props.getProperty("raw_metadataType"));
+      LabeledRowMatrix wordDocMatrix = MatrixUtil
+          .createWordDocMatrix(metadataTermsRDD, spark.sc);
+      MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys,
+          wordDocMatrix.colkeys, metadataMatrixFile);
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -25,7 +25,7 @@ public class SparkDriver implements Serializable {
    */
   private static final long serialVersionUID = 1L;
   public transient JavaSparkContext sc;
-  public SQLContext sqlContext;
+  public transient SQLContext sqlContext;
 
   public SparkDriver() {
     SparkConf conf = new SparkConf().setAppName("Testing").setMaster("local[2]")
