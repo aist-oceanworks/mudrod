@@ -50,14 +50,13 @@ public class HistoryGenerator extends LogAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("Starting HistoryGenerator.");
+    LOG.info("Starting HistoryGenerator...");
     startTime = System.currentTimeMillis();
 
     generateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    LOG.info("HistoryGenerator complete. Time elapsed {} seconds",
-        (endTime - startTime) / 1000);
+    LOG.info("HistoryGenerator complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
     return null;
   }
 

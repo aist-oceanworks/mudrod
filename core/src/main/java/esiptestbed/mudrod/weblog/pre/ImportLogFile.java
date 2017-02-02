@@ -129,17 +129,13 @@ public class ImportLogFile extends LogAbstract {
 
     String httplogpath = props.getProperty("logDir")
         + props.getProperty(MudrodConstants.HTTP_PREFIX)
-        + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
-        + props.getProperty(MudrodConstants.HTTP_PREFIX)
         + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String ftplogpath = props.getProperty("logDir")
-        + props.getProperty("ftpPrefix")
-        + props.getProperty(MudrodConstants.TIME_SUFFIX) + "/"
-        + props.getProperty("ftpPrefix")
+        + props.getProperty(MudrodConstants.FTP_PREFIX)
         + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String processingType = props.getProperty("processingType");
+    String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       readFileInSequential(httplogpath, ftplogpath);
     } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {

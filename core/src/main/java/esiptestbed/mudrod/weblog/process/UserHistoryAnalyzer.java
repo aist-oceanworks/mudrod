@@ -46,7 +46,7 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    LOG.info("*****************UserHistoryAnalyzer starts******************");
+    LOG.info("Starting UserHistoryAnalyzer...");
     startTime = System.currentTimeMillis();
 
     SemanticAnalyzer sa = new SemanticAnalyzer(props, es, spark);
@@ -57,7 +57,7 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************UserHistoryAnalyzer ends******************Took {}s"
+    LOG.info("UserHistoryAnalyzer complete. Time elapsed: {}s"
         , (endTime - startTime) / 1000);
     return null;
   }

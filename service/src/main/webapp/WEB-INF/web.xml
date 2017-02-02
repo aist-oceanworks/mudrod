@@ -33,6 +33,7 @@
           esiptestbed.mudrod.services.search.SearchMetadataResource,
           esiptestbed.mudrod.services.search.SearchVocabResource,
           esiptestbed.mudrod.services.search.SessionDetailResource,
+          esiptestbed.mudrod.services.ontology.OntologyResource,
         </param-value>
       </init-param>
       <load-on-startup>1</load-on-startup>

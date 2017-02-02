@@ -110,22 +110,19 @@ public class ESDriver implements Serializable {
         BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
           @Override
           public void beforeBulk(long executionId, BulkRequest request) {
-            // throw new UnsupportedOperationException(
-            // "beforeBulk is not implemented yet!");
+            LOG.debug("ESDriver#createBulkProcessor @Override #beforeBulk is not implemented yet!");
           }
 
           @Override
-          public void afterBulk(long executionId, BulkRequest request,
-              BulkResponse response) {
-            // throw new UnsupportedOperationException("afterBulk is not
-            // implemented yet!");
+          public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+            LOG.debug("ESDriver#createBulkProcessor @Override #afterBulk is not implemented yet!");
           }
 
           @Override
           public void afterBulk(long executionId, BulkRequest request,
               Throwable failure) {
             LOG.error("Bulk request has failed!");
-            throw new RuntimeException("Caught exception in bulk: " + request
+            throw new RuntimeException("Caught exception in bulk: " + request.getDescription()
                 + ", failure: " + failure, failure);
           }
         }).setBulkActions(1000)

@@ -90,6 +90,7 @@
     <xml.maven.version>1.0.1</xml.maven.version>
     <jacoco.version>0.7.7.201606060606</jacoco.version>
     <jena.version>3.1.0</jena.version>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <elastic.version>5.0.0</elastic.version>
   </properties>
 
@@ -146,61 +147,6 @@
           <!-- default revision number if unavailable -->
           <revisionOnScmFailure>??????</revisionOnScmFailure>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${findbugs.version}</version>
-        <executions>
-          <execution>
-            <id>findbug</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <findbugsXmlOutputDirectory>
-            ${project.build.directory}/findbugs
-          </findbugsXmlOutputDirectory>
-          <failOnError>false</failOnError>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <version>${xml.maven.version}</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <transformationSets>
-            <transformationSet>
-              <dir>${project.build.directory}/findbugs</dir>
-              <outputDir>${project.build.directory}/findbugs</outputDir>
-              <stylesheet>fancy-hist.xsl</stylesheet>
-              <fileMappers>
-                <fileMapper
-                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
-                  <targetExtension>.html</targetExtension>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-          </transformationSets>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.1</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -376,6 +322,46 @@
       </build>
     </profile>
   </profiles>
+
+  <reporting>
+  	<plugins>
+  	  <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs.version}</version>
+        <configuration>
+          <findbugsXmlOutputDirectory>
+            ${project.build.directory}/findbugs
+          </findbugsXmlOutputDirectory>
+          <failOnError>false</failOnError>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <version>${xml.maven.version}</version>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${project.build.directory}/findbugs</dir>
+              <outputDir>${project.build.directory}/findbugs</outputDir>
+              <stylesheet>fancy-hist.xsl</stylesheet>
+              <!--<stylesheet>default.xsl</stylesheet>-->
+              <!--<stylesheet>plain.xsl</stylesheet>-->
+              <!--<stylesheet>fancy.xsl</stylesheet>-->
+              <!--<stylesheet>summary.xsl</stylesheet>-->
+              <fileMappers>
+                <fileMapper
+                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                  <targetExtension>.html</targetExtension>
+                </fileMapper>
+              </fileMappers>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <dependencyManagement>
     <dependencies>

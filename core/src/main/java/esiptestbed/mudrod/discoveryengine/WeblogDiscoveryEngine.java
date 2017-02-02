@@ -63,26 +63,19 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   /**
    * Get log file list from a directory
    * 
-   * @param path
-   *          folder directory
+   * @param logDir path to directory containing logs either local or in HDFS.
    * @return a list of log files
    */
-  public List<String> getFileList(String path) {
+  public List<String> getFileList(String logDir) {
 
-    String logDir = props.getProperty(MudrodConstants.LOG_DIR);
     ArrayList<String> inputList = new ArrayList<>();
     if (!logDir.startsWith("hdfs://")) {
       File directory = new File(logDir);
       File[] fList = directory.listFiles();
       for (File file : fList) {
-        if (file.isFile()) {
-          // don't do anything with files, we are only interested in logs which
-          // are kept within directories.
-        } else if (file.isDirectory() && file.getName().matches(".*\\d+.*")
-            && file.getName()
-                .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
-          inputList.add(file.getName()
-              .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
+        if (file.isFile() && file.getName().matches(".*\\d+.*")
+            && file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+          inputList.add(file.getName().replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
         }
       }
     } else {

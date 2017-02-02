@@ -11,14 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$(document).ready(function() {
-	$("#query").keyup(function(event){
-		if(event.keyCode == 13){
-			$("#searchButton").click();
-		}
-	});
-
-	$("#searchButton").click(function() {
-		$("#searchForm").submit();
-	});
-});
+/**
+ * Mudrod ontology resources.
+ */
+package esiptestbed.mudrod.services.ontology;
