@@ -20,21 +20,34 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <title>Search</title>
-<link rel="icon" href="./resources/images/NASALogo.png">
-<link href="./resources/font-awesome/css/font-awesome.css"
+<link rel="icon" href="./images/NASALogo.png">
+<link href="./font-awesome/css/font-awesome.css"
   rel="stylesheet">
 <link rel="stylesheet"
-  href="./resources/css/bootstrap-table/1.10.1/bootstrap-table.min.css">
+  href="./css/bootstrap-table/1.10.1/bootstrap-table.min.css">
 <link rel="stylesheet"
-  href="./resources/css/bootstrap/3.3.6/bootstrap.min.css">
-<link href="./resources/css/search.css" rel="stylesheet">
+  href="./css/bootstrap/3.3.6/bootstrap.min.css">
+<link href="./css/search.css" rel="stylesheet">
 </head>
 <body>
   <div class="background"></div>
+  <div id="NotFound"
+    style="display: none; position: fixed; top: 75px; left: 20px; z-index: 1; color: #FFF">
+    <p>
+      Your search - <label id="searchKeyword"></label> did not match any
+      dataset.
+    </p>
+    <p>Suggestion:</p>
+    <ul>
+      <li>Make sure all words are spelled correctly.</li>
+      <li>Try different keywords.</li>
+      <li>Try different search operators.</li>
+    </ul>
+  </div>
   <header id="main-toolbar" class="toolbar">
     <h1>
-      <a class="nasa-logo" href="./index.html" title="Mudrod Home"></a>
-      <a class="site-logo" href="./index.html"> <span
+      <a class="nasa-logo" href="index.html" title="Mudrod Home"></a>
+      <a class="site-logo" href="index.html"> <span
         class="site-logo-org"></span> MUDROD
       </a>
     </h1>
@@ -79,7 +92,7 @@
           <section id="collection-results"
             class="master-overlay-has-min">
             <header>
-              <h2 id="shortName">Loading...</h2>
+              <h2 id="resultCount">Loading...</h2>
             </header>
             <div id="collection-scroll-pane"
               class="master-overlay-content">
@@ -92,17 +105,6 @@
       </div>
       <div class="master-overlay-right">
         <div class="master-overlay-main-content">
-          <section id="ontology-results" class="master-overlay-has-min">
-            <header>
-              <h2 id="ontologyResultCount">Related datasets</h2>
-            </header>
-            <div id="collection-scroll-pane"
-              class="master-overlay-content">
-              <div class="panel-list">
-                <ul id="hybirdul" class="ontologyUL"></ul>
-              </div>
-            </div>
-          </section>
           <section id="ontology-results" class="master-overlay-has-min">
             <header>
               <h2 id="ontologyResultCount">Related searches</h2>
@@ -128,15 +130,15 @@
           href="http://www.jpl.nasa.gov/">NASA JPL</a>.
       </p>
     </div>
-    <script src="./resources/js/jquery-2.1.1.js"></script>
-    <script src="./resources/js/jqueryui/1.11.2/jquery-ui.js"></script>
+    <script src="./js/jquery-2.1.1.js"></script>
+    <script src="./js/jqueryui/1.11.2/jquery-ui.js"></script>
   </footer>
-  <script src="./resources/js/bootstrap/3.3.6/bootstrap.min.js"></script>
+  <script src="./js/bootstrap/3.3.6/bootstrap.min.js"></script>
   <script
-    src="./resources/js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+    src="./js/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 
-  <script src="./resources/js/util.js"></script>
+  <script src="./js/util.js"></script>
 
-  <script src="./resources/js/dataset.js"></script>
+  <script src="./js/search.js"></script>
 </body>
 </html>
