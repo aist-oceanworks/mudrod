@@ -19,6 +19,10 @@ import esiptestbed.mudrod.driver.SparkDriver;
 
 public class NormalizeVariables extends DiscoveryStepAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
       .getLogger(NormalizeVariables.class);
   // index name
@@ -31,6 +35,8 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
    *
    * @param props
    *          the Mudrod configuration
+   * @param es an instantiated {@link esiptestbed.mudrod.driver.ESDriver}
+   * @param spark an instantiated {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public NormalizeVariables(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -40,7 +46,6 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     LOG.info(
         "*****************processing metadata variables starts******************");
     startTime = System.currentTimeMillis();
@@ -57,7 +62,6 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -72,7 +76,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
-        Map<String, Object> updatedValues = new HashMap<String, Object>();
+        Map<String, Object> updatedValues = new HashMap<>();
 
         this.normalizeSpatialVariables(metadata, updatedValues);
         this.normalizeTemporalVariables(metadata, updatedValues);
@@ -107,7 +111,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     }
     Double versionNum = 0.0;
     Pattern p = Pattern.compile(".*[a-zA-Z].*");
-    if (version.equals("Operational/Near-Real-Time")) {
+    if ("Operational/Near-Real-Time".equals(version)) {
       versionNum = 2.0;
     } else if (version.matches("[0-9]{1}[a-zA-Z]{1}")) {
       versionNum = Double.parseDouble(version.substring(0, 1));
@@ -177,13 +181,13 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
   private void normalizeTemporalVariables(Map<String, Object> metadata,
       Map<String, Object> updatedValues) {
 
-    String tr_str = (String) metadata.get("Dataset-TemporalResolution");
-    if (tr_str.equals("")) {
-      tr_str = (String) metadata.get("Dataset-TemporalRepeat");
+    String trStr = (String) metadata.get("Dataset-TemporalResolution");
+    if ("".equals(trStr)) {
+      trStr = (String) metadata.get("Dataset-TemporalRepeat");
     }
 
     updatedValues.put("Dataset-Derivative-TemporalResolution",
-        covertTimeUnit(tr_str));
+        covertTimeUnit(trStr));
   }
 
   private Double covertTimeUnit(String str) {

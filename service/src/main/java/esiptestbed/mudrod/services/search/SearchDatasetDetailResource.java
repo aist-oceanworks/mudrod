@@ -51,7 +51,7 @@ public class SearchDatasetDetailResource {
 
   /**
    * A simple health status checker for this resource.
-   * @return
+   * @return a static html response if the service is running correctly.
    */
   @GET
   @Path("/status")

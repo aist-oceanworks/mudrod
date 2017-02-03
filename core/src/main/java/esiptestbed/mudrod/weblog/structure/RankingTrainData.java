@@ -27,13 +27,12 @@ public class RankingTrainData implements Serializable {
   /**
    * Creates a new instance of ClickStream.
    *
-   * @param keywords
-   *          the query user searched
-   * @param viewDataset
-   *          the dataset name user viewed
-   * @param download:
-   *          if user download the data set after viewing it, this parameter is
-   *          true, otherwise, it is false.
+   * @param query
+   *          the user query string
+   * @param highRankDataset
+   *          the dataset name for the highest ranked dataset
+   * @param lowRankDataset
+   *          the dataset name for the lowest ranked dataset
    */
   public RankingTrainData(String query, String highRankDataset,
       String lowRankDataset) {
@@ -43,7 +42,7 @@ public class RankingTrainData implements Serializable {
   }
 
   public RankingTrainData() {
-
+    //default constructor
   }
 
   public String getSessionID() {
@@ -111,7 +110,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setType: Set session type name
    *
-   * @param type
+   * @param index
    *          session type name in elasticsearch
    */
   public void setIndex(String index) {

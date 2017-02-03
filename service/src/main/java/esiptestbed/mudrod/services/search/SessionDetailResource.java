@@ -42,8 +42,9 @@ public class SessionDetailResource {
   private static final Logger LOG = LoggerFactory.getLogger(SessionDetailResource.class);
   private MudrodEngine mEngine;
 
-  /**
-   * Default constructor. 
+  /** 
+   * Constructor
+   * @param sc an instantiated {@link javax.servlet.ServletContext}
    */
   public SessionDetailResource(@Context ServletContext sc) {
     this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");

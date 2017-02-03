@@ -35,6 +35,10 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 public class SessionTree extends MudrodAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(SessionTree.class);
   // size: node numbers in the session tree
   public int size = 0;
@@ -216,7 +220,6 @@ public class SessionTree extends MudrodAbstract {
       try {
         viewquery = requestURL.getSearchInfo(viewnode.getRequest());
       } catch (UnsupportedEncodingException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
 
@@ -255,7 +258,6 @@ public class SessionTree extends MudrodAbstract {
    */
   private SessionNode searchParentNode(SessionNode node) {
 
-    String tmpnodeKey = tmpnode.getKey();
     String nodeKey = node.getKey();
 
     if ("datasetlist".equals(nodeKey)) {
@@ -270,12 +272,12 @@ public class SessionTree extends MudrodAbstract {
         }
       }
     } else if ("dataset".equals(nodeKey)) {
-      if (node.getReferer().equals("-")) {
+      if ("-".equals(node.getReferer())) {
         return null;
       } else {
         return this.findLatestRefer(tmpnode, node.getReferer());
       }
-    } else if (nodeKey.equals("ftp")) {
+    } else if ("ftp".equals(nodeKey)) {
       return latestDatasetnode;
     }
 
@@ -294,15 +296,15 @@ public class SessionTree extends MudrodAbstract {
    */
   private SessionNode findLatestRefer(SessionNode node, String refer) {
     while (true) {
-      if (node.getKey().equals("root")) {
+      if ("root".equals(node.getKey())) {
         return null;
       }
-      node = node.getParent();
-      if (refer.equals(node.getRequest())) {
-        return node;
+      SessionNode parentNode = node.getParent();
+      if (refer.equals(parentNode.getRequest())) {
+        return parentNode;
       }
 
-      SessionNode tmp = this.iterChild(node, refer);
+      SessionNode tmp = this.iterChild(parentNode, refer);
       if (tmp == null) {
         continue;
       } else {
@@ -323,7 +325,7 @@ public class SessionTree extends MudrodAbstract {
     SessionNode tmp = null;
     for (int i = children.size() - 1; i >= 0; i--) {
       tmp = children.get(i);
-      if (tmp.getChildren().size() == 0) {
+      if (tmp.getChildren().isEmpty()) {
         if (refer.equals(tmp.getRequest())) {
           return tmp;
         } else {
@@ -364,7 +366,7 @@ public class SessionTree extends MudrodAbstract {
       List<SessionNode> children) {
     for (int i = 0; i < children.size(); i++) {
       boolean result = insertHelper(entry, children.get(i));
-      if (result == true) {
+      if (result) {
         return result;
       }
     }
@@ -380,14 +382,14 @@ public class SessionTree extends MudrodAbstract {
    * @return
    */
   private boolean insertHelper(SessionNode entry, SessionNode node) {
-    if (entry.key.equals("datasetlist") || entry.key.equals("dataset")) {
-      if (node.key.equals("datasetlist")) {
-        if (node.children.size() == 0) {
+    if ("datasetlist".equals(entry.key) || "dataset".equals(entry.key)) {
+      if ("datasetlist".equals(node.key)) {
+        if (node.children.isEmpty()) {
           node.children.add(entry);
           return true;
         } else {
           boolean flag = check(node.children, "datasetlist");
-          if (flag == false) {
+          if (!flag) {
             node.children.add(entry);
             return true;
           } else {
@@ -397,14 +399,14 @@ public class SessionTree extends MudrodAbstract {
       } else {
         insertHelperChildren(entry, node.children);
       }
-    } else if (entry.key.equals("ftp")) {
-      if (node.key.equals("dataset")) {
-        if (node.children.size() == 0) {
+    } else if ("ftp".equals(entry.key)) {
+      if ("dataset".equals(node.key)) {
+        if (node.children.isEmpty()) {
           node.children.add(entry);
           return true;
         } else {
           boolean flag = check(node.children, "dataset");
-          if (flag == false) {
+          if (!flag) {
             node.children.add(entry);
             return true;
           } else {
@@ -427,12 +429,12 @@ public class SessionTree extends MudrodAbstract {
    */
   private List<SessionNode> getViewNodes(SessionNode node) {
 
-    List<SessionNode> viewnodes = new ArrayList<SessionNode>();
-    if (node.getKey().equals("dataset")) {
+    List<SessionNode> viewnodes = new ArrayList<>();
+    if ("dataset".equals(node.getKey())) {
       viewnodes.add(node);
     }
 
-    if (node.children.size() != 0) {
+    if (!node.children.isEmpty()) {
       for (int i = 0; i < node.children.size(); i++) {
         SessionNode childNode = node.children.get(i);
         viewnodes.addAll(getViewNodes(childNode));
@@ -448,12 +450,12 @@ public class SessionTree extends MudrodAbstract {
 
   private List<SessionNode> getNodes(SessionNode node, String nodeKey) {
 
-    List<SessionNode> nodes = new ArrayList<SessionNode>();
+    List<SessionNode> nodes = new ArrayList<>();
     if (node.getKey().equals(nodeKey)) {
       nodes.add(node);
     }
 
-    if (node.children.size() != 0) {
+    if (!node.children.isEmpty()) {
       for (int i = 0; i < node.children.size(); i++) {
         SessionNode childNode = node.children.get(i);
         nodes.addAll(getNodes(childNode, nodeKey));
@@ -464,10 +466,13 @@ public class SessionTree extends MudrodAbstract {
   }
 
   /**
-   * getClickStreamList: Get click stream list in the session
-   *
+   * Obtain the ranking training data.
+   * @param indexName the index from whcih to obtain the data
+   * @param cleanuptype the clean up type identifier
+   * @param sessionID a valid session identifier
    * @return {@link esiptestbed.mudrod.weblog.structure.ClickStream}
-   * @throws UnsupportedEncodingException
+   * @throws UnsupportedEncodingException if there is an error whilst
+   * processing the ranking training data.
    */
   public List<RankingTrainData> getRankingTrainData(String indexName,
       String cleanuptype, String sessionID)
@@ -485,12 +490,12 @@ public class SessionTree extends MudrodAbstract {
       int ndownload = 0;
       for (int j = 0; j < size; j++) {
         SessionNode node = children.get(j);
-        if (node.getKey().equals("dataset")) {
+        if ("dataset".equals(node.getKey())) {
           Boolean bDownload = false;
           List<SessionNode> nodeChildren = node.getChildren();
           int childSize = nodeChildren.size();
           for (int k = 0; k < childSize; k++) {
-            if (nodeChildren.get(k).getKey().equals("ftp")) {
+            if ("ftp".equals(nodeChildren.get(k).getKey())) {
               bDownload = true;
               ndownload += 1;
               break;

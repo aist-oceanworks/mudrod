@@ -97,32 +97,33 @@ public class ImportLogFile extends LogAbstract {
    * @return the converted Month as an int.
    */
   public String switchtoNum(String time) {
-    if (time.contains("Jan")) {
-      time = time.replace("Jan", "1");
-    } else if (time.contains("Feb")) {
-      time = time.replace("Feb", "2");
-    } else if (time.contains("Mar")) {
-      time = time.replace("Mar", "3");
-    } else if (time.contains("Apr")) {
-      time = time.replace("Apr", "4");
-    } else if (time.contains("May")) {
-      time = time.replace("May", "5");
-    } else if (time.contains("Jun")) {
-      time = time.replace("Jun", "6");
-    } else if (time.contains("Jul")) {
-      time = time.replace("Jul", "7");
-    } else if (time.contains("Aug")) {
-      time = time.replace("Aug", "8");
-    } else if (time.contains("Sep")) {
-      time = time.replace("Sep", "9");
-    } else if (time.contains("Oct")) {
-      time = time.replace("Oct", "10");
-    } else if (time.contains("Nov")) {
-      time = time.replace("Nov", "11");
-    } else if (time.contains("Dec")) {
-      time = time.replace("Dec", "12");
+    String newTime = time;
+    if (newTime.contains("Jan")) {
+      newTime = newTime.replace("Jan", "1");
+    } else if (newTime.contains("Feb")) {
+      newTime = newTime.replace("Feb", "2");
+    } else if (newTime.contains("Mar")) {
+      newTime = newTime.replace("Mar", "3");
+    } else if (newTime.contains("Apr")) {
+      newTime = newTime.replace("Apr", "4");
+    } else if (newTime.contains("May")) {
+      newTime = newTime.replace("May", "5");
+    } else if (newTime.contains("Jun")) {
+      newTime = newTime.replace("Jun", "6");
+    } else if (newTime.contains("Jul")) {
+      newTime = newTime.replace("Jul", "7");
+    } else if (newTime.contains("Aug")) {
+      newTime = newTime.replace("Aug", "8");
+    } else if (newTime.contains("Sep")) {
+      newTime = newTime.replace("Sep", "9");
+    } else if (newTime.contains("Oct")) {
+      newTime = newTime.replace("Oct", "10");
+    } else if (newTime.contains("Nov")) {
+      newTime = newTime.replace("Nov", "11");
+    } else if (newTime.contains("Dec")) {
+      newTime = newTime.replace("Dec", "12");
     }
-    return time;
+    return newTime;
   }
 
   public void readFile() {
@@ -146,6 +147,8 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Read the FTP or HTTP log path with the intention of processing lines from
    * log files.
+   * @param httplogpath path to the parent directory containing http logs
+   * @param ftplogpath path to the parent directory containing ftp logs
    */
   public void readFileInSequential(String httplogpath, String ftplogpath) {
     es.createBulkProcessor();
@@ -162,6 +165,8 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Read the FTP or HTTP log path with the intention of processing lines from
    * log files.
+   * @param httplogpath path to the parent directory containing http logs
+   * @param ftplogpath path to the parent directory containing ftp logs
    */
   public void readFileInParallel(String httplogpath, String ftplogpath) {
 
@@ -198,10 +203,7 @@ public class ImportLogFile extends LogAbstract {
    * @param index
    *          the index name to write logs to
    * @param type
-   *          either one of
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType}
-   *          or
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
+   *          one of the available protocols from which Mudrod logs are obtained.
    * @throws IOException
    *           if there is an error reading anything from the fileName provided.
    */
@@ -238,10 +240,7 @@ public class ImportLogFile extends LogAbstract {
    * @param index
    *          the index name we wish to persist the log line to
    * @param type
-   *          either one of
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType}
-   *          or
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
+   *          one of the available protocols from which Mudrod logs are obtained.
    */
   public void parseSingleLineFTP(String log, String index, String type) {
     String ip = log.split(" +")[6];
@@ -286,10 +285,7 @@ public class ImportLogFile extends LogAbstract {
    * @param index
    *          the index name we wish to persist the log line to
    * @param type
-   *          either one of
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#ftpType}
-   *          or
-   *          {@link esiptestbed.mudrod.discoveryengine.MudrodAbstract#httpType}
+   *          one of the available protocols from which Mudrod logs are obtained.
    */
   public void parseSingleLineHTTP(String log, String index, String type) {
     matcher = p.matcher(log);
@@ -327,7 +323,7 @@ public class ImportLogFile extends LogAbstract {
         }
       }
 
-      if (tag == false) {
+      if (!tag) {
         IndexRequest ir = null;
         executeBulkRequest(ir, index, type, matcher, date, bytes);
       }
@@ -336,8 +332,9 @@ public class ImportLogFile extends LogAbstract {
 
   private void executeBulkRequest(IndexRequest ir, String index, String type,
       Matcher matcher, Date date, String bytes) {
+    IndexRequest newIr = ir;
     try {
-      ir = new IndexRequest(index, type).source(jsonBuilder().startObject()
+      newIr = new IndexRequest(index, type).source(jsonBuilder().startObject()
           .field("LogType", "PO.DAAC").field("IP", matcher.group(1))
           .field("Time", date).field("Request", matcher.group(5))
           .field("Response", matcher.group(6))
@@ -345,7 +342,7 @@ public class ImportLogFile extends LogAbstract {
           .field("Referer", matcher.group(8)).field("Browser", matcher.group(9))
           .endObject());
 
-      es.getBulkProcessor().add(ir);
+      es.getBulkProcessor().add(newIr);
     } catch (NumberFormatException e) {
       LOG.error("Error whilst processing numbers", e);
     } catch (IOException e) {
