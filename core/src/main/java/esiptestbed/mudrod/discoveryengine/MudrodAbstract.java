@@ -46,10 +46,6 @@ public abstract class MudrodAbstract implements Serializable {
   protected SparkDriver spark = null;
   protected long startTime;
   protected long endTime;
-  /*public String httpType = null;
-  public String ftpType = null;
-  public String cleanupType = null;
-  public String sessionStats = null;*/
 
   protected static final String ES_SETTINGS = "elastic_settings.json";
   protected static final String ES_MAPPINGS = "elastic_mappings.json";
@@ -96,15 +92,6 @@ public abstract class MudrodAbstract implements Serializable {
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
     }
-
-    // httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX) +
-    // props.getProperty(MudrodConstants.TIME_SUFFIX);
-    // ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX) +
-    // props.getProperty(MudrodConstants.TIME_SUFFIX);
-    // cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX) +
-    // props.getProperty(MudrodConstants.TIME_SUFFIX);
-    // sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX) +
-    // props.getProperty(MudrodConstants.TIME_SUFFIX);
   }
 
   /**

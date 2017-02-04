@@ -32,6 +32,10 @@ import esiptestbed.mudrod.driver.SparkDriver;
  */
 public class SVDUtil extends MudrodAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // wordRDD: terms extracted from all documents
   JavaRDD<String> wordRDD;
   // svdMatrix: svd matrix
@@ -69,9 +73,9 @@ public class SVDUtil extends MudrodAbstract {
     RowMatrix svdMatrix = null;
     LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
         spark.sc);
-    RowMatrix TFIDFMatrix = MatrixUtil
+    RowMatrix ifIdfMatrix = MatrixUtil
         .createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
-    svdMatrix = MatrixUtil.buildSVDMatrix(TFIDFMatrix, svdDimension);
+    svdMatrix = MatrixUtil.buildSVDMatrix(ifIdfMatrix, svdDimension);
     this.svdMatrix = svdMatrix;
     this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
     return svdMatrix;
@@ -103,9 +107,9 @@ public class SVDUtil extends MudrodAbstract {
   /**
    * CalSimilarity: calculate similarity
    */
-  public void CalSimilarity() {
+  public void calSimilarity() {
     CoordinateMatrix simMatrix = SimilarityUtil
-        .CalSimilarityFromMatrix(svdMatrix);
+        .calculateSimilarityFromMatrix(svdMatrix);
     this.simMatrix = simMatrix;
   }
 
@@ -118,12 +122,11 @@ public class SVDUtil extends MudrodAbstract {
    *          linkage triple name
    */
   public void insertLinkageToES(String index, String type) {
-    List<LinkageTriple> triples = SimilarityUtil.MatrixtoTriples(wordRDD,
+    List<LinkageTriple> triples = SimilarityUtil.matrixToTriples(wordRDD,
         simMatrix);
     try {
       LinkageTriple.insertTriples(es, triples, index, type);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

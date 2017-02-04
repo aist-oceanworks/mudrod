@@ -15,15 +15,17 @@ package esiptestbed.mudrod.metadata.structure;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * ClassName: PODAACMetadata Function: PODAACMetadata setter and getter methods
  */
 public class PODAACMetadata implements Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   // shortname: data set short name
   private String shortname;
   // abstractStr: data set abstract
@@ -63,7 +65,7 @@ public class PODAACMetadata implements Serializable {
   private List<String> regionList;
 
   public PODAACMetadata() {
-    // TODO Auto-generated constructor stub
+    // Default constructor
   }
 
   /**
@@ -81,6 +83,8 @@ public class PODAACMetadata implements Serializable {
    *          data set variables
    * @param keywords
    *          data set keywords
+   * @param region
+   *          list of regions
    */
   public PODAACMetadata(String shortname, List<String> longname,
       List<String> topics, List<String> terms, List<String> variables,
@@ -252,7 +256,6 @@ public class PODAACMetadata implements Serializable {
    * @return data set project string
    */
   public String getProject() {
-    // TODO Auto-generated method stub
     return this.project;
   }
 
@@ -262,7 +265,6 @@ public class PODAACMetadata implements Serializable {
    * @return data set source string
    */
   public String getSource() {
-    // TODO Auto-generated method stub
     return this.source;
   }
 
@@ -272,7 +274,6 @@ public class PODAACMetadata implements Serializable {
    * @return data set sensor string
    */
   public String getSensor() {
-    // TODO Auto-generated method stub
     return this.sensor;
   }
 
@@ -282,7 +283,6 @@ public class PODAACMetadata implements Serializable {
    * @return data set ISO topic string
    */
   public String getISOTopic() {
-    // TODO Auto-generated method stub
     return this.isoTopic;
   }
 
@@ -292,38 +292,27 @@ public class PODAACMetadata implements Serializable {
    * @return data set term list
    */
   public List<String> getAllTermList() {
-    List<String> allterms = new ArrayList<String>();
+    List<String> allterms = new ArrayList<>();
 
-    if (this.termList != null && this.termList.size() > 0) {
+    if (this.termList != null && !this.termList.isEmpty()) {
       allterms.addAll(this.termList);
     }
 
-    if (this.keywordList != null && this.keywordList.size() > 0) {
+    if (this.keywordList != null && !this.keywordList.isEmpty()) {
       allterms.addAll(this.keywordList);
     }
 
-    if (this.topicList != null && this.topicList.size() > 0) {
+    if (this.topicList != null && !this.topicList.isEmpty()) {
       allterms.addAll(this.topicList);
     }
 
-    if (this.variableList != null && this.variableList.size() > 0) {
+    if (this.variableList != null && !this.variableList.isEmpty()) {
       allterms.addAll(this.variableList);
     }
 
-    if (this.regionList != null && this.regionList.size() > 0) {
+    if (this.regionList != null && !this.regionList.isEmpty()) {
       allterms.addAll(this.regionList);
     }
-
-    // reserved
-    /*
-     * if (this.isotopicList.size() > 0) { allterms.addAll(this.isotopicList); }
-     *
-     * if (this.sensorList.size() > 0) { allterms.addAll(this.sensorList); } if
-     * (this.sourceList.size() > 0) { allterms.addAll(this.sourceList); } if
-     * (this.projectList.size() > 0) { allterms.addAll(this.projectList); } if
-     * (this.abstractList.size() > 0) { allterms.addAll(this.abstractList); }
-     */
-
     return allterms;
   }
 
@@ -340,7 +329,6 @@ public class PODAACMetadata implements Serializable {
       return;
     }
 
-    int length = oristr.length();
     if (oristr.startsWith("\"")) {
       oristr = oristr.substring(1);
     }
@@ -364,16 +352,5 @@ public class PODAACMetadata implements Serializable {
         list.add(str);
       }
     }
-  }
-
-  /**
-   * splitAbstract: split abstract of data set
-   */
-  private void splitAbstract(String abstractStr) {
-    Set<String> set = new HashSet<String>(this.termList);
-    set.addAll(this.topicList);
-    set.addAll(this.variableList);
-    set.addAll(this.keywordList);
-    List<String> mergeList = new ArrayList<String>(set);
   }
 }

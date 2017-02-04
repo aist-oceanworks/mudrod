@@ -47,9 +47,9 @@ public class SimilarityUtil {
    *         column is also a term, the cell value is the similarity between the
    *         two terms
    */
-  public static CoordinateMatrix CalSimilarityFromMatrix(RowMatrix svdMatrix) {
+  public static CoordinateMatrix calculateSimilarityFromMatrix(RowMatrix svdMatrix) {
     JavaRDD<Vector> vecs = svdMatrix.rows().toJavaRDD();
-    return SimilarityUtil.CalSimilarityFromVector(vecs);
+    return SimilarityUtil.calculateSimilarityFromVector(vecs);
   }
 
   /**
@@ -61,29 +61,34 @@ public class SimilarityUtil {
    *         column is also a term, the cell value is the similarity between the
    *         two terms
    */
-  public static CoordinateMatrix CalSimilarityFromVector(JavaRDD<Vector> vecs) {
+  public static CoordinateMatrix calculateSimilarityFromVector(JavaRDD<Vector> vecs) {
     IndexedRowMatrix indexedMatrix = MatrixUtil.buildIndexRowMatrix(vecs);
     RowMatrix transposeMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
-    CoordinateMatrix simMatirx = transposeMatrix.columnSimilarities();
-    return simMatirx;
+    return transposeMatrix.columnSimilarities();
   }
 
   /**
-   * CalSimilarityFromVector:Calculate term similarity from vector.
+   * Calculate term similarity from vector.
    *
-   * @param vecs
-   *          Each vector is corresponding to a term in the feature space.
-   * @return
+   * @param importRDD the {@link org.apache.spark.api.java.JavaPairRDD} 
+   * data structure containing the vectors.
+   * @param simType the similarity calculation to execute
+   * @return a new {@link org.apache.spark.api.java.JavaPairRDD}
    */
-  public static JavaRDD<LinkageTriple> CalSimilarityFromVector(
+  public static JavaRDD<LinkageTriple> calculateSimilarityFromVector(
       JavaPairRDD<String, Vector> importRDD, int simType) {
     JavaRDD<Tuple2<String, Vector>> importRDD1 = importRDD
         .map(f -> new Tuple2<String, Vector>(f._1, f._2));
     JavaPairRDD<Tuple2<String, Vector>, Tuple2<String, Vector>> cartesianRDD = importRDD1
         .cartesian(importRDD1);
 
-    JavaRDD<LinkageTriple> tripleRDD = cartesianRDD.map(
+    return cartesianRDD.map(
         new Function<Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>>, LinkageTriple>() {
+
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
 
           @Override
           public LinkageTriple call(
@@ -100,9 +105,9 @@ public class SimilarityUtil {
             Double weight = 0.0;
 
             if (simType == SimilarityUtil.SIM_PEARSON) {
-              weight = SimilarityUtil.pearson_distance(vecA, vecB);
+              weight = SimilarityUtil.pearsonDistance(vecA, vecB);
             } else if (simType == SimilarityUtil.SIM_HELLINGER) {
-              weight = SimilarityUtil.hellinger_distance(vecA, vecB);
+              weight = SimilarityUtil.hellingerDistance(vecA, vecB);
             }
 
             LinkageTriple triple = new LinkageTriple();
@@ -112,6 +117,11 @@ public class SimilarityUtil {
             return triple;
           }
         }).filter(new Function<LinkageTriple, Boolean>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Boolean call(LinkageTriple arg0) throws Exception {
             if (arg0 == null) {
@@ -120,8 +130,6 @@ public class SimilarityUtil {
             return true;
           }
         });
-
-    return tripleRDD;
   }
 
   /**
@@ -135,7 +143,7 @@ public class SimilarityUtil {
    *          the cell value is the similarity between the two terms
    * @return linkage triple list
    */
-  public static List<LinkageTriple> MatrixtoTriples(JavaRDD<String> keys,
+  public static List<LinkageTriple> matrixToTriples(JavaRDD<String> keys,
       CoordinateMatrix simMatirx) {
     if (simMatirx.numCols() != keys.count()) {
       return null;
@@ -151,12 +159,12 @@ public class SimilarityUtil {
               private static final long serialVersionUID = 1L;
 
               @Override
-              public Tuple2<Long, String> call(Tuple2<String, Long> doc_id) {
-                return doc_id.swap();
+              public Tuple2<Long, String> call(Tuple2<String, Long> docId) {
+                return docId.swap();
               }
             }));
 
-    JavaPairRDD<Long, LinkageTriple> entries_rowRDD = simMatirx.entries()
+    JavaPairRDD<Long, LinkageTriple> entriesRowRDD = simMatirx.entries()
         .toJavaRDD()
         .mapToPair(new PairFunction<MatrixEntry, Long, LinkageTriple>() {
           /**
@@ -171,11 +179,11 @@ public class SimilarityUtil {
             triple.keyAId = t.i();
             triple.keyBId = t.j();
             triple.weight = t.value();
-            return new Tuple2<Long, LinkageTriple>(triple.keyAId, triple);
+            return new Tuple2<>(triple.keyAId, triple);
           }
         });
 
-    JavaPairRDD<Long, LinkageTriple> entries_colRDD = entries_rowRDD
+    JavaPairRDD<Long, LinkageTriple> entriesColRDD = entriesRowRDD
         .leftOuterJoin(keyIdRDD).values().mapToPair(
             new PairFunction<Tuple2<LinkageTriple, Optional<String>>, Long, LinkageTriple>() {
               /**
@@ -191,11 +199,11 @@ public class SimilarityUtil {
                 if (stra.isPresent()) {
                   triple.keyA = stra.get();
                 }
-                return new Tuple2<Long, LinkageTriple>(triple.keyBId, triple);
+                return new Tuple2<>(triple.keyBId, triple);
               }
             });
 
-    JavaRDD<LinkageTriple> tripleRDD = entries_colRDD.leftOuterJoin(keyIdRDD)
+    JavaRDD<LinkageTriple> tripleRDD = entriesColRDD.leftOuterJoin(keyIdRDD)
         .values().map(
             new Function<Tuple2<LinkageTriple, Optional<String>>, LinkageTriple>() {
               /**
@@ -214,19 +222,17 @@ public class SimilarityUtil {
                 return triple;
               }
             });
-
-    List<LinkageTriple> triples = tripleRDD.collect();
-    return triples;
+    return tripleRDD.collect();
   }
 
   /**
    * calculate similarity between vectors
    *
-   * @param vecA
-   * @param vecB
+   * @param vecA initial vector from which to calculate a similarity
+   * @param vecB second vector involved in similarity calculation
    * @return similarity between two vectors
    */
-  public static double hellinger_distance(Vector vecA, Vector vecB) {
+  public static double hellingerDistance(Vector vecA, Vector vecB) {
     double[] arrA = vecA.toArray();
     double[] arrB = vecB.toArray();
 
@@ -248,11 +254,11 @@ public class SimilarityUtil {
   /**
    * calculate similarity between vectors
    *
-   * @param vecA
-   * @param vecB
+   * @param vecA initial vector from which to calculate a similarity
+   * @param vecB second vector involved in similarity calculation
    * @return similarity between two vectors
    */
-  public static double pearson_distance(Vector vecA, Vector vecB) {
+  public static double pearsonDistance(Vector vecA, Vector vecB) {
     double[] arrA = vecA.toArray();
     double[] arrB = vecB.toArray();
 
@@ -274,20 +280,17 @@ public class SimilarityUtil {
         viewAB++;
       }
     }
-
-    double weight = viewAB / (Math.sqrt(viewA) * Math.sqrt(viewB));
-
-    return weight;
+    return viewAB / (Math.sqrt(viewA) * Math.sqrt(viewB));
   }
 
   /**
    * calculate similarity between vectors
    *
-   * @param vecA
-   * @param vecB
+   * @param vecA initial vector from which to calculate a similarity
+   * @param vecB second vector involved in similarity calculation
    * @return similarity between two vectors
    */
-  public static double cosine_distance(Vector vecA, Vector vecB) {
+  public static double cosineDistance(Vector vecA, Vector vecB) {
     return 1;
   }
 }
