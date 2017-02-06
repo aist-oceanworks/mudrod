@@ -95,10 +95,8 @@ public class SessionGenerator extends LogAbstract {
     } catch (IOException e) {
       LOG.error("Error whilst reading configuration.", e);
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
@@ -136,15 +134,6 @@ public class SessionGenerator extends LogAbstract {
   public void genSessionByRefererInSequential(int timeThres)
       throws ElasticsearchException, IOException {
 
-    /* int docCount = es.getDocCount(logIndex, cleanupType);
-    
-    SearchRequestBuilder srBuilder = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0).addAggregation(
-            AggregationBuilders.terms("Users").field("IP").size(docCount));
-    
-    SearchResponse sr = srBuilder.execute().actionGet();
-    Terms users = sr.getAggregations().get("Users");*/
     Terms users = this.getUserTerms(this.cleanupType);
 
     int sessionCount = 0;
@@ -158,19 +147,21 @@ public class SessionGenerator extends LogAbstract {
     LOG.info("Initial session count: {}", Integer.toString(sessionCount));
   }
 
-  public void combineShortSessionsInSequential(int Timethres)
+  public void combineShortSessionsInSequential(int timeThres)
       throws ElasticsearchException, IOException {
 
     Terms users = this.getUserTerms(this.cleanupType);
     for (Terms.Bucket entry : users.getBuckets()) {
       String user = entry.getKey().toString();
-      combineShortSessions(es, user, Timethres);
+      combineShortSessions(es, user, timeThres);
     }
   }
 
   /**
    * Method to remove invalid logs through IP address
    * 
+   * @param es
+   *          an instantiated es driver
    * @param ip
    *          invalid IP address
    * @throws ElasticsearchException
@@ -232,12 +223,17 @@ public class SessionGenerator extends LogAbstract {
     int sessionCount = 0;
     sessionCount = userRDD
         .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Iterator<Integer> call(Iterator<String> arg0)
               throws Exception {
             ESDriver tmpES = new ESDriver(props);
             tmpES.createBulkProcessor();
-            List<Integer> sessionNums = new ArrayList<Integer>();
+            List<Integer> sessionNums = new ArrayList<>();
             while (arg0.hasNext()) {
               String s = arg0.next();
               Integer sessionNum = genSessionByReferer(tmpES, s, timeThres);
@@ -247,6 +243,11 @@ public class SessionGenerator extends LogAbstract {
             return sessionNums.iterator();
           }
         }).reduce(new Function2<Integer, Integer, Integer>() {
+          /**
+           * 
+           */
+          private static final long serialVersionUID = 1L;
+
           @Override
           public Integer call(Integer a, Integer b) {
             return a + b;
@@ -289,8 +290,8 @@ public class SessionGenerator extends LogAbstract {
         time = fmt.parseDateTime((String) result.get("Time"));
         id = hit.getId();
 
-        if (logType.equals("PO.DAAC")) {
-          if (referer.equals("-") || referer.equals(indexUrl)
+        if ("PO.DAAC".equals(logType)) {
+          if ("-".equals(referer) || referer.equals(indexUrl)
               || !referer.contains(indexUrl)) {
             sessionCountIn++;
             sessionReqs.put(ip + "@" + sessionCountIn,
@@ -326,7 +327,7 @@ public class SessionGenerator extends LogAbstract {
                   // click num, start a new session
                   if (Math.abs(
                       Seconds.secondsBetween(requests.get(keys.get(i)), time)
-                          .getSeconds()) < timeThres * rollbackNum) {
+                      .getSeconds()) < timeThres * rollbackNum) {
                     sessionReqs.get(ip + "@" + count).put(request, time);
                     update(es, logIndex, this.cleanupType, id, "SessionID",
                         ip + "@" + count);
@@ -376,7 +377,7 @@ public class SessionGenerator extends LogAbstract {
             int size = keys.size();
             if (Math.abs(
                 Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-                    .getSeconds()) > timeThres) {
+                .getSeconds()) > timeThres) {
               sessionCountIn += 1;
               sessionReqs.put(ip + "@" + sessionCountIn,
                   new HashMap<String, DateTime>());
@@ -401,6 +402,11 @@ public class SessionGenerator extends LogAbstract {
     JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
 
     userRDD.foreachPartition(new VoidFunction<Iterator<String>>() {
+      /**
+       * 
+       */
+      private static final long serialVersionUID = 1L;
+
       @Override
       public void call(Iterator<String> arg0) throws Exception {
         ESDriver tmpES = new ESDriver(props);
@@ -414,7 +420,7 @@ public class SessionGenerator extends LogAbstract {
     });
   }
 
-  public void combineShortSessions(ESDriver es, String user, int Timethres)
+  public void combineShortSessions(ESDriver es, String user, int timeThres)
       throws ElasticsearchException, IOException {
 
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
@@ -424,13 +430,6 @@ public class SessionGenerator extends LogAbstract {
     String[] typeArr = new String[] { cleanupType };
     int docCount = es.getDocCount(indexArr, typeArr, filterSearch);
 
-    // SearchResponse checkAll = es.getClient().prepareSearch(logIndex)
-    // .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-    // .setQuery(filterSearch).setSize(0).execute().actionGet();
-    //
-    // long all = checkAll.getHits().getTotalHits();
-    // System.out.println(all);
-
     if (docCount < 3) {
       deleteInvalid(es, user);
       return;
@@ -438,7 +437,7 @@ public class SessionGenerator extends LogAbstract {
 
     BoolQueryBuilder filterCheck = new BoolQueryBuilder();
     filterCheck.must(QueryBuilders.termQuery("IP", user))
-        .must(QueryBuilders.termQuery("Referer", "-"));
+    .must(QueryBuilders.termQuery("Referer", "-"));
     SearchResponse checkReferer = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterCheck).setSize(0).execute().actionGet();
@@ -453,14 +452,14 @@ public class SessionGenerator extends LogAbstract {
 
     StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr_session = es.getClient().prepareSearch(logIndex)
+    SearchResponse srSession = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterSearch)
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(docCount).subAggregation(statsAgg))
         .execute().actionGet();
 
-    Terms sessions = sr_session.getAggregations().get("Sessions");
+    Terms sessions = srSession.getAggregations().get("Sessions");
 
     List<Session> sessionList = new ArrayList<>();
     for (Terms.Bucket session : sessions.getBuckets()) {
@@ -481,7 +480,7 @@ public class SessionGenerator extends LogAbstract {
       if (last != null) {
         if (Seconds
             .secondsBetween(fmt.parseDateTime(last), fmt.parseDateTime(current))
-            .getSeconds() < Timethres) {
+            .getSeconds() < timeThres) {
           if (lastnewID == null) {
             s.setNewID(lastoldID);
           } else {
@@ -512,8 +511,7 @@ public class SessionGenerator extends LogAbstract {
               break;
             }
           }
-        }
-        ;
+        };
       }
       lastoldID = s.getID();
       lastnewID = s.getNewID();

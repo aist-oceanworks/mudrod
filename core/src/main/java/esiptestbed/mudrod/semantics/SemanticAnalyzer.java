@@ -35,6 +35,11 @@ import esiptestbed.mudrod.utils.SimilarityUtil;
 public class SemanticAnalyzer extends MudrodAbstract {
 
   /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Creates a new instance of SemanticAnalyzer.
    *
    * @param props
@@ -66,9 +71,9 @@ public class SemanticAnalyzer extends MudrodAbstract {
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
         csvFileName, skipRow);
     CoordinateMatrix simMatrix = SimilarityUtil
-        .CalSimilarityFromVector(importRDD.values());
+        .calculateSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
-    return SimilarityUtil.MatrixtoTriples(rowKeyRDD, simMatrix);
+    return SimilarityUtil.matrixToTriples(rowKeyRDD, simMatrix);
   }
 
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
@@ -77,15 +82,15 @@ public class SemanticAnalyzer extends MudrodAbstract {
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
         csvFileName, skipRow);
     JavaRDD<LinkageTriple> triples = SimilarityUtil
-        .CalSimilarityFromVector(importRDD, simType);
+        .calculateSimilarityFromVector(importRDD, simType);
 
     return triples.collect();
   }
 
-  public void saveToES(List<LinkageTriple> triple_List, String index,
+  public void saveToES(List<LinkageTriple> tripleList, String index,
       String type) {
     try {
-      LinkageTriple.insertTriples(es, triple_List, index, type);
+      LinkageTriple.insertTriples(es, tripleList, index, type);
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -44,15 +44,42 @@ You will now be able to access the Mudrod Web Application at [http://localhost:8
 In another window...
 ```
 $ cd mudrod
-$ ./core/target/appassembler/bin/mudrod
+$ ./core/target/appassembler/bin/mudrod-engine -h
 usage: MudrodEngine: 'logDir' argument is mandatory. User must also
-       provide either 'logIngest' or 'fullIngest'. [-f] [-h] [-l] -logDir
-       <logDir>
- -f,--fullIngest    begin full ingest Mudrod workflow
- -h,--help          show this help message
- -l,--logIngest     begin log ingest with the WeblogDiscoveryEngine only
- -logDir <logDir>   the log directory to be processed by Mudrod
-MudrodEngine: 'logDir' argument is mandatory. User must also provide either 'logIngest' or 'fullIngest'.
+       provide an ingest method. [-a] [-esHost <host_name>] [-esPort
+       <port_num>] [-esTCPPort <port_num>] [-f] [-h] [-l] -logDir
+       </path/to/log/directory> [-p] [-s] [-v]
+ -a,--addSimFromMetadataAndOnto                          begin adding
+                                                         metadata and
+                                                         ontology results
+ -esHost,--elasticSearchHost <host_name>                 elasticsearch
+                                                         cluster unicast
+                                                         host
+ -esPort,--elasticSearchHTTPPort <port_num>              elasticsearch
+                                                         HTTP/REST port
+ -esTCPPort,--elasticSearchTransportTCPPort <port_num>   elasticsearch
+                                                         transport TCP
+                                                         port
+ -f,--fullIngest                                         begin full ingest
+                                                         Mudrod workflow
+ -h,--help                                               show this help
+                                                         message
+ -l,--logIngest                                          begin log ingest
+                                                         without any
+                                                         processing only
+ -logDir,--logDirectory </path/to/log/directory>         the log directory
+                                                         to be processed
+                                                         by Mudrod
+ -p,--processingWithPreResults                           begin processing
+                                                         with
+                                                         preprocessing
+                                                         results
+ -s,--sessionReconstruction                              begin session
+                                                         reconstruction
+ -v,--vocabSimFromLog                                    begin similarity
+                                                         calulation from
+                                                         web log Mudrod
+                                                         workflow
 ```
 
 ## Deploying to Apache Tomcat (or any other Servlet container)

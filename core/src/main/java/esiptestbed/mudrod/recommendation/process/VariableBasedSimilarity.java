@@ -25,8 +25,12 @@ import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 
-public class VariableBasedSimilarity extends DiscoveryStepAbstract
-    implements Serializable {
+public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Serializable {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
   private static final Logger LOG = LoggerFactory
       .getLogger(VariableBasedSimilarity.class);
@@ -52,6 +56,8 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
    *
    * @param props
    *          the Mudrod configuration
+   * @param es an instantiated {@link esiptestbed.mudrod.driver.ESDriver}
+   * @param spark an instantiated {@link esiptestbed.mudrod.driver.SparkDriver}
    */
   public VariableBasedSimilarity(Properties props, ESDriver es,
       SparkDriver spark) {
@@ -73,7 +79,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
     VariableBasedSimilarity(es);
     es.refreshIndex();
-    NormalizeVariableWeight(es);
+    normalizeVariableWeight(es);
     es.refreshIndex();
     endTime = System.currentTimeMillis();
     LOG.info(
@@ -84,7 +90,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -94,7 +99,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
   }
 
   private void initVariableType() {
-    variableTypes = new HashMap<String, Integer>();
+    variableTypes = new HashMap<>();
 
     variableTypes.put("DatasetParameter-Variable", VAR_CATEGORICAL);
     variableTypes.put("DatasetRegion-Region", VAR_CATEGORICAL);
@@ -117,7 +122,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
   }
 
   private void initVariableWeight() {
-    variableWeights = new HashMap<String, Integer>();
+    variableWeights = new HashMap<>();
 
     variableWeights.put("Dataset-Derivative-ProcessingLevel", 5);
     variableWeights.put("DatasetParameter-Category", 5);
@@ -142,94 +147,11 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     variableWeights.put("Dataset-Provider-ShortName", 1);
   }
 
-  /* public void VariableBasedSimilarity(ESDriver es) {
-  
-    es.createBulkProcessor();
-  
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(metadataType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
-        .actionGet();
-    while (true) {
-      for (SearchHit hit : scrollResp.getHits().getHits()) {
-        Map<String, Object> metadataA = hit.getSource();
-        String shortNameA = (String) metadataA.get("Dataset-ShortName");
-  
-        if (!shortNameA.equals("AQUARIUS_L3_SSS_SMIA_MONTHLY-CLIMATOLOGY_V4")) {
-          continue;
-        }
-        // inner search
-        SearchResponse inerscrollResp = es.getClient().prepareSearch(indexName)
-            .setTypes(metadataType).setScroll(new TimeValue(60000))
-            .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
-            .actionGet();
-        while (true) {
-  
-          for (SearchHit innerhit : inerscrollResp.getHits().getHits()) {
-            Map<String, Object> metadataB = innerhit.getSource();
-            String shortNameB = (String) metadataB.get("Dataset-ShortName");
-  
-            if (!shortNameB
-                .equals("AQUARIUS_L3_SSS_SMI_MONTHLY-CLIMATOLOGY_V4")) {
-              continue;
-            }
-  
-            try {
-              XContentBuilder contentBuilder = jsonBuilder().startObject();
-              contentBuilder.field("concept_A", shortNameA);
-              contentBuilder.field("concept_B", shortNameB);
-  
-              // spatial similarity
-              // this.spatialSimilarity(metadataA, metadataB, contentBuilder);
-              // temporal similarity
-              // this.temporalSimilarity(metadataA, metadataB, contentBuilder);
-              // categorical variables similarity
-              this.categoricalVariablesSimilarity(metadataA, metadataB,
-                  contentBuilder);
-              // ordinal variables similarity
-              // this.ordinalVariablesSimilarity(metadataA, metadataB,
-              // contentBuilder);
-  
-              contentBuilder.endObject();
-  
-              IndexRequest ir = new IndexRequest(indexName, variableSimType)
-                  .source(contentBuilder);
-              es.getBulkProcessor().add(ir);
-  
-            } catch (IOException e1) {
-              // TODO Auto-generated catch block
-              e1.printStackTrace();
-            }
-  
-            // insert similarity based on variables
-          }
-  
-          inerscrollResp = es.getClient()
-              .prepareSearchScroll(inerscrollResp.getScrollId())
-              .setScroll(new TimeValue(600000)).execute().actionGet();
-          if (inerscrollResp.getHits().getHits().length == 0) {
-            break;
-          }
-        }
-  
-        // break;
-      }
-  
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
-      if (scrollResp.getHits().getHits().length == 0) {
-        break;
-      }
-    }
-  
-    es.destroyBulkProcessor();
-  }*/
-
   public void VariableBasedSimilarity(ESDriver es) {
 
     es.createBulkProcessor();
 
-    List<Map<String, Object>> metadatas = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> metadatas = new ArrayList<>();
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
         .setTypes(metadataType).setScroll(new TimeValue(60000))
         .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
@@ -252,17 +174,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
       Map<String, Object> metadataA = metadatas.get(i);
       String shortNameA = (String) metadataA.get("Dataset-ShortName");
 
-      /*if (!shortNameA.equals("AQUARIUS_L3_SSS_SMIA_MONTHLY-CLIMATOLOGY_V4")) {
-        continue;
-      }*/
-
       for (int j = 0; j < size; j++) {
         metadataA = metadatas.get(i);
         Map<String, Object> metadataB = metadatas.get(j);
         String shortNameB = (String) metadataB.get("Dataset-ShortName");
-        /* if (!shortNameB.equals("AQUARIUS_L3_SSS_SMI_MONTHLY-CLIMATOLOGY_V4")) {
-          continue;
-        }*/
 
         try {
           XContentBuilder contentBuilder = jsonBuilder().startObject();
@@ -286,7 +201,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
           es.getBulkProcessor().add(ir);
 
         } catch (IOException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
 
@@ -301,10 +215,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
      geometric approaches to assessing spatial similarity for GIR.
      International Journal of Geographical Information Science,
      22(3)
-  */
+   */
   public void spatialSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+          throws IOException {
 
     double topA = (double) metadataA.get("DatasetCoverage-Derivative-NorthLat");
     double bottomA = (double) metadataA
@@ -323,11 +237,11 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     double areaB = (double) metadataB.get("DatasetCoverage-Derivative-Area");
 
     // Intersect area
-    double x_overlap = Math.max(0,
+    double xOverlap = Math.max(0,
         Math.min(rightA, rightB) - Math.max(leftA, leftB));
-    double y_overlap = Math.max(0,
+    double yOverlap = Math.max(0,
         Math.min(topA, topB) - Math.max(bottomA, bottomB));
-    double overlapArea = x_overlap * y_overlap;
+    double overlapArea = xOverlap * yOverlap;
 
     // Calculate coverage similarity
     double similarity = 0.0;
@@ -340,7 +254,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
   public void temporalSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+          throws IOException {
 
     double similarity = 0.0;
     double startTimeA = Double.parseDouble(
@@ -348,7 +262,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     String endTimeAStr = (String) metadataA
         .get("Dataset-DatasetCoverage-StopTimeLong");
     double endTimeA = 0.0;
-    if (endTimeAStr.equals("")) {
+    if ("".equals(endTimeAStr)) {
       endTimeA = System.currentTimeMillis();
     } else {
       endTimeA = Double.parseDouble(endTimeAStr);
@@ -360,7 +274,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     String endTimeBStr = (String) metadataB
         .get("Dataset-DatasetCoverage-StopTimeLong");
     double endTimeB = 0.0;
-    if (endTimeBStr.equals("")) {
+    if ("".equals(endTimeBStr)) {
       endTimeB = System.currentTimeMillis();
     } else {
       endTimeB = Double.parseDouble(endTimeBStr);
@@ -385,9 +299,8 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
   public void categoricalVariablesSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+          throws IOException {
 
-    String shortNameB = (String) metadataB.get("Dataset-ShortName");
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
       if (type != VAR_CATEGORICAL) {
@@ -422,14 +335,13 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
   public void ordinalVariablesSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+          throws IOException {
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
       if (type != VAR_ORDINAL) {
         continue;
       }
 
-      // System.out.println(variable);
       double similarity = 0.0;
       Object valueA = metadataA.get(variable);
       Object valueB = metadataB.get(variable);
@@ -461,13 +373,13 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
           .endObject().endObject().endObject();
 
       es.getClient().admin().indices().preparePutMapping(index).setType(type)
-          .setSource(Mapping).execute().actionGet();
+      .setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  public void NormalizeVariableWeight(ESDriver es) {
+  public void normalizeVariableWeight(ESDriver es) {
 
     es.createBulkProcessor();
 
@@ -486,10 +398,8 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
         double totalSim = 0.0;
         for (String variable : variableWeights.keySet()) {
-          // System.out.println(variable);
           if (similarities.containsKey(variable + "_Sim")) {
             double value = (double) similarities.get(variable + "_Sim");
-            // System.out.println(value);
             double weight = variableWeights.get(variable);
             totalSim += weight * value;
           }

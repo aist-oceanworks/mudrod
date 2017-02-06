@@ -41,10 +41,6 @@ import esiptestbed.mudrod.driver.ESDriver;
  */
 public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   private static final Logger LOG = LoggerFactory.getLogger(Session.class);
-  /**
-   * 
-   */
-  private static final long serialVersionUID = 1L;
   // start: start time of session
   private String start;
   // end: end time of session
@@ -77,7 +73,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    */
   public Session(Properties props, ESDriver es, String start, String end,
       String id) {
-    // super(props, es, null);
     this.start = start;
     this.end = end;
     this.id = id;
@@ -95,7 +90,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    *          the Elasticsearch drive
    */
   public Session(Properties props, ESDriver es) {
-    // super(props, es, null);
     this.props = props;
     this.es = es;
   }
@@ -198,6 +192,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * getClickStreamList: Extracted click stream list from current session.
    *
+   * @param indexName an index from which to query for a session list
    * @param cleanuptype:
    *          Session type name in Elasticsearch
    * @param sessionID:
@@ -211,7 +206,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     try {
       tree = this.getSessionTree(indexName, cleanuptype, sessionID);
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -237,16 +231,13 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
         .setTypes(cleanuptype)
         .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
-    int size = response.getHits().getHits().length;
 
-    Gson gson = new Gson();
     SessionTree tree = new SessionTree(this.props, this.es, sessionID,
         cleanuptype);
     int seq = 1;
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String request = (String) result.get("Request");
-      String requestUrl = (String) result.get("RequestUrl");
       String time = (String) result.get("Time");
       String logType = (String) result.get("LogType");
       String referer = (String) result.get("Referer");
@@ -308,6 +299,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * getClickStreamList: Extracted ranking training data from current session.
    *
+   * @param indexName an index from which to obtain ranked training data.
    * @param cleanuptype:
    *          Session type name in Elasticsearch
    * @param sessionID:
@@ -321,7 +313,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     try {
       tree = this.getSessionTree(indexName, cleanuptype, sessionID);
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
@@ -329,7 +320,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     try {
       trainData = tree.getRankingTrainData(indexName, cleanuptype, sessionID);
     } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return trainData;
