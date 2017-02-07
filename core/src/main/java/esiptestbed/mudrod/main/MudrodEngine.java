@@ -222,22 +222,22 @@ public class MudrodEngine {
    * integration.
    */
   public void startProcessing() {
-    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
-    wd.process();
-
-    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
-    od.preprocess();
-    od.process();
+//    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
+//    wd.process();
+//
+//    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
+//    od.preprocess();
+//    od.process();
 
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
     md.process();
 
-    LinkageIntegration li = new LinkageIntegration(props, es, spark);
-    li.execute();
+//    LinkageIntegration li = new LinkageIntegration(props, es, spark);
+//    li.execute();
 
-    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    recom.process();
+    //DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
+    //recom.process();
   }
 
   /**

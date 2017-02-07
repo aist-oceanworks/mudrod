@@ -147,8 +147,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
       count++;
     }
-    /*LOG.info("\n************************Integrated results***************************");
-    LOG.info(output);*/
+    LOG.info("\n************************Integrated results***************************");
+    LOG.info(output);
     return output;
   }
 

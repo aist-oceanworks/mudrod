@@ -85,7 +85,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         + "{\r\n         \"strings\": "
         + "{\r\n            \"match_mapping_type\": \"string\","
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-        + "\r\n               \"analyzer\": \"english\"\r\n            }"
+        + "\r\n               \"analyzer\": \"cody\"\r\n            }"
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
     es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
     .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
