@@ -18,6 +18,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -97,6 +98,13 @@ protected List<Metadata> loadMetadataFromES(ESDriver es, String index,
         String shortname = (String) result.get("Dataset-ShortName");
         
         List<String> allterms = new ArrayList<String>();
+        try {
+			allterms.addAll(es.customAnalyzing(index, Arrays.asList(shortname.split("_"))));
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		} catch (ExecutionException e1) {
+			e1.printStackTrace();
+		}
         for(int m =0; m <Metadata.fieldsList.length; m++) {
         	List<String> list = (List<String>) result
                     .get(Metadata.fieldsList[m]);
