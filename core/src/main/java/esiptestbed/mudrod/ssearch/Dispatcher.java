@@ -131,5 +131,14 @@ public class Dispatcher extends MudrodAbstract {
 
     return click_search;
   }
+  
+  public BoolQueryBuilder getQueryForField(String query, String fieldName) 
+  {
+	  BoolQueryBuilder qb = new BoolQueryBuilder();
+	  //qb.must(QueryBuilders.multiMatchQuery(fieldName, query).type(MultiMatchQueryBuilder.Type.PHRASE));
+	  qb.must(QueryBuilders.termQuery("keywords", query))
+	    .must(QueryBuilders.termQuery("IP", fieldName));
+	  return qb;
+  }
 
 }

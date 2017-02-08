@@ -13,6 +13,9 @@
  */
 package esiptestbed.mudrod.metadata.structure;
 
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFunction;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -81,6 +85,7 @@ public class MetadataExtractor implements Serializable {
 protected List<Metadata> loadMetadataFromES(ESDriver es, String index,
       String type) {
 
+	es.createBulkProcessor();  
     List<Metadata> metadatas = new ArrayList<Metadata>();
     SearchResponse scrollResp = es.getClient().prepareSearch(index).setTypes(type)
         .setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000))
@@ -97,7 +102,23 @@ protected List<Metadata> loadMetadataFromES(ESDriver es, String index,
                     .get(Metadata.fieldsList[m]);
         	if(list!=null && list.size()>0)
 				try {
-					allterms.addAll(es.customAnalyzing(index, list));
+					List<String> norm_list = getNormalizedList(es.customAnalyzing(index, list));
+					allterms.addAll(norm_list);
+					
+					if(!Metadata.fieldsList[m].equals("Dataset-Metadata"))
+					{
+					IndexRequest ir = null;
+					try {
+						ir = new IndexRequest(index, "ner").source(jsonBuilder()
+						        .startObject()
+						        .field("keywords", String.join(",", norm_list))	
+						        .field("IP", Metadata.fieldsList[m])  //using ip here just to use it not_analyzed property
+						        .endObject());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				        es.getBulkProcessor().add(ir);
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -120,7 +141,30 @@ protected List<Metadata> loadMetadataFromES(ESDriver es, String index,
       }
     }
 
+    es.destroyBulkProcessor();
     return metadatas;
+  }
+  
+  
+  private List<String> getNormalizedList(List<String> list)
+  {
+	  List<String> norList = new ArrayList<String>();
+	  for(String ele : list)
+	  {
+//		  if(ele.contains(","))
+//		  {
+//			  String strList[] = ele.split(",");
+//			  for(int i=0; i<strList.length; i++)
+//			  {
+//				  norList.add(strList[i].trim());
+//			  }
+//		  }else
+//		  {
+//			  norList.add(ele.trim());
+//		  }
+		  norList.add(ele.replace(",", "").trim());
+	  }
+	  return norList;
   }
 
   /**

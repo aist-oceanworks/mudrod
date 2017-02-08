@@ -38,6 +38,7 @@ import com.google.gson.JsonObject;
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.kgraph.NERer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    getIngeratedList("ocean wind", 11);
+    getIngeratedList("quikscat", 30);
     return null;
   }
 
@@ -130,6 +131,41 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
     return sortMapByValue(termsMap);
   }
+  
+  //added for metadata
+//  public Map<String, Double> appyMajorRuleFromMetadata(String input) {
+//	    termList = new ArrayList<>();
+//	    Map<String, Double> termsMap = new HashMap<>();
+//	    Map<String, List<LinkedTerm>> map = new HashMap<>();
+//	    try {
+//	      map = aggregateRelatedTermsFromMeta(
+//	          es.customAnalyzing(props.getProperty(INDEX_NAME), input));
+//	    } catch (InterruptedException | ExecutionException e) {
+//	      LOG.error("Error applying majority rule", e);
+//	    }
+//
+//	    for (Entry<String, List<LinkedTerm>> entry : map.entrySet()) {
+//	      List<LinkedTerm> list = entry.getValue();
+//	      double tmp = 0;
+//	      for (LinkedTerm element : list) {
+//	        if (element.weight > tmp) {
+//	          tmp = element.weight;
+//	        }
+//	      }
+//
+//	      double finalWeight = tmp;
+//	      if (finalWeight < 0) {
+//	        finalWeight = 0;
+//	      }
+//
+//	      if (finalWeight > 1) {
+//	        finalWeight = 1;
+//	      }
+//	      termsMap.put(entry.getKey(), Double.parseDouble(df.format(finalWeight)));
+//	    }
+//
+//	    return sortMapByValue(termsMap);
+//	  }
 
   /**
    * Method of getting integrated results
@@ -138,14 +174,20 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    * @return a string of related terms along with corresponding similarities
    */
   public String getIngeratedList(String input, int num) {
-    String output = "";
+    String output = "\n";
     Map<String, Double> sortedMap = appyMajorRule(input);
     int count = 0;
     for (Entry<String, Double> entry : sortedMap.entrySet()) {
       if (count < num) {
-        output += entry.getKey() + " = " + entry.getValue() + ", ";
+    	NERer NER = new NERer(this.getConfig(), this.getES(), null);
+    	String type = NER.getNER(entry.getKey());
+    	if(!type.equals("unknown"))
+    	{
+            output += type + " " + entry.getKey() + " = " + entry.getValue() + "\n";
+            count++;
+    	}    	  
       }
-      count++;
+      //count++;
     }
     LOG.info("\n************************Integrated results***************************");
     LOG.info(output);
@@ -189,6 +231,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
     return termList.stream().collect(Collectors.groupingBy(w -> w.term));
   }
+  
+//  public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromMeta(
+//	      String input) {	   
+//	aggregateRelatedTerms(input, props.getProperty("metadataLinkageType"));
+//	return termList.stream().collect(Collectors.groupingBy(w -> w.term));
+//  }
 
   public int getModelweight(String model) {
     if (model.equals(props.getProperty("userHistoryLinkageType"))) {

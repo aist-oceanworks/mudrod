@@ -24,9 +24,7 @@ import java.util.Set;
  */
 public class Metadata implements Serializable {
 
-  static String fieldsList[] = {"Dataset-Metadata",
-	        "DatasetParameter-VariableDetail",
-	        "DatasetParameter-Category",
+  public static final String fieldsList[] = {
 	        "DatasetParameter-Variable",
 	        "DatasetParameter-Topic",
 	        "DatasetParameter-Term",
@@ -38,7 +36,10 @@ public class Metadata implements Serializable {
 	        "DatasetSource-Sensor-LongName",
 	        "DatasetSource-Sensor-ShortName",
 	        "Collection-LongName",
-	        "Collection-ShortName"};
+	        "Collection-ShortName",
+	        "DatasetParameter-VariableDetail",
+	        "DatasetParameter-Category",
+	        "Dataset-Metadata"};
   // shortname: data set short name
   String shortname;
   private List<String> allterms = new ArrayList<String>();
