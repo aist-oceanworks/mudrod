@@ -15,26 +15,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>esiptestbed</groupId>
   <artifactId>mudrod-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  
+
   <name>Mudrod :: Parent</name>
   <url>https://github.com/mudrod/mudrod.git</url>
   <description>MUDROD: Mining and Utilizing Dataset Relevancy from Oceanographic Datasets 
     to Improve Data Discovery and Access. MUDROD is a semantic discovery and search project 
     funded by NASA AIST (NNX15AM85G).
   </description>
-  
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-  
+
   <organization>
     <name>George Mason University</name>
     <url>https://www2.gmu.edu/</url>
@@ -78,7 +78,7 @@
     <system>TravisCI</system>
     <url>https://travis-ci.org/mudrod/mudrod</url>
   </ciManagement>
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
@@ -88,16 +88,19 @@
     <spark.version>1.6.2</spark.version>
     <findbugs.version>3.0.4</findbugs.version>
     <xml.maven.version>1.0.1</xml.maven.version>
-    <jacoco.version>0.7.6.201602180812</jacoco.version>
+    <jacoco.version>0.7.7.201606060606</jacoco.version>
+    <jena.version>3.1.0</jena.version>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <elastic.version>2.3.5</elastic.version>
   </properties>
-  
+
   <scm>
     <developerConnection>scm:git:https://github.com/mudrod/mudrod.git</developerConnection>
     <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
     <url>https://github.com/mudrod/mudrod.git</url>
     <tag>HEAD</tag>
   </scm>
-  
+
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
@@ -108,19 +111,19 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </pluginRepository>
   </pluginRepositories>
-  
+
   <modules>
     <module>core</module>
     <module>service</module>
   </modules>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -146,100 +149,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco.version}</version>
-        <configuration>
-          <destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>
-          <datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>
-        </configuration>
-        <executions>
-          <execution>
-            <id>prepare-unit-tests</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <!-- prepare agent for measuring integration tests -->
-          <execution>
-            <id>prepare-integration-tests</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-            <phase>pre-integration-test</phase>
-            <configuration>
-              <propertyName>itCoverageAgent</propertyName>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jacoco-site</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${findbugs.version}</version>
-        <executions>
-          <execution>
-            <id>findbug</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <findbugsXmlOutputDirectory>
-            ${project.build.directory}/findbugs
-          </findbugsXmlOutputDirectory>
-          <failOnError>false</failOnError>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <version>${xml.maven.version}</version>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <transformationSets>
-            <transformationSet>
-              <dir>${project.build.directory}/findbugs</dir>
-              <outputDir>${project.build.directory}/findbugs</outputDir>
-              <stylesheet>fancy-hist.xsl</stylesheet>
-              <!--<stylesheet>default.xsl</stylesheet>-->
-              <!--<stylesheet>plain.xsl</stylesheet>-->
-              <!--<stylesheet>fancy.xsl</stylesheet>-->
-              <!--<stylesheet>summary.xsl</stylesheet>-->
-              <fileMappers>
-                <fileMapper
-                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
-                  <targetExtension>.html</targetExtension>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-          </transformationSets>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.1</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.19.1</version>
@@ -254,7 +163,8 @@
         <version>2.19.1</version>
         <configuration>
           <reuseForks>true</reuseForks>
-          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M ${itCoverageAgent}</argLine>
+          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M
+            ${itCoverageAgent}</argLine>
         </configuration>
         <executions>
           <execution>
@@ -265,9 +175,44 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.0.0</version>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>${basedir}/lib</directory>
+                <followSymlinks>false</followSymlinks>
+                <useDefaultExcludes>true</useDefaultExcludes>
+                <includes>
+                  <include>*.jar</include>
+                </includes>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
@@ -302,8 +247,8 @@
       <build>
         <pluginManagement>
           <plugins>
-            <!--This plugin's configuration is used to store Eclipse m2e settings 
-              only. It has no influence on the Maven build itself. -->
+            <!--This plugin's configuration is used to store Eclipse m2e 
+              settings only. It has no influence on the Maven build itself. -->
             <plugin>
               <groupId>org.eclipse.m2e</groupId>
               <artifactId>lifecycle-mapping</artifactId>
@@ -377,7 +322,47 @@
       </build>
     </profile>
   </profiles>
-  
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs.version}</version>
+        <configuration>
+          <findbugsXmlOutputDirectory>
+            ${project.build.directory}/findbugs
+          </findbugsXmlOutputDirectory>
+          <failOnError>false</failOnError>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <version>${xml.maven.version}</version>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${project.build.directory}/findbugs</dir>
+              <outputDir>${project.build.directory}/findbugs</outputDir>
+              <stylesheet>fancy-hist.xsl</stylesheet>
+              <!--<stylesheet>default.xsl</stylesheet>-->
+              <!--<stylesheet>plain.xsl</stylesheet>-->
+              <!--<stylesheet>fancy.xsl</stylesheet>-->
+              <!--<stylesheet>summary.xsl</stylesheet>-->
+              <fileMappers>
+                <fileMapper
+                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                  <targetExtension>.html</targetExtension>
+                </fileMapper>
+              </fileMappers>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <dependencyManagement>
     <dependencies>
       <!-- Gson: Java to Json conversion -->
