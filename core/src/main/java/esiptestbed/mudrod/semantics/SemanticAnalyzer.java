@@ -65,6 +65,11 @@ public class SemanticAnalyzer extends MudrodAbstract {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
         csvFileName, skipRow);
+
+    if (importRDD.values().first().size() == 0) {
+      return null;
+    }
+
     CoordinateMatrix simMatrix = SimilarityUtil
         .CalSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
@@ -82,11 +87,17 @@ public class SemanticAnalyzer extends MudrodAbstract {
 
   /**
    * Method of saving linkage triples to Elasticsearch.
-   * @param tripleList linkage triple list
-   * @param index index name
-   * @param type type name
-   * @param bTriple bTriple
-   * @param bSymmetry bSymmetry
+   * 
+   * @param tripleList
+   *          linkage triple list
+   * @param index
+   *          index name
+   * @param type
+   *          type name
+   * @param bTriple
+   *          bTriple
+   * @param bSymmetry
+   *          bSymmetry
    */
   public void saveToES(List<LinkageTriple> tripleList, String index,
       String type, boolean bTriple, boolean bSymmetry) {

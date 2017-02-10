@@ -25,10 +25,6 @@ import java.util.regex.Pattern;
 
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.joda.time.DateTime;
-import org.joda.time.Seconds;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -37,17 +33,23 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.MetricsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.stats.Stats;
+import org.joda.time.DateTime;
+import org.joda.time.Seconds;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import esiptestbed.mudrod.discoveryengine.DiscoveryStepAbstract;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
+import esiptestbed.mudrod.weblog.structure.Coordinates;
+import esiptestbed.mudrod.weblog.structure.GeoIp;
 import esiptestbed.mudrod.weblog.structure.RequestUrl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Supports ability to post-process session, including summarizing statistics and filtering
+ * Supports ability to post-process session, including summarizing statistics
+ * and filtering
  *
  */
 public class SessionStatistic extends DiscoveryStepAbstract {
@@ -56,10 +58,10 @@ public class SessionStatistic extends DiscoveryStepAbstract {
    * 
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(SessionStatistic.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SessionStatistic.class);
 
-  public SessionStatistic(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public SessionStatistic(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -78,17 +80,23 @@ public class SessionStatistic extends DiscoveryStepAbstract {
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Session summarizing ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info(
+        "*****************Session summarizing ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 
-/**
- * Method to summarize duration, numbers of searching, viewing, and downloading requests, and 
- * filter out suspicious sessions
- * @throws IOException IOException
- * @throws InterruptedException InterruptedException
- * @throws ExecutionException ExecutionException
- */
+  /**
+   * Method to summarize duration, numbers of searching, viewing, and
+   * downloading requests, and filter out suspicious sessions
+   * 
+   * @throws IOException
+   *           IOException
+   * @throws InterruptedException
+   *           InterruptedException
+   * @throws ExecutionException
+   *           ExecutionException
+   */
   public void processSession()
       throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcesser();
@@ -97,8 +105,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
     MetricsAggregationBuilder<?> statsAgg = AggregationBuilders.stats("Stats")
         .field("Time");
-    SearchResponse sr = es.getClient().prepareSearch(props.getProperty("indexName"))
-        .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
+    SearchResponse sr = es.getClient()
+        .prepareSearch(props.getProperty("indexName")).setTypes(inputType)
+        .setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
             .size(0).subAggregation(statsAgg))
         .execute().actionGet();
@@ -162,8 +171,7 @@ public class SessionStatistic extends DiscoveryStepAbstract {
             if (request.contains(datasetlist)) {
               searchDataListRequest_count++;
 
-              RequestUrl requestURL = new RequestUrl(this.props, this.es,
-                  null);
+              RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
               String info = requestURL.getSearchInfo(request) + ",";
 
               if (!info.equals(",")) {
@@ -221,7 +229,8 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
           }
 
-          scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
+          scrollResp = es.getClient()
+              .prepareSearchScroll(scrollResp.getScrollId())
               .setScroll(new TimeValue(600000)).execute().actionGet();
           // Break condition: No hits are returned
           if (scrollResp.getHits().getHits().length == 0) {
@@ -235,36 +244,41 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
         if (searchDataListRequest_count != 0
             && searchDataListRequest_count <= Integer
-            .parseInt(props.getProperty("searchf"))
+                .parseInt(props.getProperty("searchf"))
             && searchDataRequest_count != 0
-            && searchDataRequest_count <= Integer.parseInt(props.getProperty("viewf"))
-            && ftpRequest_count <= Integer.parseInt(props.getProperty("downloadf"))) {
-          String sessionURL = props.getProperty("SessionPort") + props.getProperty("SessionUrl")
-          + "?sessionid=" + entry.getKey() + "&sessionType="
-          + outputType + "&requestType=" + inputType;
+            && searchDataRequest_count <= Integer
+                .parseInt(props.getProperty("viewf"))
+            && ftpRequest_count <= Integer
+                .parseInt(props.getProperty("downloadf"))) {
+          String sessionURL = props.getProperty("SessionPort")
+              + props.getProperty("SessionUrl") + "?sessionid=" + entry.getKey()
+              + "&sessionType=" + outputType + "&requestType=" + inputType;
           session_count++;
+
+          GeoIp converter = new GeoIp();
+          Coordinates loc = converter.toLocation(IP);
 
           IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
               outputType).source(
                   jsonBuilder().startObject().field("SessionID", entry.getKey())
-                  .field("SessionURL", sessionURL)
-                  .field("Request_count", entry.getDocCount())
-                  .field("Duration", duration)
-                  .field("Number of Keywords", keywords_num)
-                  .field("Time", min).field("End_time", max)
-                  .field("searchDataListRequest_count",
-                      searchDataListRequest_count)
-                  .field("searchDataListRequest_byKeywords_count",
-                      searchDataListRequest_byKeywords_count)
-                  .field("searchDataRequest_count", searchDataRequest_count)
-                  .field("keywords",
-                      es.customAnalyzing(props.getProperty("indexName"), keywords))
-                  .field("views", views).field("downloads", downloads)
-                  .field("request_rate", request_rate).field("Comments", "")
-                  .field("Validation", 0).field("Produceby", 0)
-                  .field("Correlation", 0).field("IP", IP)
-                  // .field("Coordinates", loc.latlon)
-                  .endObject());
+                      .field("SessionURL", sessionURL)
+                      .field("Request_count", entry.getDocCount())
+                      .field("Duration", duration)
+                      .field("Number of Keywords", keywords_num)
+                      .field("Time", min).field("End_time", max)
+                      .field("searchDataListRequest_count",
+                          searchDataListRequest_count)
+                      .field("searchDataListRequest_byKeywords_count",
+                          searchDataListRequest_byKeywords_count)
+                      .field("searchDataRequest_count", searchDataRequest_count)
+                      .field("keywords",
+                          es.customAnalyzing(props.getProperty("indexName"),
+                              keywords))
+                      .field("views", views).field("downloads", downloads)
+                      .field("request_rate", request_rate).field("Comments", "")
+                      .field("Validation", 0).field("Produceby", 0)
+                      .field("Correlation", 0).field("IP", IP)
+                      .field("Coordinates", loc.latlon).endObject());
 
           es.getBulkProcessor().add(ir);
         }
@@ -276,7 +290,9 @@ public class SessionStatistic extends DiscoveryStepAbstract {
 
   /**
    * Extract the dataset ID from a long request
-   * @param request raw log request
+   * 
+   * @param request
+   *          raw log request
    * @return dataset ID
    */
   public String findDataset(String request) {
