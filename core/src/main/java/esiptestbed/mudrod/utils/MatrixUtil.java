@@ -298,7 +298,7 @@ public class MatrixUtil {
 
     JavaPairRDD<String, Tuple2<Tuple2<String, Double>, Optional<Long>>> testRDD = word_docnum_RDD
         .leftOuterJoin(wordIDRDD);
-    
+
     int wordsize = (int) wordIDRDD.count();
     JavaPairRDD<String, Vector> doc_vectorRDD = testRDD.mapToPair(
         new PairFunction<Tuple2<String, Tuple2<Tuple2<String, Double>, Optional<Long>>>, String, Tuple2<List<Long>, List<Double>>>() {
@@ -407,6 +407,10 @@ public class MatrixUtil {
           }
         });
 
+    if (importIdRDD.count() == 0) {
+      return null;
+    }
+
     return importIdRDD
         .mapToPair(new PairFunction<Tuple2<String, Long>, String, Vector>() {
           /** */
@@ -418,7 +422,17 @@ public class MatrixUtil {
             String[] fields = t._1.split(",");
             String word = fields[0];
             int fieldsize = fields.length;
-            String[] numfields = Arrays.copyOfRange(fields, 1, fieldsize - 1);
+            int nStart = 1;
+            int nEnd = fieldsize - 1;
+            if (fieldsize < 2) {
+
+              System.out.println("***************output null***************");
+              nStart = 0;
+              nEnd = 0;
+            }
+
+            String[] numfields = Arrays.copyOfRange(fields, nStart, nEnd);
+
             double[] nums = Stream.of(numfields)
                 .mapToDouble(Double::parseDouble).toArray();
             Vector vec = Vectors.dense(nums);

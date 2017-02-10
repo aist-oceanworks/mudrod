@@ -36,7 +36,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import esiptestbed.mudrod.driver.ESDriver;
 
 /**
- * ClassName: LinkageTriple Function: Vocabulary linkage operations 
+ * ClassName: LinkageTriple Function: Vocabulary linkage operations
  */
 public class LinkageTriple implements Serializable {
 
@@ -80,7 +80,12 @@ public class LinkageTriple implements Serializable {
       LinkageTriple.addMapping(es, index, type);
     }
 
+    if (triples == null) {
+      return;
+    }
+
     es.createBulkProcesser();
+
     int size = triples.size();
     for (int i = 0; i < size; i++) {
 
