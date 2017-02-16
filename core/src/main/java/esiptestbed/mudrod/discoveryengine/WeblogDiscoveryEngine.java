@@ -25,7 +25,6 @@ import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.weblog.pre.ClickStreamGenerator;
 import esiptestbed.mudrod.weblog.pre.CrawlerDetection;
-import esiptestbed.mudrod.weblog.pre.ExportLogFile;
 import esiptestbed.mudrod.weblog.pre.HistoryGenerator;
 import esiptestbed.mudrod.weblog.pre.ImportLogFile;
 import esiptestbed.mudrod.weblog.pre.RemoveRawLog;
@@ -114,10 +113,6 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       im.execute();
 
       DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es,
-          this.spark);
-      cd.execute();
-
-      DiscoveryStepAbstract test = new ExportLogFile(this.props, this.es,
           this.spark);
       cd.execute();
 
