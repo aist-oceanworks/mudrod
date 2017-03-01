@@ -90,6 +90,14 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
     </dependency>
+
+    <dependency>
+      <!-- Needed to run the Spark UI during log ingestion -->
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
     <!-- End of Spark dependencies -->
 
     <dependency>
@@ -125,10 +133,6 @@
       <artifactId>jena-core</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-    </dependency>
 
   </dependencies>
 

@@ -51,27 +51,13 @@ public class ESTransportClient extends TransportClient {
 
   public ESTransportClient(Settings settings,
       Collection<Class<? extends Plugin>> plugins) {
-    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS));
+    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS), null);
 
   }
 
   @Override
   public void close() {
     super.close();
-    /*if (NetworkModule.TRANSPORT_TYPE_SETTING.exists(settings) == false
-        || NetworkModule.TRANSPORT_TYPE_SETTING.get(settings)
-            .equals(Netty3Plugin.NETTY_TRANSPORT_NAME)) {
-      try {
-        GlobalEventExecutor.INSTANCE.awaitInactivity(5, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-      try {
-        ThreadDeathWatcher.awaitInactivity(5, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-    }*/
   }
 
 }

@@ -22,6 +22,8 @@ public interface MudrodConstants {
 
   public static final String MUDROD = "mudrod";
 
+  public static final String MUDROD_CONFIG = "MUDROD_CONFIG";
+
   public static final String TIME_SUFFIX = "TimeSuffix";
 
   public static final String LOG_DIR = "logDir";

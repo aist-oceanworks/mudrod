@@ -44,6 +44,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Static web resources -->
+    <dependency>
+      <groupId>esiptestbed</groupId>
+      <artifactId>mudrod-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Logging dependencies -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -88,7 +95,7 @@
         <artifactId>tomcat7-maven-plugin</artifactId>
         <version>2.2</version>
         <configuration>
-          <port>8181</port>
+          <port>8080</port>
           <systemProperties>
             <CATALINA_OPTS>-Djava.awt.headless=true
               -Dfile.encoding=UTF-8
