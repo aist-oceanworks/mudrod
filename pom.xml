@@ -122,6 +122,7 @@
   <modules>
     <module>core</module>
     <module>service</module>
+    <module>web</module>
   </modules>
 
   <build>
