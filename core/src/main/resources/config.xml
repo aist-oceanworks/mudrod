@@ -66,8 +66,8 @@
   <para name="metadataCodeSimType">MetadataCodeSim</para>
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
-  
-  <para name="svmSgdModel">file:///Users/greguska/githubprojects/mudrod/core/src/main/resources/javaSVMWithSGDModel</para>
+
+  <para name="svmSgdModel">file:///usr/local/mudrod/core/src/main/resources/javaSVMWithSGDModel</para>
   
   <!-- 
   The ontology service implementation. Possible values include
