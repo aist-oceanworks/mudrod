@@ -13,6 +13,8 @@
  */
 package esiptestbed.mudrod.main;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -40,6 +42,8 @@ import esiptestbed.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import esiptestbed.mudrod.driver.ESDriver;
 import esiptestbed.mudrod.driver.SparkDriver;
 import esiptestbed.mudrod.integration.LinkageIntegration;
+
+import static esiptestbed.mudrod.main.MudrodConstants.MUDROD_CONFIG;
 
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
@@ -121,6 +125,28 @@ public class MudrodEngine {
     this.es = es;
   }
 
+  private InputStream locateConfig(){
+
+    String configLocation = System.getenv(MUDROD_CONFIG)==null?"":System.getenv(MUDROD_CONFIG);
+    File configFile = new File(configLocation);
+
+    try{
+      InputStream configStream = new FileInputStream(configFile);
+      LOG.info("Loaded config file from " + configFile.getAbsolutePath());
+      return configStream;
+    }catch (IOException e){
+      LOG.info("File specified by environment variable " + MUDROD_CONFIG + "=\'" + configLocation + "\' could not be loaded. " + e.getMessage());
+    }
+
+    InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
+
+    if(configStream != null) {
+      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
+    }
+
+    return configStream;
+  }
+
   /**
    * Load the configuration provided at <a href=
    * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
@@ -129,8 +155,8 @@ public class MudrodEngine {
    */
   public Properties loadConfig() {
     SAXBuilder saxBuilder = new SAXBuilder();
-    InputStream configStream = MudrodEngine.class.getClassLoader()
-        .getResourceAsStream("config.xml");
+
+    InputStream configStream = locateConfig();
 
     Document document;
     try {
