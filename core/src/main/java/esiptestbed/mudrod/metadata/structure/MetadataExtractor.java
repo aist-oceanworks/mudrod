@@ -170,7 +170,7 @@ protected List<Metadata> loadMetadataFromES(ESDriver es, String index,
 //		  {
 //			  norList.add(ele.trim());
 //		  }
-		  norList.add(ele.replace(",", "").trim());
+		  norList.add(ele.replace(",", " ").trim());
 	  }
 	  return norList;
   }

@@ -54,6 +54,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   DecimalFormat df = new DecimalFormat("#.00");
   private static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
+  private int size = 0;
 
   public LinkageIntegration(Properties props, ESDriver es,
       SparkDriver spark) {
@@ -80,7 +81,12 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    getIngeratedList("quikscat", 30);
+	  size = 500;   //important threshold
+      getIngeratedList("ocean wind", 100, "project");
+      //getIngeratedList("ocean wind", 100, "collection");
+
+    //to solve the problem "long name can not be seen", we can use chain rule "dmsp f13" and "defense
+    //...f13" is 1.0
     return null;
   }
 
@@ -118,7 +124,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
         }
       }
 
-      double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
+      //double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
+      double finalWeight = tmp;
+
       if (finalWeight < 0) {
         finalWeight = 0;
       }
@@ -173,7 +181,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    * @param num the number of most related terms
    * @return a string of related terms along with corresponding similarities
    */
-  public String getIngeratedList(String input, int num) {
+  public String getIngeratedList(String input, int num, String relation) {
     String output = "\n";
     Map<String, Double> sortedMap = appyMajorRule(input);
     int count = 0;
@@ -181,13 +189,19 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       if (count < num) {
     	NERer NER = new NERer(this.getConfig(), this.getES(), null);
     	String type = NER.getNER(entry.getKey());
-    	if(!type.equals("unknown"))
+    	
+    	if(relation!=null && type.toLowerCase().contains(relation))
     	{
             output += type + " " + entry.getKey() + " = " + entry.getValue() + "\n";
             count++;
-    	}    	  
+    	}
+    	
+    	if(relation == null)
+    	{
+            output += type + " " + entry.getKey() + " = " + entry.getValue() + "\n";
+            count++;
+    	}
       }
-      //count++;
     }
     LOG.info("\n************************Integrated results***************************");
     LOG.info(output);
@@ -277,7 +291,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     //get the first 10 related terms
     SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
+        .addSort(WEIGHT, SortOrder.DESC).setSize(100).execute().actionGet();
 
     //LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
@@ -303,7 +317,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   public void aggregateRelatedTermsSWEET(String input, String model) {
     SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
         .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
+        .addSort(WEIGHT, SortOrder.DESC).setSize(size).execute().actionGet();
     //LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();

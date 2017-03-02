@@ -54,7 +54,7 @@ public class NERer extends MudrodAbstract {
 					return "hasRelated" + NERMap.get(Metadata.fieldsList[m]);
 			}
 		}
-		return "unknown";
+		return "hasRelatedEntity(unknown)";
 	}
 	
 	
