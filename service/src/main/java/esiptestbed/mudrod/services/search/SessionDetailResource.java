@@ -13,25 +13,19 @@
  */
 package esiptestbed.mudrod.services.search;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import esiptestbed.mudrod.main.MudrodConstants;
 import esiptestbed.mudrod.main.MudrodEngine;
 import esiptestbed.mudrod.weblog.structure.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Servlet implementation class SessionDetail
@@ -39,39 +33,40 @@ import esiptestbed.mudrod.weblog.structure.Session;
 @Path("/sessiondetail")
 public class SessionDetailResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SessionDetailResource.class);
-  private MudrodEngine mEngine;
+    private static final Logger LOG = LoggerFactory.getLogger(SessionDetailResource.class);
+    private MudrodEngine mEngine;
 
-  /** 
-   * Constructor
-   * @param sc an instantiated {@link javax.servlet.ServletContext}
-   */
-  public SessionDetailResource(@Context ServletContext sc) {
-    this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
-  }
-
-  @GET
-  @Path("/status")
-  @Produces("text/html")
-  public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Session Detail Search Resource: running correctly...</h1>").build();
-  }
-
-  @POST
-  @Path("{CleanupType}-{SessionID}")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Consumes("text/plain")
-  protected Response searchSessionDetail(
-      @PathParam("CleanupType") String cleanupType, @PathParam("SessionID") String sessionID) {
-
-    JsonObject json = new JsonObject();
-    if(sessionID!=null) {
-      Session session = new Session(mEngine.getConfig(), mEngine.getESDriver());
-      json = session.getSessionDetail(mEngine.getConfig()
-          .getProperty(MudrodConstants.ES_INDEX_NAME, "mudrod"), cleanupType, sessionID);
+    /**
+     * Constructor
+     *
+     * @param sc an instantiated {@link javax.servlet.ServletContext}
+     */
+    public SessionDetailResource(@Context ServletContext sc) {
+        this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
     }
-    LOG.info("Response received: {}", json);
-    return Response.ok(json, MediaType.APPLICATION_JSON).build();
-  }
+
+    @GET
+    @Path("/status")
+    @Produces("text/html")
+    public Response status() {
+        return Response
+                .ok("<h1>This is MUDROD Session Detail Search Resource: running correctly...</h1>").build();
+    }
+
+    @POST
+    @Path("{CleanupType}-{SessionID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes("text/plain")
+    protected Response searchSessionDetail(
+            @PathParam("CleanupType") String cleanupType, @PathParam("SessionID") String sessionID) {
+
+        JsonObject json = new JsonObject();
+        if (sessionID != null) {
+            Session session = new Session(mEngine.getConfig(), mEngine.getESDriver());
+            json = session.getSessionDetail(mEngine.getConfig()
+                    .getProperty(MudrodConstants.ES_INDEX_NAME, "mudrod"), cleanupType, sessionID);
+        }
+        LOG.info("Response received: {}", json);
+        return Response.ok(new Gson().toJson(json), MediaType.APPLICATION_JSON).build();
+    }
 }
