@@ -66,6 +66,7 @@ function search(query) {
 			},
 			success : function completeHandler(response) {
 				if (response != null) {
+					response = JSON.parse(response)
 					$("#searchLoading").hide();
 					var searchResults = response.PDResults;
 					if (searchResults.length == 0) {
@@ -92,6 +93,7 @@ function search(query) {
 			},
 			success: function completeHandler(response) {
 				if (response != null) {
+                    JSON.parse(response)
 					var ontologyResults = response.graph.ontology;
 					if(ontologyResults.length == 0) {
 						//TODO return a simple JSON response indicating no hits.
