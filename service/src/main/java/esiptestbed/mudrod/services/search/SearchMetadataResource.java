@@ -73,7 +73,7 @@ public class SearchMetadataResource {
         operator, //please replace it with and, or, phrase
         ranker);
     String json = new Gson().toJson(fileList);
-    LOG.info("Response received: {}", json);
+    LOG.debug("Response received: {}", json);
     return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
 
