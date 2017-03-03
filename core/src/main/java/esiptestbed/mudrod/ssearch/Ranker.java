@@ -111,7 +111,7 @@ public class Ranker extends MudrodAbstract implements Serializable{
    * @return Z score
    */
   private double getZscore(double val, double mean, double std) {
-    if(equalComp(std, 0)) {
+    if(!equalComp(std, 0)) {
       return getNDForm((val-mean)/std);
     } else {
       return 0;
