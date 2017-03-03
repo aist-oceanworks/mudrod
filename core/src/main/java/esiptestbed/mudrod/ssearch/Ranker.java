@@ -119,7 +119,10 @@ public class Ranker extends MudrodAbstract implements Serializable{
   }
 
   private boolean equalComp(double a, double b) {
-    return Math.abs(a - b) < 0.0001;
+    if (Math.abs(a - b) < 0.0001)
+      return true;
+    else
+      return false;
   }
   
   /**

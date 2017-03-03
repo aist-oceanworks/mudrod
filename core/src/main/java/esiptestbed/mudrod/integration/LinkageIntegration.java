@@ -321,7 +321,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       String key = entry.getKey();
       Double value = entry.getValue();
       node.addProperty("word", key);
-      node.addProperty("weight", wordweights.get(value));
+      node.addProperty("weight", value);
       nodes.add(node);
     }
 
