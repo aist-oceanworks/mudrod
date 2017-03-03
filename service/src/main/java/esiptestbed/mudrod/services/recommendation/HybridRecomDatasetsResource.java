@@ -20,6 +20,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,11 +50,11 @@ public class HybridRecomDatasetsResource {
         .ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>").build();
   }
 
-  @PUT
-  @Path("{shortname}")
+  @GET
+  @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response hybridRecommendation(@PathParam("shortname") String shortName) {
+  public Response hybridRecommendation(@QueryParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
       HybridRecommendation recom = new HybridRecommendation(mEngine.getConfig(),

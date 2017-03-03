@@ -41,79 +41,43 @@ $(document).ready(function () {
     g_currentQuery = encodeURI(query);
 
     // invoke SearchVocabResource.java
-    $.ajax({
-        url: "services/vocabulary/search",
-        data: {
-            "query": query
-        },
-        success: function completeHandler(response) {
-            if (response != null && !jQuery.isEmptyObject(response)) {
-                var ontologyResults = response.graph.ontology;
-                if (ontologyResults.length == 0) {
-                    $("#ontologyUL").append("<li>Did not find any results.</li>");
-                } else {
-                    for (var i = 0; i < ontologyResults.length; i++) {
-                        $("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
-                    }
-                }
-            }
-        }
-    });
-    // loadMetaData(shortname);
-    //loadRecomData(shortname);
+    loadVocubulary(query);
+    loadMetaData(shortname);
     loadHybirdRecomData(shortname);
 });
 
-function loadRecomData(shortname) {
-    if (shortname != "") {
-        $("#dataset").show();
-        $.ajax({
-            url: "services/recommendation/" + shortname,
-            success: function completeHandler(response) {
-                if (response != null && !jQuery.isEmptyObject(response)) {
-                    var recomdata = response.recomdata;
-
-                    var linked = recomdata.linked;
-                    if (linked.length == 0) {
-                        $("#NotFound").show();
-                    } else {
-                        $.each(linked, function (i, item) {
-                            var li = $("<li><a></a></li>");
-                            $("#linkedul").append(li);
-                            $("a", li).text(item.name + "(" + item.weight + ")");
-                            //$("a",li).text(item.name);
-                            $("a", li).attr("href", "./dataset.html?shortname=" + item.name);
-                        });
-                    }
-
-                    var related = recomdata.related;
-                    if (related.length == 0) {
-                        $("#NotFound").show();
-                    } else {
-                        $.each(related, function (i, item) {
-                            var li = $("<li><a></a></li>");
-                            $("#relatedul").append(li);
-                            $("a", li).text(item.name + "(" + item.weight + ")");
-                            //$("a",li).text(item.name);
-                            $("a", li).attr("href", "./dataset.html?shortname=" + item.name);
-                        });
-                    }
-
-                    loadHybirdRecomData(shortname);
-                }
-            }
-        });
-    }
+function loadVocubulary(query){
+	  $.ajax({
+	        url: "services/vocabulary/search",
+	        data: {
+	            "query": query
+	        },
+	        success: function completeHandler(response) {
+	            if (response != null && !jQuery.isEmptyObject(response)) {
+	                var ontologyResults = response.graph.ontology;
+	                if (ontologyResults.length == 0) {
+	                    $("#ontologyUL").append("<li>Did not find any results.</li>");
+	                } else {
+	                    for (var i = 0; i < ontologyResults.length; i++) {
+	                        $("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
+	                    }
+	                }
+	            }
+	        }
+	    });
 }
 
 function loadHybirdRecomData(shortname) {
     if (shortname != "") {
         $("#dataset").show();
         $.ajax({
-            url: "/services/hrecommendation/" + shortname,
+            url: "services/hrecommendation/search",
+            data: {
+                "shortname": shortname
+            },
             success: function completeHandler(response) {
                 if (response != null && !jQuery.isEmptyObject(response)) {
-                    var recomdata = response.recomdata;
+                    var recomdata = response.HybridRecommendationData;
                     var linked = recomdata.linked;
                     if (linked.length == 0) {
                         $("#NotFound").show();
@@ -138,7 +102,7 @@ function loadMetaData(shortname) {
     if (shortname != "") {
         $("#dataset").show();
         $.ajax({
-            url: "/services/datasetdetail",
+            url: "services/datasetdetail/search",
             data: {
                 "shortname": shortname
             },
