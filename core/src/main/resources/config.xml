@@ -67,7 +67,9 @@
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
 
-  <para name="svmSgdModel">file:///Users/yjiang/Documents/mudrod_data/javaSVMWithSGDModel</para>
+
+  <!-- This should be the absolute path to mudrod/core/src/main/resources/javaSVMWithSGDModel on your system -->
+  <para name="svmSgdModel">file://YOUNEEDTOCHANGETHIS</para>
   
   <!-- 
   The ontology service implementation. Possible values include
