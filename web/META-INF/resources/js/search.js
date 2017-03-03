@@ -65,8 +65,7 @@ function search(query) {
                 "operator": $("input[name='searchOption']:checked").val()
             },
             success: function completeHandler(response) {
-                if (response != null) {
-                    response = JSON.parse(response)
+                if (response != null && !jQuery.isEmptyObject(response)) {
                     $("#searchLoading").hide();
                     var searchResults = response.PDResults;
                     if (searchResults.length == 0) {
@@ -88,15 +87,13 @@ function search(query) {
         $.ajax({
             url: "services/vocabulary/search",
             data: {
-                "concept": $("#query").val().toLowerCase(),
-                "operator": $("input[name='searchOption']:checked").val()
+                "query": $("#query").val().toLowerCase()
             },
             success: function completeHandler(response) {
-                if (response != null) {
-                    JSON.parse(response)
+                if (response != null && !jQuery.isEmptyObject(response)) {
                     var ontologyResults = response.graph.ontology;
                     if (ontologyResults.length == 0) {
-                        //TODO return a simple JSON response indicating no hits.
+                        $("#ontologyUL").append("<li>Did not find any results.</li>");
                     } else {
                         for (var i = 0; i < ontologyResults.length; i++) {
                             $("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
@@ -114,7 +111,7 @@ function search(query) {
                 "operator": $("input[name='searchOption']:checked").val()
             },
             success: function completeHandler(response) {
-                if (response != null) {
+                if (response != null && !jQuery.isEmptyObject(response)) {
                     //TODO
                 }
             }
@@ -128,7 +125,7 @@ function search(query) {
                 "operator": $("input[name='searchOption']:checked").val()
             },
             success: function completeHandler(response) {
-                if (response != null) {
+                if (response != null && !jQuery.isEmptyObject(response)) {
                     //TODO
                 }
             }
@@ -139,7 +136,7 @@ function search(query) {
 function FileNameFormatter(value) {
     var url = "http://podaac.jpl.nasa.gov/ws/metadata/dataset?format=gcmd&shortName="
         + encodeURIComponent(value);
-    url = "./dataset.html?query=" + g_currentQuery + "&searchOption=" + g_currentSearchOption + "&shortname=" + value;
+    // url = "./dataset.html?query=" + g_currentQuery + "&searchOption=" + g_currentSearchOption + "&shortname=" + value;
     return '<a class="fileShortName" href=' + url + ' target="_blank">' + value + '</a>';
 }
 
