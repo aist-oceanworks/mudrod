@@ -80,7 +80,7 @@ function loadHybirdRecomData(shortname) {
                     var recomdata = response.HybridRecommendationData;
                     var linked = recomdata.linked;
                     if (linked.length == 0) {
-                        $("#NotFound").show();
+                        $("#hybirdul").append("<li>Did not find any results.</li>");
                     } else {
 
                         $.each(linked, function (i, item) {
