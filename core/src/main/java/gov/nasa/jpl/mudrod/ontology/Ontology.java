@@ -20,42 +20,45 @@ import java.util.Iterator;
  * to load, merge e.g. merge relevant ontology subgraphs into a new
  * subgraph which can be used within Mudrod, subclass retreival,
  * synonym expansion, etc.
- * 
- * @author lewismc
  *
+ * @author lewismc
  */
 public interface Ontology {
 
   /**
    * Loading an array URIs which resolve to ontology resources.
+   *
    * @param urls a {@link java.lang.String} containing ontology URIs.
    */
   public void load(String[] urls);
-  
+
   /**
    * Load a collection of default ontological resources.
    */
   public void load();
 
   /**
-   * merge relevant ontology subgraphs into a new subgraph which can 
+   * merge relevant ontology subgraphs into a new subgraph which can
    * be used within Mudrod
+   *
    * @param o an ontology to merge with the current ontology held
-   * within Mudrod.
+   *          within Mudrod.
    */
   public void merge(Ontology o);
 
   /**
-   * Retreive all subclasses for a particular entity provided within the 
+   * Retreive all subclasses for a particular entity provided within the
    * search term e.g.subclass-based query expansion.
+   *
    * @param entitySearchTerm an input search term
    * @return an {@link java.util.Iterator} object containing subClass entries.
    */
   public Iterator<String> subclasses(String entitySearchTerm);
 
   /**
-   * Retreive all synonyms for a particular entity provided within the 
+   * Retreive all synonyms for a particular entity provided within the
    * search term e.g.synonym-based query expansion.
+   *
    * @param queryKeyPhrase a phrase to undertake synonym expansion on.
    * @return an {@link java.util.Iterator} object containing synonym entries.
    */

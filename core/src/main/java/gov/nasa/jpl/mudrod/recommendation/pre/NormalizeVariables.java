@@ -1,10 +1,5 @@
 package gov.nasa.jpl.mudrod.recommendation.pre;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
@@ -16,10 +11,15 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Pattern;
+
 public class NormalizeVariables extends DiscoveryStepAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
@@ -32,9 +32,8 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of OHEncoder.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es an instantiated {@link ESDriver}
+   * @param props the Mudrod configuration
+   * @param es    an instantiated {@link ESDriver}
    * @param spark an instantiated {@link SparkDriver}
    */
   public NormalizeVariables(Properties props, ESDriver es, SparkDriver spark) {
@@ -81,8 +80,9 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
         this.normalizeTemporalVariables(metadata, updatedValues);
         this.normalizeOtherVariables(metadata, updatedValues);
 
-        UpdateRequest ur = es.generateUpdateRequest(indexName, metadataType,
-            hit.getId(), updatedValues);
+        UpdateRequest ur = es
+            .generateUpdateRequest(indexName, metadataType, hit.getId(),
+                updatedValues);
         es.getBulkProcessor().add(ur);
       }
 
@@ -185,8 +185,8 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
       trStr = (String) metadata.get("Dataset-TemporalRepeat");
     }
 
-    updatedValues.put("Dataset-Derivative-TemporalResolution",
-        covertTimeUnit(trStr));
+    updatedValues
+        .put("Dataset-Derivative-TemporalResolution", covertTimeUnit(trStr));
   }
 
   private Double covertTimeUnit(String str) {

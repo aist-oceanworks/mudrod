@@ -1,15 +1,12 @@
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.weblog.partition.KGreedyPartitionSolver;
 import gov.nasa.jpl.mudrod.weblog.partition.ThePartitionProblemSolver;
+import gov.nasa.jpl.mudrod.weblog.partition.logPartitioner;
 import org.apache.commons.io.IOUtils;
 import org.apache.spark.Partition;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -26,13 +23,11 @@ import org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
-import gov.nasa.jpl.mudrod.weblog.partition.KGreedyPartitionSolver;
-import gov.nasa.jpl.mudrod.weblog.partition.logPartitioner;
 import scala.Tuple2;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 public class LogAbstract extends DiscoveryStepAbstract {
 
@@ -55,8 +50,8 @@ public class LogAbstract extends DiscoveryStepAbstract {
   }
 
   protected void initLogIndex() {
-    logIndex = props.getProperty(MudrodConstants.LOG_INDEX)
-        + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    logIndex = props.getProperty(MudrodConstants.LOG_INDEX) + props
+        .getProperty(MudrodConstants.TIME_SUFFIX);
     httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX);
     ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX);
     cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX);
@@ -130,8 +125,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
     int docCount = es.getDocCount(logIndex, type);
 
     SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(type)
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(0).addAggregation(
             AggregationBuilders.terms("Users").field("IP").size(docCount))
         .execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
@@ -161,10 +155,10 @@ public class LogAbstract extends DiscoveryStepAbstract {
         .order(Order.COUNT_DESC);
 
     SearchResponse sr = es.getClient().prepareSearch(logIndex)
-        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0).addAggregation(AggregationBuilders.terms("Users")
-            .field("IP").size(docCount).subAggregation(dailyAgg))
-        .execute().actionGet();
+        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(
+            AggregationBuilders.terms("Users").field("IP").size(docCount)
+                .subAggregation(dailyAgg)).execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
     Map<String, Long> userList = new HashMap<String, Long>();
     for (Terms.Bucket user : users.getBuckets()) {
@@ -235,8 +229,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
     SearchResponse sr = es.getClient().prepareSearch(this.logIndex)
         .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
         .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .size(docCount))
-        .execute().actionGet();
+            .size(docCount)).execute().actionGet();
 
     Terms Sessions = sr.getAggregations().get("Sessions");
     return Sessions;

@@ -13,19 +13,10 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.weblog.structure.RequestUrl;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
@@ -46,20 +37,22 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
-import gov.nasa.jpl.mudrod.weblog.structure.RequestUrl;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Supports ability to post-process session, including summarizing statistics
  * and filtering
- *
  */
 public class SessionStatistic extends LogAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
@@ -128,9 +121,8 @@ public class SessionStatistic extends LogAbstract {
 
   /**
    * Extract the dataset ID from a long request
-   * 
-   * @param request
-   *          raw log request
+   *
+   * @param request raw log request
    * @return dataset ID
    */
   public String findDataset(String request) {
@@ -326,19 +318,18 @@ public class SessionStatistic extends LogAbstract {
 
     if (searchDataListRequest_count != 0
         && searchDataListRequest_count <= Integer
-            .parseInt(props.getProperty("searchf"))
-        && searchDataRequest_count != 0
+        .parseInt(props.getProperty("searchf")) && searchDataRequest_count != 0
         && searchDataRequest_count <= Integer
-            .parseInt(props.getProperty("viewf"))
-        && ftpRequest_count <= Integer
-            .parseInt(props.getProperty("downloadf"))) {
-      String sessionURL = props.getProperty("SessionPort")
-          + props.getProperty("SessionUrl") + "?sessionid=" + sessionId
-          + "&sessionType=" + outputType + "&requestType=" + inputType;
+        .parseInt(props.getProperty("viewf")) && ftpRequest_count <= Integer
+        .parseInt(props.getProperty("downloadf"))) {
+      String sessionURL =
+          props.getProperty("SessionPort") + props.getProperty("SessionUrl")
+              + "?sessionid=" + sessionId + "&sessionType=" + outputType
+              + "&requestType=" + inputType;
       session_count = 1;
 
-      IndexRequest ir = new IndexRequest(logIndex, outputType)
-          .source(jsonBuilder().startObject().field("SessionID", sessionId)
+      IndexRequest ir = new IndexRequest(logIndex, outputType).source(
+          jsonBuilder().startObject().field("SessionID", sessionId)
               .field("SessionURL", sessionURL).field("Duration", duration)
               .field("Number of Keywords", keywords_num).field("Time", min)
               .field("End_time", max)

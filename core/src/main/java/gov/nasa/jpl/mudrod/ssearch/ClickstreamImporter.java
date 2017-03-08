@@ -13,21 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.ssearch;
 
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
-import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Supports ability to import click stream data into Elasticsearch
@@ -35,7 +33,7 @@ import gov.nasa.jpl.mudrod.driver.SparkDriver;
  */
 public class ClickstreamImporter extends MudrodAbstract {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -47,67 +45,57 @@ public class ClickstreamImporter extends MudrodAbstract {
   /**
    * Method to add Elasticsearch mapping for click stream data
    */
-  public void addClickStreamMapping(){
+  public void addClickStreamMapping() {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder()
-          .startObject()
+      Mapping = jsonBuilder().startObject()
           .startObject(props.getProperty("clickstreamMatrixType"))
-          .startObject("properties")
-          .startObject("query")
-          .field("type", "string")
-          .field("index", "not_analyzed")
-          .endObject()
-          .startObject("dataID")
-          .field("type", "string")
-          .field("index", "not_analyzed")
-          .endObject()
+          .startObject("properties").startObject("query")
+          .field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("dataID").field("type", "string")
+          .field("index", "not_analyzed").endObject()
 
-          .endObject()
-          .endObject()
-          .endObject();
+          .endObject().endObject().endObject();
 
       es.getClient().admin().indices()
-      .preparePutMapping(props.getProperty("indexName"))
-      .setType(props.getProperty("clickstreamMatrixType"))
-      .setSource(Mapping)
-      .execute().actionGet();
+          .preparePutMapping(props.getProperty("indexName"))
+          .setType(props.getProperty("clickstreamMatrixType"))
+          .setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
-    } 
+    }
   }
 
   /**
    * Method to import click stream CSV into Elasticsearch
    */
-  public void importfromCSVtoES(){
-    es.deleteType(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType"));
+  public void importfromCSVtoES() {
+    es.deleteType(props.getProperty("indexName"),
+        props.getProperty("clickstreamMatrixType"));
     es.createBulkProcessor();
 
     BufferedReader br = null;
     String cvsSplitBy = ",";
 
     try {
-      br = new BufferedReader(new FileReader(props.getProperty("clickstreamMatrix")));
+      br = new BufferedReader(
+          new FileReader(props.getProperty("clickstreamMatrix")));
       String line = br.readLine();
       // first item needs to be skipped
-      String dataList[] = line.split(cvsSplitBy);  
+      String dataList[] = line.split(cvsSplitBy);
       while ((line = br.readLine()) != null) {
         String[] clicks = line.split(cvsSplitBy);
-        for(int i=1; i<clicks.length; i++)
-        {
-          if(!clicks[i].equals("0.0"))
-          {
-            IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType")).source(jsonBuilder()
-                .startObject()
-                .field("query", clicks[0])
-                .field("dataID", dataList[i]) 
-                .field("clicks", clicks[i])
-                .endObject());
+        for (int i = 1; i < clicks.length; i++) {
+          if (!clicks[i].equals("0.0")) {
+            IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
+                props.getProperty("clickstreamMatrixType")).source(
+                jsonBuilder().startObject().field("query", clicks[0])
+                    .field("dataID", dataList[i]).field("clicks", clicks[i])
+                    .endObject());
             es.getBulkProcessor().add(ir);
           }
         }
-      }   
+      }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {

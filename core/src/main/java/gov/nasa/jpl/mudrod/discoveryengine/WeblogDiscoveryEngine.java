@@ -13,16 +13,11 @@
  */
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
-import gov.nasa.jpl.mudrod.weblog.pre.CrawlerDetection;
-import gov.nasa.jpl.mudrod.weblog.pre.SessionStatistic;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.weblog.pre.*;
+import gov.nasa.jpl.mudrod.weblog.process.ClickStreamAnalyzer;
 import gov.nasa.jpl.mudrod.weblog.process.UserHistoryAnalyzer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -31,15 +26,13 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
-import gov.nasa.jpl.mudrod.weblog.pre.ClickStreamGenerator;
-import gov.nasa.jpl.mudrod.weblog.pre.HistoryGenerator;
-import gov.nasa.jpl.mudrod.weblog.pre.ImportLogFile;
-import gov.nasa.jpl.mudrod.weblog.pre.RemoveRawLog;
-import gov.nasa.jpl.mudrod.weblog.pre.SessionGenerator;
-import gov.nasa.jpl.mudrod.weblog.process.ClickStreamAnalyzer;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Supports to preprocess and process web log
@@ -47,7 +40,7 @@ import gov.nasa.jpl.mudrod.weblog.process.ClickStreamAnalyzer;
 public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
@@ -62,7 +55,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
   /**
    * Get log file list from a directory
-   * 
+   *
    * @param logDir path to directory containing logs either local or in HDFS.
    * @return a list of log files
    */
@@ -73,9 +66,11 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
       File directory = new File(logDir);
       File[] fList = directory.listFiles();
       for (File file : fList) {
-        if (file.isFile() && file.getName().matches(".*\\d+.*")
-            && file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
-          inputList.add(file.getName().replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
+        if (file.isFile() && file.getName().matches(".*\\d+.*") && file
+            .getName()
+            .contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) {
+          inputList.add(file.getName()
+              .replace(props.getProperty(MudrodConstants.HTTP_PREFIX), ""));
         }
       }
     } else {

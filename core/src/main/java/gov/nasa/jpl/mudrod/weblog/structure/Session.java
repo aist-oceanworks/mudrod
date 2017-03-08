@@ -13,12 +13,9 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -30,13 +27,14 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * ClassName: Session Function: Session operations.
- *
  */
 public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   private static final Logger LOG = LoggerFactory.getLogger(Session.class);
@@ -59,16 +57,11 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * Creates a new instance of Session.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param start
-   *          start time of session
-   * @param end
-   *          end time of session
-   * @param id
-   *          session ID
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param start start time of session
+   * @param end   end time of session
+   * @param id    session ID
    */
   public Session(Properties props, ESDriver es, String start, String end,
       String id) {
@@ -83,10 +76,8 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * Creates a new instance of Session.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
    */
   public Session(Properties props, ESDriver es) {
     this.props = props;
@@ -114,8 +105,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * setNewID: Set new session ID
    *
-   * @param str:
-   *          session ID
+   * @param str: session ID
    * @return new session id
    */
   public String setNewID(String str) {
@@ -160,11 +150,9 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * getSessionDetail:Get detail of current session, which is used for session
    * tree reconstruct
    *
-   * @param indexName name of index from which you wish to obtain session detail.
-   * @param cleanuptype:
-   *          Session type name in Elasticsearch
-   * @param sessionID:
-   *          Session ID
+   * @param indexName    name of index from which you wish to obtain session detail.
+   * @param cleanuptype: Session type name in Elasticsearch
+   * @param sessionID:   Session ID
    * @return Session details in Json format
    */
   public JsonObject getSessionDetail(String indexName, String cleanuptype,
@@ -191,13 +179,11 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * getClickStreamList: Extracted click stream list from current session.
    *
-   * @param indexName an index from which to query for a session list
-   * @param cleanuptype:
-   *          Session type name in Elasticsearch
-   * @param sessionID:
-   *          Session ID
+   * @param indexName    an index from which to query for a session list
+   * @param cleanuptype: Session type name in Elasticsearch
+   * @param sessionID:   Session ID
    * @return Click stram data list
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   public List<ClickStream> getClickStreamList(String indexName,
       String cleanuptype, String sessionID) {
@@ -214,14 +200,11 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
 
   /**
    * Method of converting a given session to a tree structure
-   * 
-   * @param cleanuptype
-   *          session type name in Elasticsearch
-   * @param sessionID
-   *          ID of session
+   *
+   * @param cleanuptype session type name in Elasticsearch
+   * @param sessionID   ID of session
    * @return an instance of session tree structure
-   * @throws UnsupportedEncodingException
-   *           UnsupportedEncodingException
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   private SessionTree getSessionTree(String indexName, String cleanuptype,
       String sessionID) throws UnsupportedEncodingException {
@@ -251,14 +234,11 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
 
   /**
    * Method of getting all requests from a given current session
-   * 
-   * @param cleanuptype
-   *          Session type name in Elasticsearch
-   * @param sessionID
-   *          Session ID
+   *
+   * @param cleanuptype Session type name in Elasticsearch
+   * @param sessionID   Session ID
    * @return all of these requests in JSON
-   * @throws UnsupportedEncodingException
-   *           UnsupportedEncodingException
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   private JsonElement getRequests(String cleanuptype, String sessionID)
       throws UnsupportedEncodingException {
@@ -298,13 +278,11 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * getClickStreamList: Extracted ranking training data from current session.
    *
-   * @param indexName an index from which to obtain ranked training data.
-   * @param cleanuptype:
-   *          Session type name in Elasticsearch
-   * @param sessionID:
-   *          Session ID
+   * @param indexName    an index from which to obtain ranked training data.
+   * @param cleanuptype: Session type name in Elasticsearch
+   * @param sessionID:   Session ID
    * @return Click stram data list
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   public List<RankingTrainData> getRankingTrainData(String indexName,
       String cleanuptype, String sessionID) {

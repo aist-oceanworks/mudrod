@@ -1,8 +1,8 @@
 package gov.nasa.jpl.mudrod.weblog.partition;
 
-import java.util.Map;
-
 import org.apache.spark.Partitioner;
+
+import java.util.Map;
 
 public class logPartitioner extends Partitioner {
 

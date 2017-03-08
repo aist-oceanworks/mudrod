@@ -13,23 +13,11 @@
  */
 package gov.nasa.jpl.mudrod.main;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.discoveryengine.*;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.integration.LinkageIntegration;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -37,11 +25,12 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryEngineAbstract;
-import gov.nasa.jpl.mudrod.discoveryengine.MetadataDiscoveryEngine;
-import gov.nasa.jpl.mudrod.discoveryengine.OntologyDiscoveryEngine;
-import gov.nasa.jpl.mudrod.discoveryengine.RecommendEngine;
-import gov.nasa.jpl.mudrod.discoveryengine.WeblogDiscoveryEngine;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
@@ -76,7 +65,7 @@ public class MudrodEngine {
   /**
    * Start the {@link ESDriver}. Should only be called
    * after call to {@link MudrodEngine#loadConfig()}
-   * 
+   *
    * @return fully provisioned {@link ESDriver}
    */
   public ESDriver startESDriver() {
@@ -87,7 +76,7 @@ public class MudrodEngine {
    * Start the {@link SparkDriver}. Should only be
    * called after call to
    * {@link MudrodEngine#loadConfig()}
-   * 
+   *
    * @return fully provisioned {@link SparkDriver}
    */
   public SparkDriver startSparkDriver() {
@@ -97,7 +86,7 @@ public class MudrodEngine {
   /**
    * Retreive the Mudrod configuration as a Properties Map containing K, V of
    * type String.
-   * 
+   *
    * @return a {@link java.util.Properties} object
    */
   public Properties getConfig() {
@@ -106,7 +95,7 @@ public class MudrodEngine {
 
   /**
    * Retreive the Mudrod {@link ESDriver}
-   * 
+   *
    * @return the {@link ESDriver} instance.
    */
   public ESDriver getESDriver() {
@@ -115,31 +104,37 @@ public class MudrodEngine {
 
   /**
    * Set the Elasticsearch driver for MUDROD
-   * 
-   * @param es
-   *          an ES driver instance
+   *
+   * @param es an ES driver instance
    */
   public void setESDriver(ESDriver es) {
     this.es = es;
   }
 
-  private InputStream locateConfig(){
+  private InputStream locateConfig() {
 
-    String configLocation = System.getenv(MudrodConstants.MUDROD_CONFIG)==null?"":System.getenv(MudrodConstants.MUDROD_CONFIG);
+    String configLocation =
+        System.getenv(MudrodConstants.MUDROD_CONFIG) == null ?
+            "" :
+            System.getenv(MudrodConstants.MUDROD_CONFIG);
     File configFile = new File(configLocation);
 
-    try{
+    try {
       InputStream configStream = new FileInputStream(configFile);
       LOG.info("Loaded config file from " + configFile.getAbsolutePath());
       return configStream;
-    }catch (IOException e){
-      LOG.info("File specified by environment variable " + MudrodConstants.MUDROD_CONFIG + "=\'" + configLocation + "\' could not be loaded. " + e.getMessage());
+    } catch (IOException e) {
+      LOG.info("File specified by environment variable "
+          + MudrodConstants.MUDROD_CONFIG + "=\'" + configLocation
+          + "\' could not be loaded. " + e.getMessage());
     }
 
-    InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
+    InputStream configStream = MudrodEngine.class.getClassLoader()
+        .getResourceAsStream("config.xml");
 
-    if(configStream != null) {
-      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
+    if (configStream != null) {
+      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader()
+          .getResource("config.xml").getPath());
     }
 
     return configStream;
@@ -148,7 +143,7 @@ public class MudrodEngine {
   /**
    * Load the configuration provided at <a href=
    * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
-   * 
+   *
    * @return a populated {@link java.util.Properties} object.
    */
   public Properties loadConfig() {
@@ -291,9 +286,8 @@ public class MudrodEngine {
    * Main program invocation. Accepts one argument denoting location (on disk)
    * to a log file which is to be ingested. Help will be provided if invoked
    * with incorrect parameters.
-   * 
-   * @param args
-   *          {@link java.lang.String} array contaning correct parameters.
+   *
+   * @param args {@link java.lang.String} array contaning correct parameters.
    */
   public static void main(String[] args) {
     // boolean options
@@ -441,27 +435,27 @@ public class MudrodEngine {
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
     me.props.put("clickstreamSVDMatrix_tmp",
         dataDir + "clickstreamSVDMatrix_tmp.csv");
-    me.props.put("metadataSVDMatrix_tmp",
-        dataDir + "metadataSVDMatrix_tmp.csv");
+    me.props
+        .put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
     me.props.put("raw_metadataPath", dataDir + "RawMetadata");
 
     me.props.put("jtopia", dataDir + "jtopiaModel");
-    me.props.put("metadata_term_tfidf_matrix",
-        dataDir + "metadata_term_tfidf.csv");
-    me.props.put("metadata_word_tfidf_matrix",
-        dataDir + "metadata_word_tfidf.csv");
+    me.props
+        .put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
+    me.props
+        .put("metadata_word_tfidf_matrix", dataDir + "metadata_word_tfidf.csv");
     me.props.put("session_metadata_Matrix",
         dataDir + "metadata_session_coocurrence_matrix.csv");
 
     me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
     me.props.put("metadata_topic", dataDir + "metadata_topic");
-    me.props.put("metadata_topic_matrix",
-        dataDir + "metadata_topic_matrix.csv");
+    me.props
+        .put("metadata_topic_matrix", dataDir + "metadata_topic_matrix.csv");
   }
 
   /**
    * Obtain the spark implementation.
-   * 
+   *
    * @return the {@link SparkDriver}
    */
   public SparkDriver getSparkDriver() {
@@ -470,9 +464,8 @@ public class MudrodEngine {
 
   /**
    * Set the {@link SparkDriver}
-   * 
-   * @param sparkDriver
-   *          a configured {@link SparkDriver}
+   *
+   * @param sparkDriver a configured {@link SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;

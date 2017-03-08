@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes Preprocessing for all functionality required by the 
+ * This package includes Preprocessing for all functionality required by the
  * {@link gov.nasa.jpl.mudrod.discoveryengine.WeblogDiscoveryEngine}
  */
 package gov.nasa.jpl.mudrod.weblog.pre;

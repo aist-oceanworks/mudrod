@@ -32,36 +32,39 @@ import javax.ws.rs.core.Response;
 @Path("/vocabulary")
 public class SearchVocabResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SearchMetadataResource.class);
 
-    private MudrodEngine mEngine;
+  private MudrodEngine mEngine;
 
-    public SearchVocabResource(@Context ServletContext sc) {
-        this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
+  public SearchVocabResource(@Context ServletContext sc) {
+    this.mEngine = (MudrodEngine) sc.getAttribute("MudrodInstance");
+  }
+
+  @GET
+  @Path("/status")
+  @Produces("text/html")
+  public Response status() {
+    return Response
+        .ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>")
+        .build();
+  }
+
+  @GET
+  @Path("/search")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes("text/plain")
+  public Response searchVocabulary(@QueryParam("query") String concept) {
+    JsonObject json = new JsonObject();
+    if (concept != null) {
+      LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),
+          mEngine.getESDriver(), null);
+      json = new JsonObject();
+      json.add("graph", li.getIngeratedListInJson(concept));
     }
-
-    @GET
-    @Path("/status")
-    @Produces("text/html")
-    public Response status() {
-        return Response
-                .ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>").build();
-    }
-
-    @GET
-    @Path("/search")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes("text/plain")
-    public Response searchVocabulary(@QueryParam("query") String concept) {
-        JsonObject json = new JsonObject();
-        if (concept != null) {
-            LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),
-                    mEngine.getESDriver(), null);
-            json = new JsonObject();
-            json.add("graph", li.getIngeratedListInJson(concept));
-        }
-        LOG.info("Response received: {}", json);
-        return Response.ok(new Gson().toJson(json), MediaType.APPLICATION_JSON).build();
-    }
+    LOG.info("Response received: {}", json);
+    return Response.ok(new Gson().toJson(json), MediaType.APPLICATION_JSON)
+        .build();
+  }
 
 }

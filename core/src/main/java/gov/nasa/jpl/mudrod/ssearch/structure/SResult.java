@@ -16,11 +16,11 @@ package gov.nasa.jpl.mudrod.ssearch.structure;
 import java.lang.reflect.Field;
 
 /**
- * Data structure class for search result 
+ * Data structure class for search result
  */
 public class SResult {
-  public static final String rlist[] = {"term_score", "releaseDate_score", /*"versionNum_score",*/ "processingL_score", 
-      "allPop_score", "monthPop_score", "userPop_score"/*, "termAndv_score"*/};
+  public static final String rlist[] = { "term_score", "releaseDate_score", /*"versionNum_score",*/
+      "processingL_score", "allPop_score", "monthPop_score", "userPop_score"/*, "termAndv_score"*/ };
   String shortName = null;
   String longName = null;
   String topic = null;
@@ -38,13 +38,13 @@ public class SResult {
   public Double userPop_score = 0.0;
   public Double termAndv_score = 0.0;
   public Integer below = 0;
-  
+
   public Double Dataset_LongName_score = null;
   public Double Dataset_Metadata_score = null;
-  public Double DatasetParameter_Term_score = null; 
+  public Double DatasetParameter_Term_score = null;
   public Double DatasetSource_Source_LongName_score = null;
   public Double DatasetSource_Sensor_LongName_score = null;
-  
+
   public String version = null;
   public String processingLevel = null;
   public String latency = null;
@@ -53,7 +53,7 @@ public class SResult {
   public Double spatialR_Sat = null;
   public Double spatialR_Grid = null;
   public String temporalR = null;
-  
+
   public Double releaseDate = null;
   public Double click = null;
   public Double term = null;
@@ -63,62 +63,62 @@ public class SResult {
   public Double monthPop = null;
   public Double userPop = null;
   public Double termAndv = null;
-  
+
   public Double Dataset_LongName = null;
   public Double Dataset_Metadata = null;
-  public Double DatasetParameter_Term = null; 
+  public Double DatasetParameter_Term = null;
   public Double DatasetSource_Source_LongName = null;
   public Double DatasetSource_Sensor_LongName = null;
-  
+
   public Double prediction = 0.0;
   public String label = null;
 
   /**
-   * @param shortName short name of dataset
-   * @param longName long name of dataset
-   * @param topic topic of dataset
+   * @param shortName   short name of dataset
+   * @param longName    long name of dataset
+   * @param topic       topic of dataset
    * @param description description of dataset
-   * @param date release date of dataset
+   * @param date        release date of dataset
    */
-  public SResult(String shortName, String longName, String topic, String description, String date){
+  public SResult(String shortName, String longName, String topic,
+      String description, String date) {
     this.shortName = shortName;
     this.longName = longName;
     this.topic = topic;
     this.description = description;
     this.relase_date = date;
   }
-  
-  public SResult(SResult sr){
-    for(int i =0; i <rlist.length; i++)
-    {
+
+  public SResult(SResult sr) {
+    for (int i = 0; i < rlist.length; i++) {
       set(this, rlist[i], get(sr, rlist[i]));
     }
   }
-  
+
   /**
    * Method of getting export header
+   *
    * @param delimiter the delimiter used to separate strings
    * @return header
    */
-  public static String getHeader(String delimiter){
+  public static String getHeader(String delimiter) {
     String str = "";
-    for(int i =0; i <rlist.length; i++)
-    {
+    for (int i = 0; i < rlist.length; i++) {
       str += rlist[i] + delimiter;
     }
     str = str + "label" + "\n";
     return "ShortName" + delimiter + "below" + delimiter + str;
   }
- 
+
   /**
    * Method of get a search results as string
+   *
    * @param delimiter the delimiter used to separate strings
    * @return search result as string
    */
-  public String toString(String delimiter){
+  public String toString(String delimiter) {
     String str = "";
-    for(int i =0; i <rlist.length; i++)
-    {
+    for (int i = 0; i < rlist.length; i++) {
       double score = get(this, rlist[i]);
       str += score + delimiter;
     }
@@ -128,12 +128,14 @@ public class SResult {
 
   /**
    * Generic setter method
-   * @param object instance of SResult
-   * @param fieldName field name that needs to be set on
+   *
+   * @param object     instance of SResult
+   * @param fieldName  field name that needs to be set on
    * @param fieldValue field value that needs to be set to
    * @return 1 means success, and 0 otherwise
    */
-  public static boolean set(Object object, String fieldName, Object fieldValue) {
+  public static boolean set(Object object, String fieldName,
+      Object fieldValue) {
     Class<?> clazz = object.getClass();
     while (clazz != null) {
       try {
@@ -152,9 +154,10 @@ public class SResult {
 
   /**
    * Generic getter method
-   * @param object instance of SResult
+   *
+   * @param object    instance of SResult
    * @param fieldName field name of search result
-   * @param <V> data type
+   * @param <V>       data type
    * @return the value of the filed in the object
    */
   @SuppressWarnings("unchecked")

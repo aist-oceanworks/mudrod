@@ -13,41 +13,39 @@
  */
 package gov.nasa.jpl.mudrod.metadata.pre;
 
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
-import org.apache.spark.api.java.JavaPairRDD;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.metadata.structure.MetadataExtractor;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Properties;
+
 /**
- * ClassName: MatrixGenerator 
+ * ClassName: MatrixGenerator
  * Function: Generate term-metadata matrix from original metadata. Each row in
- * the matrix is corresponding to a term, and each column is a metadata. 
+ * the matrix is corresponding to a term, and each column is a metadata.
  */
 public class MatrixGenerator extends DiscoveryStepAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MatrixGenerator.class);
 
   /**
    * Creates a new instance of MatrixGenerator.
-   * 
-   * @param props
-   *            the Mudrod configuration
-   * @param es
-   *            the Elasticsearch drive
-   * @param spark
-   *            the spark drive
+   *
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark drive
    */
   public MatrixGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -56,7 +54,7 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
   /**
    * Generate a csv which is a term-metadata matrix genetrated from original
    * metadata.
-   * 
+   *
    * @see DiscoveryStepAbstract#execute()
    */
   @Override
@@ -80,7 +78,8 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata matrix ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata matrix ends******************Took {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 

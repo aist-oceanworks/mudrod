@@ -13,27 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.services.autocomplete;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.google.gson.Gson;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
-import gov.nasa.jpl.mudrod.main.MudrodEngine;
+import javax.servlet.ServletContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An AutoCompleteResource for term autocompletion suggestion.
@@ -41,7 +33,8 @@ import gov.nasa.jpl.mudrod.main.MudrodEngine;
 @Path("/autocomplete")
 public class AutoCompleteResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AutoCompleteResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(AutoCompleteResource.class);
   private MudrodEngine mEngine;
 
   public AutoCompleteResource(@Context ServletContext sc) {
@@ -53,7 +46,8 @@ public class AutoCompleteResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>")
+        .build();
   }
 
   @POST
@@ -62,8 +56,8 @@ public class AutoCompleteResource {
   @Consumes("text/plain")
   public Response autoComplete(@PathParam("term") String term) {
     List<AutoCompleteData> result = new ArrayList<>();
-    List<String> suggestList = mEngine.getESDriver()
-        .autoComplete(mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
+    List<String> suggestList = mEngine.getESDriver().autoComplete(
+        mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
     for (final String item : suggestList) {
       result.add(new AutoCompleteData(item, item));
     }

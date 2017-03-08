@@ -13,18 +13,17 @@
  */
 package gov.nasa.jpl.mudrod.ontology.process;
 
-import java.util.Iterator;
-
 import gov.nasa.jpl.mudrod.ontology.Ontology;
+
+import java.util.Iterator;
 
 /**
  * @author lewismc
- *
  */
 public class EsipPortalOntology implements Ontology {
 
   /**
-   * 
+   *
    */
   public EsipPortalOntology() {
     //default constructor

@@ -13,17 +13,17 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import java.io.Serializable;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+
+import java.io.Serializable;
 
 /**
  * ClassName: ClickStream Function: user click stream data related operations.
  */
 public class ClickStream implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // keywords: query words related to the click behaviour
@@ -40,13 +40,10 @@ public class ClickStream implements Serializable {
   /**
    * Creates a new instance of ClickStream.
    *
-   * @param keywords
-   *          the query user searched
-   * @param viewDataset
-   *          the dataset name user viewed
-   * @param download:
-   *          if user download the data set after viewing it, this parameter is
-   *          true, otherwise, it is false.
+   * @param keywords    the query user searched
+   * @param viewDataset the dataset name user viewed
+   * @param download:   if user download the data set after viewing it, this parameter is
+   *                    true, otherwise, it is false.
    */
   public ClickStream(String keywords, String viewDataset, boolean download) {
     this.keywords = keywords;
@@ -62,24 +59,22 @@ public class ClickStream implements Serializable {
   }
 
   public String getSessionID() {
-	    return sessionID;
+    return sessionID;
   }
 
   /**
    * setKeyWords: Set the query user searched.
    *
-   * @param query
-   *          search words
+   * @param query search words
    */
-     public void setKeyWords(String query) {
+  public void setKeyWords(String query) {
     this.keywords = query;
   }
 
   /**
    * setViewDataset:Set the data set name user viewed
    *
-   * @param dataset
-   *          short name of data set
+   * @param dataset short name of data set
    */
   public void setViewDataset(String dataset) {
     this.viewDataset = dataset;
@@ -88,8 +83,7 @@ public class ClickStream implements Serializable {
   /**
    * setDownloadDataset: Set the data set name user downloaded
    *
-   * @param dataset
-   *          short name of data set
+   * @param dataset short name of data set
    */
   public void setDownloadDataset(String dataset) {
     this.downloadDataset = dataset;
@@ -128,8 +122,7 @@ public class ClickStream implements Serializable {
   /**
    * setSessionId: Set ID of session
    *
-   * @param sessionID
-   *          session id
+   * @param sessionID session id
    */
   public void setSessionId(String sessionID) {
     this.sessionID = sessionID;
@@ -138,8 +131,7 @@ public class ClickStream implements Serializable {
   /**
    * setType: Set session type name
    *
-   * @param type
-   *          session type name in elasticsearch
+   * @param type session type name in elasticsearch
    */
   public void setType(String type) {
     this.type = type;
@@ -175,8 +167,7 @@ public class ClickStream implements Serializable {
   /**
    * parseFromTextLine: Convert string to click stream data
    *
-   * @param logline
-   *          http log line
+   * @param logline http log line
    * @return {@link ClickStream}
    */
   public static ClickStream parseFromTextLine(String logline) {

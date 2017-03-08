@@ -13,32 +13,32 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import gov.nasa.jpl.mudrod.weblog.structure.ClickStream;
+import gov.nasa.jpl.mudrod.weblog.structure.SessionExtractor;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.weblog.structure.SessionExtractor;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Supports ability to extract click stream data based on session processing results
  */
 public class ClickStreamGenerator extends DiscoveryStepAbstract {
-  
+
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamGenerator.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ClickStreamGenerator.class);
 
   public ClickStreamGenerator(Properties props, ESDriver es,
       SparkDriver spark) {

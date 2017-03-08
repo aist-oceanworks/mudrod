@@ -13,13 +13,13 @@
  */
 package gov.nasa.jpl.mudrod.utils;
 
-import java.util.List;
-
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
+import java.util.List;
+
 /**
- * ClassName: LabeledRowMatrix 
- * Function: LabeledRowMatrix strut. 
+ * ClassName: LabeledRowMatrix
+ * Function: LabeledRowMatrix strut.
  */
 public class LabeledRowMatrix {
 

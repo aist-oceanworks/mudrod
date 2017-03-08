@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes classes for importing training data, ML models, 
+ * This package includes classes for importing training data, ML models,
  * generating input data for RankSVM, and evaluating ranking results
  */
 package gov.nasa.jpl.mudrod.ssearch.ranking;

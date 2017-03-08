@@ -13,17 +13,10 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
@@ -46,8 +39,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An {@link DiscoveryStepAbstract}
@@ -56,7 +51,7 @@ import gov.nasa.jpl.mudrod.main.MudrodConstants;
  */
 public class CrawlerDetection extends LogAbstract {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
@@ -79,15 +74,12 @@ public class CrawlerDetection extends LogAbstract {
   /**
    * Paramterized constructor to instantiate a configured instance of
    * {@link CrawlerDetection}
-   * 
-   * @param props
-   *          populated {@link java.util.Properties} object
-   * @param es
-   *          {@link ESDriver} object to use in
-   *          crawler detection preprocessing.
-   * @param spark
-   *          {@link SparkDriver} object to use in
-   *          crawler detection preprocessing.
+   *
+   * @param props populated {@link java.util.Properties} object
+   * @param es    {@link ESDriver} object to use in
+   *              crawler detection preprocessing.
+   * @param spark {@link SparkDriver} object to use in
+   *              crawler detection preprocessing.
    */
   public CrawlerDetection(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -115,19 +107,18 @@ public class CrawlerDetection extends LogAbstract {
 
   /**
    * Check known crawler through crawler agent name list
-   * 
-   * @param agent
-   *          name of a log line
+   *
+   * @param agent name of a log line
    * @return 1 if the log is initiated by crawler, 0 otherwise
    */
   public boolean checkKnownCrawler(String agent) {
     agent = agent.toLowerCase();
-    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT)
-        || agent.contains(BING_BOT) || agent.contains(APACHE_HHTP)
-        || agent.contains(PERL_BOT) || agent.contains(YAHOO_BOT)
-        || agent.contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT)
-        || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP)
-        || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
+    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT) || agent
+        .contains(BING_BOT) || agent.contains(APACHE_HHTP) || agent
+        .contains(PERL_BOT) || agent.contains(YAHOO_BOT) || agent
+        .contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT) || agent
+        .contains(PERL_BOT) || agent.contains(APACHE_HHTP) || agent
+        .contains(JAVA_CLIENT) || agent.contains(CURL)) {
       return true;
     } else {
       return false;
@@ -146,11 +137,9 @@ public class CrawlerDetection extends LogAbstract {
   /**
    * Check crawler by request sending rate, which is read from configruation
    * file
-   * 
-   * @throws InterruptedException
-   *           InterruptedException
-   * @throws IOException
-   *           IOException
+   *
+   * @throws InterruptedException InterruptedException
+   * @throws IOException          IOException
    */
   public void checkByRateInSequential()
       throws InterruptedException, IOException {

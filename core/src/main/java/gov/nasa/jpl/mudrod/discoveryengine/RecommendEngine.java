@@ -1,11 +1,5 @@
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.util.Properties;
-
-import gov.nasa.jpl.mudrod.recommendation.process.sessionBasedCF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.recommendation.pre.ImportMetadata;
@@ -14,6 +8,11 @@ import gov.nasa.jpl.mudrod.recommendation.pre.NormalizeVariables;
 import gov.nasa.jpl.mudrod.recommendation.pre.SessionCooccurence;
 import gov.nasa.jpl.mudrod.recommendation.process.AbstractBasedSimilarity;
 import gov.nasa.jpl.mudrod.recommendation.process.VariableBasedSimilarity;
+import gov.nasa.jpl.mudrod.recommendation.process.sessionBasedCF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class RecommendEngine extends DiscoveryEngineAbstract {
 

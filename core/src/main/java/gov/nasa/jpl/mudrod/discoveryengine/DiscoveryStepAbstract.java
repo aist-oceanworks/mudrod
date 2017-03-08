@@ -13,10 +13,10 @@
  */
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+
+import java.util.Properties;
 
 /*
  * Generic class of discovery engine step
@@ -30,12 +30,14 @@ public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 
   /**
    * Abstract class of step execution without parameter
+   *
    * @return An instance of Object
    */
   public abstract Object execute();
-  
+
   /**
    * Abstract class of step execution with parameter
+   *
    * @param o an instance of object
    * @return An instance of object
    */

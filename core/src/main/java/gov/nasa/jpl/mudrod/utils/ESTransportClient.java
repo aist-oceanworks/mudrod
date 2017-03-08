@@ -14,13 +14,7 @@
 
 package gov.nasa.jpl.mudrod.utils;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.TimeUnit;
-
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.reindex.ReindexPlugin;
 import org.elasticsearch.percolator.PercolatorPlugin;
@@ -28,8 +22,9 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.script.mustache.MustachePlugin;
 import org.elasticsearch.transport.Netty3Plugin;
 
-import io.netty.util.ThreadDeathWatcher;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * A builder to create an instance of {@link TransportClient} This class
@@ -40,8 +35,9 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 public class ESTransportClient extends TransportClient {
 
   private static final Collection<Class<? extends Plugin>> PRE_INSTALLED_PLUGINS = Collections
-      .unmodifiableList(Arrays.asList(ReindexPlugin.class,
-          PercolatorPlugin.class, MustachePlugin.class, Netty3Plugin.class));
+      .unmodifiableList(Arrays
+          .asList(ReindexPlugin.class, PercolatorPlugin.class,
+              MustachePlugin.class, Netty3Plugin.class));
 
   @SafeVarargs
   public ESTransportClient(Settings settings,
@@ -51,7 +47,8 @@ public class ESTransportClient extends TransportClient {
 
   public ESTransportClient(Settings settings,
       Collection<Class<? extends Plugin>> plugins) {
-    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS), null);
+    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS),
+        null);
 
   }
 

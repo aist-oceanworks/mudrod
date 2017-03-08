@@ -13,8 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.utils;
 
-import java.util.List;
-
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.Optional;
@@ -25,11 +23,12 @@ import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 import org.apache.spark.mllib.linalg.distributed.IndexedRowMatrix;
 import org.apache.spark.mllib.linalg.distributed.MatrixEntry;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
-
 import scala.Tuple2;
 
+import java.util.List;
+
 /**
- * ClassName: SimilarityUtil Function: Similarity calculation tool 
+ * ClassName: SimilarityUtil Function: Similarity calculation tool
  */
 public class SimilarityUtil {
 
@@ -40,14 +39,14 @@ public class SimilarityUtil {
   /**
    * CalSimilarityFromMatrix: Calculate term similarity from matrix.
    *
-   * @param svdMatrix.
-   *          Each row is corresponding to a term, and each column is
-   *          corresponding to a dimension of feature
+   * @param svdMatrix. Each row is corresponding to a term, and each column is
+   *                   corresponding to a dimension of feature
    * @return CoordinateMatrix, each row is corresponding to a term, and each
-   *         column is also a term, the cell value is the similarity between the
-   *         two terms
+   * column is also a term, the cell value is the similarity between the
+   * two terms
    */
-  public static CoordinateMatrix calculateSimilarityFromMatrix(RowMatrix svdMatrix) {
+  public static CoordinateMatrix calculateSimilarityFromMatrix(
+      RowMatrix svdMatrix) {
     JavaRDD<Vector> vecs = svdMatrix.rows().toJavaRDD();
     return SimilarityUtil.calculateSimilarityFromVector(vecs);
   }
@@ -55,13 +54,13 @@ public class SimilarityUtil {
   /**
    * CalSimilarityFromVector:Calculate term similarity from vector.
    *
-   * @param vecs
-   *          Each vector is corresponding to a term in the feature space.
+   * @param vecs Each vector is corresponding to a term in the feature space.
    * @return CoordinateMatrix, each row is corresponding to a term, and each
-   *         column is also a term, the cell value is the similarity between the
-   *         two terms
+   * column is also a term, the cell value is the similarity between the
+   * two terms
    */
-  public static CoordinateMatrix calculateSimilarityFromVector(JavaRDD<Vector> vecs) {
+  public static CoordinateMatrix calculateSimilarityFromVector(
+      JavaRDD<Vector> vecs) {
     IndexedRowMatrix indexedMatrix = MatrixUtil.buildIndexRowMatrix(vecs);
     RowMatrix transposeMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
     return transposeMatrix.columnSimilarities();
@@ -70,9 +69,9 @@ public class SimilarityUtil {
   /**
    * Calculate term similarity from vector.
    *
-   * @param importRDD the {@link org.apache.spark.api.java.JavaPairRDD} 
-   * data structure containing the vectors.
-   * @param simType the similarity calculation to execute
+   * @param importRDD the {@link org.apache.spark.api.java.JavaPairRDD}
+   *                  data structure containing the vectors.
+   * @param simType   the similarity calculation to execute
    * @return a new {@link org.apache.spark.api.java.JavaPairRDD}
    */
   public static JavaRDD<LinkageTriple> calculateSimilarityFromVector(
@@ -86,7 +85,7 @@ public class SimilarityUtil {
         new Function<Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>>, LinkageTriple>() {
 
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -117,30 +116,27 @@ public class SimilarityUtil {
             return triple;
           }
         }).filter(new Function<LinkageTriple, Boolean>() {
-          /**
-           * 
-           */
-          private static final long serialVersionUID = 1L;
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public Boolean call(LinkageTriple arg0) throws Exception {
-            if (arg0 == null) {
-              return false;
-            }
-            return true;
-          }
-        });
+      @Override
+      public Boolean call(LinkageTriple arg0) throws Exception {
+        if (arg0 == null) {
+          return false;
+        }
+        return true;
+      }
+    });
   }
 
   /**
    * MatrixtoTriples:Convert term similarity matrix to linkage triple list.
    *
-   *
-   * @param keys
-   *          each key is a term
-   * @param simMatirx
-   *          term similarity matrix, in which each row and column is a term and
-   *          the cell value is the similarity between the two terms
+   * @param keys      each key is a term
+   * @param simMatirx term similarity matrix, in which each row and column is a term and
+   *                  the cell value is the similarity between the two terms
    * @return linkage triple list
    */
   public static List<LinkageTriple> matrixToTriples(JavaRDD<String> keys,
@@ -150,11 +146,11 @@ public class SimilarityUtil {
     }
 
     // index words
-    JavaPairRDD<Long, String> keyIdRDD = JavaPairRDD
-        .fromJavaRDD(keys.zipWithIndex()
+    JavaPairRDD<Long, String> keyIdRDD = JavaPairRDD.fromJavaRDD(
+        keys.zipWithIndex()
             .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 
@@ -168,7 +164,7 @@ public class SimilarityUtil {
         .toJavaRDD()
         .mapToPair(new PairFunction<MatrixEntry, Long, LinkageTriple>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -187,7 +183,7 @@ public class SimilarityUtil {
         .leftOuterJoin(keyIdRDD).values().mapToPair(
             new PairFunction<Tuple2<LinkageTriple, Optional<String>>, Long, LinkageTriple>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 
@@ -207,7 +203,7 @@ public class SimilarityUtil {
         .values().map(
             new Function<Tuple2<LinkageTriple, Optional<String>>, LinkageTriple>() {
               /**
-               * 
+               *
                */
               private static final long serialVersionUID = 1L;
 

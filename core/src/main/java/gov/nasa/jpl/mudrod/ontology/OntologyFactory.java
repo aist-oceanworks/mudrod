@@ -13,8 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.ontology;
 
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.ontology.process.EsipCOROntology;
 import gov.nasa.jpl.mudrod.ontology.process.EsipPortalOntology;
@@ -22,26 +20,31 @@ import gov.nasa.jpl.mudrod.ontology.process.LocalOntology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Properties;
+
 /**
  * The mechanism for creating an {@link Ontology}
  * implementation. The {@link Ontology} implementation
- * should be specified in 
+ * should be specified in
  * <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">
  * config.xml</a> with configuration key
  * <code>mudrod.ontology.implementation</code>.
  * This property can also be accessed via
  * {@link MudrodConstants#ONTOLOGY_IMPL}.
+ *
  * @author lewismc
  */
 public class OntologyFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(OntologyFactory.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(OntologyFactory.class);
 
   private Properties props;
 
   /**
    * The mechanism for creating an {@link Ontology}
    * implementation.
+   *
    * @param props a populated Mudrod {@link java.util.Properties} object.
    */
   public OntologyFactory(Properties props) {
@@ -51,6 +54,7 @@ public class OntologyFactory {
   /**
    * Obtain the {@link Ontology}
    * implementation for use within Mudrod.
+   *
    * @return Returns the ontology implementation specified
    * in <a href="https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">
    * config.xml</a> with configuration key
@@ -59,7 +63,8 @@ public class OntologyFactory {
    */
   public Ontology getOntology() {
 
-    String ontologyImpl = this.props.getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
+    String ontologyImpl = this.props
+        .getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
 
     LOG.info("Using ontology extension: " + ontologyImpl);
     Ontology ontImpl;

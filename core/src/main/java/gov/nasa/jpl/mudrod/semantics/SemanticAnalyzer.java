@@ -13,21 +13,20 @@
  */
 package gov.nasa.jpl.mudrod.semantics;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
+import gov.nasa.jpl.mudrod.utils.SimilarityUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.utils.LinkageTriple;
-import gov.nasa.jpl.mudrod.utils.SimilarityUtil;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * ClassName: SemanticAnalyzer Function: Semantic analyzer
@@ -35,19 +34,16 @@ import gov.nasa.jpl.mudrod.utils.SimilarityUtil;
 public class SemanticAnalyzer extends MudrodAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
   /**
    * Creates a new instance of SemanticAnalyzer.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark drive
    */
   public SemanticAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -56,9 +52,8 @@ public class SemanticAnalyzer extends MudrodAbstract {
   /**
    * CalTermSimfromMatrix: Calculate term similarity from matrix.
    *
-   * @param csvFileName
-   *          csv file of matrix, each row is a term, and each column is a
-   *          dimension in feature space
+   * @param csvFileName csv file of matrix, each row is a term, and each column is a
+   *                    dimension in feature space
    * @return Linkage triple list
    */
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName) {
@@ -68,8 +63,8 @@ public class SemanticAnalyzer extends MudrodAbstract {
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
       int skipRow) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        csvFileName, skipRow);
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil
+        .loadVectorFromCSV(spark, csvFileName, skipRow);
     CoordinateMatrix simMatrix = SimilarityUtil
         .calculateSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
@@ -79,8 +74,8 @@ public class SemanticAnalyzer extends MudrodAbstract {
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
       int simType, int skipRow) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        csvFileName, skipRow);
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil
+        .loadVectorFromCSV(spark, csvFileName, skipRow);
     JavaRDD<LinkageTriple> triples = SimilarityUtil
         .calculateSimilarityFromVector(importRDD, simType);
 
@@ -98,17 +93,18 @@ public class SemanticAnalyzer extends MudrodAbstract {
 
   /**
    * Method of saving linkage triples to Elasticsearch.
+   *
    * @param tripleList linkage triple list
-   * @param index index name
-   * @param type type name
-   * @param bTriple bTriple
-   * @param bSymmetry bSymmetry
+   * @param index      index name
+   * @param type       type name
+   * @param bTriple    bTriple
+   * @param bSymmetry  bSymmetry
    */
   public void saveToES(List<LinkageTriple> tripleList, String index,
       String type, boolean bTriple, boolean bSymmetry) {
     try {
-      LinkageTriple.insertTriples(es, tripleList, index, type, bTriple,
-          bSymmetry);
+      LinkageTriple
+          .insertTriples(es, tripleList, index, type, bTriple, bSymmetry);
     } catch (IOException e) {
       e.printStackTrace();
 

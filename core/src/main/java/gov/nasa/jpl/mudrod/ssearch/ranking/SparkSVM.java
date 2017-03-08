@@ -13,14 +13,13 @@
  */
 package gov.nasa.jpl.mudrod.ssearch.ranking;
 
+import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.mllib.classification.SVMModel;
 import org.apache.spark.mllib.classification.SVMWithSGD;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.util.MLUtils;
-
-import gov.nasa.jpl.mudrod.main.MudrodEngine;
 
 public class SparkSVM {
 
@@ -33,15 +32,19 @@ public class SparkSVM {
 
     JavaSparkContext jsc = me.startSparkDriver().sc;
 
-    String path = SparkSVM.class.getClassLoader().getResource("inputDataForSVM_spark.txt").toString();
-    JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), path).toJavaRDD();
+    String path = SparkSVM.class.getClassLoader()
+        .getResource("inputDataForSVM_spark.txt").toString();
+    JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), path)
+        .toJavaRDD();
 
     // Run training algorithm to build the model.
     int numIterations = 100;
     final SVMModel model = SVMWithSGD.train(data.rdd(), numIterations);
 
     // Save and load model
-    model.save(jsc.sc(), SparkSVM.class.getClassLoader().getResource("javaSVMWithSGDModel").toString());
+    model.save(jsc.sc(),
+        SparkSVM.class.getClassLoader().getResource("javaSVMWithSGDModel")
+            .toString());
 
     jsc.sc().stop();
 

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes commonly used Elasticsearch and Spark related 
+ * This package includes commonly used Elasticsearch and Spark related
  * functions
  */
 package gov.nasa.jpl.mudrod.driver;

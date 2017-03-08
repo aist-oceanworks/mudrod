@@ -13,21 +13,16 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 /**
  * ClassName: SessionTree Function: Convert request list in a session to a tree
@@ -35,7 +30,7 @@ import com.google.gson.JsonObject;
 public class SessionTree extends MudrodAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(SessionTree.class);
@@ -57,19 +52,14 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param props:
-   *          the Mudrod configuration
-   * @param es:
-   *          the Elasticsearch drive
-   * @param rootData:
-   *          root node of the tree
-   * @param sessionID:
-   *          session ID
-   * @param cleanupType:
-   *          session type
+   * @param props:       the Mudrod configuration
+   * @param es:          the Elasticsearch drive
+   * @param rootData:    root node of the tree
+   * @param sessionID:   session ID
+   * @param cleanupType: session type
    */
   public SessionTree(Properties props, ESDriver es, SessionNode rootData,
-                     String sessionID, String cleanupType) {
+      String sessionID, String cleanupType) {
     super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     tmpnode = root;
@@ -80,14 +70,10 @@ public class SessionTree extends MudrodAbstract {
   /**
    * Creates a new instance of SessionTree.
    *
-   * @param props:
-   *          the Mudrod configuration
-   * @param es:
-   *          the Elasticsearch drive
-   * @param sessionID:
-   *          session ID
-   * @param cleanupType:
-   *          session type
+   * @param props:       the Mudrod configuration
+   * @param es:          the Elasticsearch drive
+   * @param sessionID:   session ID
+   * @param cleanupType: session type
    */
   public SessionTree(Properties props, ESDriver es, String sessionID,
       String cleanupType) {
@@ -102,8 +88,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * insert: insert a node into the session tree.
    *
-   * @param node
-   *          {@link SessionNode}
+   * @param node {@link SessionNode}
    * @return session node
    */
   public SessionNode insert(SessionNode node) {
@@ -144,8 +129,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * printTree: Print session tree
    *
-   * @param node
-   *          root node of the session tree
+   * @param node root node of the session tree
    */
   public void printTree(SessionNode node) {
     LOG.info("node: {} \n", node.getRequest());
@@ -159,8 +143,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * TreeToJson: Convert the session tree to Json object
    *
-   * @param node
-   *          node of the session tree
+   * @param node node of the session tree
    * @return tree content in Json format
    */
   public JsonObject TreeToJson(SessionNode node) {
@@ -251,8 +234,7 @@ public class SessionTree extends MudrodAbstract {
   /**
    * searchParentNode:Get parent node of a session node
    *
-   * @param node
-   *          {@link SessionNode}
+   * @param node {@link SessionNode}
    * @return node {@link SessionNode}
    */
   private SessionNode searchParentNode(SessionNode node) {
@@ -287,10 +269,8 @@ public class SessionTree extends MudrodAbstract {
    * findLatestRefer: Find parent node whose visiting url is equal to the refer
    * url of a session node
    *
-   * @param node:
-   *          {@link SessionNode}
-   * @param refer:
-   *          request url
+   * @param node:  {@link SessionNode}
+   * @param refer: request url
    * @return
    */
   private SessionNode findLatestRefer(SessionNode node, String refer) {
@@ -466,12 +446,13 @@ public class SessionTree extends MudrodAbstract {
 
   /**
    * Obtain the ranking training data.
-   * @param indexName the index from whcih to obtain the data
+   *
+   * @param indexName   the index from whcih to obtain the data
    * @param cleanuptype the clean up type identifier
-   * @param sessionID a valid session identifier
+   * @param sessionID   a valid session identifier
    * @return {@link ClickStream}
    * @throws UnsupportedEncodingException if there is an error whilst
-   * processing the ranking training data.
+   *                                      processing the ranking training data.
    */
   public List<RankingTrainData> getRankingTrainData(String indexName,
       String cleanuptype, String sessionID)

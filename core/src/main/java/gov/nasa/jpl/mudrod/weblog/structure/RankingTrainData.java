@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class RankingTrainData implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // sessionID: session ID
@@ -27,12 +27,9 @@ public class RankingTrainData implements Serializable {
   /**
    * Creates a new instance of ClickStream.
    *
-   * @param query
-   *          the user query string
-   * @param highRankDataset
-   *          the dataset name for the highest ranked dataset
-   * @param lowRankDataset
-   *          the dataset name for the lowest ranked dataset
+   * @param query           the user query string
+   * @param highRankDataset the dataset name for the highest ranked dataset
+   * @param lowRankDataset  the dataset name for the lowest ranked dataset
    */
   public RankingTrainData(String query, String highRankDataset,
       String lowRankDataset) {
@@ -52,8 +49,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setKeyWords: Set the query user searched.
    *
-   * @param query
-   *          search words
+   * @param query search words
    */
   public void setQuery(String query) {
     this.query = query;
@@ -71,8 +67,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setViewDataset:Set the data set name user viewed
    *
-   * @param dataset
-   *          short name of data set
+   * @param dataset short name of data set
    */
   public void setHighRankDataset(String dataset) {
     this.highRankDataset = dataset;
@@ -81,8 +76,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setDownloadDataset: Set the data set name user downloaded
    *
-   * @param dataset
-   *          short name of data set
+   * @param dataset short name of data set
    */
   public void setLowRankDataset(String dataset) {
     this.lowRankDataset = dataset;
@@ -100,8 +94,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setSessionId: Set ID of session
    *
-   * @param sessionID
-   *          session id
+   * @param sessionID session id
    */
   public void setSessionId(String sessionID) {
     this.sessionID = sessionID;
@@ -110,8 +103,7 @@ public class RankingTrainData implements Serializable {
   /**
    * setType: Set session type name
    *
-   * @param index
-   *          session type name in elasticsearch
+   * @param index session type name in elasticsearch
    */
   public void setIndex(String index) {
     this.index = index;

@@ -15,11 +15,7 @@ package gov.nasa.jpl.mudrod.weblog.structure;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,16 +59,11 @@ public class SessionNode {
   /**
    * Creates a new instance of SessionNode.
    *
-   * @param request:
-   *          request url
-   * @param logType:
-   *          including two types - po.dacc, ftp
-   * @param referer:
-   *          previous request url
-   * @param time:
-   *          request time of node
-   * @param seq:
-   *          sequence of this node
+   * @param request: request url
+   * @param logType: including two types - po.dacc, ftp
+   * @param referer: previous request url
+   * @param time:    request time of node
+   * @param seq:     sequence of this node
    */
   public SessionNode(String request, String logType, String referer,
       String time, int seq) {
@@ -87,23 +78,21 @@ public class SessionNode {
   /**
    * setReferer: Set previous request url of this node
    *
-   * @param referer
-   *          previous request url
+   * @param referer previous request url
    */
   public void setReferer(String referer) {
     if (referer == null) {
       this.referer = "";
       return;
     }
-    this.referer = referer.toLowerCase().replace("http://podaac.jpl.nasa.gov",
-        "");
+    this.referer = referer.toLowerCase()
+        .replace("http://podaac.jpl.nasa.gov", "");
   }
 
   /**
    * setRequest: Set request url of this node
    *
-   * @param req
-   *          request url
+   * @param req request url
    */
   public void setRequest(String req) {
     this.request = req;
@@ -124,8 +113,7 @@ public class SessionNode {
   /**
    * setChildren: Set child nodes of this node
    *
-   * @param children
-   *          child nodes of this node
+   * @param children child nodes of this node
    */
   public void setChildren(List<SessionNode> children) {
     this.children = children;
@@ -134,8 +122,7 @@ public class SessionNode {
   /**
    * addChildren: Add a children node
    *
-   * @param node
-   *          session node
+   * @param node session node
    */
   public void addChildren(SessionNode node) {
     this.children.add(node);
@@ -153,8 +140,7 @@ public class SessionNode {
   /**
    * bSame:Compare this node with another node
    *
-   * @param node
-   *          {@link SessionNode}
+   * @param node {@link SessionNode}
    * @return boolean value, true mean the two nodes are same
    */
   public Boolean bSame(SessionNode node) {
@@ -169,10 +155,8 @@ public class SessionNode {
    * setKey:Set request type which contains three categories -
    * dataset,datasetlist,ftp
    *
-   * @param request
-   *          request url
-   * @param logType
-   *          url type
+   * @param request request url
+   * @param logType url type
    */
   public void setKey(String request, String logType) {
     this.key = "";
@@ -231,8 +215,7 @@ public class SessionNode {
   /**
    * setParent: Set parent node of this node
    *
-   * @param parent
-   *          the previous request node of this node
+   * @param parent the previous request node of this node
    */
   public void setParent(SessionNode parent) {
     this.parent = parent;
@@ -298,8 +281,7 @@ public class SessionNode {
   /**
    * parseRequest:Parse request to extract request type
    *
-   * @param request
-   *          request url of this node
+   * @param request request url of this node
    */
   public void parseRequest(String request) {
     Pattern pattern = Pattern.compile("get (.*?) http/*");
@@ -317,8 +299,7 @@ public class SessionNode {
   /**
    * parseFilterParams:Parse filter facets information
    *
-   * @param params
-   *          filter key value pairs of this node
+   * @param params filter key value pairs of this node
    */
   private void parseFilterParams(Map<String, String> params) {
     this.filter = new HashMap<String, String>();
@@ -347,8 +328,7 @@ public class SessionNode {
   /**
    * parseDatasetId:Parse Request to extract data set ID
    *
-   * @param request
-   *          request url
+   * @param request request url
    */
   public void parseDatasetId(String request) {
     try {

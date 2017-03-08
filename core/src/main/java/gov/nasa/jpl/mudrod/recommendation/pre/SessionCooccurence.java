@@ -4,20 +4,16 @@
  * Package Name:gov.nasa.jpl.mudrod.recommendation.pre
  * Date:Aug 19, 20163:06:33 PM
  * Copyright (c) 2016, chenzhou1025@126.com All Rights Reserved.
- *
  */
 
 package gov.nasa.jpl.mudrod.recommendation.pre;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
+import gov.nasa.jpl.mudrod.weblog.structure.SessionExtractor;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.function.PairFunction;
 import org.elasticsearch.action.search.SearchResponse;
@@ -26,11 +22,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.weblog.structure.SessionExtractor;
 import scala.Tuple2;
+
+import java.util.*;
 
 /**
  * ClassName: SessionCooccurenceMatrix Function: Generate metadata session
@@ -46,12 +40,9 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of SessionCooccurence.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark driver
    */
   public SessionCooccurence(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -98,10 +89,8 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   /**
    * filter out-of-data metadata
    *
-   * @param es
-   *          the Elasticsearch drive
-   * @param userDatasetsRDD
-   *          dataset extracted from session
+   * @param es              the Elasticsearch drive
+   * @param userDatasetsRDD dataset extracted from session
    * @return filtered session datasets
    */
   public JavaPairRDD<String, List<String>> removeRetiredDataset(ESDriver es,
@@ -135,8 +124,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
    * getMetadataNameMap: Get on service metadata names, key is lowcase of short
    * name and value is the original short name
    *
-   * @param es
-   *          the elasticsearch client
+   * @param es the elasticsearch client
    * @return a map from lower case metadata name to original metadata name
    */
   private Map<String, String> getOnServiceMetadata(ESDriver es) {

@@ -4,14 +4,9 @@
  * Package Name:gov.nasa.jpl.mudrod.recommendation.pre
  * Date:Aug 22, 201612:39:52 PM
  * Copyright (c) 2016, chenzhou1025@126.com All Rights Reserved.
- *
-*/
+ */
 
 package gov.nasa.jpl.mudrod.recommendation.pre;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
@@ -22,6 +17,10 @@ import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * ClassName: Generate TFIDF information of all metadata
@@ -35,12 +34,9 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of MatrixGenerator.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark drive
    */
   public MetadataTFIDFGenerator(Properties props, ESDriver es,
       SparkDriver spark) {
@@ -103,8 +99,8 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
     variables.add("DatasetParameter-Variable");
     variables.add("Dataset-ExtractTerm");
 
-    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark,
-        variables);
+    JavaPairRDD<String, String> metadataContents = opt
+        .loadAll(es, spark, variables);
 
     JavaPairRDD<String, List<String>> metadataTokens = opt
         .tokenizeData(metadataContents, ",");

@@ -13,19 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.ssearch.ranking;
 
-import java.io.Serializable;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.apache.spark.SparkContext;
 import org.apache.spark.mllib.classification.SVMModel;
 import org.apache.spark.mllib.regression.LabeledPoint;
 
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import java.io.Serializable;
 
 /**
  * Supports the ability to importing classifier into memory
  */
-public class Learner implements Serializable{
+public class Learner implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final String SPARKSVM = "SparkSVM";
@@ -34,12 +34,13 @@ public class Learner implements Serializable{
 
   /**
    * Constructor to load in spark SVM classifier
+   *
    * @param classifierName classifier type
-   * @param skd an instance of spark driver
-   * @param svmSgdModel path to a trained model
+   * @param skd            an instance of spark driver
+   * @param svmSgdModel    path to a trained model
    */
   public Learner(String classifierName, SparkDriver skd, String svmSgdModel) {
-    if(classifierName.equals(SPARKSVM)) {
+    if (classifierName.equals(SPARKSVM)) {
       sc = skd.sc.sc();
       sc.addFile(svmSgdModel, true);
       model = SVMModel.load(sc, svmSgdModel);
@@ -48,6 +49,7 @@ public class Learner implements Serializable{
 
   /**
    * Method of classifying instance
+   *
    * @param p the instance that needs to be classified
    * @return the class id
    */

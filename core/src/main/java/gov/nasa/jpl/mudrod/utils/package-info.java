@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes utilities classes for calculating similarity and 
+ * This package includes utilities classes for calculating similarity and
  * parsing HTTP request
  */
 package gov.nasa.jpl.mudrod.utils;

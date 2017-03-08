@@ -25,9 +25,10 @@ import java.util.stream.IntStream;
 public class Evaluator {
   /**
    * Method of calculating NDCG score
-   * @param list a list of integer with each integer element indicating 
-   * the performance at its position
-   * @param K the number of elements needed to be included in the calculation
+   *
+   * @param list a list of integer with each integer element indicating
+   *             the performance at its position
+   * @param K    the number of elements needed to be included in the calculation
    * @return NDCG score
    */
   public double getNDCG(int[] list, int K) {
@@ -39,14 +40,16 @@ public class Evaluator {
     }
     return ndcg;
   }
+
   /**
    * Method of getting the precision of a list at position K
-   * @param list a list of integer with each integer element indicating 
-   * the performance at its position
-   * @param K the number of elements needed to be included in the calculation
+   *
+   * @param list a list of integer with each integer element indicating
+   *             the performance at its position
+   * @param K    the number of elements needed to be included in the calculation
    * @return precision at K
    */
-  public double getPrecision(int[] list, int K){
+  public double getPrecision(int[] list, int K) {
     int size = list.length;
     if (size == 0 || K == 0) {
       return 0;
@@ -55,20 +58,21 @@ public class Evaluator {
     if (K > size) {
       K = size;
     }
-    
+
     int rel_doc_num = this.getRelevantDocNum(list, K);
-    double precision = (double)rel_doc_num/(double)K;
+    double precision = (double) rel_doc_num / (double) K;
     return precision;
   }
 
   /**
    * Method of getting the number of relevant element in a ranking results
-   * @param list a list of integer with each integer element indicating 
-   * the performance at its position
-   * @param K the number of elements needed to be included in the calculation
+   *
+   * @param list a list of integer with each integer element indicating
+   *             the performance at its position
+   * @param K    the number of elements needed to be included in the calculation
    * @return the number of relevant element
    */
-  private int getRelevantDocNum(int[] list, int K){
+  private int getRelevantDocNum(int[] list, int K) {
     int size = list.length;
     if (size == 0 || K == 0) {
       return 0;
@@ -80,18 +84,19 @@ public class Evaluator {
 
     int rel_num = 0;
     for (int i = 0; i < K; i++) {
-      if(list[i]> 3){ // 3 refers to "OK"
+      if (list[i] > 3) { // 3 refers to "OK"
         rel_num++;
       }
     }
-    return rel_num; 
+    return rel_num;
   }
 
   /**
    * Method of calculating DCG score from a list of ranking results
-   * @param list a list of integer with each integer element indicating 
-   * the performance at its position
-   * @param K the number of elements needed to be included in the calculation
+   *
+   * @param list a list of integer with each integer element indicating
+   *             the performance at its position
+   * @param K    the number of elements needed to be included in the calculation
    * @return DCG score
    */
   private double getDCG(int[] list, int K) {
@@ -107,8 +112,8 @@ public class Evaluator {
     double dcg = list[0];
     for (int i = 1; i < K; i++) {
       int rel = list[i];
-      int pos = i+1;
-      double rel_log = Math.log(pos)/Math.log(2);
+      int pos = i + 1;
+      double rel_log = Math.log(pos) / Math.log(2);
       dcg += rel / rel_log;
     }
     return dcg;
@@ -116,9 +121,10 @@ public class Evaluator {
 
   /**
    * Method of calculating ideal DCG score from a list of ranking results
-   * @param list a list of integer with each integer element indicating 
-   * the performance at its position
-   * @param K the number of elements needed to be included in the calculation
+   *
+   * @param list a list of integer with each integer element indicating
+   *             the performance at its position
+   * @param K    the number of elements needed to be included in the calculation
    * @return IDCG score
    */
   private double getIDCG(int[] list, int K) {
@@ -128,9 +134,11 @@ public class Evaluator {
         return o2.compareTo(o1);
       }
     };
-    List<Integer> sortlist = IntStream.of(list).boxed().collect(Collectors.toList());;
+    List<Integer> sortlist = IntStream.of(list).boxed()
+        .collect(Collectors.toList());
+    ;
     Collections.sort(sortlist, comparator);
-    int[] sortedArr = sortlist.stream().mapToInt(i->i).toArray();
+    int[] sortedArr = sortlist.stream().mapToInt(i -> i).toArray();
     double idcg = this.getDCG(sortedArr, K);
     return idcg;
   }

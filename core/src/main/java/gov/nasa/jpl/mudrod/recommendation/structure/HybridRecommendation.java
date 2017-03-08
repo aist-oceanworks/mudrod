@@ -13,32 +13,22 @@
  */
 package gov.nasa.jpl.mudrod.recommendation.structure;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodEngine;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * Recommend metadata using combination all two methods, including content-based
@@ -46,7 +36,7 @@ import gov.nasa.jpl.mudrod.main.MudrodEngine;
  */
 public class HybridRecommendation extends DiscoveryStepAbstract {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // recommended metadata list
@@ -90,10 +80,8 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   /**
    * Get recommended data for a giving dataset
    *
-   * @param input:
-   *          a giving dataset
-   * @param num:
-   *          the number of recommended dataset
+   * @param input: a giving dataset
+   * @param num:   the number of recommended dataset
    * @return recommended dataset in json format
    */
   public JsonObject getRecomDataInJson(String input, int num) {
@@ -121,15 +109,13 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
     Map<String, Double> hybirdSimMap = new HashMap<String, Double>();
 
     for (String name : sortedAbstractSimMap.keySet()) {
-      hybirdSimMap.put(name, sortedAbstractSimMap.get(name) /** 0.4 */
-      );
+      hybirdSimMap.put(name, sortedAbstractSimMap.get(name) /** 0.4 */);
     }
 
     for (String name : sortedVariableSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name)
-            + sortedVariableSimMap.get(name) /** 0.3 */
-        ;
+        double sim =
+            hybirdSimMap.get(name) + sortedVariableSimMap.get(name) /** 0.3 */;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
         double sim = sortedVariableSimMap.get(name);
@@ -139,9 +125,8 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
 
     for (String name : sortedSessionSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim = hybirdSimMap.get(name)
-            + sortedSessionSimMap.get(name) /** 0.1 */
-        ;
+        double sim =
+            hybirdSimMap.get(name) + sortedSessionSimMap.get(name) /** 0.1 */;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
         double sim = sortedSessionSimMap.get(name);
@@ -160,10 +145,8 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   /**
    * Method of converting hashmap to JSON
    *
-   * @param wordweights
-   *          a map from related metadata to weights
-   * @param num
-   *          the number of converted elements
+   * @param wordweights a map from related metadata to weights
+   * @param num         the number of converted elements
    * @return converted JSON object
    */
   protected JsonElement mapToJson(Map<String, Double> wordweights, int num) {
@@ -193,14 +176,11 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   /**
    * Get recommend dataset for a giving dataset
    *
-   * @param type
-   *          recommend method
-   * @param input
-   *          a giving dataset
-   * @param num
-   *          the number of recommended dataset
+   * @param type  recommend method
+   * @param input a giving dataset
+   * @param num   the number of recommended dataset
    * @return recommended dataset map, key is dataset name, value is similarity
-   *         value
+   * value
    */
   public Map<String, Double> getRelatedData(String type, String input,
       int num) {
@@ -225,12 +205,9 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   /**
    * Get recommend dataset for a giving dataset
    *
-   * @param type
-   *          recommend method
-   * @param input
-   *          a giving dataset
-   * @param num
-   *          the number of recommended dataset
+   * @param type  recommend method
+   * @param input a giving dataset
+   * @param num   the number of recommended dataset
    * @return recommended dataset list
    */
   public List<LinkedTerm> getRelatedDataFromES(String type, String input,
@@ -259,9 +236,8 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
 
   /**
    * Method of sorting a map by value
-   * 
-   * @param passedMap
-   *          input map
+   *
+   * @param passedMap input map
    * @return sorted map
    */
   public Map<String, Double> sortMapByValue(Map<String, Double> passedMap) {

@@ -13,11 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.ssearch;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
@@ -28,6 +23,11 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 /**
  * Supports ability to transform regular user query into a semantic query
@@ -41,11 +41,9 @@ public class Dispatcher extends MudrodAbstract {
 
   /**
    * Method of getting semantically most related terms by number
-   * 
-   * @param input
-   *          regular input query
-   * @param num
-   *          the number of most related terms
+   *
+   * @param input regular input query
+   * @param num   the number of most related terms
    * @return a map from term to similarity
    */
   public Map<String, Double> getRelatedTerms(String input, int num) {
@@ -64,11 +62,9 @@ public class Dispatcher extends MudrodAbstract {
 
   /**
    * Method of getting semantically most related terms by similarity threshold
-   * 
-   * @param input
-   *          regular input query
-   * @param T
-   *          value of threshold, raning from 0 to 1
+   *
+   * @param input regular input query
+   * @param T     value of threshold, raning from 0 to 1
    * @return a map from term to similarity
    */
   public Map<String, Double> getRelatedTermsByT(String input, double T) {
@@ -86,13 +82,10 @@ public class Dispatcher extends MudrodAbstract {
 
   /**
    * Method of creating semantic query based on Threshold
-   * 
-   * @param input
-   *          regular query
-   * @param T
-   *          threshold raning from 0 to 1
-   * @param query_operator
-   *          query mode
+   *
+   * @param input          regular query
+   * @param T              threshold raning from 0 to 1
+   * @param query_operator query mode
    * @return a multiMatch query builder
    */
   public BoolQueryBuilder createSemQuery(String input, double T,
@@ -112,18 +105,19 @@ public class Dispatcher extends MudrodAbstract {
       if (query_operator.toLowerCase().trim().equals("phrase")) {
         qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
             .boost(entry.getValue().floatValue())
-            .type(MultiMatchQueryBuilder.Type.PHRASE).tieBreaker((float) 0.5)); // when
-                                                                                // set
-                                                                                // to
-                                                                                // 1.0,
-                                                                                // it
-                                                                                // would
-                                                                                // be
-                                                                                // equal
-                                                                                // to
-                                                                                // "most
-                                                                                // fields"
-                                                                                // query
+            .type(MultiMatchQueryBuilder.Type.PHRASE)
+            .tieBreaker((float) 0.5)); // when
+        // set
+        // to
+        // 1.0,
+        // it
+        // would
+        // be
+        // equal
+        // to
+        // "most
+        // fields"
+        // query
       } else if (query_operator.toLowerCase().trim().equals("and")) {
         qb.should(QueryBuilders.multiMatchQuery(entry.getKey(), fieldsList)
             .boost(entry.getValue().floatValue())

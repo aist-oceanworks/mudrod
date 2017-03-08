@@ -23,7 +23,7 @@ import java.util.List;
 public class PODAACMetadata implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // shortname: data set short name
@@ -71,20 +71,13 @@ public class PODAACMetadata implements Serializable {
   /**
    * Creates a new instance of PODAACMetadata.
    *
-   * @param shortname
-   *          data set short name
-   * @param longname
-   *          data set long name
-   * @param topics
-   *          data set topics
-   * @param terms
-   *          data set terms
-   * @param variables
-   *          data set variables
-   * @param keywords
-   *          data set keywords
-   * @param region
-   *          list of regions
+   * @param shortname data set short name
+   * @param longname  data set long name
+   * @param topics    data set topics
+   * @param terms     data set terms
+   * @param variables data set variables
+   * @param keywords  data set keywords
+   * @param region    list of regions
    */
   public PODAACMetadata(String shortname, List<String> longname,
       List<String> topics, List<String> terms, List<String> variables,
@@ -101,8 +94,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setTerms: set term of data set
    *
-   * @param termstr
-   *          data set terms
+   * @param termstr data set terms
    */
   public void setTerms(String termstr) {
     this.splitString(termstr, this.termList);
@@ -111,8 +103,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setKeywords: set key word of data set
    *
-   * @param keywords
-   *          data set keywords
+   * @param keywords data set keywords
    */
   public void setKeywords(String keywords) {
     this.splitString(keywords, this.keywordList);
@@ -121,8 +112,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setTopicList: set topic of data set
    *
-   * @param topicStr
-   *          data set topics
+   * @param topicStr data set topics
    */
   public void setTopicList(String topicStr) {
     this.splitString(topicStr, this.topicList);
@@ -131,8 +121,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setVaraliableList: set varilable of data set
    *
-   * @param varilableStr
-   *          data set variables
+   * @param varilableStr data set variables
    */
   public void setVaraliableList(String varilableStr) {
     this.splitString(varilableStr, this.variableList);
@@ -141,8 +130,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setProjectList:set project of data set
    *
-   * @param project
-   *          data set projects
+   * @param project data set projects
    */
   public void setProjectList(String project) {
     this.splitString(project, this.projectList);
@@ -151,8 +139,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setSourceList: set source of data set
    *
-   * @param source
-   *          data set sources
+   * @param source data set sources
    */
   public void setSourceList(String source) {
     this.splitString(source, this.sourceList);
@@ -161,8 +148,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setSensorList: set sensor of data set
    *
-   * @param sensor
-   *          data set sensors
+   * @param sensor data set sensors
    */
   public void setSensorList(String sensor) {
     this.splitString(sensor, this.sensorList);
@@ -171,8 +157,7 @@ public class PODAACMetadata implements Serializable {
   /**
    * setISOTopicList:set iso topic of data set
    *
-   * @param isoTopic
-   *          data set iso topics
+   * @param isoTopic data set iso topics
    */
   public void setISOTopicList(String isoTopic) {
     this.splitString(isoTopic, this.isotopicList);
@@ -319,10 +304,8 @@ public class PODAACMetadata implements Serializable {
   /**
    * splitString: split value of fields of data set
    *
-   * @param oristr
-   *          original string
-   * @param list
-   *          result after splitting
+   * @param oristr original string
+   * @param list   result after splitting
    */
   private void splitString(String oristr, List<String> list) {
     if (oristr == null) {

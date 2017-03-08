@@ -13,16 +13,9 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -31,9 +24,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Supports ability to generate search history (queries) for each individual
@@ -56,7 +51,8 @@ public class HistoryGenerator extends LogAbstract {
     generateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    LOG.info("HistoryGenerator complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
+    LOG.info("HistoryGenerator complete. Time elapsed {} seconds",
+        (endTime - startTime) / 1000);
     return null;
   }
 
@@ -89,16 +85,15 @@ public class HistoryGenerator extends LogAbstract {
 
       SearchResponse sr = es.getClient().prepareSearch(logIndices)
           .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
-          .setSize(0)
-          .addAggregation(
+          .setSize(0).addAggregation(
               AggregationBuilders.terms("IPs").field("IP").size(docCount))
           .execute().actionGet();
       Terms ips = sr.getAggregations().get("IPs");
       List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : ips.getBuckets()) {
-        if (entry.getDocCount() > Integer
-            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
-                                                                               // out
+        if (entry.getDocCount() > Integer.parseInt(
+            props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
+          // out
           // less
           // active users/ips
           ipList.add(entry.getKey().toString());
@@ -111,8 +106,9 @@ public class HistoryGenerator extends LogAbstract {
           .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
           .setSize(0).addAggregation(
               AggregationBuilders.terms("KeywordAgg").field("keywords")
-                  .size(docCount).subAggregation(AggregationBuilders
-                      .terms("IPAgg").field("IP").size(docCount)));
+                  .size(docCount).subAggregation(
+                  AggregationBuilders.terms("IPAgg").field("IP")
+                      .size(docCount)));
 
       SearchResponse sr2 = sr2Builder.execute().actionGet();
       Terms keywords = sr2.getAggregations().get("KeywordAgg");

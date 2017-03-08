@@ -20,7 +20,8 @@
     <display-name>MUDROD</display-name>
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
-        <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
+        <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet
+        </servlet-class>
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
@@ -38,7 +39,8 @@
     </servlet>
 
     <listener>
-        <listener-class>gov.nasa.jpl.mudrod.services.MudrodContextListener</listener-class>
+        <listener-class>gov.nasa.jpl.mudrod.services.MudrodContextListener
+        </listener-class>
     </listener>
 
     <servlet-mapping>

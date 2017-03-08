@@ -13,10 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.semantics;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
@@ -25,46 +21,43 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 /**
  * ClassName: SVDAnalyzer Function: Analyze semantic relationship through SVD
- * method 
+ * method
  */
 public class SVDAnalyzer extends SemanticAnalyzer {
 
   /**
    * Creates a new instance of SVDAnalyzer.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark drive
    */
-  public SVDAnalyzer(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public SVDAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
   /**
    * GetSVDMatrix: Create SVD matrix csv file from original csv file.
    *
-   * @param csvFileName
-   *          each row is a term, and each column is a document.
-   * @param svdDimention
-   *          Dimension of SVD matrix
-   * @param svdMatrixFileName
-   *          CSV file name of SVD matrix
+   * @param csvFileName       each row is a term, and each column is a document.
+   * @param svdDimention      Dimension of SVD matrix
+   * @param svdMatrixFileName CSV file name of SVD matrix
    */
   public void getSVDMatrix(String csvFileName, int svdDimention,
       String svdMatrixFileName) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark,
-        csvFileName, 1);
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil
+        .loadVectorFromCSV(spark, csvFileName, 1);
     JavaRDD<Vector> vectorRDD = importRDD.values();
     RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
-    RowMatrix tfidfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix,
-        spark.sc);
+    RowMatrix tfidfMatrix = MatrixUtil
+        .createTFIDFMatrix(wordDocMatrix, spark.sc);
     RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(tfidfMatrix, svdDimention);
 
     List<String> rowKeys = importRDD.keys().collect();

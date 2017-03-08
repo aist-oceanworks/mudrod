@@ -13,6 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.ontology.pre;
 
+import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import org.apache.commons.io.FilenameUtils;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.filter.ElementFilter;
+import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -22,30 +35,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
-import org.apache.commons.io.FilenameUtils;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.Namespace;
-import org.jdom2.filter.ElementFilter;
-import org.jdom2.input.SAXBuilder;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Supports ability to extract triples (subclassOf, equivalent class) from OWL file
  */
 public class AggregateTriples extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(AggregateTriples.class);
 
-  public AggregateTriples(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public AggregateTriples(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -72,7 +70,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
-    File[] files = new File(this.props.getProperty("ontologyInputDir")).listFiles();
+    File[] files = new File(this.props.getProperty("ontologyInputDir"))
+        .listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
       if ("owl".equals(ext)) {
@@ -106,9 +105,10 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   /**
    * Load OWL file into memory
+   *
    * @param filePathName local path of OWL file
    * @throws JDOMException JDOMException
-   * @throws IOException IOException
+   * @throws IOException   IOException
    */
   public void loadxml(String filePathName) throws JDOMException, IOException {
     SAXBuilder saxBuilder = new SAXBuilder();
@@ -140,6 +140,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   /**
    * Method of identifying a specific child given a element name
+   *
    * @param str element name
    * @param ele parent element
    * @return the element of child
@@ -161,14 +162,14 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   }
 
-
   /**
    * Method of extract triples (subclassOf, equivalent class) from OWL file
+   *
    * @throws IOException IOException
    */
   public void getAllClass() throws IOException {
-    List<?> classElements = rootNode.getChildren("Class",
-        Namespace.getNamespace("owl", owl_namespace));
+    List<?> classElements = rootNode
+        .getChildren("Class", Namespace.getNamespace("owl", owl_namespace));
 
     for (int i = 0; i < classElements.size(); i++) {
       Element classElement = (Element) classElements.get(i);
@@ -192,12 +193,14 @@ public class AggregateTriples extends DiscoveryStepAbstract {
           if (allValuesFromEle != null) {
             subclassName = allValuesFromEle.getAttributeValue("resource",
                 Namespace.getNamespace("rdf", rdf_namespace));
-            bw.write(cutString(className) + ",SubClassOf,"
-                + cutString(subclassName) + "\n");
+            bw.write(
+                cutString(className) + ",SubClassOf," + cutString(subclassName)
+                    + "\n");
           }
         } else {
-          bw.write(cutString(className) + ",SubClassOf,"
-              + cutString(subclassName) + "\n");
+          bw.write(
+              cutString(className) + ",SubClassOf," + cutString(subclassName)
+                  + "\n");
         }
 
       }
@@ -206,12 +209,13 @@ public class AggregateTriples extends DiscoveryStepAbstract {
           Namespace.getNamespace("owl", owl_namespace));
       for (int k = 0; k < equalClassElements.size(); k++) {
         Element equalClassElement = (Element) equalClassElements.get(k);
-        String equalClassElementName = equalClassElement.getAttributeValue(
-            "resource", Namespace.getNamespace("rdf", rdf_namespace));
+        String equalClassElementName = equalClassElement
+            .getAttributeValue("resource",
+                Namespace.getNamespace("rdf", rdf_namespace));
 
         if (equalClassElementName != null) {
-          bw.write(cutString(className) + ",equivalentClass,"
-              + cutString(equalClassElementName) + "\n");
+          bw.write(cutString(className) + ",equivalentClass," + cutString(
+              equalClassElementName) + "\n");
         }
       }
 
@@ -220,6 +224,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
 
   /**
    * Method of cleaning up a string
+   *
    * @param str String needed to be processed
    * @return the processed string
    */

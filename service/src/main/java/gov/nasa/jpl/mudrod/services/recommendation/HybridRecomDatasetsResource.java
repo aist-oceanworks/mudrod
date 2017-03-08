@@ -13,20 +13,15 @@
  */
 package gov.nasa.jpl.mudrod.services.recommendation;
 
+import com.google.gson.JsonObject;
+import gov.nasa.jpl.mudrod.main.MudrodEngine;
+import gov.nasa.jpl.mudrod.recommendation.structure.HybridRecommendation;
+
 import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.google.gson.JsonObject;
-
-import gov.nasa.jpl.mudrod.main.MudrodEngine;
-import gov.nasa.jpl.mudrod.recommendation.structure.HybridRecommendation;
 
 /**
  * A hybrid recommendation resource for datasets.
@@ -45,20 +40,23 @@ public class HybridRecomDatasetsResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>")
+        .build();
   }
 
   @GET
   @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response hybridRecommendation(@QueryParam("shortname") String shortName) {
+  public Response hybridRecommendation(
+      @QueryParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
       HybridRecommendation recom = new HybridRecommendation(mEngine.getConfig(),
           mEngine.getESDriver(), null);
       json = new JsonObject();
-      json.add("HybridRecommendationData", recom.getRecomDataInJson(shortName, 10));
+      json.add("HybridRecommendationData",
+          recom.getRecomDataInJson(shortName, 10));
     }
     return Response.ok(json.toString(), MediaType.APPLICATION_JSON).build();
   }

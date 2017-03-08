@@ -13,14 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.utils;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Map;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -34,13 +26,21 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.SortOrder;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
 /**
  * ClassName: LinkageTriple Function: Vocabulary linkage operations
  */
 public class LinkageTriple implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // keyAId: ID of term A
@@ -71,7 +71,7 @@ public class LinkageTriple implements Serializable {
   }
 
   public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
-                                   String index, String type) throws IOException {
+      String index, String type) throws IOException {
     LinkageTriple.insertTriples(es, triples, index, type, false, false);
   }
 
@@ -94,8 +94,8 @@ public class LinkageTriple implements Serializable {
         jsonBuilder.field("concept_B", triples.get(i).keyB);
 
       } else {
-        jsonBuilder.field("keywords",
-            triples.get(i).keyA + "," + triples.get(i).keyB);
+        jsonBuilder
+            .field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB);
       }
 
       jsonBuilder.field("weight",
@@ -146,8 +146,7 @@ public class LinkageTriple implements Serializable {
     es.createBulkProcessor();
 
     SearchResponse sr = es.getClient().prepareSearch(index).setTypes(type)
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(
+        .setQuery(QueryBuilders.matchAllQuery()).setSize(0).addAggregation(
             AggregationBuilders.terms("concepts").field("concept_A").size(0))
         .execute().actionGet();
     Terms concepts = sr.getAggregations().get("concepts");
@@ -169,8 +168,9 @@ public class LinkageTriple implements Serializable {
           Map<String, Object> metadata = hit.getSource();
           double sim = (double) metadata.get("weight");
           double newSim = sim / maxSim;
-          UpdateRequest ur = es.generateUpdateRequest(index, type, hit.getId(),
-              "weight", Double.parseDouble(df.format(newSim)));
+          UpdateRequest ur = es
+              .generateUpdateRequest(index, type, hit.getId(), "weight",
+                  Double.parseDouble(df.format(newSim)));
           es.getBulkProcessor().add(ur);
         }
 

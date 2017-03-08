@@ -13,31 +13,30 @@
  */
 package gov.nasa.jpl.mudrod.weblog.process;
 
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.semantics.SemanticAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Supports ability to calculate term similarity based on user history
  */
 public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
-  
+
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(UserHistoryAnalyzer.class);
-  
-  public UserHistoryAnalyzer(Properties props, ESDriver es,
-      SparkDriver spark) {
+  private static final Logger LOG = LoggerFactory
+      .getLogger(UserHistoryAnalyzer.class);
+
+  public UserHistoryAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -57,8 +56,8 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("UserHistoryAnalyzer complete. Time elapsed: {}s"
-        , (endTime - startTime) / 1000);
+    LOG.info("UserHistoryAnalyzer complete. Time elapsed: {}s",
+        (endTime - startTime) / 1000);
     return null;
   }
 

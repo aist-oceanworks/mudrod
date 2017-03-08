@@ -46,25 +46,25 @@ $(document).ready(function () {
     loadHybirdRecomData(shortname);
 });
 
-function loadVocubulary(query){
-	  $.ajax({
-	        url: "services/vocabulary/search",
-	        data: {
-	            "query": query
-	        },
-	        success: function completeHandler(response) {
-	            if (response != null && !jQuery.isEmptyObject(response)) {
-	                var ontologyResults = response.graph.ontology;
-	                if (ontologyResults.length == 0) {
-	                    $("#ontologyUL").append("<li>Did not find any results.</li>");
-	                } else {
-	                    for (var i = 0; i < ontologyResults.length; i++) {
-	                        $("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
-	                    }
-	                }
-	            }
-	        }
-	    });
+function loadVocubulary(query) {
+    $.ajax({
+        url: "services/vocabulary/search",
+        data: {
+            "query": query
+        },
+        success: function completeHandler(response) {
+            if (response != null && !jQuery.isEmptyObject(response)) {
+                var ontologyResults = response.graph.ontology;
+                if (ontologyResults.length == 0) {
+                    $("#ontologyUL").append("<li>Did not find any results.</li>");
+                } else {
+                    for (var i = 0; i < ontologyResults.length; i++) {
+                        $("#ontologyUL").append("<li><a data-word='" + ontologyResults[i].word + "' href='#'>" + ontologyResults[i].word + " (" + ontologyResults[i].weight + ")</a></li>");
+                    }
+                }
+            }
+        }
+    });
 }
 
 function loadHybirdRecomData(shortname) {

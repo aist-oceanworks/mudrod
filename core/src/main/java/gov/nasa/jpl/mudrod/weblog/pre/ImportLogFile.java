@@ -13,7 +13,16 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.weblog.structure.ApacheAccessLog;
+import gov.nasa.jpl.mudrod.weblog.structure.FtpLog;
+import org.apache.spark.api.java.JavaRDD;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -26,17 +35,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
-import gov.nasa.jpl.mudrod.weblog.structure.ApacheAccessLog;
-import org.apache.spark.api.java.JavaRDD;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gov.nasa.jpl.mudrod.weblog.structure.FtpLog;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Supports ability to parse and process FTP and HTTP log files
@@ -47,12 +46,13 @@ public class ImportLogFile extends LogAbstract {
       .getLogger(ImportLogFile.class);
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
-  String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] "
-      + "\"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
+  String logEntryPattern =
+      "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] "
+          + "\"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
 
   public static final int NUM_FIELDS = 9;
   Pattern p = Pattern.compile(logEntryPattern);
@@ -60,16 +60,13 @@ public class ImportLogFile extends LogAbstract {
 
   /**
    * Constructor supporting a number of parameters documented below.
-   * 
-   * @param props
-   *          a {@link java.util.Map} containing K,V of type String, String
-   *          respectively.
-   * @param es
-   *          the {@link ESDriver} used to persist log
-   *          files.
-   * @param spark
-   *          the {@link SparkDriver} used to process
-   *          input log files.
+   *
+   * @param props a {@link java.util.Map} containing K,V of type String, String
+   *              respectively.
+   * @param es    the {@link ESDriver} used to persist log
+   *              files.
+   * @param spark the {@link SparkDriver} used to process
+   *              input log files.
    */
   public ImportLogFile(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -91,9 +88,8 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Utility function to aid String to Number formatting such that three letter
    * months such as 'Jan' are converted to the Gregorian integer equivalent.
-   * 
-   * @param time
-   *          the input {@link java.lang.String} to convert to int.
+   *
+   * @param time the input {@link java.lang.String} to convert to int.
    * @return the converted Month as an int.
    */
   public String switchtoNum(String time) {
@@ -128,15 +124,16 @@ public class ImportLogFile extends LogAbstract {
 
   public void readFile() {
 
-    String httplogpath = props.getProperty("logDir")
-        + props.getProperty(MudrodConstants.HTTP_PREFIX)
-        + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    String httplogpath = props.getProperty("logDir") + props
+        .getProperty(MudrodConstants.HTTP_PREFIX) + props
+        .getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String ftplogpath = props.getProperty("logDir")
-        + props.getProperty(MudrodConstants.FTP_PREFIX)
-        + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    String ftplogpath = props.getProperty("logDir") + props
+        .getProperty(MudrodConstants.FTP_PREFIX) + props
+        .getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
+    String processingType = props
+        .getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       readFileInSequential(httplogpath, ftplogpath);
     } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
@@ -147,8 +144,9 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Read the FTP or HTTP log path with the intention of processing lines from
    * log files.
+   *
    * @param httplogpath path to the parent directory containing http logs
-   * @param ftplogpath path to the parent directory containing ftp logs
+   * @param ftplogpath  path to the parent directory containing ftp logs
    */
   public void readFileInSequential(String httplogpath, String ftplogpath) {
     es.createBulkProcessor();
@@ -165,8 +163,9 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Read the FTP or HTTP log path with the intention of processing lines from
    * log files.
+   *
    * @param httplogpath path to the parent directory containing http logs
-   * @param ftplogpath path to the parent directory containing ftp logs
+   * @param ftplogpath  path to the parent directory containing ftp logs
    */
   public void readFileInParallel(String httplogpath, String ftplogpath) {
 
@@ -194,18 +193,13 @@ public class ImportLogFile extends LogAbstract {
   /**
    * Process a log path on local file system which contains the relevant
    * parameters as below.
-   * 
-   * @param fileName
-   *          the {@link java.lang.String} path to the log directory on file
-   *          system
-   * @param protocol
-   *          whether to process 'http' or 'FTP'
-   * @param index
-   *          the index name to write logs to
-   * @param type
-   *          one of the available protocols from which Mudrod logs are obtained.
-   * @throws IOException
-   *           if there is an error reading anything from the fileName provided.
+   *
+   * @param fileName the {@link java.lang.String} path to the log directory on file
+   *                 system
+   * @param protocol whether to process 'http' or 'FTP'
+   * @param index    the index name to write logs to
+   * @param type     one of the available protocols from which Mudrod logs are obtained.
+   * @throws IOException if there is an error reading anything from the fileName provided.
    */
   public void readLogFile(String fileName, String protocol, String index,
       String type) throws IOException {
@@ -234,19 +228,17 @@ public class ImportLogFile extends LogAbstract {
 
   /**
    * Parse a single FTP log entry
-   * 
-   * @param log
-   *          a single log line
-   * @param index
-   *          the index name we wish to persist the log line to
-   * @param type
-   *          one of the available protocols from which Mudrod logs are obtained.
+   *
+   * @param log   a single log line
+   * @param index the index name we wish to persist the log line to
+   * @param type  one of the available protocols from which Mudrod logs are obtained.
    */
   public void parseSingleLineFTP(String log, String index, String type) {
     String ip = log.split(" +")[6];
 
-    String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":"
-        + log.split(" +")[3] + ":" + log.split(" +")[4];
+    String time =
+        log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3]
+            + ":" + log.split(" +")[4];
 
     time = switchtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
@@ -263,9 +255,9 @@ public class ImportLogFile extends LogAbstract {
     if (!request.contains("/misc/") && !request.contains("readme")) {
       IndexRequest ir;
       try {
-        ir = new IndexRequest(index, type)
-            .source(jsonBuilder().startObject().field("LogType", "ftp")
-                .field("IP", ip).field("Time", date).field("Request", request)
+        ir = new IndexRequest(index, type).source(
+            jsonBuilder().startObject().field("LogType", "ftp").field("IP", ip)
+                .field("Time", date).field("Request", request)
                 .field("Bytes", Long.parseLong(bytes)).endObject());
         es.getBulkProcessor().add(ir);
       } catch (NumberFormatException e) {
@@ -279,13 +271,10 @@ public class ImportLogFile extends LogAbstract {
 
   /**
    * Parse a single HTTP log entry
-   * 
-   * @param log
-   *          a single log line
-   * @param index
-   *          the index name we wish to persist the log line to
-   * @param type
-   *          one of the available protocols from which Mudrod logs are obtained.
+   *
+   * @param log   a single log line
+   * @param index the index name we wish to persist the log line to
+   * @param type  one of the available protocols from which Mudrod logs are obtained.
    */
   public void parseSingleLineHTTP(String log, String index, String type) {
     matcher = p.matcher(log);
@@ -334,13 +323,14 @@ public class ImportLogFile extends LogAbstract {
       Matcher matcher, Date date, String bytes) {
     IndexRequest newIr = ir;
     try {
-      newIr = new IndexRequest(index, type).source(jsonBuilder().startObject()
-          .field("LogType", "PO.DAAC").field("IP", matcher.group(1))
-          .field("Time", date).field("Request", matcher.group(5))
-          .field("Response", matcher.group(6))
-          .field("Bytes", Integer.parseInt(bytes))
-          .field("Referer", matcher.group(8)).field("Browser", matcher.group(9))
-          .endObject());
+      newIr = new IndexRequest(index, type).source(
+          jsonBuilder().startObject().field("LogType", "PO.DAAC")
+              .field("IP", matcher.group(1)).field("Time", date)
+              .field("Request", matcher.group(5))
+              .field("Response", matcher.group(6))
+              .field("Bytes", Integer.parseInt(bytes))
+              .field("Referer", matcher.group(8))
+              .field("Browser", matcher.group(9)).endObject());
 
       es.getBulkProcessor().add(newIr);
     } catch (NumberFormatException e) {

@@ -13,20 +13,10 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.weblog.structure.Session;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function2;
@@ -51,7 +41,10 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.weblog.structure.Session;
+import java.io.IOException;
+import java.util.*;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Supports ability to generate user session by time threshold and referrer
@@ -59,7 +52,7 @@ import gov.nasa.jpl.mudrod.weblog.structure.Session;
 public class SessionGenerator extends LogAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory
@@ -123,13 +116,10 @@ public class SessionGenerator extends LogAbstract {
 
   /**
    * Method to generate session by time threshold and referrer
-   * 
-   * @param timeThres
-   *          value of time threshold (s)
-   * @throws ElasticsearchException
-   *           ElasticsearchException
-   * @throws IOException
-   *           IOException
+   *
+   * @param timeThres value of time threshold (s)
+   * @throws ElasticsearchException ElasticsearchException
+   * @throws IOException            IOException
    */
   public void genSessionByRefererInSequential(int timeThres)
       throws ElasticsearchException, IOException {
@@ -159,15 +149,11 @@ public class SessionGenerator extends LogAbstract {
 
   /**
    * Method to remove invalid logs through IP address
-   * 
-   * @param es
-   *          an instantiated es driver
-   * @param ip
-   *          invalid IP address
-   * @throws ElasticsearchException
-   *           ElasticsearchException
-   * @throws IOException
-   *           IOException
+   *
+   * @param es an instantiated es driver
+   * @param ip invalid IP address
+   * @throws ElasticsearchException ElasticsearchException
+   * @throws IOException            IOException
    */
   public void deleteInvalid(ESDriver es, String ip) throws IOException {
 
@@ -192,19 +178,13 @@ public class SessionGenerator extends LogAbstract {
 
   /**
    * Method to update a Elasticsearch record/document by id, field, and value
-   * 
+   *
    * @param es
-   * 
-   * @param index
-   *          index name is Elasticsearch
-   * @param type
-   *          type name
-   * @param id
-   *          ID of the document that needs to be updated
-   * @param field1
-   *          field of the document that needs to be updated
-   * @param value1
-   *          value of the document that needs to be changed to
+   * @param index  index name is Elasticsearch
+   * @param type   type name
+   * @param id     ID of the document that needs to be updated
+   * @param field1 field of the document that needs to be updated
+   * @param value1 value of the document that needs to be changed to
    * @throws ElasticsearchException
    * @throws IOException
    */
@@ -224,7 +204,7 @@ public class SessionGenerator extends LogAbstract {
     sessionCount = userRDD
         .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -244,7 +224,7 @@ public class SessionGenerator extends LogAbstract {
           }
         }).reduce(new Function2<Integer, Integer, Integer>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -291,8 +271,8 @@ public class SessionGenerator extends LogAbstract {
         id = hit.getId();
 
         if ("PO.DAAC".equals(logType)) {
-          if ("-".equals(referer) || referer.equals(indexUrl)
-              || !referer.contains(indexUrl)) {
+          if ("-".equals(referer) || referer.equals(indexUrl) || !referer
+              .contains(indexUrl)) {
             sessionCountIn++;
             sessionReqs.put(ip + "@" + sessionCountIn,
                 new HashMap<String, DateTime>());
@@ -308,8 +288,8 @@ public class SessionGenerator extends LogAbstract {
               Map<String, DateTime> requests = sessionReqs
                   .get(ip + "@" + count);
               if (requests == null) {
-                sessionReqs.put(ip + "@" + count,
-                    new HashMap<String, DateTime>());
+                sessionReqs
+                    .put(ip + "@" + count, new HashMap<String, DateTime>());
                 sessionReqs.get(ip + "@" + count).put(request, time);
                 update(es, logIndex, this.cleanupType, id, "SessionID",
                     ip + "@" + count);
@@ -327,7 +307,7 @@ public class SessionGenerator extends LogAbstract {
                   // click num, start a new session
                   if (Math.abs(
                       Seconds.secondsBetween(requests.get(keys.get(i)), time)
-                      .getSeconds()) < timeThres * rollbackNum) {
+                          .getSeconds()) < timeThres * rollbackNum) {
                     sessionReqs.get(ip + "@" + count).put(request, time);
                     update(es, logIndex, this.cleanupType, id, "SessionID",
                         ip + "@" + count);
@@ -335,8 +315,8 @@ public class SessionGenerator extends LogAbstract {
                     sessionCountIn++;
                     sessionReqs.put(ip + "@" + sessionCountIn,
                         new HashMap<String, DateTime>());
-                    sessionReqs.get(ip + "@" + sessionCountIn).put(request,
-                        time);
+                    sessionReqs.get(ip + "@" + sessionCountIn)
+                        .put(request, time);
                     update(es, logIndex, this.cleanupType, id, "SessionID",
                         ip + "@" + sessionCountIn);
                   }
@@ -377,7 +357,7 @@ public class SessionGenerator extends LogAbstract {
             int size = keys.size();
             if (Math.abs(
                 Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-                .getSeconds()) > timeThres) {
+                    .getSeconds()) > timeThres) {
               sessionCountIn += 1;
               sessionReqs.put(ip + "@" + sessionCountIn,
                   new HashMap<String, DateTime>());
@@ -403,7 +383,7 @@ public class SessionGenerator extends LogAbstract {
 
     userRDD.foreachPartition(new VoidFunction<Iterator<String>>() {
       /**
-       * 
+       *
        */
       private static final long serialVersionUID = 1L;
 
@@ -437,7 +417,7 @@ public class SessionGenerator extends LogAbstract {
 
     BoolQueryBuilder filterCheck = new BoolQueryBuilder();
     filterCheck.must(QueryBuilders.termQuery("IP", user))
-    .must(QueryBuilders.termQuery("Referer", "-"));
+        .must(QueryBuilders.termQuery("Referer", "-"));
     SearchResponse checkReferer = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
         .setQuery(filterCheck).setSize(0).execute().actionGet();
@@ -454,10 +434,9 @@ public class SessionGenerator extends LogAbstract {
         .field("Time");
     SearchResponse srSession = es.getClient().prepareSearch(logIndex)
         .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterSearch)
-        .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .size(docCount).subAggregation(statsAgg))
-        .execute().actionGet();
+        .setQuery(filterSearch).addAggregation(
+            AggregationBuilders.terms("Sessions").field("SessionID")
+                .size(docCount).subAggregation(statsAgg)).execute().actionGet();
 
     Terms sessions = srSession.getAggregations().get("Sessions");
 
@@ -511,7 +490,8 @@ public class SessionGenerator extends LogAbstract {
               break;
             }
           }
-        };
+        }
+        ;
       }
       lastoldID = s.getID();
       lastnewID = s.getNewID();

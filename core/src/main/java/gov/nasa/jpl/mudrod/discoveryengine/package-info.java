@@ -13,7 +13,7 @@
  */
 /**
  * This package includes abstract classes of MUDROD, discovery step, and engine.
- * Workflow classes such as weblogDiscoveryEngine, OntologyDiscoveryEngine, and 
+ * Workflow classes such as weblogDiscoveryEngine, OntologyDiscoveryEngine, and
  * MetadataDiscoveryEngine are also included here.
  */
 package gov.nasa.jpl.mudrod.discoveryengine;

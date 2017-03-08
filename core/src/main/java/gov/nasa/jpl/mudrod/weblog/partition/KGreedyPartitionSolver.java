@@ -1,12 +1,6 @@
 package gov.nasa.jpl.mudrod.weblog.partition;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
 

@@ -13,25 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.services.ontology;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.google.gson.Gson;
 import gov.nasa.jpl.mudrod.ontology.Ontology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
+import javax.servlet.ServletContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A ontology-driven resource for user query augmentation.
@@ -39,7 +33,8 @@ import com.google.gson.Gson;
 @Path("/ontology")
 public class OntologyResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(OntologyResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(OntologyResource.class);
   private Ontology ontImpl;
 
   public OntologyResource(@Context ServletContext sc) {
@@ -51,7 +46,8 @@ public class OntologyResource {
   @Produces("text/html")
   public Response status() {
     return Response
-        .ok("<h1>This is MUDROD Ontology-driven User Query Augmentation Resource: running correctly...</h1>").build();
+        .ok("<h1>This is MUDROD Ontology-driven User Query Augmentation Resource: running correctly...</h1>")
+        .build();
   }
 
   @GET

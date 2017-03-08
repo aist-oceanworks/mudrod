@@ -13,13 +13,13 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import com.google.gson.Gson;
 
 /**
  * This class represents an Apache access log line. See
@@ -32,8 +32,9 @@ public class FtpLog extends WebLog implements Serializable {
 
     String ip = log.split(" +")[6];
 
-    String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":"
-        + log.split(" +")[3] + ":" + log.split(" +")[4];
+    String time =
+        log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3]
+            + ":" + log.split(" +")[4];
 
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");

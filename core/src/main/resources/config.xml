@@ -13,89 +13,95 @@
   governing permissions and limitations under the License. 
 -->
 <Config>
-  <para name="httpPrefix">WWW.</para>
-  <para name="ftpPrefix">FTP.</para>
+    <para name="httpPrefix">WWW.</para>
+    <para name="ftpPrefix">FTP.</para>
 
-  <para name="metadataurl">null</para>
+    <para name="metadataurl">null</para>
 
-  <para name="clusterName">MudrodES</para>
-  <para name="ES_Transport_TCP_Port">9300</para>
-  <para name="ES_unicast_hosts">127.0.0.1</para>
-  <para name="ES_HTTP_port">9200</para>
-  <para name="indexName">mudrod</para>
-  <para name="logIndexName">podaaclog</para>
-  <para name="HTTP_type_prefix">rawhttp</para>
-  <para name="FTP_type_prefix">rawftp</para>
-  <para name="Cleanup_type_prefix">cleanupLog</para>
-  <para name="SessionStats_prefix">sessionstats</para>
+    <para name="clusterName">MudrodES</para>
+    <para name="ES_Transport_TCP_Port">9300</para>
+    <para name="ES_unicast_hosts">127.0.0.1</para>
+    <para name="ES_HTTP_port">9200</para>
+    <para name="indexName">mudrod</para>
+    <para name="logIndexName">podaaclog</para>
+    <para name="HTTP_type_prefix">rawhttp</para>
+    <para name="FTP_type_prefix">rawftp</para>
+    <para name="Cleanup_type_prefix">cleanupLog</para>
+    <para name="SessionStats_prefix">sessionstats</para>
 
-  <para name="commentType">comment</para>
-  <para name="SessionPort">8080</para>
-   <para name="SessionUrl">/mudrod-service/session.html</para>
+    <para name="commentType">comment</para>
+    <para name="SessionPort">8080</para>
+    <para name="SessionUrl">/mudrod-service/session.html</para>
 
-  <para name="sendingrate">30</para>   <!-- threshold for crawler detection, unit request/second -->
-  <para name="timegap">600</para>   <!-- threshold for session generator, unit second -->
-  <para name="searchf">100</para>   <!-- threshold for removing suspicious sessions, unit second -->
-  <para name="viewf">200</para>   <!-- threshold for session summarizing, unit second -->
-  <para name="downloadf">100</para>   <!-- threshold for session summarizing, unit second -->
+    <para name="sendingrate">30
+    </para>   <!-- threshold for crawler detection, unit request/second -->
+    <para name="timegap">600
+    </para>   <!-- threshold for session generator, unit second -->
+    <para name="searchf">100
+    </para>   <!-- threshold for removing suspicious sessions, unit second -->
+    <para name="viewf">200
+    </para>   <!-- threshold for session summarizing, unit second -->
+    <para name="downloadf">100
+    </para>   <!-- threshold for session summarizing, unit second -->
 
-  <para name="raw_metadataType">RawMetadata</para>
-  <para name="clickstreamMatrixType">clickstreamMatrix</para>
-  <para name="recom_metadataType">RecomMetadata</para>
-  
-
-  <para name="clickstreamSVDDimension">50</para>
-  <para name="metadataSVDDimension">50</para>
-  <para name="downloadWeight">3</para>
-
-  <para name="mini_userHistory">5</para>   <!-- filter out less active users & queries -->
-
-  <para name="userHistoryLinkageType">UserHistoryLinkage</para>
-  <para name="clickStreamLinkageType">ClickStreamLinkage</para>
-  <para name="metadataLinkageType">MetadataLinkage</para>
-  <para name="ontologyLinkageType">SWEETLinkage</para>
-
-  <para name="userHistory_w">2</para>
-  <para name="clickStream_w">2</para>
-  <para name="metadata_w">1</para>
-  <para name="ontology_w">2</para>
-  
-  <!-- recommendation -->
-  <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
-  <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
-  <para name="metadataCodeSimType">MetadataCodeSim</para>
-  <para name="metadataSessionBasedSimType">MetadataSBSim</para>
-  <para name="metadataTopicSimType">MetadataTBSim</para>
+    <para name="raw_metadataType">RawMetadata</para>
+    <para name="clickstreamMatrixType">clickstreamMatrix</para>
+    <para name="recom_metadataType">RecomMetadata</para>
 
 
-  <!-- This should be the absolute path to mudrod/core/src/main/resources/javaSVMWithSGDModel on your system -->
-  <para name="svmSgdModel">file://YOUNEEDTOCHANGETHIS</para>
-  
-  <!-- 
-  The ontology service implementation. Possible values include
-   EsipPortal - EsipPortalOntology
-   EsipCOR - EsipCOROntology
-   Local - gov.nasa.jpl.mudrod.ontology.process.Local
-   -->
-  <para name="mudrod.ontology.implementation">Local</para>
-  <!-- 
-   Log processing type. Possible values include
-   sequential - MudrodConstants.SEQUENTIAL_PROCESS
-   parallel - MudrodConstants.PARALLEL_PROCESS
-   -->
-  <para name="processingType">parallel</para>
-   <!-- 
-   Log processing parallel optimization type. Possible values include
-   default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
-   repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
-   -->
-  <para name="parallelOptimization">repartition</para>
-  
-  <!-- 
-  The default Spark cluster manager to connect to. See the list of allowed master URL's. 
-  For more information, consult http://spark.apache.org/docs/latest/submitting-applications.html#master-urls
-  -->
-  <para name="spark.master">local[4]</para>
-  <!-- The name of your application. This will appear in the UI and in log data.-->
-  <para name="spark.app.name">MudrodSparkApp</para>
+    <para name="clickstreamSVDDimension">50</para>
+    <para name="metadataSVDDimension">50</para>
+    <para name="downloadWeight">3</para>
+
+    <para name="mini_userHistory">5
+    </para>   <!-- filter out less active users & queries -->
+
+    <para name="userHistoryLinkageType">UserHistoryLinkage</para>
+    <para name="clickStreamLinkageType">ClickStreamLinkage</para>
+    <para name="metadataLinkageType">MetadataLinkage</para>
+    <para name="ontologyLinkageType">SWEETLinkage</para>
+
+    <para name="userHistory_w">2</para>
+    <para name="clickStream_w">2</para>
+    <para name="metadata_w">1</para>
+    <para name="ontology_w">2</para>
+
+    <!-- recommendation -->
+    <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
+    <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
+    <para name="metadataCodeSimType">MetadataCodeSim</para>
+    <para name="metadataSessionBasedSimType">MetadataSBSim</para>
+    <para name="metadataTopicSimType">MetadataTBSim</para>
+
+
+    <!-- This should be the absolute path to mudrod/core/src/main/resources/javaSVMWithSGDModel on your system -->
+    <para name="svmSgdModel">file://YOUNEEDTOCHANGETHIS</para>
+
+    <!--
+    The ontology service implementation. Possible values include
+     EsipPortal - EsipPortalOntology
+     EsipCOR - EsipCOROntology
+     Local - gov.nasa.jpl.mudrod.ontology.process.Local
+     -->
+    <para name="mudrod.ontology.implementation">Local</para>
+    <!--
+     Log processing type. Possible values include
+     sequential - MudrodConstants.SEQUENTIAL_PROCESS
+     parallel - MudrodConstants.PARALLEL_PROCESS
+     -->
+    <para name="processingType">parallel</para>
+    <!--
+    Log processing parallel optimization type. Possible values include
+    default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
+    repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
+    -->
+    <para name="parallelOptimization">repartition</para>
+
+    <!--
+    The default Spark cluster manager to connect to. See the list of allowed master URL's.
+    For more information, consult http://spark.apache.org/docs/latest/submitting-applications.html#master-urls
+    -->
+    <para name="spark.master">local[4]</para>
+    <!-- The name of your application. This will appear in the UI and in log data.-->
+    <para name="spark.app.name">MudrodSparkApp</para>
 </Config>

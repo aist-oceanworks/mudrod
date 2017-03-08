@@ -13,16 +13,16 @@
  */
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+
+import java.io.Serializable;
+import java.util.Properties;
 
 public abstract class DiscoveryEngineAbstract extends MudrodAbstract
     implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -30,7 +30,7 @@ public abstract class DiscoveryEngineAbstract extends MudrodAbstract
       SparkDriver spark) {
     super(props, es, spark);
   }
-  
+
   /**
    * Abstract method of preprocess
    */

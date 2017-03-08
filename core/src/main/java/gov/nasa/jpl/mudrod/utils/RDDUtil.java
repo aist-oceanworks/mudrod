@@ -13,15 +13,15 @@
  */
 package gov.nasa.jpl.mudrod.utils;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
- * ClassName: RDDUtil Function: Mudrod Spark RDD common methods 
+ * ClassName: RDDUtil Function: Mudrod Spark RDD common methods
  */
 public class RDDUtil {
 
@@ -31,9 +31,8 @@ public class RDDUtil {
   /**
    * getAllWordsInDoc: Extracted all unique terms from all docs.
    *
-   * @param docwordRDD
-   *          Pair RDD, each key is a doc, and value is term list extracted from
-   *          that doc.
+   * @param docwordRDD Pair RDD, each key is a doc, and value is term list extracted from
+   *                   that doc.
    * @return unique term list
    */
   public static JavaRDD<String> getAllWordsInDoc(
@@ -41,7 +40,7 @@ public class RDDUtil {
     JavaRDD<String> wordRDD = docwordRDD.values()
         .flatMap(new FlatMapFunction<List<String>, String>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 

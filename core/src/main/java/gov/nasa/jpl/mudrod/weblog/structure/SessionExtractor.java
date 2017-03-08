@@ -13,13 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.main.MudrodConstants;
@@ -35,8 +28,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-
 import scala.Tuple2;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * ClassName: SessionExtractor Function: Extract sessions details from
@@ -45,7 +40,7 @@ import scala.Tuple2;
 public class SessionExtractor implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -57,17 +52,14 @@ public class SessionExtractor implements Serializable {
    * extractClickStreamFromES:Extract click streams from logs stored in
    * Elasticsearch
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark driver
    * @return clickstream list in JavaRDD format
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   public JavaRDD<ClickStream> extractClickStreamFromES(Properties props,
-                                                       ESDriver es, SparkDriver spark) {
+      ESDriver es, SparkDriver spark) {
 
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
@@ -83,12 +75,10 @@ public class SessionExtractor implements Serializable {
   /**
    * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch driver
    * @return clickstream list
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   protected List<ClickStream> getClickStreamList(Properties props,
       ESDriver es) {
@@ -105,8 +95,8 @@ public class SessionExtractor implements Serializable {
         int sessionNum = sessionIdList.size();
         for (int i = 0; i < sessionNum; i++) {
           String[] sArr = sessionIdList.get(i).split(",");
-          List<ClickStream> datas = session.getClickStreamList(sArr[1], sArr[2],
-              sArr[0]);
+          List<ClickStream> datas = session
+              .getClickStreamList(sArr[1], sArr[2], sArr[0]);
           result.addAll(datas);
         }
       } catch (Exception e) {
@@ -137,7 +127,7 @@ public class SessionExtractor implements Serializable {
     JavaRDD<ClickStream> ClickStreamRDD = sessionRDD
         .mapPartitions(new FlatMapFunction<Iterator<String>, ClickStream>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -152,8 +142,8 @@ public class SessionExtractor implements Serializable {
             while (arg0.hasNext()) {
               String s = arg0.next();
               String[] sArr = s.split(",");
-              List<ClickStream> clicks = session.getClickStreamList(sArr[1],
-                  sArr[2], sArr[0]);
+              List<ClickStream> clicks = session
+                  .getClickStreamList(sArr[1], sArr[2], sArr[0]);
               clickstreams.addAll(clicks);
             }
             tmpES.destroyBulkProcessor();
@@ -167,15 +157,14 @@ public class SessionExtractor implements Serializable {
   }
 
   // This function is reserved and not being used for now
+
   /**
    * loadClickStremFromTxt:Load click stream form txt file
    *
-   * @param clickthroughFile
-   *          txt file
-   * @param sc
-   *          the spark context
+   * @param clickthroughFile txt file
+   * @param sc               the spark context
    * @return clickstream list in JavaRDD format
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile,
       JavaSparkContext sc) {
@@ -199,10 +188,8 @@ public class SessionExtractor implements Serializable {
   /**
    * bulidDataQueryRDD: convert click stream list to data set queries pairs.
    *
-   * @param clickstreamRDD:
-   *          click stream data
-   * @param downloadWeight:
-   *          weight of download behavior
+   * @param clickstreamRDD: click stream data
+   * @param downloadWeight: weight of download behavior
    * @return JavaPairRDD, key is short name of data set, and values are queries
    */
   public JavaPairRDD<String, List<String>> bulidDataQueryRDD(
@@ -253,12 +240,9 @@ public class SessionExtractor implements Serializable {
   /**
    * getSessions: Get sessions from logs
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch driver
-   * @param logIndex
-   *          a log index name
+   * @param props    the Mudrod configuration
+   * @param es       the Elasticsearch driver
+   * @param logIndex a log index name
    * @return list of session names
    */
   protected List<String> getSessions(Properties props, ESDriver es,
@@ -296,7 +280,7 @@ public class SessionExtractor implements Serializable {
     return clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, Double>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -312,12 +296,11 @@ public class SessionExtractor implements Serializable {
             String sessionID = click.getSessionID();
             String user = sessionID.split("@")[0];
 
-            return new Tuple2<>(
-                user + "," + click.getViewDataset(), rate);
+            return new Tuple2<>(user + "," + click.getViewDataset(), rate);
           }
         }).reduceByKey(new Function2<Double, Double, Double>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -334,7 +317,7 @@ public class SessionExtractor implements Serializable {
     JavaPairRDD<String, String> sessionItemRDD = clickstreamRDD
         .mapToPair(new PairFunction<ClickStream, String, String>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -343,8 +326,7 @@ public class SessionExtractor implements Serializable {
               throws Exception {
 
             String sessionID = click.getSessionID();
-            return new Tuple2<>(sessionID,
-                click.getViewDataset());
+            return new Tuple2<>(sessionID, click.getViewDataset());
           }
         }).distinct();
 
@@ -352,7 +334,7 @@ public class SessionExtractor implements Serializable {
     JavaPairRDD<String, Double> sessionItemNumRDD = sessionItemRDD.keys()
         .mapToPair(new PairFunction<String, String, Double>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -362,7 +344,7 @@ public class SessionExtractor implements Serializable {
           }
         }).reduceByKey(new Function2<Double, Double, Double>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -372,7 +354,7 @@ public class SessionExtractor implements Serializable {
           }
         }).filter(new Function<Tuple2<String, Double>, Boolean>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -386,29 +368,28 @@ public class SessionExtractor implements Serializable {
           }
         });
 
-    return sessionItemNumRDD
-        .leftOuterJoin(sessionItemRDD).mapToPair(
-            new PairFunction<Tuple2<String, Tuple2<Double, Optional<String>>>, String, Double>() {
-              /**
-               * 
-               */
-              private static final long serialVersionUID = 1L;
+    return sessionItemNumRDD.leftOuterJoin(sessionItemRDD).mapToPair(
+        new PairFunction<Tuple2<String, Tuple2<Double, Optional<String>>>, String, Double>() {
+          /**
+           *
+           */
+          private static final long serialVersionUID = 1L;
 
-              @Override
-              public Tuple2<String, Double> call(
-                  Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
-                      throws Exception {
+          @Override
+          public Tuple2<String, Double> call(
+              Tuple2<String, Tuple2<Double, Optional<String>>> arg0)
+              throws Exception {
 
-                Tuple2<Double, Optional<String>> test = arg0._2;
-                Optional<String> optStr = test._2;
-                String item = "";
-                if (optStr.isPresent()) {
-                  item = optStr.get();
-                }
-                return new Tuple2<>(arg0._1 + "," + item, 1.0);
-              }
+            Tuple2<Double, Optional<String>> test = arg0._2;
+            Optional<String> optStr = test._2;
+            String item = "";
+            if (optStr.isPresent()) {
+              item = optStr.get();
+            }
+            return new Tuple2<>(arg0._1 + "," + item, 1.0);
+          }
 
-            });
+        });
   }
 
   public JavaPairRDD<String, List<String>> bulidSessionDatasetRDD(
@@ -423,8 +404,8 @@ public class SessionExtractor implements Serializable {
       String staticType = sessionstaticTypeList.get(n);
 
       SearchResponse scrollResp = es.getClient()
-          .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setTypes(staticType)
-          .setScroll(new TimeValue(60000))
+          .prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME))
+          .setTypes(staticType).setScroll(new TimeValue(60000))
           .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
           .actionGet();
       while (true) {
@@ -452,7 +433,7 @@ public class SessionExtractor implements Serializable {
     return sessionRDD
         .mapToPair(new PairFunction<String, String, List<String>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -481,14 +462,11 @@ public class SessionExtractor implements Serializable {
    * extractClickStreamFromES:Extract click streams from logs stored in
    * Elasticsearch
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark driver
    * @return clickstream list in JavaRDD format
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   public JavaRDD<RankingTrainData> extractRankingTrainData(Properties props,
       ESDriver es, SparkDriver spark) {
@@ -501,12 +479,10 @@ public class SessionExtractor implements Serializable {
   /**
    * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch driver
    * @return clickstream list
-   *         {@link ClickStream}
+   * {@link ClickStream}
    */
   protected List<RankingTrainData> extractRankingTrainData(Properties props,
       ESDriver es) {
@@ -525,8 +501,8 @@ public class SessionExtractor implements Serializable {
         int sessionNum = sessionIdList.size();
         for (int i = 0; i < sessionNum; i++) {
           String[] sArr = sessionIdList.get(i).split(",");
-          List<RankingTrainData> datas = session.getRankingTrainData(sArr[1],
-              sArr[2], sArr[0]);
+          List<RankingTrainData> datas = session
+              .getRankingTrainData(sArr[1], sArr[2], sArr[0]);
           result.addAll(datas);
         }
       } catch (Exception e) {
@@ -557,7 +533,7 @@ public class SessionExtractor implements Serializable {
     JavaRDD<RankingTrainData> ClickStreamRDD = sessionRDD.mapPartitions(
         new FlatMapFunction<Iterator<String>, RankingTrainData>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 

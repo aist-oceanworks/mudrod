@@ -13,6 +13,9 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
+import com.google.gson.Gson;
+import gov.nasa.jpl.mudrod.weblog.pre.CrawlerDetection;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -20,10 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.gson.Gson;
-
-import gov.nasa.jpl.mudrod.weblog.pre.CrawlerDetection;
 
 /**
  * This class represents an Apache access log line. See

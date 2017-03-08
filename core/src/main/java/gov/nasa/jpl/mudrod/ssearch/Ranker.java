@@ -13,31 +13,25 @@
  */
 package gov.nasa.jpl.mudrod.ssearch;
 
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
-import org.apache.spark.mllib.linalg.Vectors;
-import org.apache.spark.mllib.regression.LabeledPoint;
-
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.ssearch.ranking.Learner;
 import gov.nasa.jpl.mudrod.ssearch.structure.SResult;
+import org.apache.spark.mllib.linalg.Vectors;
+import org.apache.spark.mllib.regression.LabeledPoint;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * Supports the ability to calculating ranking score
  */
-public class Ranker extends MudrodAbstract implements Serializable{
+public class Ranker extends MudrodAbstract implements Serializable {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   transient List<SResult> resultList = new ArrayList<>();
@@ -45,10 +39,12 @@ public class Ranker extends MudrodAbstract implements Serializable{
   String learnerType = null;
   Learner le = null;
 
-  public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
+  public Ranker(Properties props, ESDriver es, SparkDriver spark,
+      String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
-    le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.SVM_SGD_MODEL));
+    le = new Learner(learnerType, spark,
+        props.getProperty(MudrodConstants.SVM_SGD_MODEL));
   }
 
   /**
@@ -63,21 +59,23 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
   /**
    * Method of calculating mean value
-   * @param attribute the attribute name that need to be calculated on
+   *
+   * @param attribute  the attribute name that need to be calculated on
    * @param resultList an array list of result
    * @return mean value
    */
   private double getMean(String attribute, List<SResult> resultList) {
     double sum = 0.0;
-    for(SResult a : resultList) { 
-      sum += (double)SResult.get(a, attribute);    
+    for (SResult a : resultList) {
+      sum += (double) SResult.get(a, attribute);
     }
-    return getNDForm(sum/resultList.size());
+    return getNDForm(sum / resultList.size());
   }
 
   /**
    * Method of calculating variance value
-   * @param attribute the attribute name that need to be calculated on
+   *
+   * @param attribute  the attribute name that need to be calculated on
    * @param resultList an array list of result
    * @return variance value
    */
@@ -85,17 +83,18 @@ public class Ranker extends MudrodAbstract implements Serializable{
     double mean = getMean(attribute, resultList);
     double temp = 0.0;
     double val;
-    for(SResult a :resultList) {    
-      val = (Double)SResult.get(a, attribute);
-      temp += (mean - val)*(mean - val);
+    for (SResult a : resultList) {
+      val = (Double) SResult.get(a, attribute);
+      temp += (mean - val) * (mean - val);
     }
 
-    return getNDForm(temp/resultList.size());
+    return getNDForm(temp / resultList.size());
   }
 
   /**
    * Method of calculating standard variance
-   * @param attribute the attribute name that need to be calculated on
+   *
+   * @param attribute  the attribute name that need to be calculated on
    * @param resultList an array list of result
    * @return standard variance
    */
@@ -105,14 +104,15 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
   /**
    * Method of calculating Z score
-   * @param val the value of an attribute
+   *
+   * @param val  the value of an attribute
    * @param mean the mean value of an attribute
-   * @param std the standard deviation of an attribute
+   * @param std  the standard deviation of an attribute
    * @return Z score
    */
   private double getZscore(double val, double mean, double std) {
-    if(!equalComp(std, 0)) {
-      return getNDForm((val-mean)/std);
+    if (!equalComp(std, 0)) {
+      return getNDForm((val - mean) / std);
     } else {
       return 0;
     }
@@ -124,9 +124,10 @@ public class Ranker extends MudrodAbstract implements Serializable{
     else
       return false;
   }
-  
+
   /**
    * Get the first N decimals of a double value
+   *
    * @param d double value that needs to be processed
    * @return processed double value
    */
@@ -137,12 +138,13 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
   /**
    * Method of ranking a list of result
+   *
    * @param resultList result list
    * @return ranked result list
    */
   public List<SResult> rank(List<SResult> resultList) {
-    for(int i=0; i< resultList.size(); i++) {
-      for(int m =0; m <SResult.rlist.length; m++) {
+    for (int i = 0; i < resultList.size(); i++) {
+      for (int m = 0; m < SResult.rlist.length; m++) {
         String att = SResult.rlist[m].split("_")[0];
         double val = SResult.get(resultList.get(i), att);
         double mean = getMean(att, resultList);
@@ -155,10 +157,10 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
     // using collection.sort directly would cause an "not transitive" error
     // this is because the training model is not a overfitting model
-    for(int j=0; j< resultList.size(); j++) {
-      for(int k=0; k< resultList.size(); k++) {
-        if(k!=j) {
-          resultList.get(j).below += comp (resultList.get(j), resultList.get(k));
+    for (int j = 0; j < resultList.size(); j++) {
+      for (int k = 0; k < resultList.size(); k++) {
+        if (k != j) {
+          resultList.get(j).below += comp(resultList.get(j), resultList.get(k));
         }
       }
     }
@@ -169,22 +171,24 @@ public class Ranker extends MudrodAbstract implements Serializable{
 
   /**
    * Method of compare two search resutls
+   *
    * @param o1 search result 1
    * @param o2 search result 2
    * @return 1 if o1 is greater than o2, 0 otherwise
    */
   public int comp(SResult o1, SResult o2) {
     List<Double> instList = new ArrayList<>();
-    for(int i =0; i <SResult.rlist.length; i++) {
+    for (int i = 0; i < SResult.rlist.length; i++) {
       double o2Score = SResult.get(o2, SResult.rlist[i]);
       double o1Score = SResult.get(o1, SResult.rlist[i]);
       instList.add(o2Score - o1Score);
     }
 
-    double[] ins = instList.stream().mapToDouble(i->i).toArray();
+    double[] ins = instList.stream().mapToDouble(i -> i).toArray();
     LabeledPoint insPoint = new LabeledPoint(99.0, Vectors.dense(ins));
     double prediction = le.classify(insPoint);
-    if(equalComp(prediction, 1)) { //different from weka where the return value is 1 or 2
+    if (equalComp(prediction,
+        1)) { //different from weka where the return value is 1 or 2
       return 0;
     } else {
       return 1;

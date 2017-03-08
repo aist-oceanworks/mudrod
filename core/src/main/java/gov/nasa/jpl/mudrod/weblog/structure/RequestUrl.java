@@ -13,24 +13,19 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-
 import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
 /**
  * ClassName: RequestUrl Function: request url relate operations
- *
  */
 public class RequestUrl extends MudrodAbstract {
 
@@ -40,12 +35,9 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * Creates a new instance of RequestUrl.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark drive
    */
   public RequestUrl(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -54,8 +46,7 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * UrlPage: Get url page from url link
    *
-   * @param strURL
-   *          request url
+   * @param strURL request url
    * @return page name
    */
   public static String urlPage(String strURL) {
@@ -99,8 +90,7 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * URLRequest: Get url params from url link in a map format
    *
-   * @param URL
-   *          request url
+   * @param URL request url
    * @return url params key value map
    */
   public static Map<String, String> uRLRequest(String URL) {
@@ -135,11 +125,9 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * GetSearchInfo: Get search information from url link
    *
-   * @param URL
-   *          request url
+   * @param URL request url
    * @return search params
-   * @throws UnsupportedEncodingException
-   *           UnsupportedEncodingException
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   public String getSearchInfo(String URL) throws UnsupportedEncodingException {
     List<String> info = new ArrayList<String>();
@@ -151,8 +139,8 @@ public class RequestUrl extends MudrodAbstract {
 
         keyword = URLDecoder
             .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20")
-            || keyword.contains("%25")) {
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
+            .contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
@@ -183,15 +171,15 @@ public class RequestUrl extends MudrodAbstract {
 
       for (int i = 0; i < l; i++) {
         if (ids[i].equals("collections") || ids[i].equals("measurement")
-            || ids[i].equals("sensor") || ids[i].equals("platform")
-            || ids[i].equals("variable") || ids[i].equals("spatialcoverage")) {
+            || ids[i].equals("sensor") || ids[i].equals("platform") || ids[i]
+            .equals("variable") || ids[i].equals("spatialcoverage")) {
           try {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
             if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
                 && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
               String item = URLDecoder.decode(values[i], "UTF-8").trim();
-              if (item.contains("%2b") || item.contains("%20")
-                  || item.contains("%25")) {
+              if (item.contains("%2b") || item.contains("%20") || item
+                  .contains("%25")) {
                 item = item.replace("%2b", " ");
                 item = item.replace("%20", " ");
                 item = item.replace("%25", " ");
@@ -227,8 +215,7 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * GetSearchWord: Get search words from url link
    *
-   * @param url
-   *          request url
+   * @param url request url
    * @return query
    */
   public static String getSearchWord(String url) {
@@ -241,8 +228,8 @@ public class RequestUrl extends MudrodAbstract {
 
         keyword = URLDecoder
             .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20")
-            || keyword.contains("%25")) {
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
+            .contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
@@ -261,11 +248,9 @@ public class RequestUrl extends MudrodAbstract {
   /**
    * GetFilterInfo: Get filter params from url link
    *
-   * @param url
-   *          request url
+   * @param url request url
    * @return filter facet key pair map
-   * @throws UnsupportedEncodingException
-   *           UnsupportedEncodingException
+   * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
   public static Map<String, String> getFilterInfo(String url)
       throws UnsupportedEncodingException {
@@ -280,8 +265,8 @@ public class RequestUrl extends MudrodAbstract {
 
         keyword = URLDecoder
             .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20")
-            || keyword.contains("%25")) {
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
+            .contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
@@ -315,8 +300,8 @@ public class RequestUrl extends MudrodAbstract {
           if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
               && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
             String item = URLDecoder.decode(values[i], "UTF-8").trim();
-            if (item.contains("%2b") || item.contains("%20")
-                || item.contains("%25")) {
+            if (item.contains("%2b") || item.contains("%20") || item
+                .contains("%25")) {
               item = item.replace("%2b", " ");
               item = item.replace("%20", " ");
               item = item.replace("%25", " ");
@@ -334,8 +319,9 @@ public class RequestUrl extends MudrodAbstract {
 
     if (mapRequest.get("temporalsearch") != null) {
       String temporalsearch = mapRequest.get("temporalsearch");
-      temporalsearch = URLDecoder.decode(
-          temporalsearch.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
+      temporalsearch = URLDecoder
+          .decode(temporalsearch.replaceAll("%(?![0-9a-fA-F]{2})", "%25"),
+              "UTF-8");
 
       filterValues.put("temporalsearch", temporalsearch);
     }

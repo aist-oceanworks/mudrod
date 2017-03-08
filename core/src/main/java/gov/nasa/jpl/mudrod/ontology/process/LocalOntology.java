@@ -13,31 +13,11 @@
  */
 package gov.nasa.jpl.mudrod.ontology.process;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import gov.nasa.jpl.mudrod.ontology.Ontology;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.jena.ontology.Individual;
-import org.apache.jena.ontology.OntClass;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.ontology.OntResource;
-import org.apache.jena.ontology.Restriction;
+import gov.nasa.jpl.mudrod.ontology.OntologyFactory;
+import org.apache.commons.cli.*;
+import org.apache.jena.ontology.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -45,8 +25,9 @@ import org.apache.jena.shared.PrefixMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.main.MudrodEngine;
-import gov.nasa.jpl.mudrod.ontology.OntologyFactory;
+import java.io.File;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * The LocalOntology implementation enables us to work with Ontology files
@@ -79,15 +60,17 @@ public class LocalOntology implements Ontology {
       ontology = this;
     }
     if (ontologyModel == null)
-      ontologyModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
+      ontologyModel = ModelFactory
+          .createOntologyModel(OntModelSpec.OWL_MEM, null);
   }
 
   /**
    * Static accessor for {@link LocalOntology}
    * instance implementation defined within <code>config.xml</code>.
+   *
    * @return a {@link LocalOntology}
    */
-  public static Ontology getInstance () {
+  public static Ontology getInstance() {
     if (ontology == null) {
       ontology = new LocalOntology();
     }
@@ -100,7 +83,8 @@ public class LocalOntology implements Ontology {
    */
   @Override
   public void load() {
-    File ontDir = new File(LocalOntology.class.getClassLoader().getResource("ontology").getFile());
+    File ontDir = new File(
+        LocalOntology.class.getClassLoader().getResource("ontology").getFile());
 
     //Fail if the input is not a directory.
     if (ontDir.isDirectory()) {
@@ -119,8 +103,8 @@ public class LocalOntology implements Ontology {
    * Load a string array of local URIs which refernece .owl files.
    */
   @Override
-  public void load (String[] urls) {
-    for (int i=0; i<urls.length; i++) {
+  public void load(String[] urls) {
+    for (int i = 0; i < urls.length; i++) {
       String url = urls[i].trim();
       if (!"".equals(url))
         load(ontologyModel, url);
@@ -128,12 +112,12 @@ public class LocalOntology implements Ontology {
     parser.parse(ontologyModel);
   }
 
-  private void load (Object m, String url) {
+  private void load(Object m, String url) {
     try {
-      if (LOG.isInfoEnabled()) { 
-        LOG.info("Reading {}", url); 
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Reading {}", url);
       }
-      ((OntModel)m).read(url, null, null);
+      ((OntModel) m).read(url, null, null);
     } catch (Exception e) {
       LOG.error("Failed whilst attempting to read ontology {}", url, e);
     }
@@ -154,7 +138,7 @@ public class LocalOntology implements Ontology {
    * Not yet implemented.
    */
   @Override
-  public void merge (Ontology o) {
+  public void merge(Ontology o) {
     // not yet implemented
   }
 
@@ -172,28 +156,30 @@ public class LocalOntology implements Ontology {
 
       if (resource instanceof OntClass) {
         //get subclasses
-        for (Iterator i= ((OntClass)resource).listSubClasses(); i.hasNext();) {
+        for (Iterator i = ((OntClass) resource).listSubClasses(); i
+            .hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j=subclass.listLabels(null); j.hasNext();) {
+          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
           }
         }
         //get individuals
-        for (Iterator i=((OntClass)resource).listInstances(); i.hasNext();) {
+        for (Iterator i = ((OntClass) resource).listInstances(); i
+            .hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j=subclass.listLabels(null); j.hasNext();) {
+          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
           }
         }
       } else if (resource instanceof Individual) {
-        for (Iterator i=resource.listSameAs(); i.hasNext();) {  
+        for (Iterator i = resource.listSameAs(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j=subclass.listLabels(null); j.hasNext();) {
+          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
-          }    
+          }
         }
       }
     }
@@ -205,7 +191,7 @@ public class LocalOntology implements Ontology {
    * retrieves synonyms from wordnet via sweet's web interface
    */
   @Override
-  public Iterator synonyms (String queryKeyPhrase) {
+  public Iterator synonyms(String queryKeyPhrase) {
     //need to have a html quote method instead
     String qKeyPhrase = queryKeyPhrase.replaceAll("\\s+", "\\+");
 
@@ -218,27 +204,28 @@ public class LocalOntology implements Ontology {
       OntResource resource = (OntResource) iter.next();
 
       //listLabels
-      for (Iterator i = resource.listLabels(null); i.hasNext();) {
+      for (Iterator i = resource.listLabels(null); i.hasNext(); ) {
         Literal l = (Literal) i.next();
         synonyms.put(l.toString(), "1");
       }
 
       if (resource instanceof Individual) {
         //get all individuals same as this one
-        for (Iterator i = resource.listSameAs(); i.hasNext();) {
+        for (Iterator i = resource.listSameAs(); i.hasNext(); ) {
           Individual individual = (Individual) i.next();
           //add labels
-          for (Iterator j = individual.listLabels(null); j.hasNext();) {
+          for (Iterator j = individual.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) i.next();
             synonyms.put(l.toString(), "1");
           }
         }
       } else if (resource instanceof OntClass) {
         //list equivalent classes
-        for (Iterator i=((OntClass)resource).listEquivalentClasses(); i.hasNext();) {
+        for (Iterator i = ((OntClass) resource).listEquivalentClasses(); i
+            .hasNext(); ) {
           OntClass equivClass = (OntClass) i.next();
           //add labels
-          for (Iterator j=equivClass.listLabels(null); j.hasNext();) {
+          for (Iterator j = equivClass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             synonyms.put(l.toString(), "1");
           }
@@ -246,7 +233,7 @@ public class LocalOntology implements Ontology {
       }
     }
 
-    return synonyms.keySet().iterator();  
+    return synonyms.keySet().iterator();
   }
 
   public static void addSearchTerm(String label, OntResource resource) {
@@ -259,21 +246,22 @@ public class LocalOntology implements Ontology {
   }
 
   public static Map<OntResource, String> retrieve(String label) {
-    @SuppressWarnings("unchecked")
-    Map<OntResource, String> m = (Map<OntResource, String>) searchTerms.get(label.toLowerCase());
+    @SuppressWarnings("unchecked") Map<OntResource, String> m = (Map<OntResource, String>) searchTerms
+        .get(label.toLowerCase());
     if (m == null) {
       m = new HashMap<>();
     }
     return m;
   }
 
-  protected static void renderHierarchy(PrintStream out, OntClass cls, List occurs, int depth) {
-    renderClassDescription( out, cls, depth );
+  protected static void renderHierarchy(PrintStream out, OntClass cls,
+      List occurs, int depth) {
+    renderClassDescription(out, cls, depth);
     out.println();
 
     // recurse to the next level down
-    if (cls.canAs( OntClass.class ) && !occurs.contains( cls )) {
-      for (Iterator i = cls.listSubClasses( true ); i.hasNext(); ) {
+    if (cls.canAs(OntClass.class) && !occurs.contains(cls)) {
+      for (Iterator i = cls.listSubClasses(true); i.hasNext(); ) {
         OntClass sub = (OntClass) i.next();
 
         // we push this expression on the occurs list before we recurse
@@ -285,8 +273,8 @@ public class LocalOntology implements Ontology {
         Individual individual = (Individual) i.next();
         renderURI(out, individual.getModel(), individual.getURI());
         out.print(" [");
-        for (Iterator j = individual.listLabels(null); j.hasNext();) {
-          out.print(((Literal)j.next()).getString()+", ");
+        for (Iterator j = individual.listLabels(null); j.hasNext(); ) {
+          out.print(((Literal) j.next()).getString() + ", ");
         }
         out.print("] ");
         out.println();
@@ -294,9 +282,9 @@ public class LocalOntology implements Ontology {
     }
   }
 
-  public static void renderClassDescription( PrintStream out, 
-      OntClass c, int depth ) {
-    indent( out, depth );
+  public static void renderClassDescription(PrintStream out, OntClass c,
+      int depth) {
+    indent(out, depth);
 
     if (c.isRestriction()) {
       renderRestriction(out, (Restriction) c.as(Restriction.class));
@@ -307,11 +295,11 @@ public class LocalOntology implements Ontology {
 
         out.print(c.getLocalName());
 
-        out.print( " [" );
-        for (Iterator i = c.listLabels(null); i.hasNext();) {
-          out.print(((Literal)i.next()).getString()+", ");
+        out.print(" [");
+        for (Iterator i = c.listLabels(null); i.hasNext(); ) {
+          out.print(((Literal) i.next()).getString() + ", ");
         }
-        out.print( "] ");
+        out.print("] ");
       } else {
         renderAnonymous(out, c, "class");
       }
@@ -330,26 +318,28 @@ public class LocalOntology implements Ontology {
     renderURI(out, r.getModel(), r.getOnProperty().getURI());
   }
 
-  protected static void renderURI(PrintStream out, PrefixMapping prefixes, String uri) {
-    out.print(prefixes.expandPrefix( uri ));
+  protected static void renderURI(PrintStream out, PrefixMapping prefixes,
+      String uri) {
+    out.print(prefixes.expandPrefix(uri));
   }
 
-  protected static void renderAnonymous(PrintStream out, Resource anon, String name) {
-    String anonID = (String) mAnonIDs.get( anon.getId());
+  protected static void renderAnonymous(PrintStream out, Resource anon,
+      String name) {
+    String anonID = (String) mAnonIDs.get(anon.getId());
     if (anonID == null) {
       anonID = "a-" + mAnonCount++;
       mAnonIDs.put(anon.getId(), anonID);
     }
 
     out.print("Anonymous ");
-    out.print(name );
+    out.print(name);
     out.print(" with ID ");
-    out.print(anonID );
+    out.print(anonID);
   }
 
   protected static void indent(PrintStream out, int depth) {
     for (int i = 0; i < depth; i++) {
-      out.print(" " );
+      out.print(" ");
     }
   }
 
@@ -359,7 +349,8 @@ public class LocalOntology implements Ontology {
     Option helpOpt = new Option("h", "help", false, "show this help message");
     // argument options
     Option ontDirOpt = OptionBuilder.hasArg(true).withArgName(ONT_DIR)
-        .withDescription("A directory containing .owl files.").isRequired(false).create();
+        .withDescription("A directory containing .owl files.").isRequired(false)
+        .create();
 
     // create the options
     Options options = new Options();
@@ -371,11 +362,11 @@ public class LocalOntology implements Ontology {
     try {
       CommandLine line = parser.parse(options, args);
 
-
       if (line.hasOption(ONT_DIR)) {
         ontDir = line.getOptionValue(ONT_DIR).replace("\\", "/");
       } else {
-        ontDir = LocalOntology.class.getClassLoader().getResource("ontology").getFile();
+        ontDir = LocalOntology.class.getClassLoader().getResource("ontology")
+            .getFile();
       }
       if (!ontDir.endsWith("/")) {
         ontDir += "/";
@@ -383,8 +374,9 @@ public class LocalOntology implements Ontology {
     } catch (Exception e) {
       LOG.error("Error whilst processing main method of LocalOntology.", e);
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp(
-          "LocalOntology: 'ontDir' argument is mandatory. ", options, true);
+      formatter
+          .printHelp("LocalOntology: 'ontDir' argument is mandatory. ", options,
+              true);
       return;
     }
     File fileDir = new File(ontDir);
@@ -404,13 +396,15 @@ public class LocalOntology implements Ontology {
 
       String[] terms = new String[] { "Glacier ice" };
       //Demonstrate that we can do basic ontology heirarchy navigation and log output.
-      for (Iterator<OntClass> i = getParser().rootClasses(getModel()); i.hasNext();) {
+      for (Iterator<OntClass> i = getParser().rootClasses(getModel()); i
+          .hasNext(); ) {
 
         //print Ontology Class Hierarchy
         OntClass c = i.next();
         renderHierarchy(System.out, c, new LinkedList<>(), 0);
 
-        for (Iterator<OntClass> subClass = c.listSubClasses(true); subClass.hasNext();) {
+        for (Iterator<OntClass> subClass = c.listSubClasses(true); subClass
+            .hasNext(); ) {
           OntClass sub = subClass.next();
           //This means that the search term is present as an OntClass
           if (terms[0].equalsIgnoreCase(sub.getLabel(null))) {

@@ -13,18 +13,9 @@
  */
 package gov.nasa.jpl.mudrod.recommendation.structure;
 
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
@@ -35,9 +26,9 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.*;
 
 /**
  * This class is used to test recommendation result similarity and session-level
@@ -46,7 +37,7 @@ import com.google.gson.JsonObject;
 public class RecomData extends DiscoveryStepAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   protected transient List<LinkedTerm> termList = new ArrayList<>();

@@ -13,15 +13,10 @@
  */
 package gov.nasa.jpl.mudrod.metadata.pre;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
@@ -32,10 +27,8 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.io.*;
+import java.util.Properties;
 
 /**
  * ClassName: ApiHarvester Function: Harvest metadata from PO.DAACweb service.
@@ -48,15 +41,11 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of ApiHarvester.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark driver
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch drive
+   * @param spark the spark driver
    */
-  public ApiHarvester(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public ApiHarvester(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -86,9 +75,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
         + "\r\n               \"analyzer\": \"english\"\r\n            }"
         + "\r\n         }\r\n      }\r\n   ]\r\n}";
-    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
-    .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
-    .execute().actionGet();
+    es.getClient().admin().indices()
+        .preparePutMapping(props.getProperty("indexName"))
+        .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
+        .execute().actionGet();
   }
 
   /**
@@ -97,7 +87,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoking this method.
    */
   private void importToES() {
-    File directory = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
+    File directory = new File(
+        props.getProperty(MudrodConstants.RAW_METADATA_PATH));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -110,9 +101,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
     }
   }
-  
-  private void importSingleFileToES(InputStream is)
-  {
+
+  private void importSingleFileToES(InputStream is) {
     try {
       String jsonTxt = IOUtils.toString(is);
       JsonParser parser = new JsonParser();
@@ -133,9 +123,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     int doc_length = 0;
     JsonParser parser = new JsonParser();
     do {
-      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex="
-          + Integer.toString(startIndex)
-          + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      String searchAPI =
+          "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer
+              .toString(startIndex)
+              + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
       HttpRequest http = new HttpRequest();
       String response = http.getRequest(searchAPI);
 
@@ -146,7 +137,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
       doc_length = docs.size();
 
-      File file = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
+      File file = new File(
+          props.getProperty(MudrodConstants.RAW_METADATA_PATH));
       if (!file.exists()) {
         if (file.mkdir()) {
           LOG.info("Directory is created!");
@@ -158,10 +150,12 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         JsonElement item = docs.get(i);
         int docId = startIndex + i;
         File itemfile = new File(
-            props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId + ".json");
-        
-        try (FileWriter fw = new FileWriter(itemfile.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);){
+            props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId
+                + ".json");
+
+        try (FileWriter fw = new FileWriter(
+            itemfile.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(
+            fw);) {
           itemfile.createNewFile();
           bw.write(item.toString());
         } catch (IOException e) {

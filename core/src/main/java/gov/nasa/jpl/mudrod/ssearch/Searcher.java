@@ -13,30 +13,24 @@
  */
 package gov.nasa.jpl.mudrod.ssearch;
 
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.ssearch.structure.SResult;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.ssearch.structure.SResult;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Supports ability to performance semantic search with a given query
@@ -52,8 +46,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
   /**
    * Method of converting processing level string into a number
    *
-   * @param pro
-   *          processing level string
+   * @param pro processing level string
    * @return processing level number
    */
   public Double getProLevelNum(String pro) {
@@ -83,17 +76,16 @@ public class Searcher extends MudrodAbstract implements Serializable {
   /**
    * Method of checking if query exists in a certain attribute
    *
-   * @param strList
-   *          attribute value in the form of ArrayList
-   * @param query
-   *          query string
+   * @param strList attribute value in the form of ArrayList
+   * @param query   query string
    * @return 1 means query exists, 0 otherwise
    */
   public Double exists(ArrayList<String> strList, String query) {
     Double val = 0.0;
     if (strList != null) {
       String str = String.join(", ", strList);
-      if (str != null && str.length() != 0 && str.toLowerCase().trim().contains(query)) {
+      if (str != null && str.length() != 0 && str.toLowerCase().trim()
+          .contains(query)) {
         val = 1.0;
       }
     }
@@ -103,14 +95,10 @@ public class Searcher extends MudrodAbstract implements Serializable {
   /**
    * Main method of semantic search
    *
-   * @param index
-   *          index name in Elasticsearch
-   * @param type
-   *          type name in Elasticsearch
-   * @param query
-   *          regular query string
-   * @param query_operator
-   *          query mode- query, or, and
+   * @param index          index name in Elasticsearch
+   * @param type           type name in Elasticsearch
+   * @param query          regular query string
+   * @param query_operator query mode- query, or, and
    * @return a list of search result
    */
   @SuppressWarnings("unchecked")
@@ -141,8 +129,9 @@ public class Searcher extends MudrodAbstract implements Serializable {
       String content = (String) result.get("Dataset-Description");
 
       if (!content.equals("")) {
-        int maxLength = (content.length() < MAX_CHAR) ? content.length()
-            : MAX_CHAR;
+        int maxLength = (content.length() < MAX_CHAR) ?
+            content.length() :
+            MAX_CHAR;
         content = content.trim().substring(0, maxLength - 1) + "...";
       }
 
@@ -165,8 +154,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult re = new SResult(shortName, longName, topic, content, dateText);
 
       SResult.set(re, "term", relevance);
-      SResult.set(re, "releaseDate",
-          Long.valueOf(longdate.get(0)).doubleValue());
+      SResult
+          .set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);
@@ -195,16 +184,11 @@ public class Searcher extends MudrodAbstract implements Serializable {
   /**
    * Method of semantic search to generate JSON string
    *
-   * @param index
-   *          index name in Elasticsearch
-   * @param type
-   *          type name in Elasticsearch
-   * @param query
-   *          regular query string
-   * @param query_operator
-   *          query mode- query, or, and
-   * @param rr
-   *          selected ranking method
+   * @param index          index name in Elasticsearch
+   * @param type           type name in Elasticsearch
+   * @param query          regular query string
+   * @param query_operator query mode- query, or, and
+   * @param rr             selected ranking method
    * @return search results
    */
   public String ssearch(String index, String type, String query,

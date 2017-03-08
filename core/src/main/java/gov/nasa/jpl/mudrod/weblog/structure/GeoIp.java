@@ -16,19 +16,17 @@ package gov.nasa.jpl.mudrod.weblog.structure;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import gov.nasa.jpl.mudrod.utils.HttpRequest;
 
 /**
- * ClassName: GeoIp Function: convert IP to geo location 
+ * ClassName: GeoIp Function: convert IP to geo location
  */
 public class GeoIp {
 
   /**
    * toLocation: convert ip to location
-   * 
-   * @param ip
-   *          ip address
+   *
+   * @param ip ip address
    * @return coordinates
    */
   public Coordinates toLocation(String ip) {
@@ -42,8 +40,8 @@ public class GeoIp {
     Coordinates co = new Coordinates();
     String lon = responseObject.get("geobyteslongitude").toString()
         .replace("\"", "");
-    String lat = responseObject.get("geobyteslatitude").toString().replace("\"",
-        "");
+    String lat = responseObject.get("geobyteslatitude").toString()
+        .replace("\"", "");
     co.latlon = lat + "," + lon;
     return co;
   }

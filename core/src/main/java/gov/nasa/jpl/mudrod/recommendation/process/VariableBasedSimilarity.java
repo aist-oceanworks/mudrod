@@ -1,17 +1,8 @@
 package gov.nasa.jpl.mudrod.recommendation.process;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -22,13 +13,18 @@ import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.*;
 
-public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Serializable {
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
+public class VariableBasedSimilarity extends DiscoveryStepAbstract
+    implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -54,9 +50,8 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
   /**
    * Creates a new instance of OHEncoder.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es an instantiated {@link ESDriver}
+   * @param props the Mudrod configuration
+   * @param es    an instantiated {@link ESDriver}
    * @param spark an instantiated {@link SparkDriver}
    */
   public VariableBasedSimilarity(Properties props, ESDriver es,
@@ -218,7 +213,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
    */
   public void spatialSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-          throws IOException {
+      throws IOException {
 
     double topA = (double) metadataA.get("DatasetCoverage-Derivative-NorthLat");
     double bottomA = (double) metadataA
@@ -237,10 +232,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
     double areaB = (double) metadataB.get("DatasetCoverage-Derivative-Area");
 
     // Intersect area
-    double xOverlap = Math.max(0,
-        Math.min(rightA, rightB) - Math.max(leftA, leftB));
-    double yOverlap = Math.max(0,
-        Math.min(topA, topB) - Math.max(bottomA, bottomB));
+    double xOverlap = Math
+        .max(0, Math.min(rightA, rightB) - Math.max(leftA, leftB));
+    double yOverlap = Math
+        .max(0, Math.min(topA, topB) - Math.max(bottomA, bottomB));
     double overlapArea = xOverlap * yOverlap;
 
     // Calculate coverage similarity
@@ -254,7 +249,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   public void temporalSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-          throws IOException {
+      throws IOException {
 
     double similarity = 0.0;
     double startTimeA = Double.parseDouble(
@@ -289,8 +284,9 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
     } else if (startTimeA >= startTimeB && endTimeA <= endTimeB) {
       intersect = timespanA;
     } else {
-      intersect = (startTimeA > startTimeB) ? (endTimeB - startTimeA)
-          : (endTimeA - startTimeB);
+      intersect = (startTimeA > startTimeB) ?
+          (endTimeB - startTimeA) :
+          (endTimeA - startTimeB);
     }
 
     similarity = intersect / (Math.sqrt(timespanA) * Math.sqrt(timespanB));
@@ -299,7 +295,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   public void categoricalVariablesSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-          throws IOException {
+      throws IOException {
 
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
@@ -335,7 +331,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   public void ordinalVariablesSimilarity(Map<String, Object> metadataA,
       Map<String, Object> metadataB, XContentBuilder contentBuilder)
-          throws IOException {
+      throws IOException {
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
       if (type != VAR_ORDINAL) {
@@ -373,7 +369,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
           .endObject().endObject().endObject();
 
       es.getClient().admin().indices().preparePutMapping(index).setType(type)
-      .setSource(Mapping).execute().actionGet();
+          .setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -406,8 +402,9 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
         }
 
         double weight = totalSim / totalWeight;
-        UpdateRequest ur = es.generateUpdateRequest(indexName, variableSimType,
-            hit.getId(), "weight", weight);
+        UpdateRequest ur = es
+            .generateUpdateRequest(indexName, variableSimType, hit.getId(),
+                "weight", weight);
         es.getBulkProcessor().add(ur);
       }
 

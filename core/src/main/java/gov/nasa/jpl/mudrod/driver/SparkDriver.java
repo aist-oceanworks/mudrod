@@ -13,19 +13,18 @@
  */
 package gov.nasa.jpl.mudrod.driver;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.serializer.KryoSerializer;
 import org.apache.spark.sql.SQLContext;
+
+import java.io.Serializable;
+import java.util.Properties;
 //import org.apache.spark.sql.SparkSession;
 
-
 public class SparkDriver implements Serializable {
-  
+
   //TODO the commented out code below is the API uprgade
   //for Spark 2.0.0. It requires a large upgrade and simplification
   //across the mudrod codebase so should be done in an individual ticket.
@@ -67,9 +66,8 @@ public class SparkDriver implements Serializable {
   }
 
   public SparkDriver(Properties props) {
-    SparkConf conf = new SparkConf()
-        .setAppName(
-            props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
+    SparkConf conf = new SparkConf().setAppName(
+        props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
         .setIfMissing("spark.master",
             props.getProperty(MudrodConstants.SPARK_MASTER))
         .set("spark.hadoop.validateOutputSpecs", "false")

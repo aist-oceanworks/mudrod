@@ -13,14 +13,13 @@
  */
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import java.util.Properties;
 
 /**
  * Supports ability to remove raw logs after processing is finished
@@ -28,7 +27,7 @@ import gov.nasa.jpl.mudrod.driver.SparkDriver;
 public class RemoveRawLog extends LogAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RemoveRawLog.class);

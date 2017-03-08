@@ -13,30 +13,32 @@
  */
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.metadata.pre.ApiHarvester;
 import gov.nasa.jpl.mudrod.metadata.pre.MatrixGenerator;
 import gov.nasa.jpl.mudrod.metadata.process.MetadataAnalyzer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * Supports to preprocess and process metadata
  */
-public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
+public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
+    implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory.getLogger(MetadataDiscoveryEngine.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MetadataDiscoveryEngine.class);
 
-  public MetadataDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark) {
+  public MetadataDiscoveryEngine(Properties props, ESDriver es,
+      SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -44,14 +46,17 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
    * Method of preprocessing metadata
    */
   public void preprocess() {
-    LOG.info("*****************Metadata preprocessing starts******************");
+    LOG.info(
+        "*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es, this.spark);
+    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es,
+        this.spark);
     harvester.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata preprocessing ends******************Took {}s",
+    LOG.info(
+        "*****************Metadata preprocessing ends******************Took {}s",
         (endTime - startTime) / 1000);
   }
 
@@ -62,14 +67,17 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
     LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es, this.spark);
+    DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es,
+        this.spark);
     matrix.execute();
 
-    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.props, this.es, this.spark);
+    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.props, this.es,
+        this.spark);
     svd.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata processing ends******************Took {}s",
+    LOG.info(
+        "*****************Metadata processing ends******************Took {}s",
         (endTime - startTime) / 1000);
   }
 

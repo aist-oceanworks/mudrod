@@ -12,508 +12,529 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>gov.nasa.jpl.mudrod</groupId>
-  <artifactId>mudrod-parent</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <groupId>gov.nasa.jpl.mudrod</groupId>
+    <artifactId>mudrod-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <name>Mudrod :: Parent</name>
-  <url>https://github.com/mudrod/mudrod.git</url>
-  <description>MUDROD: Mining and Utilizing Dataset Relevancy from Oceanographic Datasets 
-    to Improve Data Discovery and Access. MUDROD is a semantic discovery and search project 
-    funded by NASA AIST (NNX15AM85G).
-  </description>
-
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
-
-  <organization>
-    <name>George Mason University</name>
-    <url>https://www2.gmu.edu/</url>
-  </organization>
-
-  <developers>
-    <developer>
-      <id>lewismc</id>
-      <name>Lewis John McGibbney</name>
-      <email>lewis[dot]j[dot]mcgibbney[at]jpl[dot]nasa[dot]gov</email>
-      <roles>
-        <role>Committer</role>
-      </roles>
-      <organization>NASA Jet Propulsion Laboratory</organization>
-    </developer>
-    <developer>
-      <id>Yongyao</id>
-      <name>Yongyao Jiang</name>
-      <email>J[dot]yongyao11[at]gmail[dot]com</email>
-      <roles>
-        <role>Committer</role>
-      </roles>
-      <organization>NSF Spatiotemporal Innovation Center, George Mason University</organization>
-    </developer>
-    <developer>
-      <id>quintinali</id>
-      <name>Yun Li</name>
-      <email>yli38[at]gmu[dot]edu</email>
-      <roles>
-        <role>Committer</role>
-      </roles>
-      <organization>NSF Spatiotemporal Innovation Center, George Mason University</organization>
-    </developer>
-  </developers>
-
-  <issueManagement>
-    <system>Github Issues</system>
-    <url>https://github.com/mudrod/mudrod/issues</url>
-  </issueManagement>
-  <ciManagement>
-    <system>TravisCI</system>
-    <url>https://travis-ci.org/mudrod/mudrod</url>
-  </ciManagement>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <implementation.build>${scmBranch}@r${buildNumber}</implementation.build>
-    <implementation.build.tstamp>${maven.build.timestamp}</implementation.build.tstamp>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <spark.version>2.1.0</spark.version>
-    <findbugs.version>3.0.4</findbugs.version>
-    <xml.maven.version>1.0.1</xml.maven.version>
-    <jacoco.version>0.7.7.201606060606</jacoco.version>
-    <jena.version>3.1.0</jena.version>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <elastic.version>5.2.0</elastic.version>
-  </properties>
-
-  <scm>
-    <developerConnection>scm:git:https://github.com/mudrod/mudrod.git</developerConnection>
-    <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
+    <name>Mudrod :: Parent</name>
     <url>https://github.com/mudrod/mudrod.git</url>
-    <tag>HEAD</tag>
-  </scm>
+    <description>MUDROD: Mining and Utilizing Dataset Relevancy from
+        Oceanographic Datasets
+        to Improve Data Discovery and Access. MUDROD is a semantic discovery and
+        search project
+        funded by NASA AIST (NNX15AM85G).
+    </description>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </pluginRepository>
-  </pluginRepositories>
+    <organization>
+        <name>George Mason University</name>
+        <url>https://www2.gmu.edu/</url>
+    </organization>
 
-  <modules>
-    <module>core</module>
-    <module>service</module>
-    <module>web</module>
-  </modules>
+    <developers>
+        <developer>
+            <id>lewismc</id>
+            <name>Lewis John McGibbney</name>
+            <email>lewis[dot]j[dot]mcgibbney[at]jpl[dot]nasa[dot]gov</email>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>NASA Jet Propulsion Laboratory</organization>
+        </developer>
+        <developer>
+            <id>Yongyao</id>
+            <name>Yongyao Jiang</name>
+            <email>J[dot]yongyao11[at]gmail[dot]com</email>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>NSF Spatiotemporal Innovation Center, George Mason
+                University
+            </organization>
+        </developer>
+        <developer>
+            <id>quintinali</id>
+            <name>Yun Li</name>
+            <email>yli38[at]gmu[dot]edu</email>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>NSF Spatiotemporal Innovation Center, George Mason
+                University
+            </organization>
+        </developer>
+    </developers>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <doCheck>false</doCheck>
-          <doUpdate>false</doUpdate>
-          <!-- Use committed revision so it does not change every time svn 
-            update is run -->
-          <useLastCommittedRevision>true</useLastCommittedRevision>
-          <!-- default revision number if unavailable -->
-          <revisionOnScmFailure>??????</revisionOnScmFailure>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
-        <configuration>
-          <reuseForks>true</reuseForks>
-          <argLine>${argLine} -Xmx2048m</argLine>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.19.1</version>
-        <configuration>
-          <reuseForks>true</reuseForks>
-          <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M
-            ${itCoverageAgent}</argLine>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>lib</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.0.0</version>
-          <configuration>
-            <filesets>
-              <fileset>
-                <directory>${basedir}/lib</directory>
-                <followSymlinks>false</followSymlinks>
-                <useDefaultExcludes>true</useDefaultExcludes>
-                <includes>
-                  <include>*.jar</include>
-                </includes>
-              </fileset>
-            </filesets>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.rat</groupId>
-          <artifactId>apache-rat-plugin</artifactId>
-          <version>0.12</version>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <excludes>
-              <exclude>**/tmp/**</exclude>
-              <exclude>**/META-INF/**</exclude>
-              <exclude>**/resources/**</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-  <profiles>
-    <profile>
-      <id>only-eclipse</id>
-      <activation>
-        <property>
-          <name>m2e.version</name>
-        </property>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <!--This plugin's configuration is used to store Eclipse m2e 
-              settings only. It has no influence on the Maven build itself. -->
-            <plugin>
-              <groupId>org.eclipse.m2e</groupId>
-              <artifactId>lifecycle-mapping</artifactId>
-              <version>1.0.0</version>
-              <configuration>
-                <lifecycleMappingMetadata>
-                  <pluginExecutions>
-                    <pluginExecution>
-                      <pluginExecutionFilter>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>buildnumber-maven-plugin</artifactId>
-                        <versionRange>
-                          [${buildnumber-maven-plugin.version},)
-                        </versionRange>
-                        <goals>
-                          <goal>create</goal>
-                        </goals>
-                      </pluginExecutionFilter>
-                      <action>
-                        <ignore></ignore>
-                      </action>
-                    </pluginExecution>
-                  </pluginExecutions>
-                </lifecycleMappingMetadata>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-    <profile>
-      <id>test-coverage</id>
-      <build>
+    <issueManagement>
+        <system>Github Issues</system>
+        <url>https://github.com/mudrod/mudrod/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>TravisCI</system>
+        <url>https://travis-ci.org/mudrod/mudrod</url>
+    </ciManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <implementation.build>${scmBranch}@r${buildNumber}
+        </implementation.build>
+        <implementation.build.tstamp>${maven.build.timestamp}
+        </implementation.build.tstamp>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <spark.version>2.1.0</spark.version>
+        <findbugs.version>3.0.4</findbugs.version>
+        <xml.maven.version>1.0.1</xml.maven.version>
+        <jacoco.version>0.7.7.201606060606</jacoco.version>
+        <jena.version>3.1.0</jena.version>
+        <project.reporting.outputEncoding>UTF-8
+        </project.reporting.outputEncoding>
+        <elastic.version>5.2.0</elastic.version>
+    </properties>
+
+    <scm>
+        <developerConnection>scm:git:https://github.com/mudrod/mudrod.git
+        </developerConnection>
+        <connection>scm:git:http://github.com/mudrod/mudrod.git</connection>
+        <url>https://github.com/mudrod/mudrod.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+            </url>
+        </repository>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <modules>
+        <module>core</module>
+        <module>service</module>
+        <module>web</module>
+    </modules>
+
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco.version}</version>
-            <configuration>
-              <destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>
-              <datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>
-            </configuration>
-            <executions>
-              <execution>
-                <id>prepare-unit-tests</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <!-- prepare agent for measuring integration tests -->
-              <execution>
-                <id>prepare-integration-tests</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-                <phase>pre-integration-test</phase>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                  <propertyName>itCoverageAgent</propertyName>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <!-- Use committed revision so it does not change every time svn
+                      update is run -->
+                    <useLastCommittedRevision>true</useLastCommittedRevision>
+                    <!-- default revision number if unavailable -->
+                    <revisionOnScmFailure>??????</revisionOnScmFailure>
                 </configuration>
-              </execution>
-              <execution>
-                <id>jacoco-site</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <reuseForks>true</reuseForks>
+                    <argLine>${argLine} -Xmx2048m</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <reuseForks>true</reuseForks>
+                    <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M
+                        ${itCoverageAgent}
+                    </argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <filesets>
+                            <fileset>
+                                <directory>${basedir}/lib</directory>
+                                <followSymlinks>false</followSymlinks>
+                                <useDefaultExcludes>true</useDefaultExcludes>
+                                <includes>
+                                    <include>*.jar</include>
+                                </includes>
+                            </fileset>
+                        </filesets>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.rat</groupId>
+                    <artifactId>apache-rat-plugin</artifactId>
+                    <version>0.12</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/tmp/**</exclude>
+                            <exclude>**/META-INF/**</exclude>
+                            <exclude>**/resources/**</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <profiles>
+        <profile>
+            <id>only-eclipse</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <!--This plugin's configuration is used to store Eclipse m2e
+                          settings only. It has no influence on the Maven build itself. -->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.codehaus.mojo
+                                                </groupId>
+                                                <artifactId>
+                                                    buildnumber-maven-plugin
+                                                </artifactId>
+                                                <versionRange>
+                                                    [${buildnumber-maven-plugin.version},)
+                                                </versionRange>
+                                                <goals>
+                                                    <goal>create</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <ignore></ignore>
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
+            <id>test-coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.version}</version>
+                        <configuration>
+                            <destfile>
+                                ${basedir}/target/coverage-reports/jacoco-unit.exec
+                            </destfile>
+                            <datafile>
+                                ${basedir}/target/coverage-reports/jacoco-unit.exec
+                            </datafile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>prepare-unit-tests</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <!-- prepare agent for measuring integration tests -->
+                            <execution>
+                                <id>prepare-integration-tests</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <propertyName>itCoverageAgent</propertyName>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>jacoco-site</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
-  <reporting>
-  	<plugins>
-  	  <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${findbugs.version}</version>
-        <configuration>
-          <findbugsXmlOutputDirectory>
-            ${project.build.directory}/findbugs
-          </findbugsXmlOutputDirectory>
-          <failOnError>false</failOnError>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <version>${xml.maven.version}</version>
-        <configuration>
-          <transformationSets>
-            <transformationSet>
-              <dir>${project.build.directory}/findbugs</dir>
-              <outputDir>${project.build.directory}/findbugs</outputDir>
-              <stylesheet>fancy-hist.xsl</stylesheet>
-              <!--<stylesheet>default.xsl</stylesheet>-->
-              <!--<stylesheet>plain.xsl</stylesheet>-->
-              <!--<stylesheet>fancy.xsl</stylesheet>-->
-              <!--<stylesheet>summary.xsl</stylesheet>-->
-              <fileMappers>
-                <fileMapper
-                  implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
-                  <targetExtension>.html</targetExtension>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-          </transformationSets>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.version}</version>
+                <configuration>
+                    <findbugsXmlOutputDirectory>
+                        ${project.build.directory}/findbugs
+                    </findbugsXmlOutputDirectory>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <version>${xml.maven.version}</version>
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>${project.build.directory}/findbugs</dir>
+                            <outputDir>${project.build.directory}/findbugs
+                            </outputDir>
+                            <stylesheet>fancy-hist.xsl</stylesheet>
+                            <!--<stylesheet>default.xsl</stylesheet>-->
+                            <!--<stylesheet>plain.xsl</stylesheet>-->
+                            <!--<stylesheet>fancy.xsl</stylesheet>-->
+                            <!--<stylesheet>summary.xsl</stylesheet>-->
+                            <fileMappers>
+                                <fileMapper
+                                        implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                                    <targetExtension>.html</targetExtension>
+                                </fileMapper>
+                            </fileMappers>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
-  <dependencyManagement>
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
 
-      <!-- Elasticsearch dependencies -->
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
-        <version>${elastic.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>transport</artifactId>
-        <version>${elastic.version}</version>
-        <scope>compile</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.elasticsearch.plugin</groupId>
-            <artifactId>transport-netty4-client</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch-spark-20_2.11</artifactId>
-        <version>${elastic.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>2.9.4</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.carrotsearch</groupId>
-        <artifactId>hppc</artifactId>
-        <version>0.7.1</version>
-        <scope>compile</scope>
-      </dependency>
-      <!-- End of Elasticsearch dependencies -->
+            <!-- Elasticsearch dependencies -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elastic.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>transport</artifactId>
+                <version>${elastic.version}</version>
+                <scope>compile</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.elasticsearch.plugin</groupId>
+                        <artifactId>transport-netty4-client</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch-spark-20_2.11</artifactId>
+                <version>${elastic.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.9.4</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.carrotsearch</groupId>
+                <artifactId>hppc</artifactId>
+                <version>0.7.1</version>
+                <scope>compile</scope>
+            </dependency>
+            <!-- End of Elasticsearch dependencies -->
 
-      <!-- Spark dependencies -->
-      <dependency>
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-core_2.11</artifactId>
-        <version>${spark.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-sql_2.11</artifactId>
-        <version>${spark.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-mllib_2.11</artifactId>
-        <version>${spark.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.github.fommil.netlib</groupId>
-        <artifactId>all</artifactId>
-        <version>1.1.2</version>
-        <scope>runtime</scope>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>2.11.8</version>
-        <scope>compile</scope>
-      </dependency>
-      <!-- End of Spark dependencies -->
+            <!-- Spark dependencies -->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_2.11</artifactId>
+                <version>${spark.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_2.11</artifactId>
+                <version>${spark.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-mllib_2.11</artifactId>
+                <version>${spark.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fommil.netlib</groupId>
+                <artifactId>all</artifactId>
+                <version>1.1.2</version>
+                <scope>runtime</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>2.11.8</version>
+                <scope>compile</scope>
+            </dependency>
+            <!-- End of Spark dependencies -->
 
-      <!-- Jena dependencies -->
-      <dependency>
-        <groupId>org.apache.jena</groupId>
-        <artifactId>jena-core</artifactId>
-        <version>${jena.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <!-- End of Jena dependencies -->
+            <!-- Jena dependencies -->
+            <dependency>
+                <groupId>org.apache.jena</groupId>
+                <artifactId>jena-core</artifactId>
+                <version>${jena.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <!-- End of Jena dependencies -->
 
-      <!-- Misc dependencies -->
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>2.5</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jdom</groupId>
-        <artifactId>jdom</artifactId>
-        <version>2.0.2</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-cli</groupId>
-        <artifactId>commons-cli</artifactId>
-        <version>1.2</version>
-        <scope>compile</scope>
-      </dependency>
-      <!-- End of Misc dependencies -->
+            <!-- Misc dependencies -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.5</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>2.0.2</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>1.2</version>
+                <scope>compile</scope>
+            </dependency>
+            <!-- End of Misc dependencies -->
 
-      <!-- Logging dependencies -->
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>2.6.2</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.6.2</version>
-        <scope>runtime</scope>
-      </dependency>
-      <!-- End of Logging dependencies -->
+            <!-- Logging dependencies -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.6.2</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.6.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <!-- End of Logging dependencies -->
 
-      <!-- Webservices Dependencies -->
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>3.1.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        <version>3.1.7</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-client</artifactId>
-        <version>3.1.7</version>
-        <scope>compile</scope>
-      </dependency>
+            <!-- Webservices Dependencies -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <version>3.1.7</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>3.1.7</version>
+                <scope>compile</scope>
+            </dependency>
 
-      <!-- Testing dependencies -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- End of Testing Dependencies -->
+            <!-- Testing dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- End of Testing Dependencies -->
 
-    </dependencies>
-  </dependencyManagement>
+        </dependencies>
+    </dependencyManagement>
 </project>

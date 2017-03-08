@@ -13,27 +13,26 @@
  */
 package gov.nasa.jpl.mudrod.utils;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.distributed.CoordinateMatrix;
 import org.apache.spark.mllib.linalg.distributed.RowMatrix;
 
-import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 /**
- * ClassName: SVDUtil Function: Singular value decomposition 
+ * ClassName: SVDUtil Function: Singular value decomposition
  */
 public class SVDUtil extends MudrodAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   // wordRDD: terms extracted from all documents
@@ -46,12 +45,9 @@ public class SVDUtil extends MudrodAbstract {
   /**
    * Creates a new instance of SVDUtil.
    *
-   * @param config
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch drive
-   * @param spark
-   *          the spark driver
+   * @param config the Mudrod configuration
+   * @param es     the Elasticsearch drive
+   * @param spark  the spark driver
    */
   public SVDUtil(Properties config, ESDriver es, SparkDriver spark) {
     super(config, es, spark);
@@ -60,19 +56,17 @@ public class SVDUtil extends MudrodAbstract {
   /**
    * buildSVDMatrix: build svd matrix from docment-terms pairs.
    *
-   * @param docwordRDD
-   *          JavaPairRDD, key is short name of data set and values are terms in
-   *          the corresponding data set
-   * @param svdDimension:
-   *          Dimension of matrix after singular value decomposition
+   * @param docwordRDD    JavaPairRDD, key is short name of data set and values are terms in
+   *                      the corresponding data set
+   * @param svdDimension: Dimension of matrix after singular value decomposition
    * @return row matrix
    */
   public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD,
       int svdDimension) {
 
     RowMatrix svdMatrix = null;
-    LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD,
-        spark.sc);
+    LabeledRowMatrix wordDocMatrix = MatrixUtil
+        .createWordDocMatrix(docwordRDD, spark.sc);
     RowMatrix ifIdfMatrix = MatrixUtil
         .createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
     svdMatrix = MatrixUtil.buildSVDMatrix(ifIdfMatrix, svdDimension);
@@ -84,16 +78,14 @@ public class SVDUtil extends MudrodAbstract {
   /**
    * buildSVDMatrix: build svd matrix from csv file.
    *
-   * @param tfidfCSVfile
-   *          tf-idf matrix csv file
-   * @param svdDimension:
-   *          Dimension of matrix after singular value decomposition
+   * @param tfidfCSVfile  tf-idf matrix csv file
+   * @param svdDimension: Dimension of matrix after singular value decomposition
    * @return row matrix
    */
   public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
     RowMatrix svdMatrix = null;
-    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark,
-        tfidfCSVfile, 2);
+    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil
+        .loadVectorFromCSV(spark, tfidfCSVfile, 2);
     JavaRDD<Vector> vectorRDD = tfidfRDD.values();
 
     svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
@@ -116,14 +108,12 @@ public class SVDUtil extends MudrodAbstract {
   /**
    * insertLinkageToES:insert linkage triples to elasticsearch
    *
-   * @param index
-   *          index name
-   * @param type
-   *          linkage triple name
+   * @param index index name
+   * @param type  linkage triple name
    */
   public void insertLinkageToES(String index, String type) {
-    List<LinkageTriple> triples = SimilarityUtil.matrixToTriples(wordRDD,
-        simMatrix);
+    List<LinkageTriple> triples = SimilarityUtil
+        .matrixToTriples(wordRDD, simMatrix);
     try {
       LinkageTriple.insertTriples(es, triples, index, type);
     } catch (IOException e) {

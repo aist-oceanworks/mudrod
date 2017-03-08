@@ -13,22 +13,20 @@
  */
 package gov.nasa.jpl.mudrod.discoveryengine;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Properties;
-
-import javax.annotation.CheckForNull;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import javax.annotation.CheckForNull;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * This is the most generic class of Mudrod
@@ -38,7 +36,7 @@ public abstract class MudrodAbstract implements Serializable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MudrodAbstract.class);
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
   protected Properties props = new Properties();
@@ -96,7 +94,7 @@ public abstract class MudrodAbstract implements Serializable {
 
   /**
    * Get driver of Elasticsearch
-   * 
+   *
    * @return driver of Elasticsearch
    */
   public ESDriver getES() {
@@ -105,7 +103,7 @@ public abstract class MudrodAbstract implements Serializable {
 
   /**
    * Get configuration of MUDROD (read from configuration file)
-   * 
+   *
    * @return configuration of MUDROD
    */
   public Properties getConfig() {

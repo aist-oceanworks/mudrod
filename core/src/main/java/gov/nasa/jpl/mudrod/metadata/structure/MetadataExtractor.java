@@ -13,12 +13,7 @@
  */
 package gov.nasa.jpl.mudrod.metadata.structure;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -28,14 +23,18 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
 import scala.Tuple2;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class MetadataExtractor implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
@@ -47,16 +46,12 @@ public class MetadataExtractor implements Serializable {
    * pairRDD Please make sure metadata has been already harvested from web
    * service and stored in Elasticsearch.
    *
-   * @param es
-   *          an Elasticsearch client node instance
-   * @param sc
-   *          spark context
-   * @param index
-   *          index name of log processing application
-   * @param type
-   *          metadata type name
+   * @param es    an Elasticsearch client node instance
+   * @param sc    spark context
+   * @param index index name of log processing application
+   * @param type  metadata type name
    * @return PairRDD, in each pair key is metadata short name and value is term
-   *         list extracted from metadata variables.
+   * list extracted from metadata variables.
    */
   public JavaPairRDD<String, List<String>> loadMetadata(ESDriver es,
       JavaSparkContext sc, String index, String type) {
@@ -69,12 +64,9 @@ public class MetadataExtractor implements Serializable {
   /**
    * loadMetadataFromES: Load all metadata from Elasticsearch.
    *
-   * @param es
-   *          an Elasticsearch client node instance
-   * @param index
-   *          index name of log processing application
-   * @param type
-   *          metadata type name
+   * @param es    an Elasticsearch client node instance
+   * @param index index name of log processing application
+   * @param type  metadata type name
    * @return metadata list
    */
   protected List<PODAACMetadata> loadMetadataFromES(ESDriver es, String index,
@@ -126,16 +118,12 @@ public class MetadataExtractor implements Serializable {
   /**
    * buildMetadataRDD: Convert metadata list to JavaPairRDD
    *
-   * @param es
-   *          an Elasticsearch client node instance
-   * @param sc
-   *          spark context
-   * @param index
-   *          index name of log processing application
-   * @param metadatas
-   *          metadata list
+   * @param es        an Elasticsearch client node instance
+   * @param sc        spark context
+   * @param index     index name of log processing application
+   * @param metadatas metadata list
    * @return PairRDD, in each pair key is metadata short name and value is term
-   *         list extracted from metadata variables.
+   * list extracted from metadata variables.
    */
   protected JavaPairRDD<String, List<String>> buildMetadataRDD(ESDriver es,
       JavaSparkContext sc, String index, List<PODAACMetadata> metadatas) {
@@ -143,7 +131,7 @@ public class MetadataExtractor implements Serializable {
     JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD
         .mapToPair(new PairFunction<PODAACMetadata, String, List<String>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 
@@ -156,7 +144,7 @@ public class MetadataExtractor implements Serializable {
         })
         .reduceByKey(new Function2<List<String>, List<String>, List<String>>() {
           /**
-           * 
+           *
            */
           private static final long serialVersionUID = 1L;
 

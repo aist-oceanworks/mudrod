@@ -4,22 +4,20 @@
  * Package Name:gov.nasa.jpl.mudrod.recommendation.process
  * Date:Aug 22, 201610:45:55 AM
  * Copyright (c) 2016, chenzhou1025@126.com All Rights Reserved.
- *
-*/
+ */
 
 package gov.nasa.jpl.mudrod.recommendation.process;
 
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.semantics.SVDAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Properties;
 
 /**
  * ClassName: Recommend metedata based on data content semantic similarity
@@ -32,12 +30,9 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of TopicBasedCF.
    *
-   * @param props
-   *          the Mudrod configuration
-   * @param es
-   *          the Elasticsearch client
-   * @param spark
-   *          the spark drive
+   * @param props the Mudrod configuration
+   * @param es    the Elasticsearch client
+   * @param spark the spark drive
    */
   public AbstractBasedSimilarity(Properties props, ESDriver es,
       SparkDriver spark) {

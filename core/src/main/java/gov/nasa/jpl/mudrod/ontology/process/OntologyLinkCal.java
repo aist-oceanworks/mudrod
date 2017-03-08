@@ -13,14 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.ontology.process;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
@@ -28,16 +20,24 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
 /**
- * Supports ability to parse and process FTP and HTTP log files 
+ * Supports ability to parse and process FTP and HTTP log files
  */
 public class OntologyLinkCal extends DiscoveryStepAbstract {
 
-  public OntologyLinkCal(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public OntologyLinkCal(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
     es.deleteAllByQuery(props.getProperty("indexName"),
-        props.getProperty("ontologyLinkageType"), QueryBuilders.matchAllQuery());
+        props.getProperty("ontologyLinkageType"),
+        QueryBuilders.matchAllQuery());
     addSWEETMapping();
   }
 
@@ -56,9 +56,10 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
-      .setType(props.getProperty("ontologyLinkageType")).setSource(Mapping)
-      .execute().actionGet();
+      es.getClient().admin().indices()
+          .preparePutMapping(props.getProperty("indexName"))
+          .setType(props.getProperty("ontologyLinkageType")).setSource(Mapping)
+          .execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -69,7 +70,8 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    es.deleteType(props.getProperty("indexName"), props.getProperty("ontologyLinkageType"));
+    es.deleteType(props.getProperty("indexName"),
+        props.getProperty("ontologyLinkageType"));
     es.createBulkProcessor();
 
     BufferedReader br = null;
@@ -77,7 +79,8 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     double weight = 0;
 
     try {
-      br = new BufferedReader(new FileReader(props.getProperty("oceanTriples")));
+      br = new BufferedReader(
+          new FileReader(props.getProperty("oceanTriples")));
       while ((line = br.readLine()) != null) {
         String[] strList = line.toLowerCase().split(",");
         if (strList[1].equals("subclassof")) {
@@ -87,16 +90,12 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
         }
 
         IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-            props.getProperty("ontologyLinkageType"))
-            .source(
-                jsonBuilder().startObject()
-                .field("concept_A",
-                    es.customAnalyzing(props.getProperty("indexName"),
-                        strList[2]))
+            props.getProperty("ontologyLinkageType")).source(
+            jsonBuilder().startObject().field("concept_A",
+                es.customAnalyzing(props.getProperty("indexName"), strList[2]))
                 .field("concept_B",
                     es.customAnalyzing(props.getProperty("indexName"),
-                        strList[0]))
-                .field("weight", weight).endObject());
+                        strList[0])).field("weight", weight).endObject());
         es.getBulkProcessor().add(ir);
 
       }

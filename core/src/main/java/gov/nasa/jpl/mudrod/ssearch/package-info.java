@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 /**
- * This package includes classes for semantic search, such as click stream importer, 
+ * This package includes classes for semantic search, such as click stream importer,
  * query dispatcher, semantic searcher, and ranker (ranksvm, ordinal/linear regression)
  */
 package gov.nasa.jpl.mudrod.ssearch;

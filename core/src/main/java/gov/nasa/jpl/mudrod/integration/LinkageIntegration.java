@@ -13,49 +13,39 @@
  */
 package gov.nasa.jpl.mudrod.integration;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Supports ability to integrate vocab similarity results from metadata, ontology, and web logs.
  */
 public class LinkageIntegration extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LinkageIntegration.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(LinkageIntegration.class);
   private static final long serialVersionUID = 1L;
   transient List<LinkedTerm> termList = new ArrayList<>();
   DecimalFormat df = new DecimalFormat("#.00");
   private static final String INDEX_NAME = "indexName";
   private static final String WEIGHT = "weight";
 
-  public LinkageIntegration(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public LinkageIntegration(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -90,8 +80,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of getting integrated results
+   *
    * @param input query string
-   * @return a hash map where the string is a related term, and double is the 
+   * @return a hash map where the string is a related term, and double is the
    * similarity to the input query
    */
   public Map<String, Double> appyMajorRule(String input) {
@@ -133,8 +124,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of getting integrated results
+   *
    * @param input query string
-   * @param num the number of most related terms
+   * @param num   the number of most related terms
    * @return a string of related terms along with corresponding similarities
    */
   public String getIngeratedList(String input, int num) {
@@ -147,13 +139,15 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
       count++;
     }
-    LOG.info("\n************************Integrated results***************************");
+    LOG.info(
+        "\n************************Integrated results***************************");
     LOG.info(output);
     return output;
   }
 
   /**
    * Method of getting integrated results
+   *
    * @param input query string
    * @return a JSON object of related terms along with corresponding similarities
    */
@@ -162,8 +156,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     int count = 0;
     Map<String, Double> trimmedMap = new LinkedHashMap<>();
     for (Entry<String, Double> entry : sortedMap.entrySet()) {
-      if(!entry.getKey().contains("china"))
-      {
+      if (!entry.getKey().contains("china")) {
         if (count < 10) {
           trimmedMap.put(entry.getKey(), entry.getValue());
         }
@@ -176,8 +169,9 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of aggregating terms from web logs, metadata, and ontology
+   *
    * @param input query string
-   * @return a hash map where the string is a related term, and the list is 
+   * @return a hash map where the string is a related term, and the list is
    * the similarities from different sources
    */
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
@@ -212,7 +206,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of extracting the related term from a comma string
-   * @param str input string
+   *
+   * @param str   input string
    * @param input query string
    * @return related term contained in the input string
    */
@@ -227,11 +222,13 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   public void aggregateRelatedTerms(String input, String model) {
     //get the first 10 related terms
-    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
-        .setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input))
+    SearchResponse usrhis = es.getClient()
+        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model)
+        .setQuery(QueryBuilders.termQuery("keywords", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
 
-    LOG.info("\n************************ {} results***************************", model);
+    LOG.info("\n************************ {} results***************************",
+        model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String keywords = (String) result.get("keywords");
@@ -249,20 +246,23 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of querying related terms from ontology
+   *
    * @param input input query
    * @param model source name
    */
   public void aggregateRelatedTermsSWEET(String input, String model) {
-    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME))
-        .setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input))
+    SearchResponse usrhis = es.getClient()
+        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model)
+        .setQuery(QueryBuilders.termQuery("concept_A", input))
         .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
-    LOG.info("\n************************ {} results***************************", model);
+    LOG.info("\n************************ {} results***************************",
+        model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String conceptB = (String) result.get("concept_B");
       if (!conceptB.equals(input)) {
-        LinkedTerm lTerm = new LinkedTerm(conceptB,
-            (double) result.get(WEIGHT), model);
+        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT),
+            model);
         LOG.info("( {} {} )", conceptB, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
@@ -271,6 +271,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of sorting a map by value
+   *
    * @param passedMap input map
    * @return sorted map
    */
@@ -307,7 +308,8 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   /**
    * Method of converting hashmap to JSON
-   * @param word input query
+   *
+   * @param word        input query
    * @param wordweights a map from related terms to weights
    * @return converted JSON object
    */
@@ -316,7 +318,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     JsonObject json = new JsonObject();
     List<JsonObject> nodes = new ArrayList<>();
 
-    for(Entry<String, Double> entry : wordweights.entrySet()){   	
+    for (Entry<String, Double> entry : wordweights.entrySet()) {
       JsonObject node = new JsonObject();
       String key = entry.getKey();
       Double value = entry.getValue();
@@ -327,7 +329,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
     JsonElement nodesElement = gson.toJsonTree(nodes);
     json.add("ontology", nodesElement);
-    
+
     return json;
   }
 

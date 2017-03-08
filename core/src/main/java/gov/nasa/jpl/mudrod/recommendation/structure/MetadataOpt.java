@@ -1,16 +1,9 @@
 package gov.nasa.jpl.mudrod.recommendation.structure;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
+import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.PairFunction;
@@ -19,11 +12,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import scala.Tuple2;
+
+import java.io.Serializable;
+import java.util.*;
 
 public class MetadataOpt implements Serializable {
 
@@ -47,15 +39,15 @@ public class MetadataOpt implements Serializable {
 
   public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark)
       throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es,
-        variables);
+    List<Tuple2<String, String>> datasetsTokens = this
+        .loadMetadataFromES(es, variables);
     return this.parallizeData(spark, datasetsTokens);
   }
 
   public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark,
       List<String> variables) throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es,
-        variables);
+    List<Tuple2<String, String>> datasetsTokens = this
+        .loadMetadataFromES(es, variables);
     return this.parallizeData(spark, datasetsTokens);
   }
 
@@ -157,8 +149,8 @@ public class MetadataOpt implements Serializable {
 
     RowMatrix docwordMatrix = labelMatrix.rowMatrix;
 
-    RowMatrix docwordTFIDFMatrix = MatrixUtil.createTFIDFMatrix(docwordMatrix,
-        spark.sc);
+    RowMatrix docwordTFIDFMatrix = MatrixUtil
+        .createTFIDFMatrix(docwordMatrix, spark.sc);
 
     labelMatrix.rowMatrix = docwordTFIDFMatrix;
 

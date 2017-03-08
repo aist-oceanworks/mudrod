@@ -13,18 +13,17 @@
  */
 package gov.nasa.jpl.mudrod.weblog.process;
 
-import java.util.List;
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.semantics.SVDAnalyzer;
 import gov.nasa.jpl.mudrod.ssearch.ClickstreamImporter;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Supports ability to calculate term similarity based on click stream
@@ -32,14 +31,14 @@ import org.slf4j.LoggerFactory;
 public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ClickStreamAnalyzer.class);
 
-  public ClickStreamAnalyzer(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public ClickStreamAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -60,12 +59,13 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
       svd.saveToES(tripleList, props.getProperty("indexName"),
           props.getProperty("clickStreamLinkageType"));
     } catch (Exception e) {
-      LOG.error("Encountered an error during execution of ClickStreamAnalyzer.", e);
+      LOG.error("Encountered an error during execution of ClickStreamAnalyzer.",
+          e);
     }
-    
+
     //Store click stream in ES for the ranking use
     ClickstreamImporter cs = new ClickstreamImporter(props, es, spark);
-    cs.importfromCSVtoES();  
+    cs.importfromCSVtoES();
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

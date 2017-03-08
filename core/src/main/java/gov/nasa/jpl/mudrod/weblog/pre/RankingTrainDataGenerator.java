@@ -1,16 +1,15 @@
 package gov.nasa.jpl.mudrod.weblog.pre;
 
-import java.util.Properties;
-
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
-import org.apache.spark.api.java.JavaRDD;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.weblog.structure.RankingTrainData;
 import gov.nasa.jpl.mudrod.weblog.structure.SessionExtractor;
+import org.apache.spark.api.java.JavaRDD;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class RankingTrainDataGenerator extends DiscoveryStepAbstract {
 

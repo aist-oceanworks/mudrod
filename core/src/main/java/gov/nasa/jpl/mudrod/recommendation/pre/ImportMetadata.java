@@ -13,29 +13,22 @@
  */
 package gov.nasa.jpl.mudrod.recommendation.pre;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
+import gov.nasa.jpl.mudrod.driver.ESDriver;
+import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.metadata.pre.ApiHarvester;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.metadata.pre.ApiHarvester;
+import java.io.*;
+import java.util.Properties;
 
 /**
  * ClassName: Import Metadata to elasticsearch
- *
  */
 
 public class ImportMetadata extends DiscoveryStepAbstract {
