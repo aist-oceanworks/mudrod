@@ -24,21 +24,21 @@
         <init-param>
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
-                esiptestbed.mudrod.services.autocomplete.AutoCompleteResource,
-                esiptestbed.mudrod.services.search.SearchDatasetDetailResource,
-                esiptestbed.mudrod.services.recommendation.HybridRecomDatasetsResource,
-                esiptestbed.mudrod.services.recommendation.RecomDatasetsResource,
-                esiptestbed.mudrod.services.search.SearchMetadataResource,
-                esiptestbed.mudrod.services.search.SearchVocabResource,
-                esiptestbed.mudrod.services.search.SessionDetailResource,
-                esiptestbed.mudrod.services.ontology.OntologyResource,
+                gov.nasa.jpl.mudrod.services.autocomplete.AutoCompleteResource,
+                gov.nasa.jpl.mudrod.services.search.SearchDatasetDetailResource,
+                gov.nasa.jpl.mudrod.services.recommendation.HybridRecomDatasetsResource,
+                gov.nasa.jpl.mudrod.services.recommendation.RecomDatasetsResource,
+                gov.nasa.jpl.mudrod.services.search.SearchMetadataResource,
+                gov.nasa.jpl.mudrod.services.search.SearchVocabResource,
+                gov.nasa.jpl.mudrod.services.search.SessionDetailResource,
+                gov.nasa.jpl.mudrod.services.ontology.OntologyResource,
             </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
     <listener>
-        <listener-class>esiptestbed.mudrod.services.MudrodContextListener</listener-class>
+        <listener-class>gov.nasa.jpl.mudrod.services.MudrodContextListener</listener-class>
     </listener>
 
     <servlet-mapping>

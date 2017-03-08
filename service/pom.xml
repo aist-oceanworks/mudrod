@@ -17,7 +17,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>esiptestbed</groupId>
+        <groupId>gov.nasa.jpl.mudrod</groupId>
         <artifactId>mudrod-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../</relativePath>
@@ -39,14 +39,14 @@
     <dependencies>
         <!-- Core Module -->
         <dependency>
-            <groupId>esiptestbed</groupId>
+            <groupId>gov.nasa.jpl.mudrod</groupId>
             <artifactId>mudrod-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Static web resources -->
         <dependency>
-            <groupId>esiptestbed</groupId>
+            <groupId>gov.nasa.jpl.mudrod</groupId>
             <artifactId>mudrod-web</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -73,21 +73,21 @@
   
   <!-- 
   The ontology service implementation. Possible values include
-   EsipPortal - esiptestbed.mudrod.ontology.process.EsipPortalOntology
-   EsipCOR - esiptestbed.mudrod.ontology.process.EsipCOROntology
-   Local - esiptestbed.mudrod.ontology.process.Local
+   EsipPortal - EsipPortalOntology
+   EsipCOR - EsipCOROntology
+   Local - gov.nasa.jpl.mudrod.ontology.process.Local
    -->
   <para name="mudrod.ontology.implementation">Local</para>
   <!-- 
    Log processing type. Possible values include
-   sequential - esiptestbed.mudrod.main.MudrodConstants.SEQUENTIAL_PROCESS
-   parallel - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_PROCESS
+   sequential - MudrodConstants.SEQUENTIAL_PROCESS
+   parallel - MudrodConstants.PARALLEL_PROCESS
    -->
   <para name="processingType">parallel</para>
    <!-- 
    Log processing parallel optimization type. Possible values include
-   default - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
-   repartition - esiptestbed.mudrod.main.MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
+   default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
+   repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
    -->
   <para name="parallelOptimization">repartition</para>
   
