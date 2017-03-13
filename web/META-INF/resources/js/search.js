@@ -162,13 +162,18 @@ function createResultTable() {
             'field': 'Topic',
             'formatter': TopicFormatter,
         }, {
-            'title': 'Release Date',
-            'field': 'Release Date',
+            'title': 'Platform/Sensors',
+            'field': 'Sensor',
         }, {
-            'title': 'Abstract',
-            'field': 'Abstract',
+            'title': 'Processing Level',
+            'field': 'Processing Level',
+        }, {
+            'title': 'Start/End Date',
+            'field': 'Start/End Date',
+        }, {
+            'title': 'Description',
+            'field': 'Description',
         }]
-
     };
 
     $('#ResultsTable').bootstrapTable(layout);
