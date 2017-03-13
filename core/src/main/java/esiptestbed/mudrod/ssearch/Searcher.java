@@ -153,6 +153,23 @@ public class Searcher extends MudrodAbstract implements Serializable {
       Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
+      
+      //start date
+      Long start = (Long) result
+          .get("DatasetCoverage-StartTimeLong-Long");
+      Date startDate = new Date(start);
+      String startDateTxt = df2.format(startDate);
+      
+      //end date
+      String end = (String) result
+          .get("Dataset-DatasetCoverage-StopTimeLong");
+      String endDateTxt = "";
+      if(end.equals("")){
+    	  endDateTxt = "now";
+      }else{
+    	  Date endDate = new Date(Long.valueOf(end));
+          endDateTxt = df2.format(endDate);
+      }
 
       String processingLevel = (String) result.get("Dataset-ProcessingLevel");
       Double proNum = getProLevelNum(processingLevel);
@@ -163,6 +180,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
           ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
       Double monthPop = getPop(
           ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
+      
+      List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
 
@@ -174,6 +193,10 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult.set(re, "userPop", userPop);
       SResult.set(re, "allPop", allPop);
       SResult.set(re, "monthPop", monthPop);
+      SResult.set(re, "startDate", startDateTxt);
+      SResult.set(re, "endDate", endDateTxt);
+      SResult.set(re, "sensors", String.join(", ", sensors));
+
 
       QueryBuilder query_label_search = QueryBuilders.boolQuery()
           .must(QueryBuilders.termQuery("query", query))
@@ -224,10 +247,21 @@ public class Searcher extends MudrodAbstract implements Serializable {
       file.addProperty("Long Name",
           (String) SResult.get(li.get(i), "longName"));
       file.addProperty("Topic", (String) SResult.get(li.get(i), "topic"));
-      file.addProperty("Abstract",
+      file.addProperty("Description",
           (String) SResult.get(li.get(i), "description"));
       file.addProperty("Release Date",
           (String) SResult.get(li.get(i), "relase_date"));
+      
+      System.out.println(li.get(i));
+      System.out.println((String) SResult.get(li.get(i), "startDate"));
+      System.out.println((String) SResult.get(li.get(i), "endDate"));
+   
+      file.addProperty("Start/End Date", (String) SResult.get(li.get(i), "startDate") + " - " + (String) SResult.get(li.get(i), "endDate"));
+      file.addProperty("Processing Level",(String) SResult.get(li.get(i), "processingLevel"));
+      
+      file.addProperty("Sensor",(String) SResult.get(li.get(i), "sensors"));
+      
+      
       fileList.add(file);
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
