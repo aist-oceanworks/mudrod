@@ -72,6 +72,11 @@ public class SResult {
 
   public Double prediction = 0.0;
   public String label = null;
+  
+  //add by quintinali
+  public String startDate;
+  public String endDate;
+  public String sensors;
 
   /**
    * @param shortName   short name of dataset
