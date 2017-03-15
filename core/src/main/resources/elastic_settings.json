@@ -1,36 +1,36 @@
 {
-   "index":{
-      "number_of_replicas":0,
-      "refresh_interval":"-1",
-      "number_of_shards": "5",
-      "translog.flush_threshold_size": "1g",
-      "translog.sync_interval": "30s",
-      "warmer.enabled": "false"
-   },
-   "analysis":{
-      "filter":{
-         "cody_stop":{
-            "type":"stop",
-            "stopwords":"_english_"
-         },
-           "cody_stemmer":{
-            "type":"stemmer",
-            "language":"light_english"
-         }
+  "index": {
+    "number_of_replicas": 0,
+    "refresh_interval": "-1",
+    "number_of_shards": "5",
+    "translog.flush_threshold_size": "1g",
+    "translog.sync_interval": "30s",
+    "warmer.enabled": "false"
+  },
+  "analysis": {
+    "filter": {
+      "cody_stop": {
+        "type": "stop",
+        "stopwords": "_english_"
       },
-      "analyzer":{
-         "cody":{
-            "tokenizer":"standard",
-            "filter":[
-               "lowercase",
-               "cody_stop",
-               "cody_stemmer"
-            ]
-         },
-         "csv":{
-            "type":"pattern",
-            "pattern":","
-         }
+      "cody_stemmer": {
+        "type": "stemmer",
+        "language": "light_english"
       }
-   }
+    },
+    "analyzer": {
+      "cody": {
+        "tokenizer": "standard",
+        "filter": [
+          "lowercase",
+          "cody_stop",
+          "cody_stemmer"
+        ]
+      },
+      "csv": {
+        "type": "pattern",
+        "pattern": ","
+      }
+    }
+  }
 }

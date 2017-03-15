@@ -1,65 +1,65 @@
 {
-   "_default_":{
-      "properties":{
-         "keywords":{
-            "type":"text",
-            "analyzer":"csv",
-            "fielddata": true
-         },
-         "views":{
-            "type":"string",
-            "analyzer":"csv"
-         },
-         "downloads":{
-            "type":"string",
-            "analyzer":"csv"
-         },
-         "RequestUrl":{
-            "type":"string",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "IP":{
-            "type":"keyword",
-            "index":"not_analyzed"
-         },
-         "Browser":{
-            "type":"string",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "SessionURL":{
-            "type":"string",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "Referer":{
-            "type":"string",
-            "index": "not_analyzed"
-         },
-         "SessionID":{
-            "type":"string",
-            "index":"not_analyzed"
-         },
-         "Response":{
-            "type":"string",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "Request":{
-            "type":"string",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "Coordinates":{
-            "type":"geo_point",
-            "include_in_all": false,
-            "index": "no"
-         },
-         "LogType":{
-            "type":"string",
-            "index":"not_analyzed"
-         }
+  "_default_": {
+    "properties": {
+      "keywords": {
+        "type": "text",
+        "analyzer": "csv",
+        "fielddata": true
+      },
+      "views": {
+        "type": "string",
+        "analyzer": "csv"
+      },
+      "downloads": {
+        "type": "string",
+        "analyzer": "csv"
+      },
+      "RequestUrl": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "IP": {
+        "type": "keyword",
+        "index": "not_analyzed"
+      },
+      "Browser": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "SessionURL": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "Referer": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "SessionID": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "Response": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "Request": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "Coordinates": {
+        "type": "geo_point",
+        "include_in_all": false,
+        "index": "no"
+      },
+      "LogType": {
+        "type": "string",
+        "index": "not_analyzed"
       }
-   }
+    }
+  }
 }
