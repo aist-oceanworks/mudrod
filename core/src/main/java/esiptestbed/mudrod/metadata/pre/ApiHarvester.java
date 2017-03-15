@@ -14,7 +14,6 @@
 package esiptestbed.mudrod.metadata.pre;
 
 import java.io.BufferedWriter;
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,7 +24,6 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,18 +81,12 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoke this method before import metadata to Elasticsearch.
    */
   public void addMetadataMapping() {
-		String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
-
-				+ "{\r\n         \"autocomplete\": " + "{\r\n            \"match\": \"Dataset-Metadata\","
-				+ "\r\n            \"mapping\": {\r\n               \"type\": \"completion\","
-				+ "\r\n               \"analyzer\": \"english\"\r\n            }"
-				+ "\r\n         }\r\n      },\r\n  "
-
-				+ "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
-				+ "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-				+ "\r\n               \"analyzer\": \"english\"\r\n            }"
-				+ "\r\n         }\r\n      }\r\n   ]\r\n}";
-    
+    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
+        + "{\r\n         \"strings\": "
+        + "{\r\n            \"match_mapping_type\": \"string\","
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
+        + "\r\n               \"analyzer\": \"english\"\r\n            }"
+        + "\r\n         }\r\n      }\r\n   ]\r\n}";
     es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName"))
     .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
     .execute().actionGet();
