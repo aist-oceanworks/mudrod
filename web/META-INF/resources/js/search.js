@@ -157,18 +157,23 @@ function createResultTable() {
         }, {
             'title': 'Long Name',
             'field': 'Long Name',
+        } ,{
+        	'title': 'Topic',
+	        'field': 'Topic',
+	        'formatter': TopicFormatter,
+        },{
+            'title': 'Platform/Sensors',
+            'field': 'Sensor',
         }, {
-            'title': 'Topic',
-            'field': 'Topic',
-            'formatter': TopicFormatter,
+            'title': 'Processing Level',
+            'field': 'Processing Level',
         }, {
-            'title': 'Release Date',
-            'field': 'Release Date',
+            'title': 'Start/End Date',
+            'field': 'Start/End Date',
         }, {
-            'title': 'Abstract',
-            'field': 'Abstract',
+            'title': 'Description',
+            'field': 'Description',
         }]
-
     };
 
     $('#ResultsTable').bootstrapTable(layout);
