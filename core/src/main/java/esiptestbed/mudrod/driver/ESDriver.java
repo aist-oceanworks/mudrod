@@ -21,10 +21,13 @@ import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -57,6 +60,10 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -360,40 +367,31 @@ public class ESDriver implements Serializable {
   }
 
   public List<String> autoComplete(String index, String term) {
-    /*boolean exists = node.client().admin().indices().prepareExists(index)
-        .execute().actionGet().isExists();
-    if (!exists) {
-      //return empty list
-      return new ArrayList<>();
-    }
-    
-    List<String> suggestList = new ArrayList<>();
-    
-    CompletionSuggestionFuzzyBuilder suggestionsBuilder = new CompletionSuggestionFuzzyBuilder(
-        "completeMe");
-    suggestionsBuilder.text(term);
-    suggestionsBuilder.size(10);
-    suggestionsBuilder.field("name_suggest");
-    suggestionsBuilder.setFuzziness(Fuzziness.fromEdits(2));
-    
-    SuggestRequestBuilder suggestRequestBuilder = getClient()
-        .prepareSuggest(index).addSuggestion(suggestionsBuilder);
-    
-    SuggestResponse suggestResponse = suggestRequestBuilder.execute()
-        .actionGet();
-    
-    Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = suggestResponse
-        .getSuggest().getSuggestion("completeMe").iterator().next().getOptions()
-        .iterator();
-    
-    while (iterator.hasNext()) {
-      Suggest.Suggestion.Entry.Option next = iterator.next();
-      suggestList.add(next.getText().string());
-    }
-    return suggestList;*/
+	boolean exists = this.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
+	if (!exists) {
+		return new ArrayList<>();
+	}
 
-    return null;
+	Set<String> suggestList = new HashSet<String>();
 
+	// SuggestBuilders.
+	CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("Dataset-Metadata")
+			.text(term).size(20);
+	SearchRequestBuilder suggestRequestBuilder = getClient().prepareSearch(index)
+			.suggest(new SuggestBuilder().addSuggestion("completeMe", suggestionsBuilder));
+	SearchResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
+
+	Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = suggestResponse.getSuggest()
+			.getSuggestion("completeMe").iterator().next().getOptions().iterator();
+
+	while (iterator.hasNext()) {
+		Suggest.Suggestion.Entry.Option next = iterator.next();
+		String suggest = next.getText().string().toLowerCase();
+		if (!suggestList.contains(suggest)) {
+			suggestList.add(suggest);
+		}
+	}
+	return new ArrayList(suggestList);
   }
 
   public void close() {

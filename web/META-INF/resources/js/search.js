@@ -42,6 +42,20 @@ $(document).ready(function () {
     $("#ontologyUL").on("click", "li a", function () {
         redirect("search", "query", $(this).data("word"), "searchOption", $("input[name='searchOption']:checked").val());
     });
+    
+    var bestPictures = new Bloodhound({
+    	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+    	  queryTokenizer: Bloodhound.tokenizers.whitespace,
+    	  remote: {
+    	    url: 'services/autocomplete/query?term=%QUERY',
+    	    wildcard: '%QUERY'
+    	  }
+    	});
+
+    	$('#query').typeahead(null, {
+    	  display: 'value',
+    	  source: bestPictures
+    	});
 });
 
 function search(query) {
@@ -162,13 +176,18 @@ function createResultTable() {
             'field': 'Topic',
             'formatter': TopicFormatter,
         }, {
-            'title': 'Release Date',
-            'field': 'Release Date',
+            'title': 'Platform/Sensors',
+            'field': 'Sensor',
         }, {
-            'title': 'Abstract',
-            'field': 'Abstract',
+            'title': 'Processing Level',
+            'field': 'Processing Level',
+        }, {
+            'title': 'Start/End Date',
+            'field': 'Start/End Date',
+        }, {
+            'title': 'Description',
+            'field': 'Description',
         }]
-
     };
 
     $('#ResultsTable').bootstrapTable(layout);
