@@ -1,17 +1,17 @@
 html, body {
-	padding: 0px;
-	margin: 0px;
+    padding: 0px;
+    margin: 0px;
     height: 100%;
 }
 
 body {
-	font-size: 16px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	line-height: 1.42857143;
+    font-size: 16px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.42857143;
 }
 
 .background {
-	position: absolute;
+    position: absolute;
     top: 0;
     width: 100%;
     height: 100%;
@@ -47,7 +47,7 @@ header h1 {
     color: #fff;
 }
 
-header h1>a {
+header h1 > a {
     margin-top: 10px;
 }
 
@@ -76,11 +76,11 @@ header .nasa-logo {
     -webkit-transition: background 0.2s ease-in-out;
     -moz-transition: background 0.2s ease-in-out;
     transition: background 0.2s ease-in-out;
-	box-sizing: content-box;
+    box-sizing: content-box;
 }
 
 a:focus, a:hover {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 header .site-logo {
@@ -107,7 +107,7 @@ header .site-logo-org {
 .footer-content {
     height: 35px;
     font-size: .7em;
-	text-align:center;
+    text-align: center;
 }
 
 .footer-content p {
@@ -138,7 +138,7 @@ footer {
     bottom: 0;
 }
 
-body>footer {
+body > footer {
     z-index: 1000;
     width: 100%;
 }
@@ -149,7 +149,7 @@ body>footer {
     color: #fff;
     /*background-color: rgba(17,17,17,0.8);*/
     border-radius: 6px;
-    box-shadow: 0 0 20px 0 rgba(17,17,17,0.7);
+    box-shadow: 0 0 20px 0 rgba(17, 17, 17, 0.7);
 }
 
 .landing-dialog-header, .noscript, .old-ie {
@@ -205,7 +205,7 @@ input[type="text"], input[type="search"], input[type="password"], textarea {
     width: 540px;
     border: 1px solid #236d9e;
     border-radius: 3px;
-    box-shadow: inset 0 1px 5px 1px rgba(0,0,0,0.2);
+    box-shadow: inset 0 1px 5px 1px rgba(0, 0, 0, 0.2);
 }
 
 .dropdown {
