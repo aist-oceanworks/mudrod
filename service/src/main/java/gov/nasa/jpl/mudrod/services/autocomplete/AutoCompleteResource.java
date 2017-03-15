@@ -18,7 +18,7 @@ import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.ws.rs.QueryParam;
 import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -50,11 +50,11 @@ public class AutoCompleteResource {
         .build();
   }
 
-  @POST
-  @Path("{term}")
+  @GET
+  @Path("/query")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response autoComplete(@PathParam("term") String term) {
+  public Response autoComplete(@QueryParam("term") String term) {
     List<AutoCompleteData> result = new ArrayList<>();
     List<String> suggestList = mEngine.getESDriver().autoComplete(
         mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
