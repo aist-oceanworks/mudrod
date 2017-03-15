@@ -11,45 +11,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$(document).ready(function(){
+$(document).ready(function () {
 
 });
 
-function redirect(page, para1, value1, para2, value2)
-{
-	var url = window.location.href;
-	url = url.substring(0, url.lastIndexOf('/') + 1) + page + '.html?' + para1 + '=' + value1 + '&' + para2 + '=' + value2;
-	window.location.href = url;
+function redirect(page, para1, value1, para2, value2) {
+    var url = window.location.href;
+    url = url.substring(0, url.lastIndexOf('/') + 1) + page + '.html?' + para1 + '=' + value1 + '&' + para2 + '=' + value2;
+    window.location.href = url;
 }
 
-function setGetParameter(paramName, paramValue)
-{
-	var url = window.location.href;
-	var hash = location.hash;
-	url = url.replace(hash, '');
-	if (url.indexOf(paramName + "=") >= 0)
-	{
-		var prefix = url.substring(0, url.indexOf(paramName));
-		var suffix = url.substring(url.indexOf(paramName));
-		suffix = suffix.substring(suffix.indexOf("=") + 1);
-		suffix = (suffix.indexOf("&") >= 0) ? suffix.substring(suffix.indexOf("&")) : "";
-		url = prefix + paramName + "=" + paramValue + suffix;
-	}
-	else
-	{
-		if (url.indexOf("?") < 0)
-			url += "?" + paramName + "=" + paramValue;
-		else
-			url += "&" + paramName + "=" + paramValue;
-	}
-	window.location.href = url + hash;
+function setGetParameter(paramName, paramValue) {
+    var url = window.location.href;
+    var hash = location.hash;
+    url = url.replace(hash, '');
+    if (url.indexOf(paramName + "=") >= 0) {
+        var prefix = url.substring(0, url.indexOf(paramName));
+        var suffix = url.substring(url.indexOf(paramName));
+        suffix = suffix.substring(suffix.indexOf("=") + 1);
+        suffix = (suffix.indexOf("&") >= 0) ? suffix.substring(suffix.indexOf("&")) : "";
+        url = prefix + paramName + "=" + paramValue + suffix;
+    }
+    else {
+        if (url.indexOf("?") < 0)
+            url += "?" + paramName + "=" + paramValue;
+        else
+            url += "&" + paramName + "=" + paramValue;
+    }
+    window.location.href = url + hash;
 }
 
 function getURLParameter(name) {
-	return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
-	.exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)')
+            .exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
 }
 
 function TopicFormatter(value, row) {
-	return '<span class="search-link">' + value + '</span>'; 
+    return '<span class="search-link">' + value + '</span>';
 }

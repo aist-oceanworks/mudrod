@@ -14,371 +14,371 @@
   -->
 <html lang="en">
 <head>
-<title>Session structure</title>
-<link rel="icon" href="images/NASALogo.png">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet"
-  href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<script
-  src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script
-  src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+    <title>Session structure</title>
+    <link rel="icon" href="images/NASALogo.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script
+            src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet"
-  href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet"
+          href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script
-  src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
-<script
-  src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-<style>
-.node {
-	cursor: pointer;
-}
+    <!-- Latest compiled and minified JavaScript -->
+    <script
+            src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
+    <script
+            src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <style>
+        .node {
+            cursor: pointer;
+        }
 
-.node circle {
-	fill: #fff;
-	stroke: steelblue;
-	stroke-width: 3px;
-}
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
 
-.node text {
-	font: 12px sans-serif;
-}
+        .node text {
+            font: 12px sans-serif;
+        }
 
-.link {
-	fill: none;
-	stroke: #ccc;
-	stroke-width: 2px;
-}
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
 
-.glyphicon {
-	font-size: 2em;
-}
+        .glyphicon {
+            font-size: 2em;
+        }
 
-.navigation {
-	background: #101010;
-	height: 45px
-}
+        .navigation {
+            background: #101010;
+            height: 45px
+        }
 
-.navigation ul {
-	display: inline-block;
-	margin-left: -30px
-}
+        .navigation ul {
+            display: inline-block;
+            margin-left: -30px
+        }
 
-.navigation ul li a {
-	color: white;
-	vertical-align: middle;
-	font-size: midium;
-	margin-top: -15px
-}
+        .navigation ul li a {
+            color: white;
+            vertical-align: middle;
+            font-size: midium;
+            margin-top: -15px
+        }
 
-.d3-tip {
-	line-height: 1;
-	padding: 12px;
-	background: rgba(0, 0, 0, 0.8);
-	color: #fff;
-	border-radius: 2px;
-}
+        .d3-tip {
+            line-height: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 2px;
+        }
 
-.comments {
-	margin-left: 20px;
-	margin-right: 20px;
-}
+        .comments {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
 
-.comments p {
-	font-size: 14px;
-}
+        .comments p {
+            font-size: 14px;
+        }
 
-.comments textarea {
-	width: 100%;
-	height: 100px;
-}
+        .comments textarea {
+            width: 100%;
+            height: 100px;
+        }
 
-.comments button {
-	float: right
-}
+        .comments button {
+            float: right
+        }
 
-.context {
-	padding-bottom: 20px;
-}
+        .context {
+            padding-bottom: 20px;
+        }
 
-#requestTable tr.hover {
-	background-color: #F00
-}
-</style>
+        #requestTable tr.hover {
+            background-color: #F00
+        }
+    </style>
 </head>
 <body>
-  <div class="navigation">
-    <img src="images/download.png" />
+<div class="navigation">
+    <img src="images/download.png"/>
     <ul>
-      <li><a class="navbar-brand">Session Structure</a></li>
+        <li><a class="navbar-brand">Session Structure</a></li>
     </ul>
-  </div>
-  <div class="context">
+</div>
+<div class="context">
     <div id="treediv" style="width: 100%; overflow-x: hidden;"></div>
     <div style="margin-left: 20px; margin-right: 20px;">
-      <table id="requestTable" class="table">
-      </table>
+        <table id="requestTable" class="table">
+        </table>
     </div>
-  </div>
+</div>
 </body>
 
 <script type="text/javascript">
-	var SessionID = "";
-	var SessionType = "";
-	var CleanupType = "";
+    var SessionID = "";
+    var SessionType = "";
+    var CleanupType = "";
 
-	if (window.location.href.indexOf("&") > -1) {
-		SessionID = window.location.href.split("&")[0].split("=")[1];
-		SessionType = window.location.href.split("&")[1].split("=")[1];
-		CleanupType = window.location.href.split("&")[2].split("=")[1];
-	}
+    if (window.location.href.indexOf("&") > -1) {
+        SessionID = window.location.href.split("&")[0].split("=")[1];
+        SessionType = window.location.href.split("&")[1].split("=")[1];
+        CleanupType = window.location.href.split("&")[2].split("=")[1];
+    }
 
-	$(document).ready(function() {
-		createtable();
-		if (SessionID != "") {
-			$.ajax({
-				url : "SessionDetail",
-				data : {
-					"SessionID" : SessionID,
-					"CleanupType" : CleanupType
-				},
-				success : success
-			});
-		}
-	});
+    $(document).ready(function () {
+        createtable();
+        if (SessionID != "") {
+            $.ajax({
+                url: "SessionDetail",
+                data: {
+                    "SessionID": SessionID,
+                    "CleanupType": CleanupType
+                },
+                success: success
+            });
+        }
+    });
 
-	function success(data) {
-		var treeData = [];
-		treeData.push(data.treeData);
-		var requestList = data.RequestList;
-		generateTree(treeData);
-		$('#requestTable').bootstrapTable('load', requestList);
-	}
+    function success(data) {
+        var treeData = [];
+        treeData.push(data.treeData);
+        var requestList = data.RequestList;
+        generateTree(treeData);
+        $('#requestTable').bootstrapTable('load', requestList);
+    }
 
-	function createtable() {
-		var layout = {
-			cache : false,
-			pagination : true,
-			pageSize : 20,
-			pageList : [ 10, 25, 50, 100, 200 ],
-			sortName : "Time",
-			sortOrder : "asc",
+    function createtable() {
+        var layout = {
+            cache: false,
+            pagination: true,
+            pageSize: 20,
+            pageList: [10, 25, 50, 100, 200],
+            sortName: "Time",
+            sortOrder: "asc",
 
-			columns : [ {
-				'title' : 'No',
-				'field' : 'Seq',
-			}, {
-				'title' : 'Time',
-				'field' : 'Time',
-				"sorter" : Timesorter,
+            columns: [{
+                'title': 'No',
+                'field': 'Seq',
+            }, {
+                'title': 'Time',
+                'field': 'Time',
+                "sorter": Timesorter,
 
-			}, {
-				'title' : 'Request',
-				'field' : 'Request',
+            }, {
+                'title': 'Request',
+                'field': 'Request',
 
-			}, {
-				'title' : 'Referer',
-				'field' : 'Referer',
+            }, {
+                'title': 'Referer',
+                'field': 'Referer',
 
-			}, {
-				'title' : 'Log Type',
-				'field' : 'LogType',
+            }, {
+                'title': 'Log Type',
+                'field': 'LogType',
 
-			} ]
+            }]
 
-		};
+        };
 
-		$('#requestTable').bootstrapTable(layout);
-	}
+        $('#requestTable').bootstrapTable(layout);
+    }
 
-	function Timesorter(a, b) {
-		var d1 = new Date(a);
-		var d2 = new Date(b);
-		var t = d1 - d2;
+    function Timesorter(a, b) {
+        var d1 = new Date(a);
+        var d2 = new Date(b);
+        var t = d1 - d2;
 
-		if (t > 0)
-			return 1;
-		if (t < 0)
-			return -1;
-		return 0;
-	}
+        if (t > 0)
+            return 1;
+        if (t < 0)
+            return -1;
+        return 0;
+    }
 
-	function generateTree(treeData) {
-		// ************** Generate the tree diagram	 *****************
-		var margin = {
-			top : 5,
-			right : 50,
-			bottom : 5,
-			left : 40
-		}, width = 2100 - margin.right - margin.left, height = 500 - margin.top
-				- margin.bottom;
+    function generateTree(treeData) {
+        // ************** Generate the tree diagram	 *****************
+        var margin = {
+            top: 5,
+            right: 50,
+            bottom: 5,
+            left: 40
+        }, width = 2100 - margin.right - margin.left, height = 500 - margin.top
+            - margin.bottom;
 
-		var i = 0, duration = 750, root;
+        var i = 0, duration = 750, root;
 
-		var tree = d3.layout.tree().size([ height, width ]);
+        var tree = d3.layout.tree().size([height, width]);
 
-		var diagonal = d3.svg.diagonal().projection(function(d) {
-			return [ d.y, d.x ];
-		});
+        var diagonal = d3.svg.diagonal().projection(function (d) {
+            return [d.y, d.x];
+        });
 
-		var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
-			return "<span style='color:white'>" + d.name + "</span>";
-		}).direction('ne');
+        var tip = d3.tip().attr('class', 'd3-tip').html(function (d) {
+            return "<span style='color:white'>" + d.name + "</span>";
+        }).direction('ne');
 
-		var svg = d3.select("#treediv").append("svg").attr("width",
-				width + margin.right + margin.left).attr("height",
-				height + margin.top + margin.bottom).append("g").attr(
-				"transform",
-				"translate(" + margin.left + "," + margin.top + ")");
+        var svg = d3.select("#treediv").append("svg").attr("width",
+            width + margin.right + margin.left).attr("height",
+            height + margin.top + margin.bottom).append("g").attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")");
 
-		svg.call(tip);
+        svg.call(tip);
 
-		root = treeData[0];
-		root.x0 = height / 2;
-		root.y0 = 0;
+        root = treeData[0];
+        root.x0 = height / 2;
+        root.y0 = 0;
 
-		update(root);
+        update(root);
 
-		d3.select(self.frameElement).style("height", "500px");
+        d3.select(self.frameElement).style("height", "500px");
 
-		function update(source) {
+        function update(source) {
 
-			// Compute the new tree layout.
-			var nodes = tree.nodes(root).reverse(), links = tree.links(nodes);
+            // Compute the new tree layout.
+            var nodes = tree.nodes(root).reverse(), links = tree.links(nodes);
 
-			// Normalize for fixed-depth.
-			nodes.forEach(function(d) {
-				d.y = d.depth * 120;
-			});
+            // Normalize for fixed-depth.
+            nodes.forEach(function (d) {
+                d.y = d.depth * 120;
+            });
 
-			// Update the nodes…
-			var node = svg.selectAll("g.node").data(nodes, function(d) {
-				return d.id || (d.id = ++i);
-			});
+            // Update the nodes…
+            var node = svg.selectAll("g.node").data(nodes, function (d) {
+                return d.id || (d.id = ++i);
+            });
 
-			// Enter any new nodes at the parent's previous position.
-			var nodeEnter = node.enter().append("g").attr("class", "node")
-					.attr(
-							"transform",
-							function(d) {
-								return "translate(" + source.y0 + ","
-										+ source.x0 + ")";
-							}).on("click", click);
+            // Enter any new nodes at the parent's previous position.
+            var nodeEnter = node.enter().append("g").attr("class", "node")
+                .attr(
+                    "transform",
+                    function (d) {
+                        return "translate(" + source.y0 + ","
+                            + source.x0 + ")";
+                    }).on("click", click);
 
-			nodeEnter.append("image").attr("xlink:href", function(d) {
-				return d.icon;
-			}).attr("x", "-12px").attr("y", "-12px").attr("width", "24px")
-					.attr("height", "24px").on('mouseover', tip.show).on(
-							'mouseout', tip.hide);
+            nodeEnter.append("image").attr("xlink:href", function (d) {
+                return d.icon;
+            }).attr("x", "-12px").attr("y", "-12px").attr("width", "24px")
+                .attr("height", "24px").on('mouseover', tip.show).on(
+                'mouseout', tip.hide);
 
-			var preyoffset = 20;
-			nodeEnter.append("text").attr("x", function(d) {
-				return d.children || d._children ? 70 : 13;
-			}).attr("y", function(d) {
-				if (d.children || d._children) {
-					var offset = (-1) * preyoffset;
-					preyoffset = offset;
-					return offset;
-				}
-				//return d.children || d._children ? -13 : 13; 
-			}).attr("dy", ".35em").attr("text-anchor", function(d) {
-				return d.children || d._children ? "end" : "start";
-			}).text(function(d) {
-				if (!d.children && !d._children) {
-					return d.name;
-				}
-				var nowLeng = d.name.length;
-				var needLeng = 26;
-				var nowWord;
-				if (nowLeng > needLeng) {
-					nowWord = d.name.substr(0, needLeng) + '...';
-				} else {
-					nowWord = d.name
-				}
-				return nowWord;
-			}).style("fill-opacity", 1e-6);
+            var preyoffset = 20;
+            nodeEnter.append("text").attr("x", function (d) {
+                return d.children || d._children ? 70 : 13;
+            }).attr("y", function (d) {
+                if (d.children || d._children) {
+                    var offset = (-1) * preyoffset;
+                    preyoffset = offset;
+                    return offset;
+                }
+                //return d.children || d._children ? -13 : 13;
+            }).attr("dy", ".35em").attr("text-anchor", function (d) {
+                return d.children || d._children ? "end" : "start";
+            }).text(function (d) {
+                if (!d.children && !d._children) {
+                    return d.name;
+                }
+                var nowLeng = d.name.length;
+                var needLeng = 26;
+                var nowWord;
+                if (nowLeng > needLeng) {
+                    nowWord = d.name.substr(0, needLeng) + '...';
+                } else {
+                    nowWord = d.name
+                }
+                return nowWord;
+            }).style("fill-opacity", 1e-6);
 
-			// Transition nodes to their new position.
-			var nodeUpdate = node.transition().duration(duration).attr(
-					"transform", function(d) {
-						return "translate(" + d.y + "," + d.x + ")";
-					});
+            // Transition nodes to their new position.
+            var nodeUpdate = node.transition().duration(duration).attr(
+                "transform", function (d) {
+                    return "translate(" + d.y + "," + d.x + ")";
+                });
 
-			nodeUpdate.select("circle").attr("r", 10).style("fill",
-					function(d) {
-						return d._children ? "lightsteelblue" : "#fff";
-					});
+            nodeUpdate.select("circle").attr("r", 10).style("fill",
+                function (d) {
+                    return d._children ? "lightsteelblue" : "#fff";
+                });
 
-			nodeUpdate.select("text").style("fill-opacity", 1);
+            nodeUpdate.select("text").style("fill-opacity", 1);
 
-			// Transition exiting nodes to the parent's new position.
-			var nodeExit = node.exit().transition().duration(duration).attr(
-					"transform", function(d) {
-						return "translate(" + source.y + "," + source.x + ")";
-					}).remove();
+            // Transition exiting nodes to the parent's new position.
+            var nodeExit = node.exit().transition().duration(duration).attr(
+                "transform", function (d) {
+                    return "translate(" + source.y + "," + source.x + ")";
+                }).remove();
 
-			nodeExit.select("circle").attr("r", 1e-6);
+            nodeExit.select("circle").attr("r", 1e-6);
 
-			nodeExit.select("text").style("fill-opacity", 1e-6);
+            nodeExit.select("text").style("fill-opacity", 1e-6);
 
-			// Update the links…
-			var link = svg.selectAll("path.link").data(links, function(d) {
-				return d.target.id;
-			});
+            // Update the links…
+            var link = svg.selectAll("path.link").data(links, function (d) {
+                return d.target.id;
+            });
 
-			// Enter any new links at the parent's previous position.
-			link.enter().insert("path", "g").attr("class", "link").attr("d",
-					function(d) {
-						var o = {
-							x : source.x0,
-							y : source.y0
-						};
-						return diagonal({
-							source : o,
-							target : o
-						});
-					});
+            // Enter any new links at the parent's previous position.
+            link.enter().insert("path", "g").attr("class", "link").attr("d",
+                function (d) {
+                    var o = {
+                        x: source.x0,
+                        y: source.y0
+                    };
+                    return diagonal({
+                        source: o,
+                        target: o
+                    });
+                });
 
-			// Transition links to their new position.
-			link.transition().duration(duration).attr("d", diagonal);
+            // Transition links to their new position.
+            link.transition().duration(duration).attr("d", diagonal);
 
-			// Transition exiting nodes to the parent's new position.
-			link.exit().transition().duration(duration).attr("d", function(d) {
-				var o = {
-					x : source.x,
-					y : source.y
-				};
-				return diagonal({
-					source : o,
-					target : o
-				});
-			}).remove();
+            // Transition exiting nodes to the parent's new position.
+            link.exit().transition().duration(duration).attr("d", function (d) {
+                var o = {
+                    x: source.x,
+                    y: source.y
+                };
+                return diagonal({
+                    source: o,
+                    target: o
+                });
+            }).remove();
 
-			// Stash the old positions for transition.
-			nodes.forEach(function(d) {
-				d.x0 = d.x;
-				d.y0 = d.y;
-			});
+            // Stash the old positions for transition.
+            nodes.forEach(function (d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
 
-			// Toggle children on click.
-			function click(d) {
-				if (d.children) {
-					d._children = d.children;
-					d.children = null;
-				} else {
-					d.children = d._children;
-					d._children = null;
-				}
+            // Toggle children on click.
+            function click(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
 
-				update(d);
-			}
-		}
-	}
+                update(d);
+            }
+        }
+    }
 </script>
 </html>

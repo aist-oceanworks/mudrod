@@ -12,72 +12,76 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
 -->
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1 http://maven.apache.org/xsd/assembly-1.1.1.xsd">
+<assembly
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.1 http://maven.apache.org/xsd/assembly-1.1.1.xsd">
 
-  <id>server-embedded</id>
-  <formats>
-    <format>tar.gz</format>
-    <format>zip</format>
-  </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>${project.build.finalName}-server-embedded</baseDirectory>
+    <id>server-embedded</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>${project.build.finalName}-server-embedded</baseDirectory>
 
-  <files>
-    <file>
-      <source>${basedir}/src/main/assembly/README.txt</source>
-      <filtered>true</filtered>
-      <outputDirectory>/</outputDirectory>
-      <fileMode>666</fileMode>
-    </file>
-    <file>
-      <source>${basedir}/src/main/assembly/LICENSE-server-embedded.txt</source>
-      <destName>LICENSE.txt</destName>
-      <outputDirectory>/</outputDirectory>
-      <fileMode>666</fileMode>
-    </file>
-    <file>
-      <source>${basedir}/src/main/assembly/NOTICE-server-embedded.txt</source>
-      <destName>NOTICE.txt</destName>
-      <outputDirectory>/</outputDirectory>
-      <fileMode>666</fileMode>
-    </file>
-    <file>
-      <source>${basedir}/../RELEASE-NOTES.txt</source>
-      <outputDirectory>/</outputDirectory>
-      <fileMode>666</fileMode>
-    </file>
-  </files>
+    <files>
+        <file>
+            <source>${basedir}/src/main/assembly/README.txt</source>
+            <filtered>true</filtered>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>666</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/src/main/assembly/LICENSE-server-embedded.txt
+            </source>
+            <destName>LICENSE.txt</destName>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>666</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/src/main/assembly/NOTICE-server-embedded.txt
+            </source>
+            <destName>NOTICE.txt</destName>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>666</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/../RELEASE-NOTES.txt</source>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>666</fileMode>
+        </file>
+    </files>
 
-  <fileSets>
-    <!--
-     | shell scripts
-    -->
-    <fileSet>
-      <directory>${basedir}/src/main/bin/</directory>
-      <outputDirectory>/bin</outputDirectory>
-      <fileMode>755</fileMode>
-      <filtered>true</filtered>
-    </fileSet>
-  </fileSets>
+    <fileSets>
+        <!--
+         | shell scripts
+        -->
+        <fileSet>
+            <directory>${basedir}/src/main/bin/</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>755</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+    </fileSets>
 
-  <dependencySets>
-    <dependencySet>
-      <useProjectArtifact>true</useProjectArtifact>
-      <outputDirectory>/lib</outputDirectory>
-      <includes>
-        <include>${project.groupId}:${project.artifactId}</include>
-      </includes>
-    </dependencySet>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>true</useProjectArtifact>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}</include>
+            </includes>
+        </dependencySet>
 
-    <dependencySet>
-      <useProjectArtifact>true</useProjectArtifact>
-      <outputDirectory>/lib</outputDirectory>
-      <scope>provided</scope>
-      <includes>
-        <include>org.mortbay.jetty:jetty-runner</include>
-      </includes>
-    </dependencySet>
-  </dependencySets>
+        <dependencySet>
+            <useProjectArtifact>true</useProjectArtifact>
+            <outputDirectory>/lib</outputDirectory>
+            <scope>provided</scope>
+            <includes>
+                <include>org.mortbay.jetty:jetty-runner</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 
 </assembly>

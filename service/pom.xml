@@ -12,12 +12,13 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>esiptestbed</groupId>
+        <groupId>gov.nasa.jpl.mudrod</groupId>
         <artifactId>mudrod-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../</relativePath>
@@ -39,14 +40,14 @@
     <dependencies>
         <!-- Core Module -->
         <dependency>
-            <groupId>esiptestbed</groupId>
+            <groupId>gov.nasa.jpl.mudrod</groupId>
             <artifactId>mudrod-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Static web resources -->
         <dependency>
-            <groupId>esiptestbed</groupId>
+            <groupId>gov.nasa.jpl.mudrod</groupId>
             <artifactId>mudrod-web</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -100,7 +101,8 @@
                         <CATALINA_OPTS>-Djava.awt.headless=true
                             -Dfile.encoding=UTF-8
                             -server -Xms1536m -Xmx1536m
-                            -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
+                            -XX:NewSize=256m -XX:MaxNewSize=256m
+                            -XX:PermSize=256m
                             -XX:MaxPermSize=512m -XX:+DisableExplicitGC
                             -XX:+UseConcMarkSweepGC
                             -XX:+CMSIncrementalMode
@@ -109,7 +111,9 @@
                             -XX:-TraceClassUnloading
                         </CATALINA_OPTS>
                     </systemProperties>
-                    <contextFile>${basedir}/src/main/webapp/META-INF/context.xml</contextFile>
+                    <contextFile>
+                        ${basedir}/src/main/webapp/META-INF/context.xml
+                    </contextFile>
                     <path>/${project.build.finalName}</path>
                 </configuration>
             </plugin>
@@ -127,7 +131,9 @@
                         <configuration>
                             <webResources>
                                 <resource>
-                                    <directory>${project.build.directory}/war-legals/with-deps/</directory>
+                                    <directory>
+                                        ${project.build.directory}/war-legals/with-deps/
+                                    </directory>
                                     <targetPath>/META-INF</targetPath>
                                 </resource>
                             </webResources>
@@ -141,7 +147,8 @@
                         </goals>
                         <configuration>
                             <classifier>without-deps</classifier>
-                            <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
+                            <packagingExcludes>WEB-INF/lib/*.jar
+                            </packagingExcludes>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
@@ -150,7 +157,9 @@
                             </archive>
                             <webResources>
                                 <resource>
-                                    <directory>${project.build.directory}/war-legals/without-deps/</directory>
+                                    <directory>
+                                        ${project.build.directory}/war-legals/without-deps/
+                                    </directory>
                                     <targetPath>/META-INF</targetPath>
                                 </resource>
                             </webResources>
@@ -175,16 +184,23 @@
                             <finalName>war-legals</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
-                                <descriptor>${basedir}/src/main/assembly/prepare-war-legals.xml</descriptor>
+                                <descriptor>
+                                    ${basedir}/src/main/assembly/prepare-war-legals.xml
+                                </descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <descriptors>
-                        <descriptor>${basedir}/src/main/assembly/with-deps.xml</descriptor>
-                        <descriptor>${basedir}/src/main/assembly/without-deps.xml</descriptor>
-                        <descriptor>${basedir}/src/main/assembly/server-embedded.xml</descriptor>
+                        <descriptor>${basedir}/src/main/assembly/with-deps.xml
+                        </descriptor>
+                        <descriptor>
+                            ${basedir}/src/main/assembly/without-deps.xml
+                        </descriptor>
+                        <descriptor>
+                            ${basedir}/src/main/assembly/server-embedded.xml
+                        </descriptor>
                     </descriptors>
                 </configuration>
             </plugin>
@@ -207,7 +223,8 @@
                     <licence>
                         cHJvamVjdHxlc2lwdGVzdGJlZC5tdWRyb2Qtc2VydmljZXwyMDE4LTEwLTAxfHRydWV8LTEjTUN3Q0ZEd3lnZS85bmFYWlNXNHA4cE9sbGl2VzAwU29BaFI1V25YN1JXU3BEWWgyUWlZMFJQN3pQWW96MEE9PQ==
                     </licence>
-                    <organizationId>f3f4ce56-816e-4f1d-963e-e7936ee846c5</organizationId>
+                    <organizationId>f3f4ce56-816e-4f1d-963e-e7936ee846c5
+                    </organizationId>
                     <restModel>
                         <restFramework>
                             <name>jax-rs</name>
@@ -228,7 +245,9 @@
                 <resources>
                     <resource>
                         <directory>${basedir}/../</directory>
-                        <targetPath>${project.build.directory}/apidocs/META-INF</targetPath>
+                        <targetPath>
+                            ${project.build.directory}/apidocs/META-INF
+                        </targetPath>
                         <includes>
                             <include>LICENSE.txt</include>
                             <include>NOTICE.txt</include>
