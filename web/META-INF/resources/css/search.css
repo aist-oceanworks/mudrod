@@ -355,10 +355,17 @@ button {
 
 .fixed-table-body .card-view .title {
     min-width: 15%;
+    width: 15%;
+    float: left;
+}
+
+.fixed-table-body .card-view .value {
+    display: inline-block;
+    width: 85%;
 }
 
 span.search-link {
-    color: #006621;
+    color: #22f265;
 }
 
 a.fileShortName {
