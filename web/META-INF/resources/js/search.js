@@ -151,7 +151,7 @@ function FileNameFormatter(value) {
     /*var url = "http://podaac.jpl.nasa.gov/dataset/"
         + encodeURIComponent(value);*/
     url = "./dataset.html?query=" + g_currentQuery + "&searchOption=" + g_currentSearchOption + "&shortname=" + value;
-    return '<a class="fileShortName" href=' + url + ' target="_blank">' + value + '</a>';
+    return '<a class="fileShortName" href=' + url + '>' + value + '</a>';
 }
 
 function createResultTable() {
