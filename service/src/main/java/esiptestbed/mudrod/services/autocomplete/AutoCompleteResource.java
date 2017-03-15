@@ -23,6 +23,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -56,11 +57,11 @@ public class AutoCompleteResource {
         .ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>").build();
   }
 
-  @POST
-  @Path("{term}")
+  @GET
+  @Path("/query")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response autoComplete(@PathParam("term") String term) {
+  public Response autoComplete(@QueryParam("term") String term) {
     List<AutoCompleteData> result = new ArrayList<>();
     List<String> suggestList = mEngine.getESDriver()
         .autoComplete(mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
