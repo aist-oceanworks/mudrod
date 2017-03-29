@@ -54,14 +54,9 @@
         </button>
         <div id="searchOption" style="display: inline-block;">
             <label>Search Operator: </label>
-            <div class="radio radio-info radio-inline">
-                <input type="radio" value="Phrase" id="searchOption_Phrase"
-                       name="searchOption" checked="checked"> <label
-                    for="searchOption_Phrase"> Phrase </label>
-            </div>
             <div class="radio radio-inline">
                 <input type="radio" id="searchOption_And" value="And"
-                       name="searchOption"> <label for="searchOption_And">
+                       name="searchOption" checked="checked"> <label for="searchOption_And">
                 And </label>
             </div>
             <div class="radio radio-inline">
@@ -69,6 +64,11 @@
                        name="searchOption"> <label for="searchOption_Or">
                 Or </label>
             </div>
+            <div class="radio radio-info radio-inline">
+                <input type="radio" value="phrase"
+                       id="searchOption_Phrase" name="searchOption"> <label
+                for="searchOption_Phrase"> Phrase </label>
+            </div>          
         </div>
     </div>
 </header>

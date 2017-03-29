@@ -293,9 +293,6 @@ public class ESDriver implements Serializable {
       ArrayList<String> longdate = (ArrayList<String>) result
           .get("DatasetCitation-ReleaseDateLong");
       
-      
-      
-
       Date date = new Date(Long.parseLong(longdate.get(0)));
       SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
       String dateText = df2.format(date);
@@ -332,6 +329,18 @@ public class ESDriver implements Serializable {
             .get("DatasetParameter-Category");
         file.addProperty("DatasetParameter-Category",
             String.join(", ", categories));
+        
+        List<String> urls = (List<String>) result
+            .get("DatasetLocationPolicy-BasePath");
+        
+        List<String> filtered_urls = new ArrayList<String>();
+        for(String url:urls)
+        {
+          if(url.startsWith("ftp")||url.startsWith("http"))
+            filtered_urls.add(url);
+        }
+        file.addProperty("DatasetLocationPolicy-BasePath",
+            String.join(",", filtered_urls));
 
         List<String> variables = (List<String>) result
             .get(DS_PARAM_VAR);

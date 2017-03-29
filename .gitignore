@@ -69,4 +69,5 @@ dependency-reduced-pom.xml
 core/maven-eclipse.xml
 *.log*
 
-/checkpoints-mudrod-streaming-total/*
+
+core/checkpoints-mudrod-streaming-total/*
