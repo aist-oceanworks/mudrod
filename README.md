@@ -38,6 +38,7 @@ for guidance on how to quickly use Docker to deploy Mudrod.
     ```
     <para name="svmSgdModel">file:///Users/user/githubprojects/mudrod/core/src/main/resources/javaSVMWithSGDModel</para>
     ```
+3. (Optional) Depending on your computer's configuration you might run into an error when starting the application: `“Service 'sparkDriver' could not bind on port 0”`. The easiest [fix](http://stackoverflow.com/q/29906686/953327) is to export the environment variable `SPARK_LOCAL_IP=127.0.0.1 ` and then start the service.
 
 ```
 $ git clone https://github.com/mudrod/mudrod.git
