@@ -134,6 +134,9 @@ function createResultTable() {
             'title': 'Long Name',
             'field': 'Long Name',
         }, {
+            'title': 'Doi',
+            'field': 'Dataset-Doi',
+        }, {
             'title': 'Topic',
             'field': 'Topic',
         }, {
@@ -146,33 +149,29 @@ function createResultTable() {
             'title': 'Term',
             'field': 'DatasetParameter-Term',
         }, {
-            'title': 'Release Date',
-            'field': 'Release Date',
-
+            'title': 'Version',
+            'field': 'Version',
         }, {
-            'title': 'Abstract',
-            'field': 'Abstract',
-
+            'title': 'Description',
+            'field': 'Dataset-Description',
         }, {
             'title': 'Processing Level',
             'field': 'Processing Level',
-
+        },{
+            'title': 'Region',
+            'field': 'Region',
         }, {
-            'title': 'Doi',
-            'field': 'Dataset-Doi',
-
+            'title': 'Coverage',
+            'field': 'Coverage'
         }, {
-            'title': 'TemporalRepeat',
-            'field': 'Dataset-TemporalRepeat',
-
+            'title': 'Time Span',
+            'field': 'Time Span',
         }, {
-            'title': 'TemporalRepeatMax',
-            'field': 'Dataset-TemporalRepeatMax',
-
+            'title': 'Spatial Resolution',
+            'field': 'SpatiallResolution',
         }, {
-            'title': 'TemporalRepeatMin',
-            'field': 'Dataset-TemporalRepeatMin',
-
+            'title': 'Temporal Repeat',
+            'field': 'TemporalResolution',
         }, {
             'title': 'Sensor',
             'field': 'DatasetSource-Sensor-ShortName',
@@ -181,10 +180,7 @@ function createResultTable() {
             'field': 'DatasetProject-Project-ShortName',
         }, {
             'title': 'Format',
-            'field': 'DatasetPolicy-DataFormat',
-        }, {
-            'title': 'DataLatency',
-            'field': 'DatasetPolicy-DataLatency',
+            'field': 'DataFormat',
         }
         ]
     };
