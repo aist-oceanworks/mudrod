@@ -55,8 +55,7 @@ public class SessionStatistic extends LogAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SessionStatistic.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SessionStatistic.class);
 
   public SessionStatistic(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -77,13 +76,11 @@ public class SessionStatistic extends LogAbstract {
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Session Summarization complete. Time elapsed {} seconds.",
-        (endTime - startTime) / 1000);
+    LOG.info("Session Summarization complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 
-  public void processSession()
-      throws InterruptedException, IOException, ExecutionException {
+  public void processSession() throws InterruptedException, IOException, ExecutionException {
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       processSessionInSequential();
@@ -92,8 +89,7 @@ public class SessionStatistic extends LogAbstract {
     }
   }
 
-  public void processSessionInSequential()
-      throws IOException, InterruptedException, ExecutionException {
+  public void processSessionInSequential() throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcessor();
     /*String inputType = this.cleanupType;
     String outputType = this.sessionStats;
@@ -134,8 +130,7 @@ public class SessionStatistic extends LogAbstract {
       pattern2 = " ";
     }
 
-    Pattern p = Pattern
-        .compile(Pattern.quote(pattern1) + "(.*?)" + Pattern.quote(pattern2));
+    Pattern p = Pattern.compile(Pattern.quote(pattern1) + "(.*?)" + Pattern.quote(pattern2));
     Matcher m = p.matcher(request);
     if (m.find()) {
       return m.group(1);
@@ -143,44 +138,40 @@ public class SessionStatistic extends LogAbstract {
     return null;
   }
 
-  public void processSessionInParallel()
-      throws InterruptedException, IOException {
+  public void processSessionInParallel() throws InterruptedException, IOException {
 
     List<String> sessions = this.getSessions();
     JavaRDD<String> sessionRDD = spark.sc.parallelize(sessions, partition);
 
     int sessionCount = 0;
-    sessionCount = sessionRDD
-        .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
-          @Override
-          public Iterator<Integer> call(Iterator<String> arg0)
-              throws Exception {
-            // TODO Auto-generated method stub
-            ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcessor();
-            List<Integer> sessionNums = new ArrayList<Integer>();
-            sessionNums.add(0);
-            while (arg0.hasNext()) {
-              String s = arg0.next();
-              Integer sessionNum = processSession(tmpES, s);
-              // System.out.println(s + ", session number: " + sessionNum);
-              sessionNums.add(sessionNum);
-            }
-            tmpES.destroyBulkProcessor();
-            return sessionNums.iterator();
-          }
-        }).reduce(new Function2<Integer, Integer, Integer>() {
-          @Override
-          public Integer call(Integer a, Integer b) {
-            return a + b;
-          }
-        });
+    sessionCount = sessionRDD.mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
+      @Override
+      public Iterator<Integer> call(Iterator<String> arg0) throws Exception {
+        // TODO Auto-generated method stub
+        ESDriver tmpES = new ESDriver(props);
+        tmpES.createBulkProcessor();
+        List<Integer> sessionNums = new ArrayList<Integer>();
+        sessionNums.add(0);
+        while (arg0.hasNext()) {
+          String s = arg0.next();
+          Integer sessionNum = processSession(tmpES, s);
+          // System.out.println(s + ", session number: " + sessionNum);
+          sessionNums.add(sessionNum);
+        }
+        tmpES.destroyBulkProcessor();
+        return sessionNums.iterator();
+      }
+    }).reduce(new Function2<Integer, Integer, Integer>() {
+      @Override
+      public Integer call(Integer a, Integer b) {
+        return a + b;
+      }
+    });
 
     LOG.info("Final Session count: {}", Integer.toString(sessionCount));
   }
 
-  public int processSession(ESDriver es, String sessionId)
-      throws IOException, InterruptedException, ExecutionException {
+  public int processSession(ESDriver es, String sessionId) throws IOException, InterruptedException, ExecutionException {
 
     String inputType = cleanupType;
     String outputType = sessionStats;
@@ -196,15 +187,12 @@ public class SessionStatistic extends LogAbstract {
     int session_count = 0;
     Pattern pattern = Pattern.compile("get (.*?) http/*");
 
-    StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
-        .field("Time");
+    StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats").field("Time");
 
     BoolQueryBuilder filter_search = new BoolQueryBuilder();
     filter_search.must(QueryBuilders.termQuery("SessionID", sessionId));
 
-    SearchResponse sr = es.getClient().prepareSearch(logIndex)
-        .setTypes(inputType).setQuery(filter_search).addAggregation(statsAgg)
-        .execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(inputType).setQuery(filter_search).addAggregation(statsAgg).execute().actionGet();
 
     Stats agg = sr.getAggregations().get("Stats");
     min = agg.getMinAsString();
@@ -225,9 +213,7 @@ public class SessionStatistic extends LogAbstract {
     String views = "";
     String downloads = "";
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
-        .setTypes(inputType).setScroll(new TimeValue(60000))
-        .setQuery(filter_search).setSize(100).execute().actionGet();
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(inputType).setScroll(new TimeValue(60000)).setQuery(filter_search).setSize(100).execute().actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -284,10 +270,7 @@ public class SessionStatistic extends LogAbstract {
           ftpRequest_count++;
           String download = "";
           String requestLowercase = request.toLowerCase();
-          if (requestLowercase.endsWith(".jpg") == false
-              && requestLowercase.endsWith(".pdf") == false
-              && requestLowercase.endsWith(".txt") == false
-              && requestLowercase.endsWith(".gif") == false) {
+          if (requestLowercase.endsWith(".jpg") == false && requestLowercase.endsWith(".pdf") == false && requestLowercase.endsWith(".txt") == false && requestLowercase.endsWith(".gif") == false) {
             download = request;
           }
 
@@ -304,8 +287,7 @@ public class SessionStatistic extends LogAbstract {
 
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       // Break condition: No hits are returned
       if (scrollResp.getHits().getHits().length == 0) {
         break;
@@ -316,32 +298,16 @@ public class SessionStatistic extends LogAbstract {
       keywords_num = keywords.split(",").length;
     }
 
-    if (searchDataListRequest_count != 0
-        && searchDataListRequest_count <= Integer
-        .parseInt(props.getProperty("searchf")) && searchDataRequest_count != 0
-        && searchDataRequest_count <= Integer
-        .parseInt(props.getProperty("viewf")) && ftpRequest_count <= Integer
-        .parseInt(props.getProperty("downloadf"))) {
-      String sessionURL =
-          props.getProperty("SessionPort") + props.getProperty("SessionUrl")
-              + "?sessionid=" + sessionId + "&sessionType=" + outputType
-              + "&requestType=" + inputType;
+    if (searchDataListRequest_count != 0 && searchDataListRequest_count <= Integer.parseInt(props.getProperty("searchf")) && searchDataRequest_count != 0 && searchDataRequest_count <= Integer
+        .parseInt(props.getProperty("viewf")) && ftpRequest_count <= Integer.parseInt(props.getProperty("downloadf"))) {
+      String sessionURL = props.getProperty("SessionPort") + props.getProperty("SessionUrl") + "?sessionid=" + sessionId + "&sessionType=" + outputType + "&requestType=" + inputType;
       session_count = 1;
 
       IndexRequest ir = new IndexRequest(logIndex, outputType).source(
-          jsonBuilder().startObject().field("SessionID", sessionId)
-              .field("SessionURL", sessionURL).field("Duration", duration)
-              .field("Number of Keywords", keywords_num).field("Time", min)
-              .field("End_time", max)
-              .field("searchDataListRequest_count", searchDataListRequest_count)
-              .field("searchDataListRequest_byKeywords_count",
-                  searchDataListRequest_byKeywords_count)
-              .field("searchDataRequest_count", searchDataRequest_count)
-              .field("keywords", es.customAnalyzing(logIndex, keywords))
-              .field("views", views).field("downloads", downloads)
-              .field("request_rate", request_rate).field("Comments", "")
-              .field("Validation", 0).field("Produceby", 0)
-              .field("Correlation", 0).field("IP", IP).endObject());
+          jsonBuilder().startObject().field("SessionID", sessionId).field("SessionURL", sessionURL).field("Duration", duration).field("Number of Keywords", keywords_num).field("Time", min)
+              .field("End_time", max).field("searchDataListRequest_count", searchDataListRequest_count).field("searchDataListRequest_byKeywords_count", searchDataListRequest_byKeywords_count)
+              .field("searchDataRequest_count", searchDataRequest_count).field("keywords", es.customAnalyzing(logIndex, keywords)).field("views", views).field("downloads", downloads)
+              .field("request_rate", request_rate).field("Comments", "").field("Validation", 0).field("Produceby", 0).field("Correlation", 0).field("IP", IP).endObject());
 
       es.getBulkProcessor().add(ir);
     }

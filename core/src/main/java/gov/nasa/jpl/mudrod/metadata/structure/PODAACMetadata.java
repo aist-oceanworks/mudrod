@@ -79,9 +79,7 @@ public class PODAACMetadata implements Serializable {
    * @param keywords  data set keywords
    * @param region    list of regions
    */
-  public PODAACMetadata(String shortname, List<String> longname,
-      List<String> topics, List<String> terms, List<String> variables,
-      List<String> keywords, List<String> region) {
+  public PODAACMetadata(String shortname, List<String> longname, List<String> topics, List<String> terms, List<String> variables, List<String> keywords, List<String> region) {
     this.shortname = shortname;
     this.longnameList = longname;
     this.keywordList = keywords;

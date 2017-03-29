@@ -35,8 +35,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
    */
   private static final long serialVersionUID = 1L;
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(ClickStreamAnalyzer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamAnalyzer.class);
 
   public ClickStreamAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -51,16 +50,11 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
     try {
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-      svd.getSVDMatrix(props.getProperty("clickstreamMatrix"),
-          Integer.parseInt(props.getProperty("clickstreamSVDDimension")),
-          props.getProperty("clickstreamSVDMatrix_tmp"));
-      List<LinkageTriple> tripleList = svd
-          .calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
-      svd.saveToES(tripleList, props.getProperty("indexName"),
-          props.getProperty("clickStreamLinkageType"));
+      svd.getSVDMatrix(props.getProperty("clickstreamMatrix"), Integer.parseInt(props.getProperty("clickstreamSVDDimension")), props.getProperty("clickstreamSVDMatrix_tmp"));
+      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
+      svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("clickStreamLinkageType"));
     } catch (Exception e) {
-      LOG.error("Encountered an error during execution of ClickStreamAnalyzer.",
-          e);
+      LOG.error("Encountered an error during execution of ClickStreamAnalyzer.", e);
     }
 
     //Store click stream in ES for the ranking use
@@ -69,8 +63,7 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("ClickStreamAnalyzer complete. Time elapsed: {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("ClickStreamAnalyzer complete. Time elapsed: {}s", (endTime - startTime) / 1000);
     return null;
   }
 

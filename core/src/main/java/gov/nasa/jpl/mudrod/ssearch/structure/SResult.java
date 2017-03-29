@@ -72,7 +72,7 @@ public class SResult {
 
   public Double prediction = 0.0;
   public String label = null;
-  
+
   //add by quintinali
   public String startDate;
   public String endDate;
@@ -85,8 +85,7 @@ public class SResult {
    * @param description description of dataset
    * @param date        release date of dataset
    */
-  public SResult(String shortName, String longName, String topic,
-      String description, String date) {
+  public SResult(String shortName, String longName, String topic, String description, String date) {
     this.shortName = shortName;
     this.longName = longName;
     this.topic = topic;
@@ -139,8 +138,7 @@ public class SResult {
    * @param fieldValue field value that needs to be set to
    * @return 1 means success, and 0 otherwise
    */
-  public static boolean set(Object object, String fieldName,
-      Object fieldValue) {
+  public static boolean set(Object object, String fieldName, Object fieldValue) {
     Class<?> clazz = object.getClass();
     while (clazz != null) {
       try {

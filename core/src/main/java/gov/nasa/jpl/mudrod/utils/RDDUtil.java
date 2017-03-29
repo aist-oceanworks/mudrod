@@ -35,20 +35,18 @@ public class RDDUtil {
    *                   that doc.
    * @return unique term list
    */
-  public static JavaRDD<String> getAllWordsInDoc(
-      JavaPairRDD<String, List<String>> docwordRDD) {
-    JavaRDD<String> wordRDD = docwordRDD.values()
-        .flatMap(new FlatMapFunction<List<String>, String>() {
-          /**
-           *
-           */
-          private static final long serialVersionUID = 1L;
+  public static JavaRDD<String> getAllWordsInDoc(JavaPairRDD<String, List<String>> docwordRDD) {
+    JavaRDD<String> wordRDD = docwordRDD.values().flatMap(new FlatMapFunction<List<String>, String>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public Iterator<String> call(List<String> list) {
-            return list.iterator();
-          }
-        }).distinct();
+      @Override
+      public Iterator<String> call(List<String> list) {
+        return list.iterator();
+      }
+    }).distinct();
 
     return wordRDD;
   }

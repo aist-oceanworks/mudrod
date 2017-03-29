@@ -33,8 +33,7 @@ import java.util.List;
 @Path("/ontology")
 public class OntologyResource {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(OntologyResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(OntologyResource.class);
   private Ontology ontImpl;
 
   public OntologyResource(@Context ServletContext sc) {
@@ -45,9 +44,7 @@ public class OntologyResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Ontology-driven User Query Augmentation Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Ontology-driven User Query Augmentation Resource: running correctly...</h1>").build();
   }
 
   @GET

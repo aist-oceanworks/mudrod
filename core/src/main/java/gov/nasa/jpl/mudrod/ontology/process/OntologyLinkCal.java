@@ -35,9 +35,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
 
   public OntologyLinkCal(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    es.deleteAllByQuery(props.getProperty("indexName"),
-        props.getProperty("ontologyLinkageType"),
-        QueryBuilders.matchAllQuery());
+    es.deleteAllByQuery(props.getProperty("indexName"), props.getProperty("ontologyLinkageType"), QueryBuilders.matchAllQuery());
     addSWEETMapping();
   }
 
@@ -47,19 +45,12 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
   public void addSWEETMapping() {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject()
-          .startObject(props.getProperty("ontologyLinkageType"))
-          .startObject("properties").startObject("concept_A")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .startObject("concept_B").field("type", "string")
-          .field("index", "not_analyzed").endObject()
+      Mapping = jsonBuilder().startObject().startObject(props.getProperty("ontologyLinkageType")).startObject("properties").startObject("concept_A").field("type", "string")
+          .field("index", "not_analyzed").endObject().startObject("concept_B").field("type", "string").field("index", "not_analyzed").endObject()
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices()
-          .preparePutMapping(props.getProperty("indexName"))
-          .setType(props.getProperty("ontologyLinkageType")).setSource(Mapping)
-          .execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("ontologyLinkageType")).setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -70,8 +61,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    es.deleteType(props.getProperty("indexName"),
-        props.getProperty("ontologyLinkageType"));
+    es.deleteType(props.getProperty("indexName"), props.getProperty("ontologyLinkageType"));
     es.createBulkProcessor();
 
     BufferedReader br = null;
@@ -79,8 +69,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     double weight = 0;
 
     try {
-      br = new BufferedReader(
-          new FileReader(props.getProperty("oceanTriples")));
+      br = new BufferedReader(new FileReader(props.getProperty("oceanTriples")));
       while ((line = br.readLine()) != null) {
         String[] strList = line.toLowerCase().split(",");
         if (strList[1].equals("subclassof")) {
@@ -89,13 +78,9 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
           weight = 0.9;
         }
 
-        IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-            props.getProperty("ontologyLinkageType")).source(
-            jsonBuilder().startObject().field("concept_A",
-                es.customAnalyzing(props.getProperty("indexName"), strList[2]))
-                .field("concept_B",
-                    es.customAnalyzing(props.getProperty("indexName"),
-                        strList[0])).field("weight", weight).endObject());
+        IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("ontologyLinkageType")).source(
+            jsonBuilder().startObject().field("concept_A", es.customAnalyzing(props.getProperty("indexName"), strList[2]))
+                .field("concept_B", es.customAnalyzing(props.getProperty("indexName"), strList[0])).field("weight", weight).endObject());
         es.getBulkProcessor().add(ir);
 
       }

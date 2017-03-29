@@ -17,8 +17,7 @@ import java.util.Properties;
 public class RecommendEngine extends DiscoveryEngineAbstract {
 
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(RecommendEngine.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RecommendEngine.class);
 
   public RecommendEngine(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -29,59 +28,46 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
   @Override
   public void preprocess() {
     // TODO Auto-generated method stub
-    LOG.info(
-        "*****************Recommendation preprocessing starts******************");
+    LOG.info("*****************Recommendation preprocessing starts******************");
 
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract harvester = new ImportMetadata(this.props, this.es,
-        this.spark);
+    DiscoveryStepAbstract harvester = new ImportMetadata(this.props, this.es, this.spark);
     harvester.execute();
 
-    DiscoveryStepAbstract tfidf = new MetadataTFIDFGenerator(this.props,
-        this.es, this.spark);
+    DiscoveryStepAbstract tfidf = new MetadataTFIDFGenerator(this.props, this.es, this.spark);
     tfidf.execute();
 
-    DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props,
-        this.es, this.spark);
+    DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props, this.es, this.spark);
     sessionMatrixGen.execute();
 
-    DiscoveryStepAbstract transformer = new NormalizeVariables(this.props,
-        this.es, this.spark);
+    DiscoveryStepAbstract transformer = new NormalizeVariables(this.props, this.es, this.spark);
     transformer.execute();
 
     endTime = System.currentTimeMillis();
 
-    LOG.info(
-        "*****************Recommendation preprocessing  ends******************Took {}s {}",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Recommendation preprocessing  ends******************Took {}s {}", (endTime - startTime) / 1000);
   }
 
   @Override
   public void process() {
     // TODO Auto-generated method stub
-    LOG.info(
-        "*****************Recommendation processing starts******************");
+    LOG.info("*****************Recommendation processing starts******************");
 
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract tfCF = new AbstractBasedSimilarity(this.props,
-        this.es, this.spark);
+    DiscoveryStepAbstract tfCF = new AbstractBasedSimilarity(this.props, this.es, this.spark);
     tfCF.execute();
 
-    DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props,
-        this.es, this.spark);
+    DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props, this.es, this.spark);
     cbCF.execute();
 
-    DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es,
-        this.spark);
+    DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es, this.spark);
     sbCF.execute();
 
     endTime = System.currentTimeMillis();
 
-    LOG.info(
-        "*****************Recommendation processing ends******************Took {}s {}",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Recommendation processing ends******************Took {}s {}", (endTime - startTime) / 1000);
   }
 
   @Override

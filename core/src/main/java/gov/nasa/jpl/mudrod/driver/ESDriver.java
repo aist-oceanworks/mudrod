@@ -102,36 +102,25 @@ public class ESDriver implements Serializable {
   }
 
   public void createBulkProcessor() {
-    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
-        1000, 2500500);
-    setBulkProcessor(
-        BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
-          @Override
-          public void beforeBulk(long executionId, BulkRequest request) {
-            LOG.debug(
-                "ESDriver#createBulkProcessor @Override #beforeBulk is not implemented yet!");
-          }
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", 1000, 2500500);
+    setBulkProcessor(BulkProcessor.builder(getClient(), new BulkProcessor.Listener() {
+      @Override
+      public void beforeBulk(long executionId, BulkRequest request) {
+        LOG.debug("ESDriver#createBulkProcessor @Override #beforeBulk is not implemented yet!");
+      }
 
-          @Override
-          public void afterBulk(long executionId, BulkRequest request,
-              BulkResponse response) {
-            LOG.debug(
-                "ESDriver#createBulkProcessor @Override #afterBulk is not implemented yet!");
-          }
+      @Override
+      public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+        LOG.debug("ESDriver#createBulkProcessor @Override #afterBulk is not implemented yet!");
+      }
 
-          @Override
-          public void afterBulk(long executionId, BulkRequest request,
-              Throwable failure) {
-            LOG.error("Bulk request has failed!");
-            throw new RuntimeException(
-                "Caught exception in bulk: " + request.getDescription()
-                    + ", failure: " + failure, failure);
-          }
-        }).setBulkActions(1000)
-            .setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB))
-            .setBackoffPolicy(BackoffPolicy
-                .exponentialBackoff(TimeValue.timeValueMillis(100), 10))
-            .setConcurrentRequests(1).build());
+      @Override
+      public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+        LOG.error("Bulk request has failed!");
+        throw new RuntimeException("Caught exception in bulk: " + request.getDescription() + ", failure: " + failure, failure);
+      }
+    }).setBulkActions(1000).setBulkSize(new ByteSizeValue(2500500, ByteSizeUnit.GB)).setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 10)).setConcurrentRequests(1)
+        .build());
   }
 
   public void destroyBulkProcessor() {
@@ -144,34 +133,26 @@ public class ESDriver implements Serializable {
     }
   }
 
-  public void putMapping(String indexName, String settingsJson,
-      String mappingJson) throws IOException {
+  public void putMapping(String indexName, String settingsJson, String mappingJson) throws IOException {
 
-    boolean exists = getClient().admin().indices().prepareExists(indexName)
-        .execute().actionGet().isExists();
+    boolean exists = getClient().admin().indices().prepareExists(indexName).execute().actionGet().isExists();
     if (exists) {
       return;
     }
 
-    getClient().admin().indices().prepareCreate(indexName)
-        .setSettings(Settings.builder().loadFromSource(settingsJson)).execute()
-        .actionGet();
-    getClient().admin().indices().preparePutMapping(indexName)
-        .setType("_default_").setSource(mappingJson).execute().actionGet();
+    getClient().admin().indices().prepareCreate(indexName).setSettings(Settings.builder().loadFromSource(settingsJson)).execute().actionGet();
+    getClient().admin().indices().preparePutMapping(indexName).setType("_default_").setSource(mappingJson).execute().actionGet();
   }
 
-  public String customAnalyzing(String indexName, String str)
-      throws InterruptedException, ExecutionException {
+  public String customAnalyzing(String indexName, String str) throws InterruptedException, ExecutionException {
     return this.customAnalyzing(indexName, "cody", str);
   }
 
-  public String customAnalyzing(String indexName, String analyzer, String str)
-      throws InterruptedException, ExecutionException {
+  public String customAnalyzing(String indexName, String analyzer, String str) throws InterruptedException, ExecutionException {
     String[] strList = str.toLowerCase().split(",");
     for (int i = 0; i < strList.length; i++) {
       String tmp = "";
-      AnalyzeResponse r = client.admin().indices().prepareAnalyze(strList[i])
-          .setIndex(indexName).setAnalyzer(analyzer).execute().get();
+      AnalyzeResponse r = client.admin().indices().prepareAnalyze(strList[i]).setIndex(indexName).setAnalyzer(analyzer).execute().get();
       for (AnalyzeToken token : r.getTokens()) {
         tmp += token.getTerm() + " ";
       }
@@ -180,8 +161,7 @@ public class ESDriver implements Serializable {
     return String.join(",", strList);
   }
 
-  public List<String> customAnalyzing(String indexName, List<String> list)
-      throws InterruptedException, ExecutionException {
+  public List<String> customAnalyzing(String indexName, List<String> list) throws InterruptedException, ExecutionException {
     if (list == null) {
       return list;
     }
@@ -196,20 +176,16 @@ public class ESDriver implements Serializable {
 
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
     createBulkProcessor();
-    SearchResponse scrollResp = getClient().prepareSearch(index)
-        .setSearchType(SearchType.QUERY_AND_FETCH).setTypes(type)
-        .setScroll(new TimeValue(60000)).setQuery(query).setSize(10000)
-        .execute().actionGet();
+    SearchResponse scrollResp = getClient().prepareSearch(index).setSearchType(SearchType.QUERY_AND_FETCH).setTypes(type).setScroll(new TimeValue(60000)).setQuery(query).setSize(10000).execute()
+        .actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
-        DeleteRequest deleteRequest = new DeleteRequest(index, type,
-            hit.getId());
+        DeleteRequest deleteRequest = new DeleteRequest(index, type, hit.getId());
         getBulkProcessor().add(deleteRequest);
       }
 
-      scrollResp = getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -226,19 +202,15 @@ public class ESDriver implements Serializable {
     ArrayList<String> typeList = new ArrayList<>();
     GetMappingsResponse res;
     try {
-      res = getClient().admin().indices()
-          .getMappings(new GetMappingsRequest().indices(object.toString()))
-          .get();
-      ImmutableOpenMap<String, MappingMetaData> mapping = res.mappings()
-          .get(object.toString());
+      res = getClient().admin().indices().getMappings(new GetMappingsRequest().indices(object.toString())).get();
+      ImmutableOpenMap<String, MappingMetaData> mapping = res.mappings().get(object.toString());
       for (ObjectObjectCursor<String, MappingMetaData> c : mapping) {
         if (c.key.startsWith(object2.toString())) {
           typeList.add(c.key);
         }
       }
     } catch (InterruptedException | ExecutionException e) {
-      LOG.error("Error whilst obtaining type list from Elasticsearch mappings.",
-          e);
+      LOG.error("Error whilst obtaining type list from Elasticsearch mappings.", e);
     }
     return typeList;
   }
@@ -246,8 +218,7 @@ public class ESDriver implements Serializable {
   public List<String> getIndexListWithPrefix(Object object) {
 
     System.out.println(object.toString());
-    String[] indices = client.admin().indices().getIndex(new GetIndexRequest())
-        .actionGet().getIndices();
+    String[] indices = client.admin().indices().getIndex(new GetIndexRequest()).actionGet().getIndices();
 
     ArrayList<String> indexList = new ArrayList<>();
     int length = indices.length;
@@ -261,23 +232,18 @@ public class ESDriver implements Serializable {
     return indexList;
   }
 
-  public String searchByQuery(String index, String type, String query)
-      throws IOException, InterruptedException, ExecutionException {
+  public String searchByQuery(String index, String type, String query) throws IOException, InterruptedException, ExecutionException {
     return searchByQuery(index, type, query, false);
   }
 
-  public String searchByQuery(String index, String type, String query,
-      Boolean bDetail)
-      throws IOException, InterruptedException, ExecutionException {
-    boolean exists = getClient().admin().indices().prepareExists(index)
-        .execute().actionGet().isExists();
+  public String searchByQuery(String index, String type, String query, Boolean bDetail) throws IOException, InterruptedException, ExecutionException {
+    boolean exists = getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
     if (!exists) {
       return null;
     }
 
     QueryBuilder qb = QueryBuilders.queryStringQuery(query);
-    SearchResponse response = getClient().prepareSearch(index).setTypes(type)
-        .setQuery(qb).setSize(500).execute().actionGet();
+    SearchResponse response = getClient().prepareSearch(index).setTypes(type).setQuery(qb).setSize(500).execute().actionGet();
 
     Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
@@ -286,12 +252,10 @@ public class ESDriver implements Serializable {
       Map<String, Object> result = hit.getSource();
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
-      @SuppressWarnings("unchecked") ArrayList<String> topicList = (ArrayList<String>) result
-          .get(DS_PARAM_VAR);
+      @SuppressWarnings("unchecked") ArrayList<String> topicList = (ArrayList<String>) result.get(DS_PARAM_VAR);
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
-      @SuppressWarnings("unchecked") ArrayList<String> longdate = (ArrayList<String>) result
-          .get("DatasetCitation-ReleaseDateLong");
+      @SuppressWarnings("unchecked") ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
       Date date = new Date(Long.parseLong(longdate.get(0)));
       SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
@@ -305,43 +269,28 @@ public class ESDriver implements Serializable {
       file.addProperty("Release Date", dateText);
 
       if (bDetail) {
-        file.addProperty("Processing Level",
-            (String) result.get("Dataset-ProcessingLevel"));
+        file.addProperty("Processing Level", (String) result.get("Dataset-ProcessingLevel"));
         file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
-        file.addProperty("Dataset-TemporalRepeat",
-            (String) result.get("Dataset-TemporalRepeat"));
-        file.addProperty("Dataset-TemporalRepeatMax",
-            (String) result.get("Dataset-TemporalRepeatMax"));
-        file.addProperty("Dataset-TemporalRepeatMin",
-            (String) result.get("Dataset-TemporalRepeatMin"));
-        file.addProperty("DatasetPolicy-DataFormat",
-            (String) result.get(" DatasetPolicy-DataFormat"));
-        file.addProperty("DatasetPolicy-DataLatency",
-            (String) result.get("DatasetPolicy-DataLatency"));
-        file.addProperty("Dataset-Description",
-            (String) result.get("Dataset-Description"));
+        file.addProperty("Dataset-TemporalRepeat", (String) result.get("Dataset-TemporalRepeat"));
+        file.addProperty("Dataset-TemporalRepeatMax", (String) result.get("Dataset-TemporalRepeatMax"));
+        file.addProperty("Dataset-TemporalRepeatMin", (String) result.get("Dataset-TemporalRepeatMin"));
+        file.addProperty("DatasetPolicy-DataFormat", (String) result.get(" DatasetPolicy-DataFormat"));
+        file.addProperty("DatasetPolicy-DataLatency", (String) result.get("DatasetPolicy-DataLatency"));
+        file.addProperty("Dataset-Description", (String) result.get("Dataset-Description"));
 
-        @SuppressWarnings("unchecked") List<String> sensors = (List<String>) result
-            .get("DatasetSource-Sensor-ShortName");
-        file.addProperty("DatasetSource-Sensor-ShortName",
-            String.join(", ", sensors));
+        @SuppressWarnings("unchecked") List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
+        file.addProperty("DatasetSource-Sensor-ShortName", String.join(", ", sensors));
 
-        @SuppressWarnings("unchecked") List<String> projects = (List<String>) result
-            .get("DatasetProject-Project-ShortName");
-        file.addProperty("DatasetProject-Project-ShortName",
-            String.join(", ", projects));
+        @SuppressWarnings("unchecked") List<String> projects = (List<String>) result.get("DatasetProject-Project-ShortName");
+        file.addProperty("DatasetProject-Project-ShortName", String.join(", ", projects));
 
-        @SuppressWarnings("unchecked") List<String> categories = (List<String>) result
-            .get("DatasetParameter-Category");
-        file.addProperty("DatasetParameter-Category",
-            String.join(", ", categories));
+        @SuppressWarnings("unchecked") List<String> categories = (List<String>) result.get("DatasetParameter-Category");
+        file.addProperty("DatasetParameter-Category", String.join(", ", categories));
 
-        @SuppressWarnings("unchecked") List<String> variables = (List<String>) result
-            .get(DS_PARAM_VAR);
+        @SuppressWarnings("unchecked") List<String> variables = (List<String>) result.get(DS_PARAM_VAR);
         file.addProperty(DS_PARAM_VAR, String.join(", ", variables));
 
-        @SuppressWarnings("unchecked") List<String> terms = (List<String>) result
-            .get("DatasetParameter-Term");
+        @SuppressWarnings("unchecked") List<String> terms = (List<String>) result.get("DatasetParameter-Term");
         file.addProperty("DatasetParameter-Term", String.join(", ", terms));
       }
 
@@ -357,34 +306,31 @@ public class ESDriver implements Serializable {
   }
 
   public List<String> autoComplete(String index, String term) {
-	  boolean exists = this.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
-		if (!exists) {
-			return new ArrayList<>();
-		}
+    boolean exists = this.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
+    if (!exists) {
+      return new ArrayList<>();
+    }
 
-		Set<String> suggestHS = new HashSet<String>();
-		List<String> suggestList = new ArrayList<>();
+    Set<String> suggestHS = new HashSet<String>();
+    List<String> suggestList = new ArrayList<>();
 
-		// please make sure that the completion field is configured in the ES mapping
-		CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("Dataset-Metadata")
-				.prefix(term, Fuzziness.fromEdits(2)).size(100);
-		SearchRequestBuilder suggestRequestBuilder = getClient().prepareSearch(index)
-				.suggest(new SuggestBuilder().addSuggestion("completeMe", suggestionsBuilder));
-		SearchResponse sr = suggestRequestBuilder.setFetchSource(false).execute().actionGet();
+    // please make sure that the completion field is configured in the ES mapping
+    CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("Dataset-Metadata").prefix(term, Fuzziness.fromEdits(2)).size(100);
+    SearchRequestBuilder suggestRequestBuilder = getClient().prepareSearch(index).suggest(new SuggestBuilder().addSuggestion("completeMe", suggestionsBuilder));
+    SearchResponse sr = suggestRequestBuilder.setFetchSource(false).execute().actionGet();
 
-		Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = sr.getSuggest()
-				.getSuggestion("completeMe").iterator().next().getOptions().iterator();
+    Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = sr.getSuggest().getSuggestion("completeMe").iterator().next().getOptions().iterator();
 
-		while (iterator.hasNext()) {
-			Suggest.Suggestion.Entry.Option next = iterator.next();
-			String suggest = next.getText().string().toLowerCase();			
-				suggestList.add(suggest);
-		}
-		
-		suggestHS.addAll(suggestList);
-		suggestList.clear();
-		suggestList.addAll(suggestHS);
-		return suggestList;
+    while (iterator.hasNext()) {
+      Suggest.Suggestion.Entry.Option next = iterator.next();
+      String suggest = next.getText().string().toLowerCase();
+      suggestList.add(suggest);
+    }
+
+    suggestHS.addAll(suggestList);
+    suggestList.clear();
+    suggestList.addAll(suggestHS);
+    return suggestList;
   }
 
   public void close() {
@@ -427,8 +373,7 @@ public class ESDriver implements Serializable {
     if (hosts != null && port > 1) {
       TransportClient transportClient = new ESTransportClient(settings);
       for (String host : hosts)
-        transportClient.addTransportAddress(
-            new InetSocketTransportAddress(InetAddress.getByName(host), port));
+        transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
     } else if (clusterName != null) {
       node = new Node(settings);
@@ -477,13 +422,11 @@ public class ESDriver implements Serializable {
     this.bulkProcessor = bulkProcessor;
   }
 
-  public UpdateRequest generateUpdateRequest(String index, String type,
-      String id, String field1, Object value1) {
+  public UpdateRequest generateUpdateRequest(String index, String type, String id, String field1, Object value1) {
 
     UpdateRequest ur = null;
     try {
-      ur = new UpdateRequest(index, type, id)
-          .doc(jsonBuilder().startObject().field(field1, value1).endObject());
+      ur = new UpdateRequest(index, type, id).doc(jsonBuilder().startObject().field(field1, value1).endObject());
     } catch (IOException e) {
       LOG.error("Error whilst attempting to generate a new Update Request.", e);
     }
@@ -491,8 +434,7 @@ public class ESDriver implements Serializable {
     return ur;
   }
 
-  public UpdateRequest generateUpdateRequest(String index, String type,
-      String id, Map<String, Object> filedValueMap) {
+  public UpdateRequest generateUpdateRequest(String index, String type, String id, Map<String, Object> filedValueMap) {
 
     UpdateRequest ur = null;
     try {
@@ -521,10 +463,8 @@ public class ESDriver implements Serializable {
     return this.getDocCount(index, type, search);
   }
 
-  public int getDocCount(String[] index, String[] type,
-      QueryBuilder filterSearch) {
-    SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index)
-        .setTypes(type).setQuery(filterSearch).setSize(0);
+  public int getDocCount(String[] index, String[] type, QueryBuilder filterSearch) {
+    SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index).setTypes(type).setQuery(filterSearch).setSize(0);
     SearchResponse countSr = countSrBuilder.execute().actionGet();
     int docCount = (int) countSr.getHits().getTotalHits();
     return docCount;
