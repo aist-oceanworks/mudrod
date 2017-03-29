@@ -29,7 +29,16 @@ We strongly advise all users to save time and effort by consulting the [Dockerfi
 for guidance on how to quickly use Docker to deploy Mudrod.
 
 ## From source
-Ensure you have Elasticsearch running locally and that the configuration in [config.xml](https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml) reflects your ES cluster.
+1. Ensure you have Elasticsearch running locally and that the configuration in [config.xml](https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml) reflects your ES cluster.
+2. Update the `svmSgdModel` configuration option in [config.xml](https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml). There is a line in config.xml that looks like 
+    ```
+    <para name="svmSgdModel">file://YOUNEEDTOCHANGETHIS</para>
+    ```
+    It needs to be changed to an absolute filepath on your system. For example:
+    ```
+    <para name="svmSgdModel">file:///Users/user/githubprojects/mudrod/core/src/main/resources/javaSVMWithSGDModel</para>
+    ```
+
 ```
 $ git clone https://github.com/mudrod/mudrod.git
 $ cd mudrod
