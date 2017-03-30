@@ -29,6 +29,11 @@
     <name>Mudrod :: Core</name>
     <description>Core Mudrod library implementation.</description>
 
+    <properties>
+        <!-- This property is the name of the directory containing the SVM/SGD Model. It is used during build to create a tar.gz file from this directory -->
+        <svmSgdModel.value>javaSVMWithSGDModel</svmSgdModel.value>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -143,14 +148,14 @@
                 <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
                 <excludes>
-                    <exclude>javaSVMWithSGDModel/**</exclude>
+                    <exclude>${svmSgdModel.value}/**</exclude>
                 </excludes>
             </resource>
 
             <resource>
                 <directory>${project.build.directory}</directory>
                 <includes>
-                    <include>javaSVMWithSGDModel.tar.gz</include>
+                    <include>${svmSgdModel.value}.tar.gz</include>
                 </includes>
             </resource>
 
@@ -206,7 +211,7 @@
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <tarLongFileMode>posix</tarLongFileMode>
-                            <finalName>javaSVMWithSGDModel</finalName>
+                            <finalName>${svmSgdModel.value}</finalName>
                             <outputDirectory>${project.build.directory}
                             </outputDirectory>
                             <descriptors>

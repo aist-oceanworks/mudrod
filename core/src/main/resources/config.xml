@@ -74,8 +74,8 @@
     <para name="metadataTopicSimType">MetadataTBSim</para>
 
 
-    <!-- This should be the name of the compressed archive included as a resource with the core JAR -->
-    <para name="svmSgdModel">javaSVMWithSGDModel.tar.gz</para>
+    <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
+    <para name="svmSgdModel">${svmSgdModel.value}.tar.gz</para>
 
     <!--
     The ontology service implementation. Possible values include
