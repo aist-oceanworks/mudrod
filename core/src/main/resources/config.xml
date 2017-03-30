@@ -74,8 +74,8 @@
     <para name="metadataTopicSimType">MetadataTBSim</para>
 
 
-    <!-- This should be the absolute path to mudrod/core/src/main/resources/javaSVMWithSGDModel on your system -->
-    <para name="svmSgdModel">file://YOUNEEDTOCHANGETHIS</para>
+    <!-- This should be the name of the compressed archive included as a resource with the core JAR -->
+    <para name="svmSgdModel">javaSVMWithSGDModel.tar.gz</para>
 
     <!--
     The ontology service implementation. Possible values include

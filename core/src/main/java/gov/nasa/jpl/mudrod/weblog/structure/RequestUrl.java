@@ -137,17 +137,14 @@ public class RequestUrl extends MudrodAbstract {
       try {
         keyword = mapRequest.get("search");
 
-        keyword = URLDecoder
-            .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
-            .contains("%25")) {
+        keyword = URLDecoder.decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword.contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
         }
 
-        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
-            .replaceAll("\\s+", " ").trim();
+        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ").replaceAll("\\s+", " ").trim();
 
       } catch (UnsupportedEncodingException e) {
         LOG.error(mapRequest.get("search"));
@@ -170,22 +167,17 @@ public class RequestUrl extends MudrodAbstract {
       int l = a < b ? a : b;
 
       for (int i = 0; i < l; i++) {
-        if (ids[i].equals("collections") || ids[i].equals("measurement")
-            || ids[i].equals("sensor") || ids[i].equals("platform") || ids[i]
-            .equals("variable") || ids[i].equals("spatialcoverage")) {
+        if (ids[i].equals("collections") || ids[i].equals("measurement") || ids[i].equals("sensor") || ids[i].equals("platform") || ids[i].equals("variable") || ids[i].equals("spatialcoverage")) {
           try {
             values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
-            if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
-                && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
+            if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword) && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
               String item = URLDecoder.decode(values[i], "UTF-8").trim();
-              if (item.contains("%2b") || item.contains("%20") || item
-                  .contains("%25")) {
+              if (item.contains("%2b") || item.contains("%20") || item.contains("%25")) {
                 item = item.replace("%2b", " ");
                 item = item.replace("%20", " ");
                 item = item.replace("%25", " ");
               }
-              item = item.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
-                  .replaceAll("\\s+", " ").trim();
+              item = item.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ").replaceAll("\\s+", " ").trim();
               info.add(item);
             }
           } catch (Exception e) {
@@ -226,16 +218,13 @@ public class RequestUrl extends MudrodAbstract {
       try {
         keyword = mapRequest.get("search");
 
-        keyword = URLDecoder
-            .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
-            .contains("%25")) {
+        keyword = URLDecoder.decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword.contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
         }
-        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
-            .replaceAll("\\s+", " ").trim();
+        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ").replaceAll("\\s+", " ").trim();
       } catch (UnsupportedEncodingException e) {
         LOG.error(mapRequest.get("search"));
         e.printStackTrace();
@@ -252,8 +241,7 @@ public class RequestUrl extends MudrodAbstract {
    * @return filter facet key pair map
    * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
-  public static Map<String, String> getFilterInfo(String url)
-      throws UnsupportedEncodingException {
+  public static Map<String, String> getFilterInfo(String url) throws UnsupportedEncodingException {
     List<String> info = new ArrayList<>();
     Map<String, String> filterValues = new HashMap<>();
 
@@ -263,16 +251,13 @@ public class RequestUrl extends MudrodAbstract {
       try {
         keyword = mapRequest.get("search");
 
-        keyword = URLDecoder
-            .decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
-        if (keyword.contains("%2b") || keyword.contains("%20") || keyword
-            .contains("%25")) {
+        keyword = URLDecoder.decode(keyword.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
+        if (keyword.contains("%2b") || keyword.contains("%20") || keyword.contains("%25")) {
           keyword = keyword.replace("%2b", " ");
           keyword = keyword.replace("%20", " ");
           keyword = keyword.replace("%25", " ");
         }
-        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
-            .replaceAll("\\s+", " ").trim();
+        keyword = keyword.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ").replaceAll("\\s+", " ").trim();
 
       } catch (UnsupportedEncodingException e) {
         LOG.error(mapRequest.get("search"));
@@ -297,17 +282,14 @@ public class RequestUrl extends MudrodAbstract {
       for (int i = 0; i < l; i++) {
         try {
           values[i] = values[i].replaceAll("%(?![0-9a-fA-F]{2})", "%25");
-          if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword)
-              && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
+          if (!URLDecoder.decode(values[i], "UTF-8").equals(keyword) && !URLDecoder.decode(values[i], "UTF-8").equals("")) {
             String item = URLDecoder.decode(values[i], "UTF-8").trim();
-            if (item.contains("%2b") || item.contains("%20") || item
-                .contains("%25")) {
+            if (item.contains("%2b") || item.contains("%20") || item.contains("%25")) {
               item = item.replace("%2b", " ");
               item = item.replace("%20", " ");
               item = item.replace("%25", " ");
             }
-            item = item.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ")
-                .replaceAll("\\s+", " ").trim();
+            item = item.replaceAll("[-+^:,*_\"]", " ").replace("\\", " ").replaceAll("\\s+", " ").trim();
             filterValues.put(ids[i], item);
           }
         } catch (Exception e) {
@@ -319,9 +301,7 @@ public class RequestUrl extends MudrodAbstract {
 
     if (mapRequest.get("temporalsearch") != null) {
       String temporalsearch = mapRequest.get("temporalsearch");
-      temporalsearch = URLDecoder
-          .decode(temporalsearch.replaceAll("%(?![0-9a-fA-F]{2})", "%25"),
-              "UTF-8");
+      temporalsearch = URLDecoder.decode(temporalsearch.replaceAll("%(?![0-9a-fA-F]{2})", "%25"), "UTF-8");
 
       filterValues.put("temporalsearch", temporalsearch);
     }

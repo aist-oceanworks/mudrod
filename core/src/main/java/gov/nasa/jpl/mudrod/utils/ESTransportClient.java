@@ -35,20 +35,15 @@ import java.util.Collections;
 public class ESTransportClient extends TransportClient {
 
   private static final Collection<Class<? extends Plugin>> PRE_INSTALLED_PLUGINS = Collections
-      .unmodifiableList(Arrays
-          .asList(ReindexPlugin.class, PercolatorPlugin.class,
-              MustachePlugin.class, Netty3Plugin.class));
+      .unmodifiableList(Arrays.asList(ReindexPlugin.class, PercolatorPlugin.class, MustachePlugin.class, Netty3Plugin.class));
 
   @SafeVarargs
-  public ESTransportClient(Settings settings,
-      Class<? extends Plugin>... plugins) {
+  public ESTransportClient(Settings settings, Class<? extends Plugin>... plugins) {
     this(settings, Arrays.asList(plugins));
   }
 
-  public ESTransportClient(Settings settings,
-      Collection<Class<? extends Plugin>> plugins) {
-    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS),
-        null);
+  public ESTransportClient(Settings settings, Collection<Class<? extends Plugin>> plugins) {
+    super(settings, Settings.EMPTY, addPlugins(plugins, PRE_INSTALLED_PLUGINS), null);
 
   }
 

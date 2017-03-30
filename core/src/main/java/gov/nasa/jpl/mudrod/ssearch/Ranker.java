@@ -39,12 +39,10 @@ public class Ranker extends MudrodAbstract implements Serializable {
   String learnerType = null;
   Learner le = null;
 
-  public Ranker(Properties props, ESDriver es, SparkDriver spark,
-      String learnerType) {
+  public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
-    le = new Learner(learnerType, spark,
-        props.getProperty(MudrodConstants.SVM_SGD_MODEL));
+    le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.SVM_SGD_MODEL));
   }
 
   /**
@@ -187,8 +185,7 @@ public class Ranker extends MudrodAbstract implements Serializable {
     double[] ins = instList.stream().mapToDouble(i -> i).toArray();
     LabeledPoint insPoint = new LabeledPoint(99.0, Vectors.dense(ins));
     double prediction = le.classify(insPoint);
-    if (equalComp(prediction,
-        1)) { //different from weka where the return value is 1 or 2
+    if (equalComp(prediction, 1)) { //different from weka where the return value is 1 or 2
       return 0;
     } else {
       return 1;

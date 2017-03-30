@@ -50,17 +50,14 @@ public class LogAbstract extends DiscoveryStepAbstract {
   }
 
   protected void initLogIndex() {
-    logIndex = props.getProperty(MudrodConstants.LOG_INDEX) + props
-        .getProperty(MudrodConstants.TIME_SUFFIX);
+    logIndex = props.getProperty(MudrodConstants.LOG_INDEX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
     httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX);
     ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX);
     cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX);
     sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX);
 
-    InputStream settingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_SETTINGS);
-    InputStream mappingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_MAPPINGS);
+    InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
+    InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
     JSONObject settingsJSON = null;
     JSONObject mappingJSON = null;
 
@@ -78,8 +75,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
     try {
       if (settingsJSON != null && mappingJSON != null) {
-        this.es.putMapping(logIndex, settingsJSON.toString(),
-            mappingJSON.toString());
+        this.es.putMapping(logIndex, settingsJSON.toString(), mappingJSON.toString());
       }
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);
@@ -124,10 +120,8 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
     int docCount = es.getDocCount(logIndex, type);
 
-    SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(type)
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(0).addAggregation(
-            AggregationBuilders.terms("Users").field("IP").size(docCount))
-        .execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(docCount)).execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
 
     return users;
@@ -150,15 +144,10 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
     int docCount = es.getDocCount(logIndex, httpType);
 
-    AggregationBuilder dailyAgg = AggregationBuilders.dateHistogram("by_day")
-        .field("Time").dateHistogramInterval(DateHistogramInterval.DAY)
-        .order(Order.COUNT_DESC);
+    AggregationBuilder dailyAgg = AggregationBuilders.dateHistogram("by_day").field("Time").dateHistogramInterval(DateHistogramInterval.DAY).order(Order.COUNT_DESC);
 
-    SearchResponse sr = es.getClient().prepareSearch(logIndex)
-        .setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
-        .addAggregation(
-            AggregationBuilders.terms("Users").field("IP").size(docCount)
-                .subAggregation(dailyAgg)).execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(AggregationBuilders.terms("Users").field("IP").size(docCount).subAggregation(dailyAgg)).execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
     Map<String, Long> userList = new HashMap<String, Long>();
     for (Terms.Bucket user : users.getBuckets()) {
@@ -212,8 +201,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
     Map<String, Integer> UserGroups = solution.solve(userDocs, this.partition);
 
     JavaPairRDD<String, Double> pairRdd = spark.sc.parallelizePairs(list);
-    JavaPairRDD<String, Double> userPairRDD = pairRdd
-        .partitionBy(new logPartitioner(UserGroups, this.partition));
+    JavaPairRDD<String, Double> userPairRDD = pairRdd.partitionBy(new logPartitioner(UserGroups, this.partition));
 
     // repartitioned user RDD
     JavaRDD<String> userRDD = userPairRDD.keys();
@@ -226,10 +214,8 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
     int docCount = es.getDocCount(this.logIndex, this.cleanupType);
 
-    SearchResponse sr = es.getClient().prepareSearch(this.logIndex)
-        .setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
-        .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .size(docCount)).execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(this.logIndex).setTypes(this.cleanupType).setQuery(QueryBuilders.matchAllQuery())
+        .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID").size(docCount)).execute().actionGet();
 
     Terms Sessions = sr.getAggregations().get("Sessions");
     return Sessions;

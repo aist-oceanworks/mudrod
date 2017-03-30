@@ -20,16 +20,14 @@ import java.util.*;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class VariableBasedSimilarity extends DiscoveryStepAbstract
-    implements Serializable {
+public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Serializable {
 
   /**
    *
    */
   private static final long serialVersionUID = 1L;
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(VariableBasedSimilarity.class);
+  private static final Logger LOG = LoggerFactory.getLogger(VariableBasedSimilarity.class);
 
   private DecimalFormat df = new DecimalFormat("#.000");
   // a map from variable to its type
@@ -54,8 +52,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
    * @param es    an instantiated {@link ESDriver}
    * @param spark an instantiated {@link SparkDriver}
    */
-  public VariableBasedSimilarity(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public VariableBasedSimilarity(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
 
     indexName = props.getProperty("indexName");
@@ -66,8 +63,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
 
   @Override
   public Object execute() {
-    LOG.info(
-        "*****************calculating metadata variables based similarity starts******************");
+    LOG.info("*****************calculating metadata variables based similarity starts******************");
     startTime = System.currentTimeMillis();
     es.deleteType(indexName, variableSimType);
     addMapping(es, indexName, variableSimType);
@@ -77,9 +73,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     normalizeVariableWeight(es);
     es.refreshIndex();
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************calculating metadata variables based similarity ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************calculating metadata variables based similarity ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -147,9 +141,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     es.createBulkProcessor();
 
     List<Map<String, Object>> metadatas = new ArrayList<>();
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(metadataType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -157,8 +149,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
         metadatas.add(metadataA);
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -184,15 +175,13 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
           // temporal similarity
           this.temporalSimilarity(metadataA, metadataB, contentBuilder);
           // categorical variables similarity
-          this.categoricalVariablesSimilarity(metadataA, metadataB,
-              contentBuilder);
+          this.categoricalVariablesSimilarity(metadataA, metadataB, contentBuilder);
           // ordinal variables similarity
           this.ordinalVariablesSimilarity(metadataA, metadataB, contentBuilder);
 
           contentBuilder.endObject();
 
-          IndexRequest ir = new IndexRequest(indexName, variableSimType)
-              .source(contentBuilder);
+          IndexRequest ir = new IndexRequest(indexName, variableSimType).source(contentBuilder);
           es.getBulkProcessor().add(ir);
 
         } catch (IOException e1) {
@@ -211,31 +200,23 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
      International Journal of Geographical Information Science,
      22(3)
    */
-  public void spatialSimilarity(Map<String, Object> metadataA,
-      Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+  public void spatialSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
 
     double topA = (double) metadataA.get("DatasetCoverage-Derivative-NorthLat");
-    double bottomA = (double) metadataA
-        .get("DatasetCoverage-Derivative-SouthLat");
+    double bottomA = (double) metadataA.get("DatasetCoverage-Derivative-SouthLat");
     double leftA = (double) metadataA.get("DatasetCoverage-Derivative-WestLon");
-    double rightA = (double) metadataA
-        .get("DatasetCoverage-Derivative-EastLon");
+    double rightA = (double) metadataA.get("DatasetCoverage-Derivative-EastLon");
     double areaA = (double) metadataA.get("DatasetCoverage-Derivative-Area");
 
     double topB = (double) metadataB.get("DatasetCoverage-Derivative-NorthLat");
-    double bottomB = (double) metadataB
-        .get("DatasetCoverage-Derivative-SouthLat");
+    double bottomB = (double) metadataB.get("DatasetCoverage-Derivative-SouthLat");
     double leftB = (double) metadataB.get("DatasetCoverage-Derivative-WestLon");
-    double rightB = (double) metadataB
-        .get("DatasetCoverage-Derivative-EastLon");
+    double rightB = (double) metadataB.get("DatasetCoverage-Derivative-EastLon");
     double areaB = (double) metadataB.get("DatasetCoverage-Derivative-Area");
 
     // Intersect area
-    double xOverlap = Math
-        .max(0, Math.min(rightA, rightB) - Math.max(leftA, leftB));
-    double yOverlap = Math
-        .max(0, Math.min(topA, topB) - Math.max(bottomA, bottomB));
+    double xOverlap = Math.max(0, Math.min(rightA, rightB) - Math.max(leftA, leftB));
+    double yOverlap = Math.max(0, Math.min(topA, topB) - Math.max(bottomA, bottomB));
     double overlapArea = xOverlap * yOverlap;
 
     // Calculate coverage similarity
@@ -247,15 +228,11 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     contentBuilder.field("Spatial_Covergae_Sim", similarity);
   }
 
-  public void temporalSimilarity(Map<String, Object> metadataA,
-      Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+  public void temporalSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
 
     double similarity = 0.0;
-    double startTimeA = Double.parseDouble(
-        (String) metadataA.get("Dataset-DatasetCoverage-StartTimeLong"));
-    String endTimeAStr = (String) metadataA
-        .get("Dataset-DatasetCoverage-StopTimeLong");
+    double startTimeA = Double.parseDouble((String) metadataA.get("Dataset-DatasetCoverage-StartTimeLong"));
+    String endTimeAStr = (String) metadataA.get("Dataset-DatasetCoverage-StopTimeLong");
     double endTimeA = 0.0;
     if ("".equals(endTimeAStr)) {
       endTimeA = System.currentTimeMillis();
@@ -264,10 +241,8 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     }
     double timespanA = endTimeA - startTimeA;
 
-    double startTimeB = Double.parseDouble(
-        (String) metadataB.get("Dataset-DatasetCoverage-StartTimeLong"));
-    String endTimeBStr = (String) metadataB
-        .get("Dataset-DatasetCoverage-StopTimeLong");
+    double startTimeB = Double.parseDouble((String) metadataB.get("Dataset-DatasetCoverage-StartTimeLong"));
+    String endTimeBStr = (String) metadataB.get("Dataset-DatasetCoverage-StopTimeLong");
     double endTimeB = 0.0;
     if ("".equals(endTimeBStr)) {
       endTimeB = System.currentTimeMillis();
@@ -284,18 +259,14 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     } else if (startTimeA >= startTimeB && endTimeA <= endTimeB) {
       intersect = timespanA;
     } else {
-      intersect = (startTimeA > startTimeB) ?
-          (endTimeB - startTimeA) :
-          (endTimeA - startTimeB);
+      intersect = (startTimeA > startTimeB) ? (endTimeB - startTimeA) : (endTimeA - startTimeB);
     }
 
     similarity = intersect / (Math.sqrt(timespanA) * Math.sqrt(timespanB));
     contentBuilder.field("Temporal_Covergae_Sim", similarity);
   }
 
-  public void categoricalVariablesSimilarity(Map<String, Object> metadataA,
-      Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+  public void categoricalVariablesSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
 
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
@@ -329,9 +300,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
     }
   }
 
-  public void ordinalVariablesSimilarity(Map<String, Object> metadataA,
-      Map<String, Object> metadataB, XContentBuilder contentBuilder)
-      throws IOException {
+  public void ordinalVariablesSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
     for (String variable : variableTypes.keySet()) {
       Integer type = variableTypes.get(variable);
       if (type != VAR_ORDINAL) {
@@ -360,16 +329,12 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
   public static void addMapping(ESDriver es, String index, String type) {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject().startObject(type)
-          .startObject("properties").startObject("concept_A")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .startObject("concept_B").field("type", "string")
-          .field("index", "not_analyzed").endObject()
+      Mapping = jsonBuilder().startObject().startObject(type).startObject("properties").startObject("concept_A").field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("concept_B").field("type", "string").field("index", "not_analyzed").endObject()
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices().preparePutMapping(index).setType(type)
-          .setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(index).setType(type).setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -384,9 +349,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
       totalWeight += variableWeights.get(variable);
     }
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(variableSimType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(variableSimType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -402,14 +365,11 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract
         }
 
         double weight = totalSim / totalWeight;
-        UpdateRequest ur = es
-            .generateUpdateRequest(indexName, variableSimType, hit.getId(),
-                "weight", weight);
+        UpdateRequest ur = es.generateUpdateRequest(indexName, variableSimType, hit.getId(), "weight", weight);
         es.getBulkProcessor().add(ur);
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }

@@ -40,8 +40,7 @@ public class TrainingImporter extends MudrodAbstract {
 
   public TrainingImporter(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    es.deleteAllByQuery(props.getProperty(MudrodConstants.ES_INDEX_NAME),
-        "trainingranking", QueryBuilders.matchAllQuery());
+    es.deleteAllByQuery(props.getProperty(MudrodConstants.ES_INDEX_NAME), "trainingranking", QueryBuilders.matchAllQuery());
     addMapping();
   }
 
@@ -51,17 +50,11 @@ public class TrainingImporter extends MudrodAbstract {
   public void addMapping() {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject().startObject("trainingranking")
-          .startObject("properties").startObject("query")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .startObject("dataID").field("type", "string")
-          .field("index", "not_analyzed").endObject().startObject("label")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .endObject().endObject().endObject();
+      Mapping = jsonBuilder().startObject().startObject("trainingranking").startObject("properties").startObject("query").field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("dataID").field("type", "string").field("index", "not_analyzed").endObject().startObject("label").field("type", "string").field("index", "not_analyzed").endObject().endObject()
+          .endObject().endObject();
 
-      es.getClient().admin().indices()
-          .preparePutMapping(props.getProperty("indexName"))
-          .setType("trainingranking").setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType("trainingranking").setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -78,19 +71,15 @@ public class TrainingImporter extends MudrodAbstract {
 
     File[] files = new File(dataFolder).listFiles();
     for (File file : files) {
-      BufferedReader br = new BufferedReader(
-          new FileReader(file.getAbsolutePath()));
+      BufferedReader br = new BufferedReader(new FileReader(file.getAbsolutePath()));
       br.readLine();
       String line = br.readLine();
       while (line != null) {
         String[] list = line.split(",");
         String query = file.getName().replace(".csv", "");
         if (list.length > 0) {
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-              "trainingranking").source(
-              jsonBuilder().startObject().field("query", query)
-                  .field("dataID", list[0])
-                  .field("label", list[list.length - 1]).endObject());
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"), "trainingranking")
+              .source(jsonBuilder().startObject().field("query", query).field("dataID", list[0]).field("label", list[list.length - 1]).endObject());
           es.getBulkProcessor().add(ir);
         }
         line = br.readLine();

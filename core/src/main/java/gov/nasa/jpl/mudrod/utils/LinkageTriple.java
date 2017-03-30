@@ -70,14 +70,11 @@ public class LinkageTriple implements Serializable {
     return keyA + "," + keyB + ":" + weight;
   }
 
-  public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
-      String index, String type) throws IOException {
+  public static void insertTriples(ESDriver es, List<LinkageTriple> triples, String index, String type) throws IOException {
     LinkageTriple.insertTriples(es, triples, index, type, false, false);
   }
 
-  public static void insertTriples(ESDriver es, List<LinkageTriple> triples,
-      String index, String type, Boolean bTriple, boolean bSymmetry)
-      throws IOException {
+  public static void insertTriples(ESDriver es, List<LinkageTriple> triples, String index, String type, Boolean bTriple, boolean bSymmetry) throws IOException {
     es.deleteType(index, type);
     if (bTriple) {
       LinkageTriple.addMapping(es, index, type);
@@ -94,12 +91,10 @@ public class LinkageTriple implements Serializable {
         jsonBuilder.field("concept_B", triples.get(i).keyB);
 
       } else {
-        jsonBuilder
-            .field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB);
+        jsonBuilder.field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB);
       }
 
-      jsonBuilder.field("weight",
-          Double.parseDouble(df.format(triples.get(i).weight)));
+      jsonBuilder.field("weight", Double.parseDouble(df.format(triples.get(i).weight)));
       jsonBuilder.endObject();
 
       IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
@@ -110,13 +105,11 @@ public class LinkageTriple implements Serializable {
         symmetryJsonBuilder.field("concept_A", triples.get(i).keyB);
         symmetryJsonBuilder.field("concept_B", triples.get(i).keyA);
 
-        symmetryJsonBuilder.field("weight",
-            Double.parseDouble(df.format(triples.get(i).weight)));
+        symmetryJsonBuilder.field("weight", Double.parseDouble(df.format(triples.get(i).weight)));
 
         symmetryJsonBuilder.endObject();
 
-        IndexRequest symmetryir = new IndexRequest(index, type)
-            .source(symmetryJsonBuilder);
+        IndexRequest symmetryir = new IndexRequest(index, type).source(symmetryJsonBuilder);
         es.getBulkProcessor().add(symmetryir);
       }
     }
@@ -126,29 +119,22 @@ public class LinkageTriple implements Serializable {
   public static void addMapping(ESDriver es, String index, String type) {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject().startObject(type)
-          .startObject("properties").startObject("concept_A")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .startObject("concept_B").field("type", "string")
-          .field("index", "not_analyzed").endObject()
+      Mapping = jsonBuilder().startObject().startObject(type).startObject("properties").startObject("concept_A").field("type", "string").field("index", "not_analyzed").endObject()
+          .startObject("concept_B").field("type", "string").field("index", "not_analyzed").endObject()
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices().preparePutMapping(index).setType(type)
-          .setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(index).setType(type).setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
-  public static void standardTriples(ESDriver es, String index, String type)
-      throws IOException {
+  public static void standardTriples(ESDriver es, String index, String type) throws IOException {
     es.createBulkProcessor();
 
-    SearchResponse sr = es.getClient().prepareSearch(index).setTypes(type)
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(0).addAggregation(
-            AggregationBuilders.terms("concepts").field("concept_A").size(0))
-        .execute().actionGet();
+    SearchResponse sr = es.getClient().prepareSearch(index).setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+        .addAggregation(AggregationBuilders.terms("concepts").field("concept_A").size(0)).execute().actionGet();
     Terms concepts = sr.getAggregations().get("concepts");
 
     for (Terms.Bucket entry : concepts.getBuckets()) {
@@ -158,9 +144,7 @@ public class LinkageTriple implements Serializable {
         continue;
       }
 
-      SearchResponse scrollResp = es.getClient().prepareSearch(index)
-          .setTypes(type).setScroll(new TimeValue(60000))
-          .setQuery(QueryBuilders.termQuery("concept_A", concept))
+      SearchResponse scrollResp = es.getClient().prepareSearch(index).setTypes(type).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.termQuery("concept_A", concept))
           .addSort("weight", SortOrder.DESC).setSize(100).execute().actionGet();
 
       while (true) {
@@ -168,15 +152,11 @@ public class LinkageTriple implements Serializable {
           Map<String, Object> metadata = hit.getSource();
           double sim = (double) metadata.get("weight");
           double newSim = sim / maxSim;
-          UpdateRequest ur = es
-              .generateUpdateRequest(index, type, hit.getId(), "weight",
-                  Double.parseDouble(df.format(newSim)));
+          UpdateRequest ur = es.generateUpdateRequest(index, type, hit.getId(), "weight", Double.parseDouble(df.format(newSim)));
           es.getBulkProcessor().add(ur);
         }
 
-        scrollResp = es.getClient()
-            .prepareSearchScroll(scrollResp.getScrollId())
-            .setScroll(new TimeValue(600000)).execute().actionGet();
+        scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
         if (scrollResp.getHits().getHits().length == 0) {
           break;
         }
@@ -186,13 +166,10 @@ public class LinkageTriple implements Serializable {
     es.destroyBulkProcessor();
   }
 
-  private static double getMaxSimilarity(ESDriver es, String index, String type,
-      String concept) {
+  private static double getMaxSimilarity(ESDriver es, String index, String type, String concept) {
 
     double maxSim = 1.0;
-    SearchRequestBuilder builder = es.getClient().prepareSearch(index)
-        .setTypes(type).setQuery(QueryBuilders.termQuery("concept_A", concept))
-        .addSort("weight", SortOrder.DESC).setSize(1);
+    SearchRequestBuilder builder = es.getClient().prepareSearch(index).setTypes(type).setQuery(QueryBuilders.termQuery("concept_A", concept)).addSort("weight", SortOrder.DESC).setSize(1);
 
     SearchResponse usrhis = builder.execute().actionGet();
     SearchHit[] hits = usrhis.getHits().getHits();

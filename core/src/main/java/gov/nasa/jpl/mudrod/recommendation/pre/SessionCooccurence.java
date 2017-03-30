@@ -34,8 +34,7 @@ import java.util.*;
 public class SessionCooccurence extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SessionCooccurence.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SessionCooccurence.class);
 
   /**
    * Creates a new instance of SessionCooccurence.
@@ -51,32 +50,24 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   @Override
   public Object execute() {
 
-    LOG.info(
-        "*****************Dataset session_based similarity Generator starts******************");
+    LOG.info("*****************Dataset session_based similarity Generator starts******************");
 
     startTime = System.currentTimeMillis();
 
     // get all metadata session cooccurance data
     SessionExtractor extractor = new SessionExtractor();
-    JavaPairRDD<String, List<String>> sessionDatasetRDD = extractor
-        .bulidSessionDatasetRDD(props, es, spark);
+    JavaPairRDD<String, List<String>> sessionDatasetRDD = extractor.bulidSessionDatasetRDD(props, es, spark);
 
     // remove retired datasets
-    JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = removeRetiredDataset(
-        es, sessionDatasetRDD);
-    LabeledRowMatrix datasetSessionMatrix = MatrixUtil
-        .createWordDocMatrix(sessionFiltedDatasetsRDD, spark.sc);
+    JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = removeRetiredDataset(es, sessionDatasetRDD);
+    LabeledRowMatrix datasetSessionMatrix = MatrixUtil.createWordDocMatrix(sessionFiltedDatasetsRDD, spark.sc);
 
     // export
-    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix,
-        datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys,
-        props.getProperty("session_dataset_Matrix"));
+    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix, datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys, props.getProperty("session_dataset_Matrix"));
 
     endTime = System.currentTimeMillis();
 
-    LOG.info(
-        "*****************Dataset session_based  similarity Generator ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Dataset session_based  similarity Generator ends******************Took {}s", (endTime - startTime) / 1000);
 
     return null;
   }
@@ -93,29 +84,25 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
    * @param userDatasetsRDD dataset extracted from session
    * @return filtered session datasets
    */
-  public JavaPairRDD<String, List<String>> removeRetiredDataset(ESDriver es,
-      JavaPairRDD<String, List<String>> userDatasetsRDD) {
+  public JavaPairRDD<String, List<String>> removeRetiredDataset(ESDriver es, JavaPairRDD<String, List<String>> userDatasetsRDD) {
 
     Map<String, String> nameMap = this.getOnServiceMetadata(es);
 
-    JavaPairRDD<String, List<String>> filterDatasetsRDD = userDatasetsRDD
-        .mapToPair(
-            new PairFunction<Tuple2<String, List<String>>, String, List<String>>() {
-              @Override
-              public Tuple2<String, List<String>> call(
-                  Tuple2<String, List<String>> arg0) throws Exception {
-                List<String> oriDatasets = arg0._2;
-                List<String> newDatasets = new ArrayList<String>();
-                int size = oriDatasets.size();
-                for (int i = 0; i < size; i++) {
-                  String name = oriDatasets.get(i);
-                  if (nameMap.containsKey(name)) {
-                    newDatasets.add(nameMap.get(name));
-                  }
-                }
-                return new Tuple2<String, List<String>>(arg0._1, newDatasets);
-              }
-            });
+    JavaPairRDD<String, List<String>> filterDatasetsRDD = userDatasetsRDD.mapToPair(new PairFunction<Tuple2<String, List<String>>, String, List<String>>() {
+      @Override
+      public Tuple2<String, List<String>> call(Tuple2<String, List<String>> arg0) throws Exception {
+        List<String> oriDatasets = arg0._2;
+        List<String> newDatasets = new ArrayList<String>();
+        int size = oriDatasets.size();
+        for (int i = 0; i < size; i++) {
+          String name = oriDatasets.get(i);
+          if (nameMap.containsKey(name)) {
+            newDatasets.add(nameMap.get(name));
+          }
+        }
+        return new Tuple2<String, List<String>>(arg0._1, newDatasets);
+      }
+    });
 
     return filterDatasetsRDD;
   }
@@ -133,9 +120,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
     String metadataType = props.getProperty("recom_metadataType");
 
     Map<String, String> shortnameMap = new HashMap<String, String>();
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(metadataType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -144,8 +129,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
         shortnameMap.put(shortName.toLowerCase(), shortName);
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }

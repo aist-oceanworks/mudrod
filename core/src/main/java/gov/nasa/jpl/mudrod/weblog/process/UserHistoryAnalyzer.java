@@ -33,8 +33,7 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(UserHistoryAnalyzer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UserHistoryAnalyzer.class);
 
   public UserHistoryAnalyzer(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -49,15 +48,12 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     SemanticAnalyzer sa = new SemanticAnalyzer(props, es, spark);
-    List<LinkageTriple> tripleList = sa
-        .calTermSimfromMatrix(props.getProperty("userHistoryMatrix"));
-    sa.saveToES(tripleList, props.getProperty("indexName"),
-        props.getProperty("userHistoryLinkageType"));
+    List<LinkageTriple> tripleList = sa.calTermSimfromMatrix(props.getProperty("userHistoryMatrix"));
+    sa.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("userHistoryLinkageType"));
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("UserHistoryAnalyzer complete. Time elapsed: {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("UserHistoryAnalyzer complete. Time elapsed: {}s", (endTime - startTime) / 1000);
     return null;
   }
 

@@ -28,8 +28,7 @@ import java.util.Properties;
 public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MetadataTFIDFGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataTFIDFGenerator.class);
 
   /**
    * Creates a new instance of MatrixGenerator.
@@ -38,16 +37,14 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
    * @param es    the Elasticsearch drive
    * @param spark the spark drive
    */
-  public MetadataTFIDFGenerator(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public MetadataTFIDFGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
   @Override
   public Object execute() {
 
-    LOG.info(
-        "*****************Dataset TF_IDF Matrix Generator starts******************");
+    LOG.info("*****************Dataset TF_IDF Matrix Generator starts******************");
 
     startTime = System.currentTimeMillis();
     try {
@@ -58,9 +55,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
     }
     endTime = System.currentTimeMillis();
 
-    LOG.info(
-        "*****************Dataset TF_IDF Matrix Generator ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Dataset TF_IDF Matrix Generator ends******************Took {}s", (endTime - startTime) / 1000);
 
     return null;
   }
@@ -78,14 +73,11 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark);
 
-    JavaPairRDD<String, List<String>> metadataWords = opt
-        .tokenizeData(metadataContents, " ");
+    JavaPairRDD<String, List<String>> metadataWords = opt.tokenizeData(metadataContents, " ");
 
     LabeledRowMatrix wordtfidfMatrix = opt.TFIDFTokens(metadataWords, spark);
 
-    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys,
-        wordtfidfMatrix.colkeys,
-        props.getProperty("metadata_word_tfidf_matrix"));
+    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty("metadata_word_tfidf_matrix"));
 
     return wordtfidfMatrix;
   }
@@ -99,17 +91,13 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
     variables.add("DatasetParameter-Variable");
     variables.add("Dataset-ExtractTerm");
 
-    JavaPairRDD<String, String> metadataContents = opt
-        .loadAll(es, spark, variables);
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables);
 
-    JavaPairRDD<String, List<String>> metadataTokens = opt
-        .tokenizeData(metadataContents, ",");
+    JavaPairRDD<String, List<String>> metadataTokens = opt.tokenizeData(metadataContents, ",");
 
     LabeledRowMatrix tokentfidfMatrix = opt.TFIDFTokens(metadataTokens, spark);
 
-    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys,
-        tokentfidfMatrix.colkeys,
-        props.getProperty("metadata_term_tfidf_matrix"));
+    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty("metadata_term_tfidf_matrix"));
 
     return tokentfidfMatrix;
   }

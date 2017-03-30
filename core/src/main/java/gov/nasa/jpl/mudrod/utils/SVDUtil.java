@@ -61,14 +61,11 @@ public class SVDUtil extends MudrodAbstract {
    * @param svdDimension: Dimension of matrix after singular value decomposition
    * @return row matrix
    */
-  public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD,
-      int svdDimension) {
+  public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD, int svdDimension) {
 
     RowMatrix svdMatrix = null;
-    LabeledRowMatrix wordDocMatrix = MatrixUtil
-        .createWordDocMatrix(docwordRDD, spark.sc);
-    RowMatrix ifIdfMatrix = MatrixUtil
-        .createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
+    LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
+    RowMatrix ifIdfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
     svdMatrix = MatrixUtil.buildSVDMatrix(ifIdfMatrix, svdDimension);
     this.svdMatrix = svdMatrix;
     this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
@@ -84,8 +81,7 @@ public class SVDUtil extends MudrodAbstract {
    */
   public RowMatrix buildSVDMatrix(String tfidfCSVfile, int svdDimension) {
     RowMatrix svdMatrix = null;
-    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil
-        .loadVectorFromCSV(spark, tfidfCSVfile, 2);
+    JavaPairRDD<String, Vector> tfidfRDD = MatrixUtil.loadVectorFromCSV(spark, tfidfCSVfile, 2);
     JavaRDD<Vector> vectorRDD = tfidfRDD.values();
 
     svdMatrix = MatrixUtil.buildSVDMatrix(vectorRDD, svdDimension);
@@ -100,8 +96,7 @@ public class SVDUtil extends MudrodAbstract {
    * CalSimilarity: calculate similarity
    */
   public void calSimilarity() {
-    CoordinateMatrix simMatrix = SimilarityUtil
-        .calculateSimilarityFromMatrix(svdMatrix);
+    CoordinateMatrix simMatrix = SimilarityUtil.calculateSimilarityFromMatrix(svdMatrix);
     this.simMatrix = simMatrix;
   }
 
@@ -112,8 +107,7 @@ public class SVDUtil extends MudrodAbstract {
    * @param type  linkage triple name
    */
   public void insertLinkageToES(String index, String type) {
-    List<LinkageTriple> triples = SimilarityUtil
-        .matrixToTriples(wordRDD, simMatrix);
+    List<LinkageTriple> triples = SimilarityUtil.matrixToTriples(wordRDD, simMatrix);
     try {
       LinkageTriple.insertTriples(es, triples, index, type);
     } catch (IOException e) {

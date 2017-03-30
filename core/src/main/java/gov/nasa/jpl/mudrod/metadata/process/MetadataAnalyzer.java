@@ -30,15 +30,13 @@ import java.util.Properties;
  * Function: Calculate semantic relationship of vocabularies extracted from
  * metadata.
  */
-public class MetadataAnalyzer extends DiscoveryStepAbstract
-    implements Serializable {
+public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializable {
 
   /**
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MetadataAnalyzer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataAnalyzer.class);
 
   /**
    * Creates a new instance of MetadataAnalyzer.
@@ -69,18 +67,14 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract
       startTime = System.currentTimeMillis();
 
       SVDAnalyzer analyzer = new SVDAnalyzer(props, es, spark);
-      int svdDimension = Integer
-          .parseInt(props.getProperty("metadataSVDDimension"));
+      int svdDimension = Integer.parseInt(props.getProperty("metadataSVDDimension"));
       String metadataMatrixFile = props.getProperty("metadataMatrix");
       String svdMatrixFileName = props.getProperty("metadataSVDMatrix_tmp");
 
-      analyzer
-          .getSVDMatrix(metadataMatrixFile, svdDimension, svdMatrixFileName);
-      List<LinkageTriple> triples = analyzer
-          .calTermSimfromMatrix(svdMatrixFileName);
+      analyzer.getSVDMatrix(metadataMatrixFile, svdDimension, svdMatrixFileName);
+      List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(svdMatrixFileName);
 
-      analyzer.saveToES(triples, props.getProperty("indexName"),
-          props.getProperty("metadataLinkageType"));
+      analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataLinkageType"));
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -88,9 +82,7 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info(
-        "*****************Metadata Analyzer ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata Analyzer ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 }
