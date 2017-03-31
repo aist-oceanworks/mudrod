@@ -159,6 +159,7 @@ public class SessionStatistic extends LogAbstract {
           sessionNums.add(sessionNum);
         }
         tmpES.destroyBulkProcessor();
+        tmpES.close();
         return sessionNums.iterator();
       }
     }).reduce(new Function2<Integer, Integer, Integer>() {
