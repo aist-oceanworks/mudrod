@@ -24,8 +24,7 @@ import java.util.Properties;
  */
 public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(AbstractBasedSimilarity.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractBasedSimilarity.class);
 
   /**
    * Creates a new instance of TopicBasedCF.
@@ -34,16 +33,14 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
    * @param es    the Elasticsearch client
    * @param spark the spark drive
    */
-  public AbstractBasedSimilarity(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public AbstractBasedSimilarity(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
   @Override
   public Object execute() {
 
-    LOG.info(
-        "*****************abstract similarity calculation starts******************");
+    LOG.info("*****************abstract similarity calculation starts******************");
     startTime = System.currentTimeMillis();
 
     try {
@@ -56,21 +53,16 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
 
       // for comparison
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-      svd.getSVDMatrix(props.getProperty("metadata_word_tfidf_matrix"), 150,
-          props.getProperty("metadata_word_tfidf_matrix"));
-      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(
-          props.getProperty("metadata_word_tfidf_matrix"));
-      svd.saveToES(tripleList, props.getProperty("indexName"),
-          props.getProperty("metadataWordTFIDFSimType"), true, true);
+      svd.getSVDMatrix(props.getProperty("metadata_word_tfidf_matrix"), 150, props.getProperty("metadata_word_tfidf_matrix"));
+      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("metadata_word_tfidf_matrix"));
+      svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("metadataWordTFIDFSimType"), true, true);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************abstract similarity calculation ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************abstract similarity calculation ends******************Took {}s", (endTime - startTime) / 1000);
 
     return null;
   }

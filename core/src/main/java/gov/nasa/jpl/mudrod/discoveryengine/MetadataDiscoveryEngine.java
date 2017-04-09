@@ -27,18 +27,15 @@ import java.util.Properties;
 /**
  * Supports to preprocess and process metadata
  */
-public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
-    implements Serializable {
+public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements Serializable {
 
   /**
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MetadataDiscoveryEngine.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MetadataDiscoveryEngine.class);
 
-  public MetadataDiscoveryEngine(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public MetadataDiscoveryEngine(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -46,18 +43,14 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
    * Method of preprocessing metadata
    */
   public void preprocess() {
-    LOG.info(
-        "*****************Metadata preprocessing starts******************");
+    LOG.info("*****************Metadata preprocessing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es,
-        this.spark);
+    DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es, this.spark);
     harvester.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************Metadata preprocessing ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata preprocessing ends******************Took {}s", (endTime - startTime) / 1000);
   }
 
   /**
@@ -67,18 +60,14 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract
     LOG.info("*****************Metadata processing starts******************");
     startTime = System.currentTimeMillis();
 
-    DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es,
-        this.spark);
+    DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es, this.spark);
     matrix.execute();
 
-    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.props, this.es,
-        this.spark);
+    DiscoveryStepAbstract svd = new MetadataAnalyzer(this.props, this.es, this.spark);
     svd.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************Metadata processing ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata processing ends******************Took {}s", (endTime - startTime) / 1000);
   }
 
   public void output() {

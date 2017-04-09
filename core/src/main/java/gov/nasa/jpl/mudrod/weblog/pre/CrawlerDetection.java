@@ -54,8 +54,7 @@ public class CrawlerDetection extends LogAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlerDetection.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
 
   public static final String CRAWLER = "crawler";
   public static final String GOOGLE_BOT = "googlebot";
@@ -100,8 +99,7 @@ public class CrawlerDetection extends LogAbstract {
     }
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Crawler detection complete. Time elapsed {} seconds",
-        (endTime - startTime) / 1000);
+    LOG.info("Crawler detection complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -113,12 +111,8 @@ public class CrawlerDetection extends LogAbstract {
    */
   public boolean checkKnownCrawler(String agent) {
     agent = agent.toLowerCase();
-    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT) || agent
-        .contains(BING_BOT) || agent.contains(APACHE_HHTP) || agent
-        .contains(PERL_BOT) || agent.contains(YAHOO_BOT) || agent
-        .contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT) || agent
-        .contains(PERL_BOT) || agent.contains(APACHE_HHTP) || agent
-        .contains(JAVA_CLIENT) || agent.contains(CURL)) {
+    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT) || agent.contains(BING_BOT) || agent.contains(APACHE_HHTP) || agent.contains(PERL_BOT) || agent.contains(YAHOO_BOT) || agent
+        .contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT) || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP) || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
       return true;
     } else {
       return false;
@@ -141,15 +135,13 @@ public class CrawlerDetection extends LogAbstract {
    * @throws InterruptedException InterruptedException
    * @throws IOException          IOException
    */
-  public void checkByRateInSequential()
-      throws InterruptedException, IOException {
+  public void checkByRateInSequential() throws InterruptedException, IOException {
     es.createBulkProcessor();
 
     int rate = Integer.parseInt(props.getProperty("sendingrate"));
 
     Terms users = this.getUserTerms(this.httpType);
-    LOG.info("Original User count: {}",
-        Integer.toString(users.getBuckets().size()));
+    LOG.info("Original User count: {}", Integer.toString(users.getBuckets().size()));
 
     int userCount = 0;
     for (Terms.Bucket entry : users.getBuckets()) {
@@ -167,29 +159,27 @@ public class CrawlerDetection extends LogAbstract {
     LOG.info("Original User count: {}", userRDD.count());
 
     int userCount = 0;
-    userCount = userRDD
-        .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
-          @Override
-          public Iterator<Integer> call(Iterator<String> arg0)
-              throws Exception {
-            // TODO Auto-generated method stub
-            ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcessor();
-            List<Integer> realUserNums = new ArrayList<Integer>();
-            while (arg0.hasNext()) {
-              String s = arg0.next();
-              Integer realUser = checkByRate(tmpES, s);
-              realUserNums.add(realUser);
-            }
-            tmpES.destroyBulkProcessor();
-            return realUserNums.iterator();
-          }
-        }).reduce(new Function2<Integer, Integer, Integer>() {
-          @Override
-          public Integer call(Integer a, Integer b) {
-            return a + b;
-          }
-        });
+    userCount = userRDD.mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
+      @Override
+      public Iterator<Integer> call(Iterator<String> arg0) throws Exception {
+        // TODO Auto-generated method stub
+        ESDriver tmpES = new ESDriver(props);
+        tmpES.createBulkProcessor();
+        List<Integer> realUserNums = new ArrayList<Integer>();
+        while (arg0.hasNext()) {
+          String s = arg0.next();
+          Integer realUser = checkByRate(tmpES, s);
+          realUserNums.add(realUser);
+        }
+        tmpES.destroyBulkProcessor();
+        return realUserNums.iterator();
+      }
+    }).reduce(new Function2<Integer, Integer, Integer>() {
+      @Override
+      public Integer call(Integer a, Integer b) {
+        return a + b;
+      }
+    });
 
     LOG.info("User count: {}", Integer.toString(userCount));
   }
@@ -203,13 +193,8 @@ public class CrawlerDetection extends LogAbstract {
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
     filterSearch.must(QueryBuilders.termQuery("IP", user));
 
-    AggregationBuilder aggregation = AggregationBuilders
-        .dateHistogram("by_minute").field("Time")
-        .dateHistogramInterval(DateHistogramInterval.MINUTE)
-        .order(Order.COUNT_DESC);
-    SearchResponse checkRobot = es.getClient().prepareSearch(logIndex)
-        .setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0)
-        .addAggregation(aggregation).execute().actionGet();
+    AggregationBuilder aggregation = AggregationBuilders.dateHistogram("by_minute").field("Time").dateHistogramInterval(DateHistogramInterval.MINUTE).order(Order.COUNT_DESC);
+    SearchResponse checkRobot = es.getClient().prepareSearch(logIndex).setTypes(httpType, ftpType).setQuery(filterSearch).setSize(0).addAggregation(aggregation).execute().actionGet();
 
     Histogram agg = checkRobot.getAggregations().get("by_minute");
 
@@ -220,9 +205,7 @@ public class CrawlerDetection extends LogAbstract {
     } else {
       DateTime dt1 = null;
       int toLast = 0;
-      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
-          .setTypes(httpType, ftpType).setScroll(new TimeValue(60000))
-          .setQuery(filterSearch).setSize(100).execute().actionGet();
+      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(httpType, ftpType).setScroll(new TimeValue(60000)).setQuery(filterSearch).setSize(100).execute().actionGet();
       while (true) {
         for (SearchHit hit : scrollResp.getHits().getHits()) {
           Map<String, Object> result = hit.getSource();
@@ -252,16 +235,13 @@ public class CrawlerDetection extends LogAbstract {
             toLast = Math.abs(Seconds.secondsBetween(dt1, dt2).getSeconds());
           }
           result.put("ToLast", toLast);
-          IndexRequest ir = new IndexRequest(logIndex, cleanupType)
-              .source(result);
+          IndexRequest ir = new IndexRequest(logIndex, cleanupType).source(result);
 
           es.getBulkProcessor().add(ir);
           dt1 = dt2;
         }
 
-        scrollResp = es.getClient()
-            .prepareSearchScroll(scrollResp.getScrollId())
-            .setScroll(new TimeValue(600000)).execute().actionGet();
+        scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
         if (scrollResp.getHits().getHits().length == 0) {
           break;
         }

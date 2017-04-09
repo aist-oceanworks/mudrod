@@ -84,8 +84,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
     Double val = 0.0;
     if (strList != null) {
       String str = String.join(", ", strList);
-      if (str != null && str.length() != 0 && str.toLowerCase().trim()
-          .contains(query)) {
+      if (str != null && str.length() != 0 && str.toLowerCase().trim().contains(query)) {
         val = 1.0;
       }
     }
@@ -102,10 +101,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @return a list of search result
    */
   @SuppressWarnings("unchecked")
-  public List<SResult> searchByQuery(String index, String type, String query,
-      String query_operator) {
-    boolean exists = es.getClient().admin().indices().prepareExists(index)
-        .execute().actionGet().isExists();
+  public List<SResult> searchByQuery(String index, String type, String query, String query_operator) {
+    boolean exists = es.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
     if (!exists) {
       return new ArrayList<SResult>();
     }
@@ -114,8 +111,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
     BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, query_operator);
     List<SResult> resultList = new ArrayList<SResult>();
 
-    SearchResponse response = es.getClient().prepareSearch(index).setTypes(type)
-        .setQuery(qb).setSize(500).execute().actionGet();
+    SearchResponse response = es.getClient().prepareSearch(index).setTypes(type).setQuery(qb).setSize(500).execute().actionGet();
 
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
@@ -123,59 +119,48 @@ public class Searcher extends MudrodAbstract implements Serializable {
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
 
-      ArrayList<String> topicList = (ArrayList<String>) result
-          .get("DatasetParameter-Variable");
+      ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
 
       if (!content.equals("")) {
-        int maxLength = (content.length() < MAX_CHAR) ?
-            content.length() :
-            MAX_CHAR;
+        int maxLength = (content.length() < MAX_CHAR) ? content.length() : MAX_CHAR;
         content = content.trim().substring(0, maxLength - 1) + "...";
       }
 
-      ArrayList<String> longdate = (ArrayList<String>) result
-          .get("DatasetCitation-ReleaseDateLong");
+      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
       Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
-      
-      
+
       //start date
-      Long start = (Long) result
-          .get("DatasetCoverage-StartTimeLong-Long");
+      Long start = (Long) result.get("DatasetCoverage-StartTimeLong-Long");
       Date startDate = new Date(start);
       String startDateTxt = df2.format(startDate);
-      
+
       //end date
-      String end = (String) result
-          .get("Dataset-DatasetCoverage-StopTimeLong");
+      String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
       String endDateTxt = "";
-      if(end.equals("")){
-    	  endDateTxt = "now";
-      }else{
-    	  Date endDate = new Date(Long.valueOf(end));
-          endDateTxt = df2.format(endDate);
+      if (end.equals("")) {
+        endDateTxt = "now";
+      } else {
+        Date endDate = new Date(Long.valueOf(end));
+        endDateTxt = df2.format(endDate);
       }
 
       String processingLevel = (String) result.get("Dataset-ProcessingLevel");
       Double proNum = getProLevelNum(processingLevel);
 
-      Double userPop = getPop(
-          ((Integer) result.get("Dataset-UserPopularity")).doubleValue());
-      Double allPop = getPop(
-          ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
-      Double monthPop = getPop(
-          ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
+      Double userPop = getPop(((Integer) result.get("Dataset-UserPopularity")).doubleValue());
+      Double allPop = getPop(((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
+      Double monthPop = getPop(((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
 
       List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
-      
+
       SResult re = new SResult(shortName, longName, topic, content, dateText);
 
       SResult.set(re, "term", relevance);
-      SResult
-          .set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());
+      SResult.set(re, "releaseDate", Long.valueOf(longdate.get(0)).doubleValue());
       SResult.set(re, "processingLevel", processingLevel);
       SResult.set(re, "processingL", proNum);
       SResult.set(re, "userPop", userPop);
@@ -185,12 +170,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult.set(re, "endDate", endDateTxt);
       SResult.set(re, "sensors", String.join(", ", sensors));
 
-      QueryBuilder query_label_search = QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery("query", query))
-          .must(QueryBuilders.termQuery("dataID", shortName));
-      SearchResponse label_res = es.getClient().prepareSearch(index)
-          .setTypes("trainingranking").setQuery(query_label_search).setSize(5)
-          .execute().actionGet();
+      QueryBuilder query_label_search = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("query", query)).must(QueryBuilders.termQuery("dataID", shortName));
+      SearchResponse label_res = es.getClient().prepareSearch(index).setTypes("trainingranking").setQuery(query_label_search).setSize(5).execute().actionGet();
       String label_string = null;
       for (SearchHit label : label_res.getHits().getHits()) {
         Map<String, Object> label_item = label.getSource();
@@ -214,31 +195,25 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @param rr             selected ranking method
    * @return search results
    */
-  public String ssearch(String index, String type, String query,
-      String query_operator, Ranker rr) {
-    List<SResult> resultList = searchByQuery(index, type, query,
-        query_operator);
+  public String ssearch(String index, String type, String query, String query_operator, Ranker rr) {
+    List<SResult> resultList = searchByQuery(index, type, query, query_operator);
     List<SResult> li = rr.rank(resultList);
     Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
 
     for (int i = 0; i < li.size(); i++) {
       JsonObject file = new JsonObject();
-      file.addProperty("Short Name",
-          (String) SResult.get(li.get(i), "shortName"));
-      file.addProperty("Long Name",
-          (String) SResult.get(li.get(i), "longName"));
+      file.addProperty("Short Name", (String) SResult.get(li.get(i), "shortName"));
+      file.addProperty("Long Name", (String) SResult.get(li.get(i), "longName"));
       file.addProperty("Topic", (String) SResult.get(li.get(i), "topic"));
-      file.addProperty("Description",
-          (String) SResult.get(li.get(i), "description"));
-      file.addProperty("Release Date",
-          (String) SResult.get(li.get(i), "relase_date"));
+      file.addProperty("Description", (String) SResult.get(li.get(i), "description"));
+      file.addProperty("Release Date", (String) SResult.get(li.get(i), "relase_date"));
       fileList.add(file);
-      
+
       file.addProperty("Start/End Date", (String) SResult.get(li.get(i), "startDate") + " - " + (String) SResult.get(li.get(i), "endDate"));
-      file.addProperty("Processing Level",(String) SResult.get(li.get(i), "processingLevel"));
-      
-      file.addProperty("Sensor",(String) SResult.get(li.get(i), "sensors"));
+      file.addProperty("Processing Level", (String) SResult.get(li.get(i), "processingLevel"));
+
+      file.addProperty("Sensor", (String) SResult.get(li.get(i), "sensors"));
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
 

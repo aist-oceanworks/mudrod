@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 $(document).ready(function () {
-	var bestPictures = new Bloodhound({
-  	  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-  	  queryTokenizer: Bloodhound.tokenizers.whitespace,
-  	  remote: {
-  	    url: 'services/autocomplete/query?term=%QUERY',
-  	    wildcard: '%QUERY'
-  	  }
-  	});
+    var bestPictures = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            url: 'services/autocomplete/query?term=%QUERY',
+            wildcard: '%QUERY'
+        }
+    });
 
-  	$('#query').typeahead(null, {
-  	  display: 'value',
-  	  source: bestPictures
-  	});
-	  	
+    $('#query').typeahead(null, {
+        display: 'value',
+        source: bestPictures
+    });
+
     $("#query").keyup(function (event) {
         if (event.keyCode == 13) {
             $("#searchButton").click();

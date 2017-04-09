@@ -14,11 +14,9 @@ import java.util.Properties;
 public class RankingTrainDataGenerator extends DiscoveryStepAbstract {
 
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(RankingTrainDataGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RankingTrainDataGenerator.class);
 
-  public RankingTrainDataGenerator(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public RankingTrainDataGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
     // TODO Auto-generated constructor stub
   }
@@ -32,22 +30,18 @@ public class RankingTrainDataGenerator extends DiscoveryStepAbstract {
     String rankingTrainFile = "E:\\Mudrod_input_data\\Testing_Data_4_1monthLog+Meta+Onto\\traing.txt";
     try {
       SessionExtractor extractor = new SessionExtractor();
-      JavaRDD<RankingTrainData> rankingTrainDataRDD = extractor
-          .extractRankingTrainData(this.props, this.es, this.spark);
+      JavaRDD<RankingTrainData> rankingTrainDataRDD = extractor.extractRankingTrainData(this.props, this.es, this.spark);
 
-      JavaRDD<String> rankingTrainData_JsonRDD = rankingTrainDataRDD
-          .map(f -> f.toJson());
+      JavaRDD<String> rankingTrainData_JsonRDD = rankingTrainDataRDD.map(f -> f.toJson());
 
-      rankingTrainData_JsonRDD.coalesce(1, true)
-          .saveAsTextFile(rankingTrainFile);
+      rankingTrainData_JsonRDD.coalesce(1, true).saveAsTextFile(rankingTrainFile);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("Ranking train data generation complete. Time elapsed {} seconds.",
-        (endTime - startTime) / 1000);
+    LOG.info("Ranking train data generation complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

@@ -19,15 +19,13 @@ import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import java.io.Serializable;
 import java.util.Properties;
 
-public abstract class DiscoveryEngineAbstract extends MudrodAbstract
-    implements Serializable {
+public abstract class DiscoveryEngineAbstract extends MudrodAbstract implements Serializable {
   /**
    *
    */
   private static final long serialVersionUID = 1L;
 
-  public DiscoveryEngineAbstract(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public DiscoveryEngineAbstract(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 

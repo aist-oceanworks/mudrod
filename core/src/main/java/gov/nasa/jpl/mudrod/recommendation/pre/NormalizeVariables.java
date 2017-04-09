@@ -22,8 +22,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(NormalizeVariables.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NormalizeVariables.class);
   // index name
   private String indexName;
   // type name of metadata in ES
@@ -44,16 +43,13 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info(
-        "*****************processing metadata variables starts******************");
+    LOG.info("*****************processing metadata variables starts******************");
     startTime = System.currentTimeMillis();
 
     normalizeMetadataVariables(es);
 
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************processing metadata variables ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************processing metadata variables ends******************Took {}s", (endTime - startTime) / 1000);
 
     return null;
   }
@@ -67,9 +63,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
 
     es.createBulkProcessor();
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(metadataType).setScroll(new TimeValue(60000))
-        .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
         .actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
@@ -80,14 +74,11 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
         this.normalizeTemporalVariables(metadata, updatedValues);
         this.normalizeOtherVariables(metadata, updatedValues);
 
-        UpdateRequest ur = es
-            .generateUpdateRequest(indexName, metadataType, hit.getId(),
-                updatedValues);
+        UpdateRequest ur = es.generateUpdateRequest(indexName, metadataType, hit.getId(), updatedValues);
         es.getBulkProcessor().add(ur);
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -96,8 +87,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     es.destroyBulkProcessor();
   }
 
-  private void normalizeOtherVariables(Map<String, Object> metadata,
-      Map<String, Object> updatedValues) {
+  private void normalizeOtherVariables(Map<String, Object> metadata, Map<String, Object> updatedValues) {
     String shortname = (String) metadata.get("Dataset-ShortName");
     double versionNUm = getVersionNum(shortname);
     updatedValues.put("Dataset-Derivative-VersionNum", versionNUm);
@@ -125,8 +115,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     return versionNum;
   }
 
-  private void normalizeSpatialVariables(Map<String, Object> metadata,
-      Map<String, Object> updatedValues) {
+  private void normalizeSpatialVariables(Map<String, Object> metadata, Map<String, Object> updatedValues) {
 
     // get spatial resolution
     Double spatialR;
@@ -144,11 +133,9 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
 
     // Transform Longitude and calculate coverage area
     double top = parseDouble((String) metadata.get("DatasetCoverage-NorthLat"));
-    double bottom = parseDouble(
-        (String) metadata.get("DatasetCoverage-SouthLat"));
+    double bottom = parseDouble((String) metadata.get("DatasetCoverage-SouthLat"));
     double left = parseDouble((String) metadata.get("DatasetCoverage-WestLon"));
-    double right = parseDouble(
-        (String) metadata.get("DatasetCoverage-EastLon"));
+    double right = parseDouble((String) metadata.get("DatasetCoverage-EastLon"));
 
     if (left > 180) {
       left = left - 360;
@@ -177,16 +164,14 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     updatedValues.put("Dataset-Derivative-ProcessingLevel", dProLevel);
   }
 
-  private void normalizeTemporalVariables(Map<String, Object> metadata,
-      Map<String, Object> updatedValues) {
+  private void normalizeTemporalVariables(Map<String, Object> metadata, Map<String, Object> updatedValues) {
 
     String trStr = (String) metadata.get("Dataset-TemporalResolution");
     if ("".equals(trStr)) {
       trStr = (String) metadata.get("Dataset-TemporalRepeat");
     }
 
-    updatedValues
-        .put("Dataset-Derivative-TemporalResolution", covertTimeUnit(trStr));
+    updatedValues.put("Dataset-Derivative-TemporalResolution", covertTimeUnit(trStr));
   }
 
   private Double covertTimeUnit(String str) {

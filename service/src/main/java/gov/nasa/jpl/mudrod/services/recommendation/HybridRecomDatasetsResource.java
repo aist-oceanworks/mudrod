@@ -39,24 +39,19 @@ public class HybridRecomDatasetsResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Hybrid Recommendation Datasets Resource: running correctly...</h1>").build();
   }
 
   @GET
   @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response hybridRecommendation(
-      @QueryParam("shortname") String shortName) {
+  public Response hybridRecommendation(@QueryParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
-      HybridRecommendation recom = new HybridRecommendation(mEngine.getConfig(),
-          mEngine.getESDriver(), null);
+      HybridRecommendation recom = new HybridRecommendation(mEngine.getConfig(), mEngine.getESDriver(), null);
       json = new JsonObject();
-      json.add("HybridRecommendationData",
-          recom.getRecomDataInJson(shortName, 10));
+      json.add("HybridRecommendationData", recom.getRecomDataInJson(shortName, 10));
     }
     return Response.ok(json.toString(), MediaType.APPLICATION_JSON).build();
   }

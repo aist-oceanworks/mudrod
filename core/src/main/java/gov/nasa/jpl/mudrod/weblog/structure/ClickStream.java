@@ -144,8 +144,7 @@ public class ClickStream implements Serializable {
    */
   @Override
   public String toString() {
-    return "query:" + keywords + "|| view dataset:" + viewDataset
-        + "|| download Dataset:" + downloadDataset;
+    return "query:" + keywords + "|| view dataset:" + viewDataset + "|| download Dataset:" + downloadDataset;
   }
 
   /**

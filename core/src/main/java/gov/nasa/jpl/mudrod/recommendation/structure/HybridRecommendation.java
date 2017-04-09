@@ -62,8 +62,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
     }
   }
 
-  public HybridRecommendation(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public HybridRecommendation(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -88,16 +87,13 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
     JsonObject resultJson = new JsonObject();
 
     String type = props.getProperty("metadataCodeSimType");
-    Map<String, Double> sortedVariableSimMap = getRelatedData(type, input,
-        num + 10);
+    Map<String, Double> sortedVariableSimMap = getRelatedData(type, input, num + 10);
 
     type = props.getProperty("metadataWordTFIDFSimType");
-    Map<String, Double> sortedAbstractSimMap = getRelatedData(type, input,
-        num + 10);
+    Map<String, Double> sortedAbstractSimMap = getRelatedData(type, input, num + 10);
 
     type = props.getProperty("metadataSessionBasedSimType");
-    Map<String, Double> sortedSessionSimMap = getRelatedData(type, input,
-        num + 10);
+    Map<String, Double> sortedSessionSimMap = getRelatedData(type, input, num + 10);
 
     JsonElement variableSimJson = mapToJson(sortedVariableSimMap, num);
     resultJson.add("variableSim", variableSimJson);
@@ -114,8 +110,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
 
     for (String name : sortedVariableSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim =
-            hybirdSimMap.get(name) + sortedVariableSimMap.get(name) /** 0.3 */;
+        double sim = hybirdSimMap.get(name) + sortedVariableSimMap.get(name) /** 0.3 */;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
         double sim = sortedVariableSimMap.get(name);
@@ -125,8 +120,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
 
     for (String name : sortedSessionSimMap.keySet()) {
       if (hybirdSimMap.get(name) != null) {
-        double sim =
-            hybirdSimMap.get(name) + sortedSessionSimMap.get(name) /** 0.1 */;
+        double sim = hybirdSimMap.get(name) + sortedSessionSimMap.get(name) /** 0.1 */;
         hybirdSimMap.put(name, Double.parseDouble(df.format(sim)));
       } else {
         double sim = sortedSessionSimMap.get(name);
@@ -182,8 +176,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
    * @return recommended dataset map, key is dataset name, value is similarity
    * value
    */
-  public Map<String, Double> getRelatedData(String type, String input,
-      int num) {
+  public Map<String, Double> getRelatedData(String type, String input, int num) {
     termList = new ArrayList<>();
     Map<String, Double> termsMap = new HashMap<>();
     Map<String, Double> sortedMap = new HashMap<>();
@@ -210,13 +203,10 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
    * @param num   the number of recommended dataset
    * @return recommended dataset list
    */
-  public List<LinkedTerm> getRelatedDataFromES(String type, String input,
-      int num) {
+  public List<LinkedTerm> getRelatedDataFromES(String type, String input, int num) {
 
-    SearchRequestBuilder builder = es.getClient()
-        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
-        .setQuery(QueryBuilders.termQuery("concept_A", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(num);
+    SearchRequestBuilder builder = es.getClient().prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type).setQuery(QueryBuilders.termQuery("concept_A", input)).addSort(WEIGHT, SortOrder.DESC)
+        .setSize(num);
 
     SearchResponse usrhis = builder.execute().actionGet();
 
@@ -225,8 +215,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
       String conceptB = (String) result.get("concept_B");
 
       if (!conceptB.equals(input)) {
-        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT),
-            type);
+        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT), type);
         termList.add(lTerm);
       }
     }

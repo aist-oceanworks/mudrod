@@ -45,8 +45,7 @@ public class SimilarityUtil {
    * column is also a term, the cell value is the similarity between the
    * two terms
    */
-  public static CoordinateMatrix calculateSimilarityFromMatrix(
-      RowMatrix svdMatrix) {
+  public static CoordinateMatrix calculateSimilarityFromMatrix(RowMatrix svdMatrix) {
     JavaRDD<Vector> vecs = svdMatrix.rows().toJavaRDD();
     return SimilarityUtil.calculateSimilarityFromVector(vecs);
   }
@@ -59,8 +58,7 @@ public class SimilarityUtil {
    * column is also a term, the cell value is the similarity between the
    * two terms
    */
-  public static CoordinateMatrix calculateSimilarityFromVector(
-      JavaRDD<Vector> vecs) {
+  public static CoordinateMatrix calculateSimilarityFromVector(JavaRDD<Vector> vecs) {
     IndexedRowMatrix indexedMatrix = MatrixUtil.buildIndexRowMatrix(vecs);
     RowMatrix transposeMatrix = MatrixUtil.transposeMatrix(indexedMatrix);
     return transposeMatrix.columnSimilarities();
@@ -74,48 +72,43 @@ public class SimilarityUtil {
    * @param simType   the similarity calculation to execute
    * @return a new {@link org.apache.spark.api.java.JavaPairRDD}
    */
-  public static JavaRDD<LinkageTriple> calculateSimilarityFromVector(
-      JavaPairRDD<String, Vector> importRDD, int simType) {
-    JavaRDD<Tuple2<String, Vector>> importRDD1 = importRDD
-        .map(f -> new Tuple2<String, Vector>(f._1, f._2));
-    JavaPairRDD<Tuple2<String, Vector>, Tuple2<String, Vector>> cartesianRDD = importRDD1
-        .cartesian(importRDD1);
+  public static JavaRDD<LinkageTriple> calculateSimilarityFromVector(JavaPairRDD<String, Vector> importRDD, int simType) {
+    JavaRDD<Tuple2<String, Vector>> importRDD1 = importRDD.map(f -> new Tuple2<String, Vector>(f._1, f._2));
+    JavaPairRDD<Tuple2<String, Vector>, Tuple2<String, Vector>> cartesianRDD = importRDD1.cartesian(importRDD1);
 
-    return cartesianRDD.map(
-        new Function<Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>>, LinkageTriple>() {
+    return cartesianRDD.map(new Function<Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>>, LinkageTriple>() {
 
-          /**
-           *
-           */
-          private static final long serialVersionUID = 1L;
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public LinkageTriple call(
-              Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>> arg) {
-            String keyA = arg._1._1;
-            String keyB = arg._2._1;
+      @Override
+      public LinkageTriple call(Tuple2<Tuple2<String, Vector>, Tuple2<String, Vector>> arg) {
+        String keyA = arg._1._1;
+        String keyB = arg._2._1;
 
-            if (keyA.equals(keyB)) {
-              return null;
-            }
+        if (keyA.equals(keyB)) {
+          return null;
+        }
 
-            Vector vecA = arg._1._2;
-            Vector vecB = arg._2._2;
-            Double weight = 0.0;
+        Vector vecA = arg._1._2;
+        Vector vecB = arg._2._2;
+        Double weight = 0.0;
 
-            if (simType == SimilarityUtil.SIM_PEARSON) {
-              weight = SimilarityUtil.pearsonDistance(vecA, vecB);
-            } else if (simType == SimilarityUtil.SIM_HELLINGER) {
-              weight = SimilarityUtil.hellingerDistance(vecA, vecB);
-            }
+        if (simType == SimilarityUtil.SIM_PEARSON) {
+          weight = SimilarityUtil.pearsonDistance(vecA, vecB);
+        } else if (simType == SimilarityUtil.SIM_HELLINGER) {
+          weight = SimilarityUtil.hellingerDistance(vecA, vecB);
+        }
 
-            LinkageTriple triple = new LinkageTriple();
-            triple.keyA = keyA;
-            triple.keyB = keyB;
-            triple.weight = weight;
-            return triple;
-          }
-        }).filter(new Function<LinkageTriple, Boolean>() {
+        LinkageTriple triple = new LinkageTriple();
+        triple.keyA = keyA;
+        triple.keyB = keyB;
+        triple.weight = weight;
+        return triple;
+      }
+    }).filter(new Function<LinkageTriple, Boolean>() {
       /**
        *
        */
@@ -139,85 +132,73 @@ public class SimilarityUtil {
    *                  the cell value is the similarity between the two terms
    * @return linkage triple list
    */
-  public static List<LinkageTriple> matrixToTriples(JavaRDD<String> keys,
-      CoordinateMatrix simMatirx) {
+  public static List<LinkageTriple> matrixToTriples(JavaRDD<String> keys, CoordinateMatrix simMatirx) {
     if (simMatirx.numCols() != keys.count()) {
       return null;
     }
 
     // index words
-    JavaPairRDD<Long, String> keyIdRDD = JavaPairRDD.fromJavaRDD(
-        keys.zipWithIndex()
-            .map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
-              /**
-               *
-               */
-              private static final long serialVersionUID = 1L;
+    JavaPairRDD<Long, String> keyIdRDD = JavaPairRDD.fromJavaRDD(keys.zipWithIndex().map(new Function<Tuple2<String, Long>, Tuple2<Long, String>>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-              @Override
-              public Tuple2<Long, String> call(Tuple2<String, Long> docId) {
-                return docId.swap();
-              }
-            }));
+      @Override
+      public Tuple2<Long, String> call(Tuple2<String, Long> docId) {
+        return docId.swap();
+      }
+    }));
 
-    JavaPairRDD<Long, LinkageTriple> entriesRowRDD = simMatirx.entries()
-        .toJavaRDD()
-        .mapToPair(new PairFunction<MatrixEntry, Long, LinkageTriple>() {
-          /**
-           *
-           */
-          private static final long serialVersionUID = 1L;
+    JavaPairRDD<Long, LinkageTriple> entriesRowRDD = simMatirx.entries().toJavaRDD().mapToPair(new PairFunction<MatrixEntry, Long, LinkageTriple>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public Tuple2<Long, LinkageTriple> call(MatrixEntry t)
-              throws Exception {
-            LinkageTriple triple = new LinkageTriple();
-            triple.keyAId = t.i();
-            triple.keyBId = t.j();
-            triple.weight = t.value();
-            return new Tuple2<>(triple.keyAId, triple);
-          }
-        });
+      @Override
+      public Tuple2<Long, LinkageTriple> call(MatrixEntry t) throws Exception {
+        LinkageTriple triple = new LinkageTriple();
+        triple.keyAId = t.i();
+        triple.keyBId = t.j();
+        triple.weight = t.value();
+        return new Tuple2<>(triple.keyAId, triple);
+      }
+    });
 
-    JavaPairRDD<Long, LinkageTriple> entriesColRDD = entriesRowRDD
-        .leftOuterJoin(keyIdRDD).values().mapToPair(
-            new PairFunction<Tuple2<LinkageTriple, Optional<String>>, Long, LinkageTriple>() {
-              /**
-               *
-               */
-              private static final long serialVersionUID = 1L;
+    JavaPairRDD<Long, LinkageTriple> entriesColRDD = entriesRowRDD.leftOuterJoin(keyIdRDD).values().mapToPair(new PairFunction<Tuple2<LinkageTriple, Optional<String>>, Long, LinkageTriple>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-              @Override
-              public Tuple2<Long, LinkageTriple> call(
-                  Tuple2<LinkageTriple, Optional<String>> t) throws Exception {
-                LinkageTriple triple = t._1;
-                Optional<String> stra = t._2;
-                if (stra.isPresent()) {
-                  triple.keyA = stra.get();
-                }
-                return new Tuple2<>(triple.keyBId, triple);
-              }
-            });
+      @Override
+      public Tuple2<Long, LinkageTriple> call(Tuple2<LinkageTriple, Optional<String>> t) throws Exception {
+        LinkageTriple triple = t._1;
+        Optional<String> stra = t._2;
+        if (stra.isPresent()) {
+          triple.keyA = stra.get();
+        }
+        return new Tuple2<>(triple.keyBId, triple);
+      }
+    });
 
-    JavaRDD<LinkageTriple> tripleRDD = entriesColRDD.leftOuterJoin(keyIdRDD)
-        .values().map(
-            new Function<Tuple2<LinkageTriple, Optional<String>>, LinkageTriple>() {
-              /**
-               *
-               */
-              private static final long serialVersionUID = 1L;
+    JavaRDD<LinkageTriple> tripleRDD = entriesColRDD.leftOuterJoin(keyIdRDD).values().map(new Function<Tuple2<LinkageTriple, Optional<String>>, LinkageTriple>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-              @Override
-              public LinkageTriple call(
-                  Tuple2<LinkageTriple, Optional<String>> t) throws Exception {
-                LinkageTriple triple = t._1;
-                Optional<String> strb = t._2;
-                if (strb.isPresent()) {
-                  triple.keyB = strb.get();
-                }
-                return triple;
-              }
-            });
+      @Override
+      public LinkageTriple call(Tuple2<LinkageTriple, Optional<String>> t) throws Exception {
+        LinkageTriple triple = t._1;
+        Optional<String> strb = t._2;
+        if (strb.isPresent()) {
+          triple.keyB = strb.get();
+        }
+        return triple;
+      }
+    });
     return tripleRDD.collect();
   }
 

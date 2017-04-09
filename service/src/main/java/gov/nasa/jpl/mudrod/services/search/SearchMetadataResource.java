@@ -36,8 +36,7 @@ import java.util.Properties;
 @Path("/metadata")
 public class SearchMetadataResource {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SearchMetadataResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
 
   private MudrodEngine mEngine;
   private Searcher searcher;
@@ -53,22 +52,17 @@ public class SearchMetadataResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Metadata Search Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Metadata Search Resource: running correctly...</h1>").build();
   }
 
   @GET
   @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchMetadata(@QueryParam("query") String query,
-      @QueryParam("operator") String operator) {
+  public Response searchMetadata(@QueryParam("query") String query, @QueryParam("operator") String operator) {
     Properties config = mEngine.getConfig();
     String fileList = searcher
-        .ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-            config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query,
-            operator, //please replace it with and, or, phrase
+        .ssearch(config.getProperty(MudrodConstants.ES_INDEX_NAME), config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, operator, //please replace it with and, or, phrase
             ranker);
     Gson gson = new GsonBuilder().create();
     String json = gson.toJson(gson.fromJson(fileList, JsonObject.class));

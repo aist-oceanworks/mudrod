@@ -51,9 +51,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
     importToES();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info(
-        "*****************Metadata harvesting ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata harvesting ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -62,17 +60,10 @@ public class ImportMetadata extends DiscoveryStepAbstract {
    * invoke this method before import metadata to Elasticsearch.
    */
   public void addMetadataMapping() {
-    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
-        + "{\r\n         \"strings\": "
-        + "{\r\n            \"match_mapping_type\": \"string\","
-        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-        + "\r\n               \"analyzer\": \"csv\"\r\n            }"
-        + "\r\n         }\r\n      }\r\n   ]\r\n}";
+    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      " + "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\"," + "\r\n               \"analyzer\": \"csv\"\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
-    es.getClient().admin().indices()
-        .preparePutMapping(props.getProperty("indexName"))
-        .setType(props.getProperty("recom_metadataType")).setSource(mappingJson)
-        .execute().actionGet();
+    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("recom_metadataType")).setSource(mappingJson).execute().actionGet();
 
   }
 
@@ -82,8 +73,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
    * invoking this method.
    */
   private void importToES() {
-    es.deleteType(props.getProperty("indexName"),
-        props.getProperty("recom_metadataType"));
+    es.deleteType(props.getProperty("indexName"), props.getProperty("recom_metadataType"));
 
     es.createBulkProcessor();
     File directory = new File(props.getProperty("raw_metadataPath"));
@@ -96,8 +86,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
           String jsonTxt = IOUtils.toString(is);
           JsonParser parser = new JsonParser();
           JsonElement item = parser.parse(jsonTxt);
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-              props.getProperty("recom_metadataType")).source(item.toString());
+          IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("recom_metadataType")).source(item.toString());
 
           // preprocessdata
 

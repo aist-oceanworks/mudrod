@@ -60,8 +60,7 @@ public class LocalOntology implements Ontology {
       ontology = this;
     }
     if (ontologyModel == null)
-      ontologyModel = ModelFactory
-          .createOntologyModel(OntModelSpec.OWL_MEM, null);
+      ontologyModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
   }
 
   /**
@@ -83,8 +82,7 @@ public class LocalOntology implements Ontology {
    */
   @Override
   public void load() {
-    File ontDir = new File(
-        LocalOntology.class.getClassLoader().getResource("ontology").getFile());
+    File ontDir = new File(LocalOntology.class.getClassLoader().getResource("ontology").getFile());
 
     //Fail if the input is not a directory.
     if (ontDir.isDirectory()) {
@@ -156,8 +154,7 @@ public class LocalOntology implements Ontology {
 
       if (resource instanceof OntClass) {
         //get subclasses
-        for (Iterator i = ((OntClass) resource).listSubClasses(); i
-            .hasNext(); ) {
+        for (Iterator i = ((OntClass) resource).listSubClasses(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
           for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
@@ -165,8 +162,7 @@ public class LocalOntology implements Ontology {
           }
         }
         //get individuals
-        for (Iterator i = ((OntClass) resource).listInstances(); i
-            .hasNext(); ) {
+        for (Iterator i = ((OntClass) resource).listInstances(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
           for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
@@ -221,8 +217,7 @@ public class LocalOntology implements Ontology {
         }
       } else if (resource instanceof OntClass) {
         //list equivalent classes
-        for (Iterator i = ((OntClass) resource).listEquivalentClasses(); i
-            .hasNext(); ) {
+        for (Iterator i = ((OntClass) resource).listEquivalentClasses(); i.hasNext(); ) {
           OntClass equivClass = (OntClass) i.next();
           //add labels
           for (Iterator j = equivClass.listLabels(null); j.hasNext(); ) {
@@ -246,16 +241,14 @@ public class LocalOntology implements Ontology {
   }
 
   public static Map<OntResource, String> retrieve(String label) {
-    @SuppressWarnings("unchecked") Map<OntResource, String> m = (Map<OntResource, String>) searchTerms
-        .get(label.toLowerCase());
+    @SuppressWarnings("unchecked") Map<OntResource, String> m = (Map<OntResource, String>) searchTerms.get(label.toLowerCase());
     if (m == null) {
       m = new HashMap<>();
     }
     return m;
   }
 
-  protected static void renderHierarchy(PrintStream out, OntClass cls,
-      List occurs, int depth) {
+  protected static void renderHierarchy(PrintStream out, OntClass cls, List occurs, int depth) {
     renderClassDescription(out, cls, depth);
     out.println();
 
@@ -282,8 +275,7 @@ public class LocalOntology implements Ontology {
     }
   }
 
-  public static void renderClassDescription(PrintStream out, OntClass c,
-      int depth) {
+  public static void renderClassDescription(PrintStream out, OntClass c, int depth) {
     indent(out, depth);
 
     if (c.isRestriction()) {
@@ -318,13 +310,11 @@ public class LocalOntology implements Ontology {
     renderURI(out, r.getModel(), r.getOnProperty().getURI());
   }
 
-  protected static void renderURI(PrintStream out, PrefixMapping prefixes,
-      String uri) {
+  protected static void renderURI(PrintStream out, PrefixMapping prefixes, String uri) {
     out.print(prefixes.expandPrefix(uri));
   }
 
-  protected static void renderAnonymous(PrintStream out, Resource anon,
-      String name) {
+  protected static void renderAnonymous(PrintStream out, Resource anon, String name) {
     String anonID = (String) mAnonIDs.get(anon.getId());
     if (anonID == null) {
       anonID = "a-" + mAnonCount++;
@@ -348,9 +338,7 @@ public class LocalOntology implements Ontology {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
     // argument options
-    Option ontDirOpt = OptionBuilder.hasArg(true).withArgName(ONT_DIR)
-        .withDescription("A directory containing .owl files.").isRequired(false)
-        .create();
+    Option ontDirOpt = OptionBuilder.hasArg(true).withArgName(ONT_DIR).withDescription("A directory containing .owl files.").isRequired(false).create();
 
     // create the options
     Options options = new Options();
@@ -365,8 +353,7 @@ public class LocalOntology implements Ontology {
       if (line.hasOption(ONT_DIR)) {
         ontDir = line.getOptionValue(ONT_DIR).replace("\\", "/");
       } else {
-        ontDir = LocalOntology.class.getClassLoader().getResource("ontology")
-            .getFile();
+        ontDir = LocalOntology.class.getClassLoader().getResource("ontology").getFile();
       }
       if (!ontDir.endsWith("/")) {
         ontDir += "/";
@@ -374,9 +361,7 @@ public class LocalOntology implements Ontology {
     } catch (Exception e) {
       LOG.error("Error whilst processing main method of LocalOntology.", e);
       HelpFormatter formatter = new HelpFormatter();
-      formatter
-          .printHelp("LocalOntology: 'ontDir' argument is mandatory. ", options,
-              true);
+      formatter.printHelp("LocalOntology: 'ontDir' argument is mandatory. ", options, true);
       return;
     }
     File fileDir = new File(ontDir);
@@ -396,15 +381,13 @@ public class LocalOntology implements Ontology {
 
       String[] terms = new String[] { "Glacier ice" };
       //Demonstrate that we can do basic ontology heirarchy navigation and log output.
-      for (Iterator<OntClass> i = getParser().rootClasses(getModel()); i
-          .hasNext(); ) {
+      for (Iterator<OntClass> i = getParser().rootClasses(getModel()); i.hasNext(); ) {
 
         //print Ontology Class Hierarchy
         OntClass c = i.next();
         renderHierarchy(System.out, c, new LinkedList<>(), 0);
 
-        for (Iterator<OntClass> subClass = c.listSubClasses(true); subClass
-            .hasNext(); ) {
+        for (Iterator<OntClass> subClass = c.listSubClasses(true); subClass.hasNext(); ) {
           OntClass sub = subClass.next();
           //This means that the search term is present as an OntClass
           if (terms[0].equalsIgnoreCase(sub.getLabel(null))) {

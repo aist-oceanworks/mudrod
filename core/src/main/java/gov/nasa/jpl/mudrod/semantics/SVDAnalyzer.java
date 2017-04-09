@@ -49,15 +49,12 @@ public class SVDAnalyzer extends SemanticAnalyzer {
    * @param svdDimention      Dimension of SVD matrix
    * @param svdMatrixFileName CSV file name of SVD matrix
    */
-  public void getSVDMatrix(String csvFileName, int svdDimention,
-      String svdMatrixFileName) {
+  public void getSVDMatrix(String csvFileName, int svdDimention, String svdMatrixFileName) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil
-        .loadVectorFromCSV(spark, csvFileName, 1);
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, 1);
     JavaRDD<Vector> vectorRDD = importRDD.values();
     RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
-    RowMatrix tfidfMatrix = MatrixUtil
-        .createTFIDFMatrix(wordDocMatrix, spark.sc);
+    RowMatrix tfidfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
     RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(tfidfMatrix, svdDimention);
 
     List<String> rowKeys = importRDD.keys().collect();

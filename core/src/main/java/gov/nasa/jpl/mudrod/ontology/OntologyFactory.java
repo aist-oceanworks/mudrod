@@ -36,8 +36,7 @@ import java.util.Properties;
  */
 public class OntologyFactory {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(OntologyFactory.class);
+  public static final Logger LOG = LoggerFactory.getLogger(OntologyFactory.class);
 
   private Properties props;
 
@@ -63,8 +62,7 @@ public class OntologyFactory {
    */
   public Ontology getOntology() {
 
-    String ontologyImpl = this.props
-        .getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
+    String ontologyImpl = this.props.getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
 
     LOG.info("Using ontology extension: " + ontologyImpl);
     Ontology ontImpl;
