@@ -255,6 +255,7 @@ public class ESDriver implements Serializable {
       ArrayList<String> topicList = (ArrayList<String>) result.get(DS_PARAM_VAR);
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
+
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
       Date date = new Date(Long.parseLong(longdate.get(0)));
@@ -268,25 +269,46 @@ public class ESDriver implements Serializable {
       file.addProperty("Dataset-Description", content);
       file.addProperty("Release Date", dateText);
 
-      if (bDetail) {
+      if (bDetail) {    	  
+    	file.addProperty("DataFormat", (String) result.get("DatasetPolicy-DataFormat"));  
+    	file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
+        file.addProperty("Processing Level",
+            (String) result.get("Dataset-ProcessingLevel"));
+        
+        List<String> versions = (List<String>) result
+                .get("DatasetCitation-Version");
+        file.addProperty("Version",  String.join(", ", versions));
 
-        file.addProperty("DataFormat", (String) result.get("DatasetPolicy-DataFormat"));
-        file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
-        file.addProperty("Processing Level", (String) result.get("Dataset-ProcessingLevel"));
+        List<String> sensors = (List<String>) result
+            .get("DatasetSource-Sensor-ShortName");
+        file.addProperty("DatasetSource-Sensor-ShortName",
+            String.join(", ", sensors));
 
-        List<String> versions = (List<String>) result.get("DatasetCitation-Version");
-        file.addProperty("Version", String.join(", ", versions));
+        List<String> projects = (List<String>) result
+            .get("DatasetProject-Project-ShortName");
+        file.addProperty("DatasetProject-Project-ShortName",
+            String.join(", ", projects));
 
-        List<String> sensors = (List<String>) result.get("DatasetSource-Sensor-ShortName");
-        file.addProperty("DatasetSource-Sensor-ShortName", String.join(", ", sensors));
+        List<String> categories = (List<String>) result
+            .get("DatasetParameter-Category");
+        file.addProperty("DatasetParameter-Category",
+            String.join(", ", categories));
+        
+        List<String> urls = (List<String>) result
+            .get("DatasetLocationPolicy-BasePath");
+        
+        List<String> filtered_urls = new ArrayList<String>();
+        for(String url:urls)
+        {
+          if(url.startsWith("ftp")||url.startsWith("http"))
+            filtered_urls.add(url);
+        }
+        file.addProperty("DatasetLocationPolicy-BasePath",
+            String.join(",", filtered_urls));
 
-        List<String> projects = (List<String>) result.get("DatasetProject-Project-ShortName");
-        file.addProperty("DatasetProject-Project-ShortName", String.join(", ", projects));
+        List<String> variables = (List<String>) result
+            .get(DS_PARAM_VAR);
 
-        List<String> categories = (List<String>) result.get("DatasetParameter-Category");
-        file.addProperty("DatasetParameter-Category", String.join(", ", categories));
-
-        List<String> variables = (List<String>) result.get(DS_PARAM_VAR);
         file.addProperty(DS_PARAM_VAR, String.join(", ", variables));
 
         List<String> terms = (List<String>) result.get("DatasetParameter-Term");
