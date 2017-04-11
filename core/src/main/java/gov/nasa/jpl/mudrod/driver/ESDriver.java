@@ -42,6 +42,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
@@ -415,26 +416,29 @@ public class ESDriver implements Serializable {
 			return new ArrayList<>();
 		}
 
-		Set<String> suggestList = new HashSet<String>();
+		Set<String> suggestHS = new HashSet<String>();
+		List<String> suggestList = new ArrayList<>();
 
-		// SuggestBuilders.
+		// please make sure that the completion field is configured in the ES mapping
 		CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("Dataset-Metadata")
-				.text(term).size(20);
+				.prefix(term, Fuzziness.fromEdits(2)).size(100);
 		SearchRequestBuilder suggestRequestBuilder = getClient().prepareSearch(index)
 				.suggest(new SuggestBuilder().addSuggestion("completeMe", suggestionsBuilder));
-		SearchResponse suggestResponse = suggestRequestBuilder.execute().actionGet();
+		SearchResponse sr = suggestRequestBuilder.setFetchSource(false).execute().actionGet();
 
-		Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = suggestResponse.getSuggest()
+		Iterator<? extends Suggest.Suggestion.Entry.Option> iterator = sr.getSuggest()
 				.getSuggestion("completeMe").iterator().next().getOptions().iterator();
 
 		while (iterator.hasNext()) {
 			Suggest.Suggestion.Entry.Option next = iterator.next();
-			String suggest = next.getText().string().toLowerCase();
-			if (!suggestList.contains(suggest)) {
+			String suggest = next.getText().string().toLowerCase();			
 				suggestList.add(suggest);
-			}
 		}
-		return new ArrayList(suggestList);
+		
+		suggestHS.addAll(suggestList);
+		suggestList.clear();
+		suggestList.addAll(suggestHS);
+		return suggestList;
   }
 
   public void close() {

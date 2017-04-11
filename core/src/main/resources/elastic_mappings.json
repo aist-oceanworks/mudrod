@@ -59,6 +59,9 @@
       "LogType": {
         "type": "string",
         "index": "not_analyzed"
+      },
+      "Dataset-Metadata" : {
+        "type" : "completion"
       }
     }
   }
