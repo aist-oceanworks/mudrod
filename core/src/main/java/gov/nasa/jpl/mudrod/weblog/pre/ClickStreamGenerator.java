@@ -37,11 +37,9 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(ClickStreamGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ClickStreamGenerator.class);
 
-  public ClickStreamGenerator(Properties props, ESDriver es,
-      SparkDriver spark) {
+  public ClickStreamGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
 
@@ -53,23 +51,18 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
     String clickstremMatrixFile = props.getProperty("clickstreamMatrix");
     try {
       SessionExtractor extractor = new SessionExtractor();
-      JavaRDD<ClickStream> clickstreamRDD = extractor
-          .extractClickStreamFromES(this.props, this.es, this.spark);
+      JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.props, this.es, this.spark);
       int weight = Integer.parseInt(props.getProperty("downloadWeight"));
-      JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor
-          .bulidDataQueryRDD(clickstreamRDD, weight);
-      LabeledRowMatrix wordDocMatrix = MatrixUtil
-          .createWordDocMatrix(metaddataQueryRDD, spark.sc);
+      JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
+      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metaddataQueryRDD, spark.sc);
 
-      MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys,
-          wordDocMatrix.colkeys, clickstremMatrixFile);
+      MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys, wordDocMatrix.colkeys, clickstremMatrixFile);
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("ClickStreamGenerator complete. Time elapsed {} seconds.",
-        (endTime - startTime) / 1000);
+    LOG.info("ClickStreamGenerator complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

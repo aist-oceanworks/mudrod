@@ -33,8 +33,7 @@ import java.util.Properties;
  */
 public abstract class MudrodAbstract implements Serializable {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MudrodAbstract.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MudrodAbstract.class);
   /**
    *
    */
@@ -63,10 +62,8 @@ public abstract class MudrodAbstract implements Serializable {
    */
   @CheckForNull
   protected void initMudrod() {
-    InputStream settingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_SETTINGS);
-    InputStream mappingsStream = getClass().getClassLoader()
-        .getResourceAsStream(ES_MAPPINGS);
+    InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
+    InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);
     JSONObject settingsJSON = null;
     JSONObject mappingJSON = null;
 
@@ -84,8 +81,7 @@ public abstract class MudrodAbstract implements Serializable {
 
     try {
       if (settingsJSON != null && mappingJSON != null) {
-        this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME),
-            settingsJSON.toString(), mappingJSON.toString());
+        this.es.putMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME), settingsJSON.toString(), mappingJSON.toString());
       }
     } catch (IOException e) {
       LOG.error("Error entering Elasticsearch Mappings!", e);

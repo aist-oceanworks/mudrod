@@ -65,8 +65,7 @@ public class SessionNode {
    * @param time:    request time of node
    * @param seq:     sequence of this node
    */
-  public SessionNode(String request, String logType, String referer,
-      String time, int seq) {
+  public SessionNode(String request, String logType, String referer, String time, int seq) {
     this.logType = logType;
     this.time = time;
     this.seq = seq;
@@ -85,8 +84,7 @@ public class SessionNode {
       this.referer = "";
       return;
     }
-    this.referer = referer.toLowerCase()
-        .replace("http://podaac.jpl.nasa.gov", "");
+    this.referer = referer.toLowerCase().replace("http://podaac.jpl.nasa.gov", "");
   }
 
   /**

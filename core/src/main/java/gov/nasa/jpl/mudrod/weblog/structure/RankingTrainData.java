@@ -31,8 +31,7 @@ public class RankingTrainData implements Serializable {
    * @param highRankDataset the dataset name for the highest ranked dataset
    * @param lowRankDataset  the dataset name for the lowest ranked dataset
    */
-  public RankingTrainData(String query, String highRankDataset,
-      String lowRankDataset) {
+  public RankingTrainData(String query, String highRankDataset, String lowRankDataset) {
     this.query = query;
     this.highRankDataset = highRankDataset;
     this.lowRankDataset = lowRankDataset;
@@ -120,8 +119,7 @@ public class RankingTrainData implements Serializable {
    */
   @Override
   public String toString() {
-    return "query:" + query + "|| highRankDataset:" + highRankDataset
-        + "|| lowRankDataset:" + lowRankDataset;
+    return "query:" + query + "|| highRankDataset:" + highRankDataset + "|| lowRankDataset:" + lowRankDataset;
   }
 
   /**

@@ -133,8 +133,7 @@ public class OwlParser implements OntologyParser {
 
     String labelString = idString;
     while (m.find()) {
-      labelString = labelString
-          .replaceAll(m.group(1) + m.group(2), m.group(1) + " " + m.group(2));
+      labelString = labelString.replaceAll(m.group(1) + m.group(2), m.group(1) + " " + m.group(2));
     }
     return labelString;
   }

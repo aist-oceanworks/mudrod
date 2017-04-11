@@ -42,17 +42,14 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  */
 public class ImportLogFile extends LogAbstract {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(ImportLogFile.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
 
   /**
    *
    */
   private static final long serialVersionUID = 1L;
 
-  String logEntryPattern =
-      "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] "
-          + "\"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
+  String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] " + "\"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
 
   public static final int NUM_FIELDS = 9;
   Pattern p = Pattern.compile(logEntryPattern);
@@ -74,13 +71,11 @@ public class ImportLogFile extends LogAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("Starting Log Import {}",
-        props.getProperty(MudrodConstants.TIME_SUFFIX));
+    LOG.info("Starting Log Import {}", props.getProperty(MudrodConstants.TIME_SUFFIX));
     startTime = System.currentTimeMillis();
     readFile();
     endTime = System.currentTimeMillis();
-    LOG.info("Log Import complete. Time elapsed {} seconds",
-        (endTime - startTime) / 1000);
+    LOG.info("Log Import complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
     es.refreshIndex();
     return null;
   }
@@ -124,16 +119,11 @@ public class ImportLogFile extends LogAbstract {
 
   public void readFile() {
 
-    String httplogpath = props.getProperty("logDir") + props
-        .getProperty(MudrodConstants.HTTP_PREFIX) + props
-        .getProperty(MudrodConstants.TIME_SUFFIX);
+    String httplogpath = props.getProperty("logDir") + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String ftplogpath = props.getProperty("logDir") + props
-        .getProperty(MudrodConstants.FTP_PREFIX) + props
-        .getProperty(MudrodConstants.TIME_SUFFIX);
+    String ftplogpath = props.getProperty("logDir") + props.getProperty(MudrodConstants.FTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String processingType = props
-        .getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
+    String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       readFileInSequential(httplogpath, ftplogpath);
     } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
@@ -175,17 +165,14 @@ public class ImportLogFile extends LogAbstract {
 
   public void importHttpfile(String httplogpath) {
     // import http logs
-    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath, this.partition)
-        .map(s -> ApacheAccessLog.parseFromLogLine(s))
-        .filter(ApacheAccessLog::checknull);
+    JavaRDD<String> accessLogs = spark.sc.textFile(httplogpath, this.partition).map(s -> ApacheAccessLog.parseFromLogLine(s)).filter(ApacheAccessLog::checknull);
 
     JavaEsSpark.saveJsonToEs(accessLogs, logIndex + "/" + this.httpType);
   }
 
   public void importFtpfile(String ftplogpath) {
     // import ftp logs
-    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath, this.partition)
-        .map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
+    JavaRDD<String> ftpLogs = spark.sc.textFile(ftplogpath, this.partition).map(s -> FtpLog.parseFromLogLine(s)).filter(FtpLog::checknull);
 
     JavaEsSpark.saveJsonToEs(ftpLogs, logIndex + "/" + this.ftpType);
   }
@@ -201,8 +188,7 @@ public class ImportLogFile extends LogAbstract {
    * @param type     one of the available protocols from which Mudrod logs are obtained.
    * @throws IOException if there is an error reading anything from the fileName provided.
    */
-  public void readLogFile(String fileName, String protocol, String index,
-      String type) throws IOException {
+  public void readLogFile(String fileName, String protocol, String index, String type) throws IOException {
     BufferedReader br = new BufferedReader(new FileReader(fileName));
     int count = 0;
     try {
@@ -236,9 +222,7 @@ public class ImportLogFile extends LogAbstract {
   public void parseSingleLineFTP(String log, String index, String type) {
     String ip = log.split(" +")[6];
 
-    String time =
-        log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3]
-            + ":" + log.split(" +")[4];
+    String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3] + ":" + log.split(" +")[4];
 
     time = switchtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
@@ -255,10 +239,8 @@ public class ImportLogFile extends LogAbstract {
     if (!request.contains("/misc/") && !request.contains("readme")) {
       IndexRequest ir;
       try {
-        ir = new IndexRequest(index, type).source(
-            jsonBuilder().startObject().field("LogType", "ftp").field("IP", ip)
-                .field("Time", date).field("Request", request)
-                .field("Bytes", Long.parseLong(bytes)).endObject());
+        ir = new IndexRequest(index, type)
+            .source(jsonBuilder().startObject().field("LogType", "ftp").field("IP", ip).field("Time", date).field("Request", request).field("Bytes", Long.parseLong(bytes)).endObject());
         es.getBulkProcessor().add(ir);
       } catch (NumberFormatException e) {
         LOG.error("Error whilst processing numbers", e);
@@ -298,13 +280,10 @@ public class ImportLogFile extends LogAbstract {
 
     String request = matcher.group(5).toLowerCase();
     String agent = matcher.group(9);
-    CrawlerDetection crawlerDe = new CrawlerDetection(this.props, this.es,
-        this.spark);
+    CrawlerDetection crawlerDe = new CrawlerDetection(this.props, this.es, this.spark);
     if (!crawlerDe.checkKnownCrawler(agent)) {
       boolean tag = false;
-      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico",
-          "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/",
-          "get / http/1.1", ".jpeg", "/ws/" };
+      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
           tag = true;
@@ -319,18 +298,12 @@ public class ImportLogFile extends LogAbstract {
     }
   }
 
-  private void executeBulkRequest(IndexRequest ir, String index, String type,
-      Matcher matcher, Date date, String bytes) {
+  private void executeBulkRequest(IndexRequest ir, String index, String type, Matcher matcher, Date date, String bytes) {
     IndexRequest newIr = ir;
     try {
       newIr = new IndexRequest(index, type).source(
-          jsonBuilder().startObject().field("LogType", "PO.DAAC")
-              .field("IP", matcher.group(1)).field("Time", date)
-              .field("Request", matcher.group(5))
-              .field("Response", matcher.group(6))
-              .field("Bytes", Integer.parseInt(bytes))
-              .field("Referer", matcher.group(8))
-              .field("Browser", matcher.group(9)).endObject());
+          jsonBuilder().startObject().field("LogType", "PO.DAAC").field("IP", matcher.group(1)).field("Time", date).field("Request", matcher.group(5)).field("Response", matcher.group(6))
+              .field("Bytes", Integer.parseInt(bytes)).field("Referer", matcher.group(8)).field("Browser", matcher.group(9)).endObject());
 
       es.getBulkProcessor().add(newIr);
     } catch (NumberFormatException e) {

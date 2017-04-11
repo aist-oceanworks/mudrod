@@ -18,7 +18,7 @@ import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.ws.rs.QueryParam;
+
 import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -33,8 +33,7 @@ import java.util.List;
 @Path("/autocomplete")
 public class AutoCompleteResource {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(AutoCompleteResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AutoCompleteResource.class);
   private MudrodEngine mEngine;
 
   public AutoCompleteResource(@Context ServletContext sc) {
@@ -45,9 +44,7 @@ public class AutoCompleteResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD AutoCompleteResource: running correctly...</h1>").build();
   }
 
   @GET
@@ -56,8 +53,7 @@ public class AutoCompleteResource {
   @Consumes("text/plain")
   public Response autoComplete(@QueryParam("term") String term) {
     List<AutoCompleteData> result = new ArrayList<>();
-    List<String> suggestList = mEngine.getESDriver().autoComplete(
-        mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
+    List<String> suggestList = mEngine.getESDriver().autoComplete(mEngine.getConfig().getProperty(MudrodConstants.ES_INDEX_NAME), term);
     for (final String item : suggestList) {
       result.add(new AutoCompleteData(item, item));
     }

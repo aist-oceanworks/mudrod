@@ -56,8 +56,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
   }
 
-  public static String parseFromLogLine(String log)
-      throws IOException, ParseException {
+  public static String parseFromLogLine(String log) throws IOException, ParseException {
 
     String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
     final int NUM_FIELDS = 9;
@@ -89,9 +88,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
     } else {
 
       boolean tag = false;
-      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico",
-          "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/",
-          "get / http/1.1", ".jpeg", "/ws/" };
+      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
           tag = true;
@@ -108,8 +105,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
         accesslog.Bytes = Double.parseDouble(bytes);
         accesslog.Referer = matcher.group(8);
         accesslog.Browser = matcher.group(9);
-        SimpleDateFormat df = new SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
         accesslog.Time = df.format(date);
 
         Gson gson = new Gson();

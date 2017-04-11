@@ -9,8 +9,7 @@ public class SparkFormatter {
   public SparkFormatter() {
   }
 
-  public void toSparkSVMformat(String inputCSVFileName,
-      String outputTXTFileName) {
+  public void toSparkSVMformat(String inputCSVFileName, String outputTXTFileName) {
     File file = new File(outputTXTFileName);
     if (file.exists()) {
       file.delete();
@@ -26,8 +25,7 @@ public class SparkFormatter {
       while (line != null) {
         String[] list = line.split(",");
         String output = "";
-        Double label = Double
-            .parseDouble(list[list.length - 1].replace("\"", ""));
+        Double label = Double.parseDouble(list[list.length - 1].replace("\"", ""));
         if (label == -1.0) {
           output = "0 ";
         } else if (label == 1.0) {
@@ -36,8 +34,7 @@ public class SparkFormatter {
 
         for (int i = 0; i < list.length - 1; i++) {
           int index = i + 1;
-          output += index + ":" + NDForm
-              .format(Double.parseDouble(list[i].replace("\"", ""))) + " ";
+          output += index + ":" + NDForm.format(Double.parseDouble(list[i].replace("\"", ""))) + " ";
         }
         bw.write(output + "\n");
 
@@ -52,9 +49,7 @@ public class SparkFormatter {
 
   public static void main(String[] args) {
     SparkFormatter sf = new SparkFormatter();
-    sf.toSparkSVMformat(
-        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv",
-        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt");
+    sf.toSparkSVMformat("C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv", "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt");
   }
 
 }

@@ -58,8 +58,7 @@ public class SessionTree extends MudrodAbstract {
    * @param sessionID:   session ID
    * @param cleanupType: session type
    */
-  public SessionTree(Properties props, ESDriver es, SessionNode rootData,
-      String sessionID, String cleanupType) {
+  public SessionTree(Properties props, ESDriver es, SessionNode rootData, String sessionID, String cleanupType) {
     super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     tmpnode = root;
@@ -75,8 +74,7 @@ public class SessionTree extends MudrodAbstract {
    * @param sessionID:   session ID
    * @param cleanupType: session type
    */
-  public SessionTree(Properties props, ESDriver es, String sessionID,
-      String cleanupType) {
+  public SessionTree(Properties props, ESDriver es, String sessionID, String cleanupType) {
     super(props, es, null);
     root = new SessionNode("root", "root", "", "", 0);
     root.setParent(root);
@@ -100,8 +98,7 @@ public class SessionTree extends MudrodAbstract {
       return null;
     }
     // remove unrelated node
-    if (!node.getKey().equals("datasetlist") && !node.getKey().equals("dataset")
-        && !node.getKey().equals("ftp")) {
+    if (!node.getKey().equals("datasetlist") && !node.getKey().equals("dataset") && !node.getKey().equals("ftp")) {
       return null;
     }
     // remove dumplicated click
@@ -341,8 +338,7 @@ public class SessionTree extends MudrodAbstract {
    * @param children
    * @return
    */
-  private boolean insertHelperChildren(SessionNode entry,
-      List<SessionNode> children) {
+  private boolean insertHelperChildren(SessionNode entry, List<SessionNode> children) {
     for (int i = 0; i < children.size(); i++) {
       boolean result = insertHelper(entry, children.get(i));
       if (result) {
@@ -454,9 +450,7 @@ public class SessionTree extends MudrodAbstract {
    * @throws UnsupportedEncodingException if there is an error whilst
    *                                      processing the ranking training data.
    */
-  public List<RankingTrainData> getRankingTrainData(String indexName,
-      String cleanuptype, String sessionID)
-      throws UnsupportedEncodingException {
+  public List<RankingTrainData> getRankingTrainData(String indexName, String cleanuptype, String sessionID) throws UnsupportedEncodingException {
 
     List<RankingTrainData> trainDatas = new ArrayList<>();
 
@@ -502,8 +496,7 @@ public class SessionTree extends MudrodAbstract {
 
                 String[] queries = query.split(",");
                 for (int l = 0; l < queries.length; l++) {
-                  RankingTrainData trainData = new RankingTrainData(queries[l],
-                      datasetA, datasetB);
+                  RankingTrainData trainData = new RankingTrainData(queries[l], datasetA, datasetB);
 
                   trainData.setSessionId(this.sessionID);
                   trainData.setIndex(indexName);

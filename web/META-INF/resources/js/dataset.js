@@ -126,6 +126,15 @@ function loadMetaData(shortname) {
     }
 }
 
+function urlFormatter(value, row) {
+	var urls = value.split(",");
+	var html = "";
+	for (i = 0; i < urls.length; i++) { 
+	    html += '<a href=' + urls[i] + ' target="_blank">' + urls[i] + '</a>' + "<br>";
+	}
+	return html; 
+}
+
 function createResultTable() {
     var layout = {
         cache: false,
@@ -181,6 +190,10 @@ function createResultTable() {
         }, {
             'title': 'Format',
             'field': 'DataFormat',
+        }, {
+            'title': 'Data Access',
+            'field': 'DatasetLocationPolicy-BasePath',
+            'formatter' : urlFormatter
         }
         ]
     };

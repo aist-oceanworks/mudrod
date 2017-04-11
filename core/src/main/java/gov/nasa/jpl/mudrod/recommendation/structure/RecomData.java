@@ -114,8 +114,7 @@ public class RecomData extends DiscoveryStepAbstract {
     return nodesElement;
   }
 
-  public Map<String, Double> getRelatedData(String type, String input,
-      int num) {
+  public Map<String, Double> getRelatedData(String type, String input, int num) {
     termList = new ArrayList<>();
     Map<String, Double> termsMap = new HashMap<>();
     Map<String, Double> sortedMap = new HashMap<>();
@@ -134,12 +133,9 @@ public class RecomData extends DiscoveryStepAbstract {
     return sortedMap;
   }
 
-  public List<LinkedTerm> getRelatedDataFromES(String type, String input,
-      int num) {
-    SearchRequestBuilder builder = es.getClient()
-        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type)
-        .setQuery(QueryBuilders.termQuery("concept_A", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(num);
+  public List<LinkedTerm> getRelatedDataFromES(String type, String input, int num) {
+    SearchRequestBuilder builder = es.getClient().prepareSearch(props.getProperty(INDEX_NAME)).setTypes(type).setQuery(QueryBuilders.termQuery("concept_A", input)).addSort(WEIGHT, SortOrder.DESC)
+        .setSize(num);
 
     SearchResponse usrhis = builder.execute().actionGet();
 
@@ -148,8 +144,7 @@ public class RecomData extends DiscoveryStepAbstract {
       String conceptB = (String) result.get("concept_B");
 
       if (!conceptB.equals(input)) {
-        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT),
-            type);
+        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT), type);
         termList.add(lTerm);
       }
     }

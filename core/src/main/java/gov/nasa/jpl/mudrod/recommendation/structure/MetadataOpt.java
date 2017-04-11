@@ -37,54 +37,41 @@ public class MetadataOpt implements Serializable {
     variables.add("Dataset-LongName");
   }
 
-  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark)
-      throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this
-        .loadMetadataFromES(es, variables);
+  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark) throws Exception {
+    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables);
     return this.parallizeData(spark, datasetsTokens);
   }
 
-  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark,
-      List<String> variables) throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this
-        .loadMetadataFromES(es, variables);
+  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark, List<String> variables) throws Exception {
+    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables);
     return this.parallizeData(spark, datasetsTokens);
   }
 
-  private JavaPairRDD<String, String> parallizeData(SparkDriver spark,
-      List<Tuple2<String, String>> datasetContent) {
+  private JavaPairRDD<String, String> parallizeData(SparkDriver spark, List<Tuple2<String, String>> datasetContent) {
 
-    JavaRDD<Tuple2<String, String>> datasetContentRDD = spark.sc
-        .parallelize(datasetContent);
+    JavaRDD<Tuple2<String, String>> datasetContentRDD = spark.sc.parallelize(datasetContent);
 
-    JavaPairRDD<String, String> datasetsContentPairRDD = datasetContentRDD
-        .mapToPair(new PairFunction<Tuple2<String, String>, String, String>() {
-          @Override
-          public Tuple2<String, String> call(Tuple2<String, String> term)
-              throws Exception {
-            return term;
-          }
-        });
+    JavaPairRDD<String, String> datasetsContentPairRDD = datasetContentRDD.mapToPair(new PairFunction<Tuple2<String, String>, String, String>() {
+      @Override
+      public Tuple2<String, String> call(Tuple2<String, String> term) throws Exception {
+        return term;
+      }
+    });
 
     return datasetsContentPairRDD;
   }
 
-  public JavaPairRDD<String, List<String>> tokenizeData(
-      JavaPairRDD<String, String> datasetsContentRDD, String splitter)
-      throws Exception {
+  public JavaPairRDD<String, List<String>> tokenizeData(JavaPairRDD<String, String> datasetsContentRDD, String splitter) throws Exception {
 
-    JavaPairRDD<String, List<String>> datasetTokensRDD = datasetsContentRDD
-        .mapToPair(
-            new PairFunction<Tuple2<String, String>, String, List<String>>() {
-              @Override
-              public Tuple2<String, List<String>> call(
-                  Tuple2<String, String> arg) throws Exception {
-                String content = arg._2;
-                List<String> tokens = getTokens(content, splitter);
+    JavaPairRDD<String, List<String>> datasetTokensRDD = datasetsContentRDD.mapToPair(new PairFunction<Tuple2<String, String>, String, List<String>>() {
+      @Override
+      public Tuple2<String, List<String>> call(Tuple2<String, String> arg) throws Exception {
+        String content = arg._2;
+        List<String> tokens = getTokens(content, splitter);
 
-                return new Tuple2<String, List<String>>(arg._1, tokens);
-              }
-            });
+        return new Tuple2<String, List<String>>(arg._1, tokens);
+      }
+    });
 
     return datasetTokensRDD;
   }
@@ -103,12 +90,10 @@ public class MetadataOpt implements Serializable {
     return list;
   }
 
-  public List<Tuple2<String, String>> loadMetadataFromES(ESDriver es,
-      List<String> variables) throws Exception {
+  public List<Tuple2<String, String>> loadMetadataFromES(ESDriver es, List<String> variables) throws Exception {
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(indexName)
-        .setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery())
-        .setScroll(new TimeValue(60000)).setSize(100).execute().actionGet();
+    SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000)).setSize(100).execute()
+        .actionGet();
 
     List<Tuple2<String, String>> datasetsTokens = new ArrayList<Tuple2<String, String>>();
     while (true) {
@@ -131,8 +116,7 @@ public class MetadataOpt implements Serializable {
         datasetsTokens.add(new Tuple2<String, String>(shortName, filedStr));
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -141,16 +125,13 @@ public class MetadataOpt implements Serializable {
     return datasetsTokens;
   }
 
-  public LabeledRowMatrix TFIDFTokens(
-      JavaPairRDD<String, List<String>> datasetTokensRDD, SparkDriver spark) {
+  public LabeledRowMatrix TFIDFTokens(JavaPairRDD<String, List<String>> datasetTokensRDD, SparkDriver spark) {
 
-    LabeledRowMatrix labelMatrix = MatrixUtil
-        .createDocWordMatrix(datasetTokensRDD, spark.sc);
+    LabeledRowMatrix labelMatrix = MatrixUtil.createDocWordMatrix(datasetTokensRDD, spark.sc);
 
     RowMatrix docwordMatrix = labelMatrix.rowMatrix;
 
-    RowMatrix docwordTFIDFMatrix = MatrixUtil
-        .createTFIDFMatrix(docwordMatrix, spark.sc);
+    RowMatrix docwordTFIDFMatrix = MatrixUtil.createTFIDFMatrix(docwordMatrix, spark.sc);
 
     labelMatrix.rowMatrix = docwordTFIDFMatrix;
 

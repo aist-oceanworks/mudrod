@@ -33,8 +33,7 @@ import java.util.concurrent.ExecutionException;
 @Path("/datasetdetail")
 public class SearchDatasetDetailResource {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SearchDatasetDetailResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SearchDatasetDetailResource.class);
   private MudrodEngine mEngine;
 
   public SearchDatasetDetailResource(@Context ServletContext sc) {
@@ -50,26 +49,20 @@ public class SearchDatasetDetailResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Dataset Detail Search Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Dataset Detail Search Resource: running correctly...</h1>").build();
   }
 
   @GET
   @Path("/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response searchDatasetDetail(
-      @QueryParam("shortname") String shortName) {
+  public Response searchDatasetDetail(@QueryParam("shortname") String shortName) {
 
     Properties config = mEngine.getConfig();
     String dataDetailJson = null;
     try {
       String query = "Dataset-ShortName:\"" + shortName + "\"";
-      dataDetailJson = mEngine.getESDriver()
-          .searchByQuery(config.getProperty(MudrodConstants.ES_INDEX_NAME),
-              config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query,
-              true);
+      dataDetailJson = mEngine.getESDriver().searchByQuery(config.getProperty(MudrodConstants.ES_INDEX_NAME), config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
     } catch (InterruptedException | ExecutionException | IOException e) {
       LOG.error("Error whilst searching for a Dataset-ShortName", e);
     }

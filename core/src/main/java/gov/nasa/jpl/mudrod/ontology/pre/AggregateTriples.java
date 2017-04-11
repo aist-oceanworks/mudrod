@@ -40,8 +40,7 @@ import java.util.Properties;
  */
 public class AggregateTriples extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(AggregateTriples.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AggregateTriples.class);
 
   public AggregateTriples(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -70,8 +69,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
-    File[] files = new File(this.props.getProperty("ontologyInputDir"))
-        .listFiles();
+    File[] files = new File(this.props.getProperty("ontologyInputDir")).listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
       if ("owl".equals(ext)) {
@@ -122,8 +120,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
    * Method of going through OWL structure
    */
   public void loopxml() {
-    Iterator<?> processDescendants = rootNode
-        .getDescendants(new ElementFilter());
+    Iterator<?> processDescendants = rootNode.getDescendants(new ElementFilter());
     String text = "";
 
     while (processDescendants.hasNext()) {
@@ -168,54 +165,39 @@ public class AggregateTriples extends DiscoveryStepAbstract {
    * @throws IOException IOException
    */
   public void getAllClass() throws IOException {
-    List<?> classElements = rootNode
-        .getChildren("Class", Namespace.getNamespace("owl", owl_namespace));
+    List<?> classElements = rootNode.getChildren("Class", Namespace.getNamespace("owl", owl_namespace));
 
     for (int i = 0; i < classElements.size(); i++) {
       Element classElement = (Element) classElements.get(i);
-      String className = classElement.getAttributeValue("about",
-          Namespace.getNamespace("rdf", rdf_namespace));
+      String className = classElement.getAttributeValue("about", Namespace.getNamespace("rdf", rdf_namespace));
 
       if (className == null) {
-        className = classElement.getAttributeValue("ID",
-            Namespace.getNamespace("rdf", rdf_namespace));
+        className = classElement.getAttributeValue("ID", Namespace.getNamespace("rdf", rdf_namespace));
       }
 
-      List<?> subclassElements = classElement.getChildren("subClassOf",
-          Namespace.getNamespace("rdfs", rdfs_namespace));
+      List<?> subclassElements = classElement.getChildren("subClassOf", Namespace.getNamespace("rdfs", rdfs_namespace));
       for (int j = 0; j < subclassElements.size(); j++) {
         Element subclassElement = (Element) subclassElements.get(j);
-        String subclassName = subclassElement.getAttributeValue("resource",
-            Namespace.getNamespace("rdf", rdf_namespace));
+        String subclassName = subclassElement.getAttributeValue("resource", Namespace.getNamespace("rdf", rdf_namespace));
         if (subclassName == null) {
-          Element allValuesFromEle = findChild("allValuesFrom",
-              subclassElement);
+          Element allValuesFromEle = findChild("allValuesFrom", subclassElement);
           if (allValuesFromEle != null) {
-            subclassName = allValuesFromEle.getAttributeValue("resource",
-                Namespace.getNamespace("rdf", rdf_namespace));
-            bw.write(
-                cutString(className) + ",SubClassOf," + cutString(subclassName)
-                    + "\n");
+            subclassName = allValuesFromEle.getAttributeValue("resource", Namespace.getNamespace("rdf", rdf_namespace));
+            bw.write(cutString(className) + ",SubClassOf," + cutString(subclassName) + "\n");
           }
         } else {
-          bw.write(
-              cutString(className) + ",SubClassOf," + cutString(subclassName)
-                  + "\n");
+          bw.write(cutString(className) + ",SubClassOf," + cutString(subclassName) + "\n");
         }
 
       }
 
-      List equalClassElements = classElement.getChildren("equivalentClass",
-          Namespace.getNamespace("owl", owl_namespace));
+      List equalClassElements = classElement.getChildren("equivalentClass", Namespace.getNamespace("owl", owl_namespace));
       for (int k = 0; k < equalClassElements.size(); k++) {
         Element equalClassElement = (Element) equalClassElements.get(k);
-        String equalClassElementName = equalClassElement
-            .getAttributeValue("resource",
-                Namespace.getNamespace("rdf", rdf_namespace));
+        String equalClassElementName = equalClassElement.getAttributeValue("resource", Namespace.getNamespace("rdf", rdf_namespace));
 
         if (equalClassElementName != null) {
-          bw.write(cutString(className) + ",equivalentClass," + cutString(
-              equalClassElementName) + "\n");
+          bw.write(cutString(className) + ",equivalentClass," + cutString(equalClassElementName) + "\n");
         }
       }
 
