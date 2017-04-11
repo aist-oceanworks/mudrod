@@ -26,13 +26,13 @@ import java.util.UUID;
  * Created by greguska on 4/11/17.
  */
 @Provider
-public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
+public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultExceptionMapper.class);
 
   @Override
   @Produces("text/html")
-  public Response toResponse(Exception e) {
+  public Response toResponse(Throwable e) {
 
     UUID errorId = UUID.randomUUID();
     LOG.error("Internal server error " + errorId.toString(), e);
