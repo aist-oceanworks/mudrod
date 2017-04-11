@@ -138,6 +138,7 @@ public class SessionExtractor implements Serializable {
           clickstreams.addAll(clicks);
         }
         tmpES.destroyBulkProcessor();
+        tmpES.close();
         return clickstreams.iterator();
       }
     });
@@ -501,6 +502,7 @@ public class SessionExtractor implements Serializable {
           clickstreams.addAll(clicks);
         }
         tmpES.destroyBulkProcessor();
+        tmpES.close();
         return clickstreams.iterator();
       }
     });

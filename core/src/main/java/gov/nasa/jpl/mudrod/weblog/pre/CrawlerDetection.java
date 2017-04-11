@@ -159,27 +159,20 @@ public class CrawlerDetection extends LogAbstract {
     LOG.info("Original User count: {}", userRDD.count());
 
     int userCount = 0;
-    userCount = userRDD.mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
-      @Override
-      public Iterator<Integer> call(Iterator<String> arg0) throws Exception {
-        // TODO Auto-generated method stub
-        ESDriver tmpES = new ESDriver(props);
-        tmpES.createBulkProcessor();
-        List<Integer> realUserNums = new ArrayList<Integer>();
-        while (arg0.hasNext()) {
-          String s = arg0.next();
-          Integer realUser = checkByRate(tmpES, s);
-          realUserNums.add(realUser);
-        }
-        tmpES.destroyBulkProcessor();
-        return realUserNums.iterator();
+    userCount = userRDD.mapPartitions((FlatMapFunction<Iterator<String>, Integer>) iterator -> {
+      // TODO Auto-generated method stub
+      ESDriver tmpES = new ESDriver(props);
+      tmpES.createBulkProcessor();
+      List<Integer> realUserNums = new ArrayList<Integer>();
+      while (iterator.hasNext()) {
+        String s = iterator.next();
+        Integer realUser = checkByRate(tmpES, s);
+        realUserNums.add(realUser);
       }
-    }).reduce(new Function2<Integer, Integer, Integer>() {
-      @Override
-      public Integer call(Integer a, Integer b) {
-        return a + b;
-      }
-    });
+      tmpES.destroyBulkProcessor();
+      tmpES.close();
+      return realUserNums.iterator();
+    }).reduce((Function2<Integer, Integer, Integer>) (a, b) -> a + b);
 
     LOG.info("User count: {}", Integer.toString(userCount));
   }
