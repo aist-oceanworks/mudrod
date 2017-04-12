@@ -29,6 +29,11 @@
     <name>Mudrod :: Core</name>
     <description>Core Mudrod library implementation.</description>
 
+    <properties>
+        <!-- This property is the name of the directory containing the SVM/SGD Model. It is used during build to create a tar.gz file from this directory -->
+        <svmSgdModel.value>javaSVMWithSGDModel</svmSgdModel.value>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -142,6 +147,16 @@
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>${svmSgdModel.value}/**</exclude>
+                </excludes>
+            </resource>
+
+            <resource>
+                <directory>${project.build.directory}</directory>
+                <includes>
+                    <include>${svmSgdModel.value}.tar.gz</include>
+                </includes>
             </resource>
 
             <resource>
@@ -186,14 +201,44 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
-                <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <tarLongFileMode>posix</tarLongFileMode>
-                    <descriptors>
-                        <descriptor>${basedir}/src/main/assembly/bin.xml
-                        </descriptor>
-                    </descriptors>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>zipSVMWithSGDModel</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <tarLongFileMode>posix</tarLongFileMode>
+                            <finalName>${svmSgdModel.value}</finalName>
+                            <outputDirectory>${project.build.directory}
+                            </outputDirectory>
+                            <descriptors>
+                                <descriptor>
+                                    ${basedir}/src/main/assembly/zipSVMWithSGDModel.xml
+                                </descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generateDistribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <tarLongFileMode>posix</tarLongFileMode>
+                            <descriptors>
+                                <descriptor>
+                                    ${basedir}/src/main/assembly/bin.xml
+                                </descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

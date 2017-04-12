@@ -41,21 +41,17 @@ public class RecomDatasetsResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Recommendation Datasets Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Recommendation Datasets Resource: running correctly...</h1>").build();
   }
 
   @PUT
   @Path("{shortname}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response hybridRecommendation(
-      @PathParam("shortname") String shortName) {
+  public Response hybridRecommendation(@PathParam("shortname") String shortName) {
     JsonObject json = new JsonObject();
     if (shortName != null) {
-      RecomData recom = new RecomData(mEngine.getConfig(),
-          mEngine.getESDriver(), null);
+      RecomData recom = new RecomData(mEngine.getConfig(), mEngine.getESDriver(), null);
       json = new JsonObject();
       json.add("RecommendationData", recom.getRecomDataInJson(shortName, 10));
     }

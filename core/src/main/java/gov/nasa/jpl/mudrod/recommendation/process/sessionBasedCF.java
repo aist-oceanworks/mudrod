@@ -25,8 +25,7 @@ import java.util.Properties;
  */
 public class sessionBasedCF extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(sessionBasedCF.class);
+  private static final Logger LOG = LoggerFactory.getLogger(sessionBasedCF.class);
 
   /**
    * Creates a new instance of sessionBasedCF.
@@ -41,27 +40,21 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info(
-        "*****************Session based metadata similarity starts******************");
+    LOG.info("*****************Session based metadata similarity starts******************");
     startTime = System.currentTimeMillis();
 
     try {
       String session_metadatFile = props.getProperty("session_metadata_Matrix");
       SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
-      List<LinkageTriple> triples = analyzer
-          .calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON,
-              1);
-      analyzer.saveToES(triples, props.getProperty("indexName"),
-          props.getProperty("metadataSessionBasedSimType"), true, false);
+      List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
+      analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataSessionBasedSimType"), true, false);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info(
-        "*****************Session based metadata similarity ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Session based metadata similarity ends******************Took {}s", (endTime - startTime) / 1000);
 
     return null;
   }

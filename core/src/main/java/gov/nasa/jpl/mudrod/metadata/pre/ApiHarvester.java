@@ -60,8 +60,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     es.destroyBulkProcessor();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Metadata harvesting completed. Time elapsed: {}",
-        (endTime - startTime) / 1000);
+    LOG.info("Metadata harvesting completed. Time elapsed: {}", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -70,17 +69,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoke this method before import metadata to Elasticsearch.
    */
   public void addMetadataMapping() {
-    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      "
-        + "{\r\n         \"strings\": "
-        + "{\r\n            \"match_mapping_type\": \"string\","
-        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\","
-        + "\r\n               \"analyzer\": \"english\"\r\n            }"
-        + "\r\n         }\r\n      }\r\n   ]\r\n}";
-	  
-    es.getClient().admin().indices()
-        .preparePutMapping(props.getProperty("indexName"))
-        .setType(props.getProperty("raw_metadataType")).setSource(mappingJson)
-        .execute().actionGet();
+    String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      " + "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\"," + "\r\n               \"analyzer\": \"english\"\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
+
+    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("raw_metadataType")).setSource(mappingJson).execute().actionGet();
   }
 
   /**
@@ -89,8 +81,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * invoking this method.
    */
   private void importToES() {
-    File directory = new File(
-        props.getProperty(MudrodConstants.RAW_METADATA_PATH));
+    File directory = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -109,8 +100,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       String jsonTxt = IOUtils.toString(is);
       JsonParser parser = new JsonParser();
       JsonElement item = parser.parse(jsonTxt);
-      IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-          props.getProperty("raw_metadataType")).source(item.toString());
+      IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("raw_metadataType")).source(item.toString());
       es.getBulkProcessor().add(ir);
     } catch (IOException e) {
       LOG.error("Error indexing metadata record!", e);
@@ -125,22 +115,17 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     int doc_length = 0;
     JsonParser parser = new JsonParser();
     do {
-      String searchAPI =
-          "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer
-              .toString(startIndex)
-              + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
       HttpRequest http = new HttpRequest();
       String response = http.getRequest(searchAPI);
 
       JsonElement json = parser.parse(response);
       JsonObject responseObject = json.getAsJsonObject();
-      JsonArray docs = responseObject.getAsJsonObject("response")
-          .getAsJsonArray("docs");
+      JsonArray docs = responseObject.getAsJsonObject("response").getAsJsonArray("docs");
 
       doc_length = docs.size();
 
-      File file = new File(
-          props.getProperty(MudrodConstants.RAW_METADATA_PATH));
+      File file = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
       if (!file.exists()) {
         if (file.mkdir()) {
           LOG.info("Directory is created!");
@@ -151,13 +136,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       for (int i = 0; i < doc_length; i++) {
         JsonElement item = docs.get(i);
         int docId = startIndex + i;
-        File itemfile = new File(
-            props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId
-                + ".json");
+        File itemfile = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId + ".json");
 
-        try (FileWriter fw = new FileWriter(
-            itemfile.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(
-            fw);) {
+        try (FileWriter fw = new FileWriter(itemfile.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(fw);) {
           itemfile.createNewFile();
           bw.write(item.toString());
         } catch (IOException e) {

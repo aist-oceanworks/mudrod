@@ -37,8 +37,7 @@ import java.util.stream.Collectors;
  */
 public class LinkageIntegration extends DiscoveryStepAbstract {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(LinkageIntegration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LinkageIntegration.class);
   private static final long serialVersionUID = 1L;
   transient List<LinkedTerm> termList = new ArrayList<>();
   DecimalFormat df = new DecimalFormat("#.00");
@@ -90,8 +89,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
     Map<String, Double> termsMap = new HashMap<>();
     Map<String, List<LinkedTerm>> map = new HashMap<>();
     try {
-      map = aggregateRelatedTermsFromAllmodel(
-          es.customAnalyzing(props.getProperty(INDEX_NAME), input));
+      map = aggregateRelatedTermsFromAllmodel(es.customAnalyzing(props.getProperty(INDEX_NAME), input));
     } catch (InterruptedException | ExecutionException e) {
       LOG.error("Error applying majority rule", e);
     }
@@ -139,8 +137,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
       count++;
     }
-    LOG.info(
-        "\n************************Integrated results***************************");
+    LOG.info("\n************************Integrated results***************************");
     LOG.info(output);
     return output;
   }
@@ -174,8 +171,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    * @return a hash map where the string is a related term, and the list is
    * the similarities from different sources
    */
-  public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(
-      String input) {
+  public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(String input) {
     aggregateRelatedTerms(input, props.getProperty("userHistoryLinkageType"));
     aggregateRelatedTerms(input, props.getProperty("clickStreamLinkageType"));
     aggregateRelatedTerms(input, props.getProperty("metadataLinkageType"));
@@ -222,21 +218,17 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
 
   public void aggregateRelatedTerms(String input, String model) {
     //get the first 10 related terms
-    SearchResponse usrhis = es.getClient()
-        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model)
-        .setQuery(QueryBuilders.termQuery("keywords", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model).setQuery(QueryBuilders.termQuery("keywords", input)).addSort(WEIGHT, SortOrder.DESC).setSize(11)
+        .execute().actionGet();
 
-    LOG.info("\n************************ {} results***************************",
-        model);
+    LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String keywords = (String) result.get("keywords");
       String relatedKey = extractRelated(keywords, input);
 
       if (!relatedKey.equals(input)) {
-        LinkedTerm lTerm = new LinkedTerm(relatedKey,
-            (double) result.get(WEIGHT), model);
+        LinkedTerm lTerm = new LinkedTerm(relatedKey, (double) result.get(WEIGHT), model);
         LOG.info("( {} {} )", relatedKey, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }
@@ -251,18 +243,14 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    * @param model source name
    */
   public void aggregateRelatedTermsSWEET(String input, String model) {
-    SearchResponse usrhis = es.getClient()
-        .prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model)
-        .setQuery(QueryBuilders.termQuery("concept_A", input))
-        .addSort(WEIGHT, SortOrder.DESC).setSize(11).execute().actionGet();
-    LOG.info("\n************************ {} results***************************",
-        model);
+    SearchResponse usrhis = es.getClient().prepareSearch(props.getProperty(INDEX_NAME)).setTypes(model).setQuery(QueryBuilders.termQuery("concept_A", input)).addSort(WEIGHT, SortOrder.DESC)
+        .setSize(11).execute().actionGet();
+    LOG.info("\n************************ {} results***************************", model);
     for (SearchHit hit : usrhis.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
       String conceptB = (String) result.get("concept_B");
       if (!conceptB.equals(input)) {
-        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT),
-            model);
+        LinkedTerm lTerm = new LinkedTerm(conceptB, (double) result.get(WEIGHT), model);
         LOG.info("( {} {} )", conceptB, (double) result.get(WEIGHT));
         termList.add(lTerm);
       }

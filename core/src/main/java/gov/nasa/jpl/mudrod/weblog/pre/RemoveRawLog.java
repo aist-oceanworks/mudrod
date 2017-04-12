@@ -44,8 +44,7 @@ public class RemoveRawLog extends LogAbstract {
     es.deleteAllByQuery(logIndex, ftpType, QueryBuilders.matchAllQuery());
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Raw log removal complete. Time elapsed {} seconds.",
-        (endTime - startTime) / 1000);
+    LOG.info("Raw log removal complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 

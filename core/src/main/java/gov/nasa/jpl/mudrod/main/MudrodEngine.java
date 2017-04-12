@@ -18,6 +18,11 @@ import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.integration.LinkageIntegration;
 import org.apache.commons.cli.*;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -25,10 +30,10 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Properties;
 
@@ -114,10 +119,7 @@ public class MudrodEngine {
 
   private InputStream locateConfig() {
 
-    String configLocation =
-        System.getenv(MudrodConstants.MUDROD_CONFIG) == null ?
-            "" :
-            System.getenv(MudrodConstants.MUDROD_CONFIG);
+    String configLocation = System.getenv(MudrodConstants.MUDROD_CONFIG) == null ? "" : System.getenv(MudrodConstants.MUDROD_CONFIG);
     File configFile = new File(configLocation);
 
     try {
@@ -125,17 +127,13 @@ public class MudrodEngine {
       LOG.info("Loaded config file from " + configFile.getAbsolutePath());
       return configStream;
     } catch (IOException e) {
-      LOG.info("File specified by environment variable "
-          + MudrodConstants.MUDROD_CONFIG + "=\'" + configLocation
-          + "\' could not be loaded. " + e.getMessage());
+      LOG.info("File specified by environment variable " + MudrodConstants.MUDROD_CONFIG + "=\'" + configLocation + "\' could not be loaded. " + e.getMessage());
     }
 
-    InputStream configStream = MudrodEngine.class.getClassLoader()
-        .getResourceAsStream("config.xml");
+    InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
 
     if (configStream != null) {
-      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader()
-          .getResource("config.xml").getPath());
+      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
     }
 
     return configStream;
@@ -160,15 +158,58 @@ public class MudrodEngine {
 
       for (int i = 0; i < paraList.size(); i++) {
         Element paraNode = paraList.get(i);
-        props.put(paraNode.getAttributeValue("name"), paraNode.getTextTrim());
+        String attributeName = paraNode.getAttributeValue("name");
+        if (MudrodConstants.SVM_SGD_MODEL.equals(attributeName)) {
+          props.put(attributeName, decompressSVMWithSGDModel(paraNode.getTextTrim()));
+        } else {
+          props.put(attributeName, paraNode.getTextTrim());
+        }
       }
     } catch (JDOMException | IOException e) {
-      LOG.error(
-          "Exception whilst retreiving or processing XML contained within 'config.xml'!",
-          e);
+      LOG.error("Exception whilst retrieving or processing XML contained within 'config.xml'!", e);
     }
     return getConfig();
 
+  }
+
+  private String decompressSVMWithSGDModel(String archiveName) throws IOException {
+
+    URL scmArchive = getClass().getClassLoader().getResource(archiveName);
+    if (scmArchive == null) {
+      throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
+    }
+    File tempDir = Files.createTempDirectory("mudrod", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrw----"))).toFile();
+    File archiveFile = new File(tempDir, archiveName);
+    FileUtils.copyURLToFile(scmArchive, archiveFile);
+
+    // Decompress archive
+    int BUFFER_SIZE = 512000;
+    GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(new FileInputStream(archiveFile));
+    try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
+      TarArchiveEntry entry;
+
+      while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
+        // If the entry is a directory, create the directory.
+        if (entry.isDirectory()) {
+          File f = new File(tempDir, entry.getName());
+          boolean created = f.mkdir();
+          if (!created) {
+            LOG.error("Unable to create directory '%s', during extraction of archive contents.", f.getAbsolutePath());
+          }
+        } else {
+          int count;
+          byte data[] = new byte[BUFFER_SIZE];
+          FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
+          try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
+            while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
+              dest.write(data, 0, count);
+            }
+          }
+        }
+      }
+    }
+
+    return new File(tempDir, StringUtils.removeEnd(archiveName, ".tar.gz")).toURI().toString();
   }
 
   /**
@@ -235,8 +276,7 @@ public class MudrodEngine {
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
     md.process();
-    LOG.info("*****************Ontology and metadata similarity have "
-        + "been added successfully******************");
+    LOG.info("*****************Ontology and metadata similarity have " + "been added successfully******************");
   }
   
   /**
@@ -306,47 +346,34 @@ public class MudrodEngine {
     Option helpOpt = new Option("h", "help", false, "show this help message");
 
     // preprocessing + processing
-    Option fullIngestOpt = new Option("f", FULL_INGEST, false,
-        "begin full ingest Mudrod workflow");
+    Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
     // processing only, assuming that preprocessing results is in logDir
-    Option processingOpt = new Option("p", PROCESSING, false,
-        "begin processing with preprocessing results");
+    Option processingOpt = new Option("p", PROCESSING, false, "begin processing with preprocessing results");
 
     // import raw web log into Elasticsearch
-    Option logIngestOpt = new Option("l", LOG_INGEST, false,
-        "begin log ingest without any processing only");
+    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest without any processing only");
     // preprocessing web log, assuming web log has already been imported
-    Option sessionReconOpt = new Option("s", SESSION_RECON, false,
-        "begin session reconstruction");
+    Option sessionReconOpt = new Option("s", SESSION_RECON, false, "begin session reconstruction");
     // calculate vocab similarity from session reconstrution results
-    Option vocabSimFromOpt = new Option("v", VOCAB_SIM_FROM_LOG, false,
-        "begin similarity calulation from web log Mudrod workflow");
+    Option vocabSimFromOpt = new Option("v", VOCAB_SIM_FROM_LOG, false, "begin similarity calulation from web log Mudrod workflow");
     // add metadata and ontology preprocessing and processing results into web
     // log vocab similarity
-    Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false,
-        "begin adding metadata and ontology results");
+    Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false, "begin adding metadata and ontology results");
 
     Option updateMetaOpt = new Option("m", UPDATE_METADATA, false,
         "begin updating and analysing metadata ");
     
     // argument options
-    Option logDirOpt = OptionBuilder.hasArg(true)
-        .withArgName("/path/to/log/directory").hasArgs(1)
-        .withDescription("the log directory to be processed by Mudrod")
-        .withLongOpt("logDirectory").isRequired().create(LOG_DIR);
+    Option logDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/log/directory").hasArgs(1).withDescription("the log directory to be processed by Mudrod").withLongOpt("logDirectory")
+        .isRequired().create(LOG_DIR);
 
-    Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name")
-        .hasArgs(1).withDescription("elasticsearch cluster unicast host")
-        .withLongOpt("elasticSearchHost").isRequired(false).create(ES_HOST);
+    Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name").hasArgs(1).withDescription("elasticsearch cluster unicast host").withLongOpt("elasticSearchHost").isRequired(false)
+        .create(ES_HOST);
 
-    Option esTCPPortOpt = OptionBuilder.hasArg(true).withArgName("port_num")
-        .hasArgs(1).withDescription("elasticsearch transport TCP port")
-        .withLongOpt("elasticSearchTransportTCPPort").isRequired(false)
-        .create(ES_TCP_PORT);
+    Option esTCPPortOpt = OptionBuilder.hasArg(true).withArgName("port_num").hasArgs(1).withDescription("elasticsearch transport TCP port").withLongOpt("elasticSearchTransportTCPPort")
+        .isRequired(false).create(ES_TCP_PORT);
 
-    Option esPortOpt = OptionBuilder.hasArg(true).withArgName("port_num")
-        .hasArgs(1).withDescription("elasticsearch HTTP/REST port")
-        .withLongOpt("elasticSearchHTTPPort").isRequired(false)
+    Option esPortOpt = OptionBuilder.hasArg(true).withArgName("port_num").hasArgs(1).withDescription("elasticsearch HTTP/REST port").withLongOpt("elasticSearchHTTPPort").isRequired(false)
         .create(ES_HTTP_PORT);
 
     // create the options
@@ -442,8 +469,7 @@ public class MudrodEngine {
       me.end();
     } catch (Exception e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. "
-          + "User must also provide an ingest method.", options, true);
+      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. " + "User must also provide an ingest method.", options, true);
       LOG.error("Error whilst parsing command line.", e);
     }
   }
@@ -454,24 +480,18 @@ public class MudrodEngine {
     me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
     me.props.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
-    me.props.put("clickstreamSVDMatrix_tmp",
-        dataDir + "clickstreamSVDMatrix_tmp.csv");
-    me.props
-        .put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
+    me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
+    me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
     me.props.put("raw_metadataPath", dataDir + "RawMetadata");
 
     me.props.put("jtopia", dataDir + "jtopiaModel");
-    me.props
-        .put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
-    me.props
-        .put("metadata_word_tfidf_matrix", dataDir + "metadata_word_tfidf.csv");
-    me.props.put("session_metadata_Matrix",
-        dataDir + "metadata_session_coocurrence_matrix.csv");
+    me.props.put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
+    me.props.put("metadata_word_tfidf_matrix", dataDir + "metadata_word_tfidf.csv");
+    me.props.put("session_metadata_Matrix", dataDir + "metadata_session_coocurrence_matrix.csv");
 
     me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
     me.props.put("metadata_topic", dataDir + "metadata_topic");
-    me.props
-        .put("metadata_topic_matrix", dataDir + "metadata_topic_matrix.csv");
+    me.props.put("metadata_topic_matrix", dataDir + "metadata_topic_matrix.csv");
   }
 
   /**

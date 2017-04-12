@@ -63,8 +63,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @param end   end time of session
    * @param id    session ID
    */
-  public Session(Properties props, ESDriver es, String start, String end,
-      String id) {
+  public Session(Properties props, ESDriver es, String start, String end, String id) {
     this.start = start;
     this.end = end;
     this.id = id;
@@ -140,9 +139,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     fmt.parseDateTime(this.end);
     fmt.parseDateTime(o.end);
     // ascending order
-    return Seconds
-        .secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end))
-        .getSeconds();
+    return Seconds.secondsBetween(fmt.parseDateTime(o.end), fmt.parseDateTime(this.end)).getSeconds();
 
   }
 
@@ -155,8 +152,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @param sessionID:   Session ID
    * @return Session details in Json format
    */
-  public JsonObject getSessionDetail(String indexName, String cleanuptype,
-      String sessionID) {
+  public JsonObject getSessionDetail(String indexName, String cleanuptype, String sessionID) {
     JsonObject sessionResults = new JsonObject();
     // for session tree
     SessionTree tree = null;
@@ -185,8 +181,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @return Click stram data list
    * {@link ClickStream}
    */
-  public List<ClickStream> getClickStreamList(String indexName,
-      String cleanuptype, String sessionID) {
+  public List<ClickStream> getClickStreamList(String indexName, String cleanuptype, String sessionID) {
     SessionTree tree = null;
     try {
       tree = this.getSessionTree(indexName, cleanuptype, sessionID);
@@ -206,16 +201,12 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @return an instance of session tree structure
    * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
-  private SessionTree getSessionTree(String indexName, String cleanuptype,
-      String sessionID) throws UnsupportedEncodingException {
+  private SessionTree getSessionTree(String indexName, String cleanuptype, String sessionID) throws UnsupportedEncodingException {
 
-    SearchResponse response = es.getClient().prepareSearch(indexName)
-        .setTypes(cleanuptype)
-        .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
-        .addSort("Time", SortOrder.ASC).execute().actionGet();
+    SearchResponse response = es.getClient().prepareSearch(indexName).setTypes(cleanuptype).setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100).addSort("Time", SortOrder.ASC)
+        .execute().actionGet();
 
-    SessionTree tree = new SessionTree(this.props, this.es, sessionID,
-        cleanuptype);
+    SessionTree tree = new SessionTree(this.props, this.es, sessionID, cleanuptype);
     int seq = 1;
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
@@ -240,11 +231,8 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @return all of these requests in JSON
    * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
-  private JsonElement getRequests(String cleanuptype, String sessionID)
-      throws UnsupportedEncodingException {
-    SearchResponse response = es.getClient()
-        .prepareSearch(props.getProperty("indexName")).setTypes(cleanuptype)
-        .setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
+  private JsonElement getRequests(String cleanuptype, String sessionID) throws UnsupportedEncodingException {
+    SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName")).setTypes(cleanuptype).setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
     int size = response.getHits().getHits().length;
 
@@ -284,8 +272,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * @return Click stram data list
    * {@link ClickStream}
    */
-  public List<RankingTrainData> getRankingTrainData(String indexName,
-      String cleanuptype, String sessionID) {
+  public List<RankingTrainData> getRankingTrainData(String indexName, String cleanuptype, String sessionID) {
     SessionTree tree = null;
     try {
       tree = this.getSessionTree(indexName, cleanuptype, sessionID);

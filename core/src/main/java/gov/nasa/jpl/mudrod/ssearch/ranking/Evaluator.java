@@ -134,8 +134,7 @@ public class Evaluator {
         return o2.compareTo(o1);
       }
     };
-    List<Integer> sortlist = IntStream.of(list).boxed()
-        .collect(Collectors.toList());
+    List<Integer> sortlist = IntStream.of(list).boxed().collect(Collectors.toList());
     ;
     Collections.sort(sortlist, comparator);
     int[] sortedArr = sortlist.stream().mapToInt(i -> i).toArray();

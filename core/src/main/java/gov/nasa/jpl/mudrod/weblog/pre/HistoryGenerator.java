@@ -36,8 +36,7 @@ import java.util.*;
  */
 public class HistoryGenerator extends LogAbstract {
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(HistoryGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HistoryGenerator.class);
 
   public HistoryGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -51,8 +50,7 @@ public class HistoryGenerator extends LogAbstract {
     generateBinaryMatrix();
 
     endTime = System.currentTimeMillis();
-    LOG.info("HistoryGenerator complete. Time elapsed {} seconds",
-        (endTime - startTime) / 1000);
+    LOG.info("HistoryGenerator complete. Time elapsed {} seconds", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -76,23 +74,18 @@ public class HistoryGenerator extends LogAbstract {
       bw.write("Num" + ",");
 
       // step 1: write first row of csv
-      List<String> logIndexList = es
-          .getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+      List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
 
       String[] logIndices = logIndexList.toArray(new String[0]);
       String[] statictypeArray = new String[] { this.sessionStats };
       int docCount = es.getDocCount(logIndices, statictypeArray);
 
-      SearchResponse sr = es.getClient().prepareSearch(logIndices)
-          .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
-          .setSize(0).addAggregation(
-              AggregationBuilders.terms("IPs").field("IP").size(docCount))
-          .execute().actionGet();
+      SearchResponse sr = es.getClient().prepareSearch(logIndices).setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+          .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(docCount)).execute().actionGet();
       Terms ips = sr.getAggregations().get("IPs");
       List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : ips.getBuckets()) {
-        if (entry.getDocCount() > Integer.parseInt(
-            props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
+        if (entry.getDocCount() > Integer.parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
           // out
           // less
           // active users/ips
@@ -102,13 +95,8 @@ public class HistoryGenerator extends LogAbstract {
       bw.write(String.join(",", ipList) + "\n");
 
       // step 2: step the rest rows of csv
-      SearchRequestBuilder sr2Builder = es.getClient().prepareSearch(logIndices)
-          .setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery())
-          .setSize(0).addAggregation(
-              AggregationBuilders.terms("KeywordAgg").field("keywords")
-                  .size(docCount).subAggregation(
-                  AggregationBuilders.terms("IPAgg").field("IP")
-                      .size(docCount)));
+      SearchRequestBuilder sr2Builder = es.getClient().prepareSearch(logIndices).setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
+          .addAggregation(AggregationBuilders.terms("KeywordAgg").field("keywords").size(docCount).subAggregation(AggregationBuilders.terms("IPAgg").field("IP").size(docCount)));
 
       SearchResponse sr2 = sr2Builder.execute().actionGet();
       Terms keywords = sr2.getAggregations().get("KeywordAgg");
@@ -119,8 +107,7 @@ public class HistoryGenerator extends LogAbstract {
         Terms ipAgg = keyword.getAggregations().get("IPAgg");
 
         int distinctUser = ipAgg.getBuckets().size();
-        if (distinctUser > Integer
-            .parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) {
+        if (distinctUser > Integer.parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : ipAgg.getBuckets()) {
 

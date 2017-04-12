@@ -55,8 +55,7 @@ public class SessionGenerator extends LogAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SessionGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SessionGenerator.class);
 
   public SessionGenerator(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -69,8 +68,7 @@ public class SessionGenerator extends LogAbstract {
     generateSession();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("Session generating complete. Time elapsed {} seconds.",
-        (endTime - startTime) / 1000);
+    LOG.info("Session generating complete. Time elapsed {} seconds.", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -94,8 +92,7 @@ public class SessionGenerator extends LogAbstract {
     }
   }
 
-  public void genSessionByReferer(int timeThres)
-      throws InterruptedException, IOException {
+  public void genSessionByReferer(int timeThres) throws InterruptedException, IOException {
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       genSessionByRefererInSequential(timeThres);
@@ -104,8 +101,7 @@ public class SessionGenerator extends LogAbstract {
     }
   }
 
-  public void combineShortSessions(int timeThres)
-      throws InterruptedException, IOException {
+  public void combineShortSessions(int timeThres) throws InterruptedException, IOException {
     String processingType = props.getProperty("processingType");
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
       combineShortSessionsInSequential(timeThres);
@@ -121,8 +117,7 @@ public class SessionGenerator extends LogAbstract {
    * @throws ElasticsearchException ElasticsearchException
    * @throws IOException            IOException
    */
-  public void genSessionByRefererInSequential(int timeThres)
-      throws ElasticsearchException, IOException {
+  public void genSessionByRefererInSequential(int timeThres) throws ElasticsearchException, IOException {
 
     Terms users = this.getUserTerms(this.cleanupType);
 
@@ -137,8 +132,7 @@ public class SessionGenerator extends LogAbstract {
     LOG.info("Initial session count: {}", Integer.toString(sessionCount));
   }
 
-  public void combineShortSessionsInSequential(int timeThres)
-      throws ElasticsearchException, IOException {
+  public void combineShortSessionsInSequential(int timeThres) throws ElasticsearchException, IOException {
 
     Terms users = this.getUserTerms(this.cleanupType);
     for (Terms.Bucket entry : users.getBuckets()) {
@@ -160,16 +154,13 @@ public class SessionGenerator extends LogAbstract {
     BoolQueryBuilder filterAll = new BoolQueryBuilder();
     filterAll.must(QueryBuilders.termQuery("IP", ip));
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterAll).setSize(100).execute().actionGet();
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(this.cleanupType).setScroll(new TimeValue(60000)).setQuery(filterAll).setSize(100).execute().actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         update(es, logIndex, cleanupType, hit.getId(), "SessionID", "invalid");
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }
@@ -188,57 +179,52 @@ public class SessionGenerator extends LogAbstract {
    * @throws ElasticsearchException
    * @throws IOException
    */
-  private void update(ESDriver es, String index, String type, String id,
-      String field1, Object value1) throws IOException {
-    UpdateRequest ur = new UpdateRequest(index, type, id)
-        .doc(jsonBuilder().startObject().field(field1, value1).endObject());
+  private void update(ESDriver es, String index, String type, String id, String field1, Object value1) throws IOException {
+    UpdateRequest ur = new UpdateRequest(index, type, id).doc(jsonBuilder().startObject().field(field1, value1).endObject());
     es.getBulkProcessor().add(ur);
   }
 
-  public void genSessionByRefererInParallel(int timeThres)
-      throws InterruptedException, IOException {
+  public void genSessionByRefererInParallel(int timeThres) throws InterruptedException, IOException {
 
     JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
 
     int sessionCount = 0;
-    sessionCount = userRDD
-        .mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
-          /**
-           *
-           */
-          private static final long serialVersionUID = 1L;
+    sessionCount = userRDD.mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public Iterator<Integer> call(Iterator<String> arg0)
-              throws Exception {
-            ESDriver tmpES = new ESDriver(props);
-            tmpES.createBulkProcessor();
-            List<Integer> sessionNums = new ArrayList<>();
-            while (arg0.hasNext()) {
-              String s = arg0.next();
-              Integer sessionNum = genSessionByReferer(tmpES, s, timeThres);
-              sessionNums.add(sessionNum);
-            }
-            tmpES.destroyBulkProcessor();
-            return sessionNums.iterator();
-          }
-        }).reduce(new Function2<Integer, Integer, Integer>() {
-          /**
-           *
-           */
-          private static final long serialVersionUID = 1L;
+      @Override
+      public Iterator<Integer> call(Iterator<String> arg0) throws Exception {
+        ESDriver tmpES = new ESDriver(props);
+        tmpES.createBulkProcessor();
+        List<Integer> sessionNums = new ArrayList<>();
+        while (arg0.hasNext()) {
+          String s = arg0.next();
+          Integer sessionNum = genSessionByReferer(tmpES, s, timeThres);
+          sessionNums.add(sessionNum);
+        }
+        tmpES.destroyBulkProcessor();
+        tmpES.close();
+        return sessionNums.iterator();
+      }
+    }).reduce(new Function2<Integer, Integer, Integer>() {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          public Integer call(Integer a, Integer b) {
-            return a + b;
-          }
-        });
+      @Override
+      public Integer call(Integer a, Integer b) {
+        return a + b;
+      }
+    });
 
     LOG.info("Initial Session count: {}", Integer.toString(sessionCount));
   }
 
-  public int genSessionByReferer(ESDriver es, String user, int timeThres)
-      throws ElasticsearchException, IOException {
+  public int genSessionByReferer(ESDriver es, String user, int timeThres) throws ElasticsearchException, IOException {
 
     String startTime = null;
     int sessionCountIn = 0;
@@ -246,9 +232,7 @@ public class SessionGenerator extends LogAbstract {
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
     filterSearch.must(QueryBuilders.termQuery("IP", user));
 
-    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterSearch).addSort("Time", SortOrder.ASC).setSize(100)
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(this.cleanupType).setScroll(new TimeValue(60000)).setQuery(filterSearch).addSort("Time", SortOrder.ASC).setSize(100)
         .execute().actionGet();
 
     Map<String, Map<String, DateTime>> sessionReqs = new HashMap<>();
@@ -271,28 +255,22 @@ public class SessionGenerator extends LogAbstract {
         id = hit.getId();
 
         if ("PO.DAAC".equals(logType)) {
-          if ("-".equals(referer) || referer.equals(indexUrl) || !referer
-              .contains(indexUrl)) {
+          if ("-".equals(referer) || referer.equals(indexUrl) || !referer.contains(indexUrl)) {
             sessionCountIn++;
-            sessionReqs.put(ip + "@" + sessionCountIn,
-                new HashMap<String, DateTime>());
+            sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
             sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
 
-            update(es, logIndex, this.cleanupType, id, "SessionID",
-                ip + "@" + sessionCountIn);
+            update(es, logIndex, this.cleanupType, id, "SessionID", ip + "@" + sessionCountIn);
 
           } else {
             int count = sessionCountIn;
             int rollbackNum = 0;
             while (true) {
-              Map<String, DateTime> requests = sessionReqs
-                  .get(ip + "@" + count);
+              Map<String, DateTime> requests = sessionReqs.get(ip + "@" + count);
               if (requests == null) {
-                sessionReqs
-                    .put(ip + "@" + count, new HashMap<String, DateTime>());
+                sessionReqs.put(ip + "@" + count, new HashMap<String, DateTime>());
                 sessionReqs.get(ip + "@" + count).put(request, time);
-                update(es, logIndex, this.cleanupType, id, "SessionID",
-                    ip + "@" + count);
+                update(es, logIndex, this.cleanupType, id, "SessionID", ip + "@" + count);
 
                 break;
               }
@@ -305,20 +283,14 @@ public class SessionGenerator extends LogAbstract {
                   bFindRefer = true;
                   // threshold,if time interval > 10*
                   // click num, start a new session
-                  if (Math.abs(
-                      Seconds.secondsBetween(requests.get(keys.get(i)), time)
-                          .getSeconds()) < timeThres * rollbackNum) {
+                  if (Math.abs(Seconds.secondsBetween(requests.get(keys.get(i)), time).getSeconds()) < timeThres * rollbackNum) {
                     sessionReqs.get(ip + "@" + count).put(request, time);
-                    update(es, logIndex, this.cleanupType, id, "SessionID",
-                        ip + "@" + count);
+                    update(es, logIndex, this.cleanupType, id, "SessionID", ip + "@" + count);
                   } else {
                     sessionCountIn++;
-                    sessionReqs.put(ip + "@" + sessionCountIn,
-                        new HashMap<String, DateTime>());
-                    sessionReqs.get(ip + "@" + sessionCountIn)
-                        .put(request, time);
-                    update(es, logIndex, this.cleanupType, id, "SessionID",
-                        ip + "@" + sessionCountIn);
+                    sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
+                    sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
+                    update(es, logIndex, this.cleanupType, id, "SessionID", ip + "@" + sessionCountIn);
                   }
 
                   break;
@@ -333,12 +305,9 @@ public class SessionGenerator extends LogAbstract {
               if (count < 0) {
                 sessionCountIn++;
 
-                sessionReqs.put(ip + "@" + sessionCountIn,
-                    new HashMap<String, DateTime>());
+                sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
                 sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
-                update(es, props.getProperty(MudrodConstants.ES_INDEX_NAME),
-                    this.cleanupType, id, "SessionID",
-                    ip + "@" + sessionCountIn);
+                update(es, props.getProperty(MudrodConstants.ES_INDEX_NAME), this.cleanupType, id, "SessionID", ip + "@" + sessionCountIn);
 
                 break;
               }
@@ -347,37 +316,29 @@ public class SessionGenerator extends LogAbstract {
         } else if ("ftp".equals(logType)) {
 
           // may affect computation efficiency
-          Map<String, DateTime> requests = sessionReqs
-              .get(ip + "@" + sessionCountIn);
+          Map<String, DateTime> requests = sessionReqs.get(ip + "@" + sessionCountIn);
           if (requests == null) {
-            sessionReqs.put(ip + "@" + sessionCountIn,
-                new HashMap<String, DateTime>());
+            sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
           } else {
             ArrayList<String> keys = new ArrayList<>(requests.keySet());
             int size = keys.size();
-            if (Math.abs(
-                Seconds.secondsBetween(requests.get(keys.get(size - 1)), time)
-                    .getSeconds()) > timeThres) {
+            if (Math.abs(Seconds.secondsBetween(requests.get(keys.get(size - 1)), time).getSeconds()) > timeThres) {
               sessionCountIn += 1;
-              sessionReqs.put(ip + "@" + sessionCountIn,
-                  new HashMap<String, DateTime>());
+              sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
             }
           }
           sessionReqs.get(ip + "@" + sessionCountIn).put(request, time);
-          update(es, logIndex, this.cleanupType, id, "SessionID",
-              ip + "@" + sessionCountIn);
+          update(es, logIndex, this.cleanupType, id, "SessionID", ip + "@" + sessionCountIn);
         }
       }
 
-      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId())
-          .setScroll(new TimeValue(600000)).execute().actionGet();
+      scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
     }
 
     return sessionCountIn;
   }
 
-  public void combineShortSessionsInParallel(int timeThres)
-      throws InterruptedException, IOException {
+  public void combineShortSessionsInParallel(int timeThres) throws InterruptedException, IOException {
 
     JavaRDD<String> userRDD = getUserRDD(this.cleanupType);
 
@@ -396,12 +357,12 @@ public class SessionGenerator extends LogAbstract {
           combineShortSessions(tmpES, s, timeThres);
         }
         tmpES.destroyBulkProcessor();
+        tmpES.close();
       }
     });
   }
 
-  public void combineShortSessions(ESDriver es, String user, int timeThres)
-      throws ElasticsearchException, IOException {
+  public void combineShortSessions(ESDriver es, String user, int timeThres) throws ElasticsearchException, IOException {
 
     BoolQueryBuilder filterSearch = new BoolQueryBuilder();
     filterSearch.must(QueryBuilders.termQuery("IP", user));
@@ -416,11 +377,8 @@ public class SessionGenerator extends LogAbstract {
     }
 
     BoolQueryBuilder filterCheck = new BoolQueryBuilder();
-    filterCheck.must(QueryBuilders.termQuery("IP", user))
-        .must(QueryBuilders.termQuery("Referer", "-"));
-    SearchResponse checkReferer = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterCheck).setSize(0).execute().actionGet();
+    filterCheck.must(QueryBuilders.termQuery("IP", user)).must(QueryBuilders.termQuery("Referer", "-"));
+    SearchResponse checkReferer = es.getClient().prepareSearch(logIndex).setTypes(this.cleanupType).setScroll(new TimeValue(60000)).setQuery(filterCheck).setSize(0).execute().actionGet();
 
     long numInvalid = checkReferer.getHits().getTotalHits();
     double invalidRate = numInvalid / docCount;
@@ -430,21 +388,16 @@ public class SessionGenerator extends LogAbstract {
       return;
     }
 
-    StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats")
-        .field("Time");
-    SearchResponse srSession = es.getClient().prepareSearch(logIndex)
-        .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-        .setQuery(filterSearch).addAggregation(
-            AggregationBuilders.terms("Sessions").field("SessionID")
-                .size(docCount).subAggregation(statsAgg)).execute().actionGet();
+    StatsAggregationBuilder statsAgg = AggregationBuilders.stats("Stats").field("Time");
+    SearchResponse srSession = es.getClient().prepareSearch(logIndex).setTypes(this.cleanupType).setScroll(new TimeValue(60000)).setQuery(filterSearch)
+        .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID").size(docCount).subAggregation(statsAgg)).execute().actionGet();
 
     Terms sessions = srSession.getAggregations().get("Sessions");
 
     List<Session> sessionList = new ArrayList<>();
     for (Terms.Bucket session : sessions.getBuckets()) {
       Stats agg = session.getAggregations().get("Stats");
-      Session sess = new Session(props, es, agg.getMinAsString(),
-          agg.getMaxAsString(), session.getKey().toString());
+      Session sess = new Session(props, es, agg.getMinAsString(), agg.getMaxAsString(), session.getKey().toString());
       sessionList.add(sess);
     }
 
@@ -457,35 +410,26 @@ public class SessionGenerator extends LogAbstract {
     for (Session s : sessionList) {
       current = s.getEndTime();
       if (last != null) {
-        if (Seconds
-            .secondsBetween(fmt.parseDateTime(last), fmt.parseDateTime(current))
-            .getSeconds() < timeThres) {
+        if (Seconds.secondsBetween(fmt.parseDateTime(last), fmt.parseDateTime(current)).getSeconds() < timeThres) {
           if (lastnewID == null) {
             s.setNewID(lastoldID);
           } else {
             s.setNewID(lastnewID);
           }
 
-          QueryBuilder fs = QueryBuilders.boolQuery()
-              .filter(QueryBuilders.termQuery("SessionID", s.getID()));
+          QueryBuilder fs = QueryBuilders.boolQuery().filter(QueryBuilders.termQuery("SessionID", s.getID()));
 
-          SearchResponse scrollResp = es.getClient().prepareSearch(logIndex)
-              .setTypes(this.cleanupType).setScroll(new TimeValue(60000))
-              .setQuery(fs).setSize(100).execute().actionGet();
+          SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(this.cleanupType).setScroll(new TimeValue(60000)).setQuery(fs).setSize(100).execute().actionGet();
           while (true) {
             for (SearchHit hit : scrollResp.getHits().getHits()) {
               if (lastnewID == null) {
-                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID",
-                    lastoldID);
+                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID", lastoldID);
               } else {
-                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID",
-                    lastnewID);
+                update(es, logIndex, this.cleanupType, hit.getId(), "SessionID", lastnewID);
               }
             }
 
-            scrollResp = es.getClient()
-                .prepareSearchScroll(scrollResp.getScrollId())
-                .setScroll(new TimeValue(600000)).execute().actionGet();
+            scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
             if (scrollResp.getHits().getHits().length == 0) {
               break;
             }

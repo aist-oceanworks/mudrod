@@ -60,30 +60,23 @@ public class SemanticAnalyzer extends MudrodAbstract {
     return this.calTermSimfromMatrix(csvFileName, 1);
   }
 
-  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
-      int skipRow) {
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName, int skipRow) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil
-        .loadVectorFromCSV(spark, csvFileName, skipRow);
-    CoordinateMatrix simMatrix = SimilarityUtil
-        .calculateSimilarityFromVector(importRDD.values());
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, skipRow);
+    CoordinateMatrix simMatrix = SimilarityUtil.calculateSimilarityFromVector(importRDD.values());
     JavaRDD<String> rowKeyRDD = importRDD.keys();
     return SimilarityUtil.matrixToTriples(rowKeyRDD, simMatrix);
   }
 
-  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName,
-      int simType, int skipRow) {
+  public List<LinkageTriple> calTermSimfromMatrix(String csvFileName, int simType, int skipRow) {
 
-    JavaPairRDD<String, Vector> importRDD = MatrixUtil
-        .loadVectorFromCSV(spark, csvFileName, skipRow);
-    JavaRDD<LinkageTriple> triples = SimilarityUtil
-        .calculateSimilarityFromVector(importRDD, simType);
+    JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, skipRow);
+    JavaRDD<LinkageTriple> triples = SimilarityUtil.calculateSimilarityFromVector(importRDD, simType);
 
     return triples.collect();
   }
 
-  public void saveToES(List<LinkageTriple> tripleList, String index,
-      String type) {
+  public void saveToES(List<LinkageTriple> tripleList, String index, String type) {
     try {
       LinkageTriple.insertTriples(es, tripleList, index, type);
     } catch (IOException e) {
@@ -100,11 +93,9 @@ public class SemanticAnalyzer extends MudrodAbstract {
    * @param bTriple    bTriple
    * @param bSymmetry  bSymmetry
    */
-  public void saveToES(List<LinkageTriple> tripleList, String index,
-      String type, boolean bTriple, boolean bSymmetry) {
+  public void saveToES(List<LinkageTriple> tripleList, String index, String type, boolean bTriple, boolean bSymmetry) {
     try {
-      LinkageTriple
-          .insertTriples(es, tripleList, index, type, bTriple, bSymmetry);
+      LinkageTriple.insertTriples(es, tripleList, index, type, bTriple, bSymmetry);
     } catch (IOException e) {
       e.printStackTrace();
 

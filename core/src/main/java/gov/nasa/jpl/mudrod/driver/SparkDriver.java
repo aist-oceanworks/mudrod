@@ -66,12 +66,8 @@ public class SparkDriver implements Serializable {
   }
 
   public SparkDriver(Properties props) {
-    SparkConf conf = new SparkConf().setAppName(
-        props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp"))
-        .setIfMissing("spark.master",
-            props.getProperty(MudrodConstants.SPARK_MASTER))
-        .set("spark.hadoop.validateOutputSpecs", "false")
-        .set("spark.files.overwrite", "true");
+    SparkConf conf = new SparkConf().setAppName(props.getProperty(MudrodConstants.SPARK_APP_NAME, "MudrodSparkApp")).setIfMissing("spark.master", props.getProperty(MudrodConstants.SPARK_MASTER))
+        .set("spark.hadoop.validateOutputSpecs", "false").set("spark.files.overwrite", "true");
 
     String esHost = props.getProperty(MudrodConstants.ES_UNICAST_HOSTS);
     String esPort = props.getProperty(MudrodConstants.ES_HTTP_PORT);

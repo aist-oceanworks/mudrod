@@ -48,19 +48,12 @@ public class ClickstreamImporter extends MudrodAbstract {
   public void addClickStreamMapping() {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject()
-          .startObject(props.getProperty("clickstreamMatrixType"))
-          .startObject("properties").startObject("query")
-          .field("type", "string").field("index", "not_analyzed").endObject()
-          .startObject("dataID").field("type", "string")
-          .field("index", "not_analyzed").endObject()
+      Mapping = jsonBuilder().startObject().startObject(props.getProperty("clickstreamMatrixType")).startObject("properties").startObject("query").field("type", "string")
+          .field("index", "not_analyzed").endObject().startObject("dataID").field("type", "string").field("index", "not_analyzed").endObject()
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices()
-          .preparePutMapping(props.getProperty("indexName"))
-          .setType(props.getProperty("clickstreamMatrixType"))
-          .setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("clickstreamMatrixType")).setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -70,16 +63,14 @@ public class ClickstreamImporter extends MudrodAbstract {
    * Method to import click stream CSV into Elasticsearch
    */
   public void importfromCSVtoES() {
-    es.deleteType(props.getProperty("indexName"),
-        props.getProperty("clickstreamMatrixType"));
+    es.deleteType(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType"));
     es.createBulkProcessor();
 
     BufferedReader br = null;
     String cvsSplitBy = ",";
 
     try {
-      br = new BufferedReader(
-          new FileReader(props.getProperty("clickstreamMatrix")));
+      br = new BufferedReader(new FileReader(props.getProperty("clickstreamMatrix")));
       String line = br.readLine();
       // first item needs to be skipped
       String dataList[] = line.split(cvsSplitBy);
@@ -87,11 +78,8 @@ public class ClickstreamImporter extends MudrodAbstract {
         String[] clicks = line.split(cvsSplitBy);
         for (int i = 1; i < clicks.length; i++) {
           if (!clicks[i].equals("0.0")) {
-            IndexRequest ir = new IndexRequest(props.getProperty("indexName"),
-                props.getProperty("clickstreamMatrixType")).source(
-                jsonBuilder().startObject().field("query", clicks[0])
-                    .field("dataID", dataList[i]).field("clicks", clicks[i])
-                    .endObject());
+            IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("clickstreamMatrixType"))
+                .source(jsonBuilder().startObject().field("query", clicks[0]).field("dataID", dataList[i]).field("clicks", clicks[i]).endObject());
             es.getBulkProcessor().add(ir);
           }
         }

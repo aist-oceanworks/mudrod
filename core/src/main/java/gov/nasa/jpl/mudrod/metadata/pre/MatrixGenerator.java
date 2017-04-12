@@ -37,8 +37,7 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
    *
    */
   private static final long serialVersionUID = 1L;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MatrixGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MatrixGenerator.class);
 
   /**
    * Creates a new instance of MatrixGenerator.
@@ -65,21 +64,16 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
     String metadataMatrixFile = props.getProperty("metadataMatrix");
     try {
       MetadataExtractor extractor = new MetadataExtractor();
-      JavaPairRDD<String, List<String>> metadataTermsRDD = extractor
-          .loadMetadata(this.es, this.spark.sc, props.getProperty("indexName"),
-              props.getProperty("raw_metadataType"));
-      LabeledRowMatrix wordDocMatrix = MatrixUtil
-          .createWordDocMatrix(metadataTermsRDD, spark.sc);
-      MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys,
-          wordDocMatrix.colkeys, metadataMatrixFile);
+      JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc, props.getProperty("indexName"), props.getProperty("raw_metadataType"));
+      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metadataTermsRDD, spark.sc);
+      MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys, wordDocMatrix.colkeys, metadataMatrixFile);
 
     } catch (Exception e) {
       e.printStackTrace();
     }
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata matrix ends******************Took {}s",
-        (endTime - startTime) / 1000);
+    LOG.info("*****************Metadata matrix ends******************Took {}s", (endTime - startTime) / 1000);
     return null;
   }
 

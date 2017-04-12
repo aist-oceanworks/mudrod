@@ -32,8 +32,7 @@ import javax.ws.rs.core.Response;
 @Path("/vocabulary")
 public class SearchVocabResource {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(SearchMetadataResource.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SearchMetadataResource.class);
 
   private MudrodEngine mEngine;
 
@@ -45,9 +44,7 @@ public class SearchVocabResource {
   @Path("/status")
   @Produces("text/html")
   public Response status() {
-    return Response
-        .ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>")
-        .build();
+    return Response.ok("<h1>This is MUDROD Vocabulary Search Resource: running correctly...</h1>").build();
   }
 
   @GET
@@ -57,14 +54,12 @@ public class SearchVocabResource {
   public Response searchVocabulary(@QueryParam("query") String concept) {
     JsonObject json = new JsonObject();
     if (concept != null) {
-      LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(),
-          mEngine.getESDriver(), null);
+      LinkageIntegration li = new LinkageIntegration(mEngine.getConfig(), mEngine.getESDriver(), null);
       json = new JsonObject();
       json.add("graph", li.getIngeratedListInJson(concept));
     }
     LOG.info("Response received: {}", json);
-    return Response.ok(new Gson().toJson(json), MediaType.APPLICATION_JSON)
-        .build();
+    return Response.ok(new Gson().toJson(json), MediaType.APPLICATION_JSON).build();
   }
 
 }
