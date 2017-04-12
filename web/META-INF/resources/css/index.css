@@ -84,6 +84,7 @@ a:focus, a:hover {
 }
 
 header .site-logo {
+    margin-left: 1em;
     height: 40px;
     float: left;
     line-height: 40px;
