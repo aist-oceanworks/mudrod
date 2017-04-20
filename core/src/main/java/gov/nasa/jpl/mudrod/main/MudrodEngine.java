@@ -177,7 +177,8 @@ public class MudrodEngine {
     if (scmArchive == null) {
       throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
     }
-    File tempDir = Files.createTempDirectory("mudrod", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrw----"))).toFile();
+    File tempDir = Files.createTempDirectory("mudrod").toFile();
+    assert tempDir.setWritable(true);
     File archiveFile = new File(tempDir, archiveName);
     FileUtils.copyURLToFile(scmArchive, archiveFile);
 
@@ -208,7 +209,7 @@ public class MudrodEngine {
       }
     }
 
-    return new File(tempDir, StringUtils.removeEnd(archiveName, ".tar.gz")).toURI().toString();
+    return new File(tempDir, StringUtils.removeEnd(archiveName, ".zip")).toURI().toString();
   }
 
   /**
