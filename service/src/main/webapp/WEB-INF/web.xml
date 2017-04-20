@@ -35,6 +35,10 @@
                 gov.nasa.jpl.mudrod.services.ontology.OntologyResource,
             </param-value>
         </init-param>
+        <init-param>
+            <param-name>jaxrs.providers</param-name>
+            <param-value>gov.nasa.jpl.mudrod.services.DefaultExceptionMapper</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
