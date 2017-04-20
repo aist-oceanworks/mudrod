@@ -186,6 +186,7 @@ public class MudrodEngine {
 
     // Decompress archive
     int BUFFER_SIZE = 512000;
+<<<<<<< HEAD
     ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archiveFile));
  		ZipEntry entry;
  		while ((entry = zipIn.getNextEntry()) != null) {
