@@ -177,7 +177,6 @@ public class MudrodEngine {
   private String decompressSVMWithSGDModel(String archiveName) throws IOException {
 
 		URL scmArchive = getClass().getClassLoader().getResource(archiveName);
-		System.out.println("scmArchive"  +scmArchive.toString());
 		if (scmArchive == null) {
 			throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
 		}
@@ -190,7 +189,6 @@ public class MudrodEngine {
 
 		// Decompress archive
 		int BUFFER_SIZE = 512000;
-		System.out.println(archiveName);
 		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archiveFile));
 		ZipEntry entry;
 		while ((entry = zipIn.getNextEntry()) != null) {
@@ -210,8 +208,6 @@ public class MudrodEngine {
 		while ((entry = zipIn.getNextEntry()) != null) {
 			// If the entry is a directory, create the directory.
 			if (!entry.isDirectory()) {
-				System.out.println("3");
-				System.out.println(tempDir+ "/"+ entry.getName());
 				int count;
 				byte data[] = new byte[BUFFER_SIZE];
 				FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
