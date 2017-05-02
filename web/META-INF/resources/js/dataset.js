@@ -141,6 +141,11 @@ function landingPageFormatter(value, row) {
 	return html; 
 }
 
+function measurementFormatter(value, row) {
+	var str = value + " > " + row["Topic"] + " > " + row["DatasetParameter-Term"] + " > " + row["DatasetParameter-Variable"];
+	return str; 
+}
+
 function createResultTable() {
     var layout = {
         cache: false,
@@ -148,22 +153,22 @@ function createResultTable() {
         columns: [{
             'title': 'Long Name',
             'field': 'Long Name',
-        }, {
+        }, 
+        {
+            'title': 'Landing Page',
+            'field': 'Short Name',
+            'formatter' : landingPageFormatter
+        },
+        {
             'title': 'Doi',
             'field': 'Dataset-Doi',
-        }, {
-            'title': 'Topic',
-            'field': 'Topic',
-        }, {
-            'title': 'Category',
+        }, 
+        {
+            'title': 'Measurement',
             'field': 'DatasetParameter-Category',
-        }, {
-            'title': 'Variable',
-            'field': 'DatasetParameter-Variable',
-        }, {
-            'title': 'Term',
-            'field': 'DatasetParameter-Term',
-        }, {
+            'formatter' : measurementFormatter
+        },
+        {
             'title': 'Version',
             'field': 'Version',
         }, {
@@ -200,11 +205,6 @@ function createResultTable() {
             'title': 'Data Access',
             'field': 'DatasetLocationPolicy-BasePath',
             'formatter' : urlFormatter
-        },
-        {
-            'title': 'Landing Page',
-            'field': 'Short Name',
-            'formatter' : landingPageFormatter
         }
         ]
     };
