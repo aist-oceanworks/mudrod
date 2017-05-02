@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 public class Searcher extends MudrodAbstract implements Serializable {
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
+  private static final String DS_PARAM_VAR = "DatasetParameter-Variable";
 
   public Searcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -220,5 +221,144 @@ public class Searcher extends MudrodAbstract implements Serializable {
     JsonObject PDResults = new JsonObject();
     PDResults.add("PDResults", fileListElement);
     return PDResults.toString();
+  }
+  
+  public String metadataDetails(String index, String type, String query, Boolean bDetail){
+	  boolean exists = es.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
+	    if (!exists) {
+	      return null;
+	    }
+
+	    QueryBuilder qb = QueryBuilders.queryStringQuery(query);
+	    SearchResponse response = es.getClient().prepareSearch(index).setTypes(type).setQuery(qb).setSize(500).execute().actionGet();
+
+	    Gson gson = new Gson();
+	    List<JsonObject> fileList = new ArrayList<>();
+
+	    for (SearchHit hit : response.getHits().getHits()) {
+	      Map<String, Object> result = hit.getSource();
+	      String shortName = (String) result.get("Dataset-ShortName");
+	      String longName = (String) result.get("Dataset-LongName");
+	      ArrayList<String> topicList = (ArrayList<String>) result.get(DS_PARAM_VAR);
+	      String topic = String.join(", ", topicList);
+	      String content = (String) result.get("Dataset-Description");
+
+	      ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
+
+	      Date date = new Date(Long.parseLong(longdate.get(0)));
+	      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+	      String dateText = df2.format(date);
+
+	      JsonObject file = new JsonObject();
+	      file.addProperty("Short Name", shortName);
+	      file.addProperty("Long Name", longName);
+	      file.addProperty("Topic", topic);
+	      file.addProperty("Dataset-Description", content);
+	      file.addProperty("Release Date", dateText);
+
+	      if (bDetail) {    	  
+	    	file.addProperty("DataFormat", (String) result.get("DatasetPolicy-DataFormat"));  
+	    	file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
+	        file.addProperty("Processing Level",
+	            (String) result.get("Dataset-ProcessingLevel"));
+	        
+	        List<String> versions = (List<String>) result
+	                .get("DatasetCitation-Version");
+	        file.addProperty("Version",  String.join(", ", versions));
+
+	        List<String> sensors = (List<String>) result
+	            .get("DatasetSource-Sensor-ShortName");
+	        file.addProperty("DatasetSource-Sensor-ShortName",
+	            String.join(", ", sensors));
+
+	        List<String> projects = (List<String>) result
+	            .get("DatasetProject-Project-ShortName");
+	        file.addProperty("DatasetProject-Project-ShortName",
+	            String.join(", ", projects));
+
+	        List<String> categories = (List<String>) result
+	            .get("DatasetParameter-Category");
+	        file.addProperty("DatasetParameter-Category",
+	            String.join(", ", categories));
+	        
+	        List<String> urls = (List<String>) result
+	            .get("DatasetLocationPolicy-BasePath");
+	        
+	        List<String> filtered_urls = new ArrayList<String>();
+	        for(String url:urls)
+	        {
+	          if(url.startsWith("ftp")||url.startsWith("http"))
+	            filtered_urls.add(url);
+	        }
+	        file.addProperty("DatasetLocationPolicy-BasePath",
+	            String.join(",", filtered_urls));
+
+	        List<String> variables = (List<String>) result
+	            .get(DS_PARAM_VAR);
+
+	        file.addProperty(DS_PARAM_VAR, String.join(", ", variables));
+
+	        List<String> terms = (List<String>) result.get("DatasetParameter-Term");
+	        file.addProperty("DatasetParameter-Term", String.join(", ", terms));
+
+	        /********coverage*********/
+
+	        List<String> region = (List<String>) result.get("DatasetRegion-Region");
+	        file.addProperty("Region", String.join(", ", region));
+
+	        String northLat = (String) result.get("DatasetCoverage-NorthLat");
+	        String southLat = (String) result.get("DatasetCoverage-SouthLat");
+	        String westLon = (String) result.get("DatasetCoverage-WestLon");
+	        String eastLon = (String) result.get("DatasetCoverage-EastLon");
+	        file.addProperty("Coverage",
+	            northLat + " (northernmost latitude) x " + southLat + " (southernmost latitude) x " + westLon + " (westernmost longitude) x " + eastLon + " (easternmost longitude)");
+
+	        //start date
+	        Long start = (Long) result.get("DatasetCoverage-StartTimeLong-Long");
+	        Date startDate = new Date(start);
+	        String startDateTxt = df2.format(startDate);
+
+	        //end date
+	        String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
+	        String endDateTxt = "";
+	        if (end.equals("")) {
+	          endDateTxt = "Present";
+	        } else {
+	          Date endDate = new Date(Long.valueOf(end));
+	          endDateTxt = df2.format(endDate);
+	        }
+	        file.addProperty("Time Span", startDateTxt + " to " + endDateTxt);
+	        /********coverage*********/
+
+	        /********resolution*********/
+	        //temporal
+	        String temporalResolution = (String) result.get("Dataset-TemporalResolution");
+	        if ("".equals(temporalResolution)) {
+	          temporalResolution = (String) result.get("Dataset-TemporalRepeat");
+	        }
+	        file.addProperty("TemporalResolution", temporalResolution);
+
+	        //spatial
+	        String latResolution = (String) result.get("Dataset-LatitudeResolution");
+	        String lonResolution = (String) result.get("Dataset-LongitudeResolution");
+	        if (!latResolution.isEmpty() && !lonResolution.isEmpty()) {
+	          file.addProperty("SpatiallResolution", latResolution + " degrees (latitude) x " + lonResolution + " degrees (longitude)");
+	        } else {
+
+	          String acrossResolution = (String) result.get("Dataset-AcrossTrackResolution");
+	          String alonResolution = (String) result.get("Dataset-AlongTrackResolution");
+
+	          file.addProperty("SpatiallResolution", alonResolution + " m (Along) x " + acrossResolution + " m (Across)");
+	        }
+	      }
+
+	      fileList.add(file);
+
+	    }
+	    JsonElement fileListElement = gson.toJsonTree(fileList);
+
+	    JsonObject pdResults = new JsonObject();
+	    pdResults.add("PDResults", fileListElement);
+	    return pdResults.toString();
   }
 }

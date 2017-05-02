@@ -36,6 +36,8 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
@@ -55,6 +57,7 @@ public class MudrodEngine {
   private static final String SESSION_RECON = "sessionReconstruction";
   private static final String VOCAB_SIM_FROM_LOG = "vocabSimFromLog";
   private static final String ADD_META_ONTO = "addSimFromMetadataAndOnto";
+  private static final String UPDATE_METADATA = "updateMetadata";
   private static final String LOG_DIR = "logDir";
   private static final String ES_HOST = "esHost";
   private static final String ES_TCP_PORT = "esTCPPort";
@@ -173,43 +176,52 @@ public class MudrodEngine {
 
   private String decompressSVMWithSGDModel(String archiveName) throws IOException {
 
-    URL scmArchive = getClass().getClassLoader().getResource(archiveName);
-    if (scmArchive == null) {
-      throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
-    }
-    File tempDir = Files.createTempDirectory("mudrod", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrw----"))).toFile();
-    File archiveFile = new File(tempDir, archiveName);
-    FileUtils.copyURLToFile(scmArchive, archiveFile);
+		URL scmArchive = getClass().getClassLoader().getResource(archiveName);
+		if (scmArchive == null) {
+			throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
+		}
+		// File tempDir = Files.createTempDirectory("mudrod",
+		// PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrw----"))).toFile();
+		File tempDir = Files.createTempDirectory("mudrod").toFile();
+		assert tempDir.setWritable(true);
+		File archiveFile = new File(tempDir, archiveName);
+		FileUtils.copyURLToFile(scmArchive, archiveFile);
 
-    // Decompress archive
-    int BUFFER_SIZE = 512000;
-    GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(new FileInputStream(archiveFile));
-    try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
-      TarArchiveEntry entry;
+		// Decompress archive
+		int BUFFER_SIZE = 512000;
+		ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archiveFile));
+		ZipEntry entry;
+		while ((entry = zipIn.getNextEntry()) != null) {
+			// If the entry is a directory, create the directory.
+			if (entry.isDirectory()) {
+				File f = new File(tempDir, entry.getName());
+				boolean created = f.mkdirs();
+				if (!created) {
+					LOG.error("Unable to create directory '%s', during extraction of archive contents.",
+							f.getAbsolutePath());
+				}
+			} 
+			
+		}
+		
+		zipIn = new ZipInputStream(new FileInputStream(archiveFile));
+		while ((entry = zipIn.getNextEntry()) != null) {
+			// If the entry is a directory, create the directory.
+			if (!entry.isDirectory()) {
+				int count;
+				byte data[] = new byte[BUFFER_SIZE];
+				FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
+				try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
+					while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1) {
+						dest.write(data, 0, count);
+					}
+				}
+			}
+		}
 
-      while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-        // If the entry is a directory, create the directory.
-        if (entry.isDirectory()) {
-          File f = new File(tempDir, entry.getName());
-          boolean created = f.mkdir();
-          if (!created) {
-            LOG.error("Unable to create directory '%s', during extraction of archive contents.", f.getAbsolutePath());
-          }
-        } else {
-          int count;
-          byte data[] = new byte[BUFFER_SIZE];
-          FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
-          try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
-            while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
-              dest.write(data, 0, count);
-            }
-          }
-        }
-      }
-    }
+		return new File(tempDir, StringUtils.removeEnd(archiveName, ".zip")).toURI().toString();
+	}
 
-    return new File(tempDir, StringUtils.removeEnd(archiveName, ".tar.gz")).toURI().toString();
-  }
 
   /**
    * Preprocess and process various
@@ -277,7 +289,18 @@ public class MudrodEngine {
     md.process();
     LOG.info("*****************Ontology and metadata similarity have " + "been added successfully******************");
   }
-
+  
+  /**
+   * updating and analysing metadata to metadata similarity results 
+   */
+  public void updateMetadata() {
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+    LOG.info("*****************metadata and their similarity have "
+        + "been updated successfully******************");
+  }
+ 
   /**
    * Only preprocess various
    * {@link DiscoveryEngineAbstract}
@@ -348,6 +371,9 @@ public class MudrodEngine {
     // log vocab similarity
     Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false, "begin adding metadata and ontology results");
 
+    Option updateMetaOpt = new Option("m", UPDATE_METADATA, false,
+        "begin updating and analysing metadata ");
+    
     // argument options
     Option logDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/log/directory").hasArgs(1).withDescription("the log directory to be processed by Mudrod").withLongOpt("logDirectory")
         .isRequired().create(LOG_DIR);
@@ -374,6 +400,7 @@ public class MudrodEngine {
     options.addOption(esHostOpt);
     options.addOption(esTCPPortOpt);
     options.addOption(esPortOpt);
+    options.addOption(updateMetaOpt);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -392,6 +419,8 @@ public class MudrodEngine {
         processingType = VOCAB_SIM_FROM_LOG;
       } else if (line.hasOption(ADD_META_ONTO)) {
         processingType = ADD_META_ONTO;
+      }else if (line.hasOption(UPDATE_METADATA)) {
+         processingType = UPDATE_METADATA;
       }
 
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
@@ -437,6 +466,9 @@ public class MudrodEngine {
           break;
         case ADD_META_ONTO:
           me.addMetaAndOntologySim();
+          break;
+        case UPDATE_METADATA:
+          me.updateMetadata();
           break;
         case FULL_INGEST:
           me.startFullIngest();

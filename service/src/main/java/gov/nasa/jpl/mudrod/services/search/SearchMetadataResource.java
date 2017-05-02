@@ -28,6 +28,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -69,5 +71,23 @@ public class SearchMetadataResource {
     LOG.debug("Response received: {}", json);
     return Response.ok(json, MediaType.APPLICATION_JSON).build();
   }
+  
+   @GET
+  @Path("/details")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes("text/plain")
+  public Response searchDatasetDetail(@QueryParam("shortname") String shortName) {
 
+    Properties config = mEngine.getConfig();
+    String dataDetailJson = null;
+    try {
+      String query = "Dataset-ShortName:\"" + shortName + "\"";
+      dataDetailJson = searcher.metadataDetails(config.getProperty(MudrodConstants.ES_INDEX_NAME), config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
+    } catch (Exception e) {
+      LOG.error("Error whilst searching for a Dataset-ShortName", e);
+    }
+
+    LOG.info("Response received: {}", dataDetailJson);
+    return Response.ok(dataDetailJson, MediaType.APPLICATION_JSON).build();
+  }
 }

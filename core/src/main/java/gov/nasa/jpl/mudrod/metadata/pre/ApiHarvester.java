@@ -53,6 +53,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   public Object execute() {
     LOG.info("Starting Metadata harvesting.");
     startTime = System.currentTimeMillis();
+    es.deleteType(props.getProperty("indexName"), props.getProperty("raw_metadataType"));
     es.createBulkProcessor();
     addMetadataMapping();
     importToES();

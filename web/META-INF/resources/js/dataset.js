@@ -102,7 +102,7 @@ function loadMetaData(shortname) {
     if (shortname != "") {
         $("#dataset").show();
         $.ajax({
-            url: "services/datasetdetail/search",
+            url: "services/metadata/details",
             data: {
                 "shortname": shortname
             },

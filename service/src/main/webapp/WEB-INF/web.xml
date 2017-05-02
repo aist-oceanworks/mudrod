@@ -26,7 +26,6 @@
             <param-name>jaxrs.serviceClasses</param-name>
             <param-value>
                 gov.nasa.jpl.mudrod.services.autocomplete.AutoCompleteResource,
-                gov.nasa.jpl.mudrod.services.search.SearchDatasetDetailResource,
                 gov.nasa.jpl.mudrod.services.recommendation.HybridRecomDatasetsResource,
                 gov.nasa.jpl.mudrod.services.recommendation.RecomDatasetsResource,
                 gov.nasa.jpl.mudrod.services.search.SearchMetadataResource,
