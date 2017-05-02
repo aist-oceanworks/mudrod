@@ -75,7 +75,7 @@
 
 
     <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
-    <para name="svmSgdModel">${svmSgdModel.value}.tar.gz</para>
+    <para name="svmSgdModel">${svmSgdModel.value}.zip</para>
 
     <!--
     The ontology service implementation. Possible values include

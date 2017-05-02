@@ -30,7 +30,7 @@
     <description>Core Mudrod library implementation.</description>
 
     <properties>
-        <!-- This property is the name of the directory containing the SVM/SGD Model. It is used during build to create a tar.gz file from this directory -->
+        <!-- This property is the name of the directory containing the SVM/SGD Model. It is used during build to create a zip file from this directory -->
         <svmSgdModel.value>javaSVMWithSGDModel</svmSgdModel.value>
     </properties>
 
