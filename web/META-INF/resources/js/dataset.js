@@ -135,6 +135,12 @@ function urlFormatter(value, row) {
 	return html; 
 }
 
+function landingPageFormatter(value, row) {
+	var html = "https://podaac.jpl.nasa.gov/dataset/";	
+	html = '<a href=' + html + value + ' target="_blank">' + html + value + '</a>';	
+	return html; 
+}
+
 function createResultTable() {
     var layout = {
         cache: false,
@@ -194,6 +200,11 @@ function createResultTable() {
             'title': 'Data Access',
             'field': 'DatasetLocationPolicy-BasePath',
             'formatter' : urlFormatter
+        },
+        {
+            'title': 'Landing Page',
+            'field': 'Short Name',
+            'formatter' : landingPageFormatter
         }
         ]
     };
