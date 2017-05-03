@@ -8,8 +8,8 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         $scope.options = {
             preference: 'Phrase'
         };
-        $scope.relatedTerms = [];
-        $rootScope.searchOptions = {};
+        //$scope.relatedTerms = [];
+        //$rootScope.searchOptions = {};
         
         $scope.complete = function(string) {  
             $scope.hidethis = false;  

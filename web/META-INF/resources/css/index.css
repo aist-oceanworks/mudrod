@@ -315,6 +315,7 @@ a {
     transition: 0.5s;
     padding-top: 3px;
     margin-bottom: 17px;
+    word-wrap: break-word;
 }
 
 .sidenav a {
@@ -446,3 +447,15 @@ li:hover
 {  
     background-color:#f9f9f9;  
 }  
+
+.serch-ul {
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+    display: block;
+    min-width: 195px;
+    list-style: none;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}

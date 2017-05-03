@@ -18,17 +18,18 @@
 
                     <input id="query" type="search" class="form-control" ng-model="options.term" ng-keyup="complete(options.term)"
                             placeholder="Enter ocean concepts (e.g. ocean wind) to search">
+                    <ul class="list-group serch-ul" ng-model="hidethis" ng-hide="hidethis">  
+                        <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>  
+                    </ul>  
                     <div class="input-group-btn">
                         <button class="btn btn-default" id="search-btn" ng-click="search(options)"
                                 type="submit">
                             <i class="glyphicon glyphicon-search"></i>
                         </button>
                     </div>
-                    <!--
-                    <ul class="list-group" ng-model="hidethis" ng-hide="hidethis">  
-                    <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>  
-                    </ul>  
-                    -->
+                    
+
+                    
                 </div>
                 <div class="searchOption input-group" id="searchOption">
                     <span>Search Operator: </span>
