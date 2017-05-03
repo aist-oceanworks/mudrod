@@ -29,6 +29,8 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import java.io.*;
 import java.net.URL;
@@ -184,30 +186,35 @@ public class MudrodEngine {
 
     // Decompress archive
     int BUFFER_SIZE = 512000;
-    GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(new FileInputStream(archiveFile));
-    try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
-      TarArchiveEntry entry;
-
-      while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-        // If the entry is a directory, create the directory.
-        if (entry.isDirectory()) {
-          File f = new File(tempDir, entry.getName());
-          boolean created = f.mkdir();
-          if (!created) {
-            LOG.error("Unable to create directory '%s', during extraction of archive contents.", f.getAbsolutePath());
-          }
-        } else {
-          int count;
-          byte data[] = new byte[BUFFER_SIZE];
-          FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
-          try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
-            while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
-              dest.write(data, 0, count);
-            }
-          }
-        }
-      }
-    }
+    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archiveFile));
+ 		ZipEntry entry;
+ 		while ((entry = zipIn.getNextEntry()) != null) {
+ 			// If the entry is a directory, create the directory.
+ 			if (entry.isDirectory()) {
+ 				File f = new File(tempDir, entry.getName());
+ 				boolean created = f.mkdirs();
+ 				if (!created) {
+ 					LOG.error("Unable to create directory '%s', during extraction of archive contents.",
+ 							f.getAbsolutePath());
+ 				}
+ 			} 
+ 			
+ 		}
+ 		
+ 		zipIn = new ZipInputStream(new FileInputStream(archiveFile));
+ 		while ((entry = zipIn.getNextEntry()) != null) {
+ 			// If the entry is a directory, create the directory.
+ 			if (!entry.isDirectory()) {
+ 				int count;
+ 				byte data[] = new byte[BUFFER_SIZE];
+ 				FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
+ 				try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
+ 					while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1) {
+ 						dest.write(data, 0, count);
+ 					}
+ 				}
+ 			}
+		}
 
     return new File(tempDir, StringUtils.removeEnd(archiveName, ".zip")).toURI().toString();
   }
