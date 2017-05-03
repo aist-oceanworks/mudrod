@@ -37,6 +37,8 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Properties;
 
+import static gov.nasa.jpl.mudrod.main.MudrodConstants.DATA_DIR;
+
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
  * tightly linked to the primary Mudrod configuration which can be located at
@@ -53,7 +55,6 @@ public class MudrodEngine {
   private static final String META_INGEST = "metaIngest";
   private static final String FULL_INGEST = "fullIngest";
   private static final String PROCESSING = "processingWithPreResults";
-  private static final String Data_DIR = "dataDir";
   private static final String ES_HOST = "esHost";
   private static final String ES_TCP_PORT = "esTCPPort";
   private static final String ES_HTTP_PORT = "esPort";
@@ -220,30 +221,30 @@ public class MudrodEngine {
     wd.process();
     LOG.info("*****************logs have been ingested successfully******************");
   }
-  
+
   /**
-   * updating and analysing metadata to metadata similarity results 
+   * updating and analysing metadata to metadata similarity results
    */
   public void startMetaIngest() {
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
     md.process();
-    
+
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
     LOG.info("*****************metadata have been ingested successfully*****************");
   }
-  
+
   public void startFullIngest() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.preprocess();
     wd.process();
-    
+
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
     md.process();
-    
+
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
@@ -305,10 +306,9 @@ public class MudrodEngine {
     // processing only, assuming that preprocessing results is in dataDir
     Option processingOpt = new Option("p", PROCESSING, false, "begin processing with preprocessing results");
 
-
     // argument options
     Option dataDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/data/directory").hasArgs(1).withDescription("the data directory to be processed by Mudrod").withLongOpt("logDirectory")
-        .isRequired().create(Data_DIR);
+        .isRequired().create(DATA_DIR);
 
     Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name").hasArgs(1).withDescription("elasticsearch cluster unicast host").withLongOpt("elasticSearchHost").isRequired(false)
         .create(ES_HOST);
@@ -340,21 +340,20 @@ public class MudrodEngine {
         processingType = LOG_INGEST;
       } else if (line.hasOption(PROCESSING)) {
         processingType = PROCESSING;
-      }else if (line.hasOption(META_INGEST)) {
+      } else if (line.hasOption(META_INGEST)) {
         processingType = META_INGEST;
-      }else if (line.hasOption(FULL_INGEST)) {
+      } else if (line.hasOption(FULL_INGEST)) {
         processingType = FULL_INGEST;
       }
 
-
-      String dataDir = line.getOptionValue(Data_DIR).replace("\\", "/");
+      String dataDir = line.getOptionValue(DATA_DIR).replace("\\", "/");
       if (!dataDir.endsWith("/")) {
         dataDir += "/";
       }
 
       MudrodEngine me = new MudrodEngine();
       me.loadConfig();
-      me.props.put(Data_DIR, dataDir);
+      me.props.put(DATA_DIR, dataDir);
 
       if (line.hasOption(ES_HOST)) {
         String esHost = line.getOptionValue(ES_HOST);
