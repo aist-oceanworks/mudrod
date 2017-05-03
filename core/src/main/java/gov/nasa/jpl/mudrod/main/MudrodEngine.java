@@ -307,7 +307,7 @@ public class MudrodEngine {
     Option processingOpt = new Option("p", PROCESSING, false, "begin processing with preprocessing results");
 
     // argument options
-    Option dataDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/data/directory").hasArgs(1).withDescription("the data directory to be processed by Mudrod").withLongOpt("logDirectory")
+    Option dataDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/data/directory").hasArgs(1).withDescription("the data directory to be processed by Mudrod").withLongOpt("dataDirectory")
         .isRequired().create(DATA_DIR);
 
     Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name").hasArgs(1).withDescription("elasticsearch cluster unicast host").withLongOpt("elasticSearchHost").isRequired(false)
@@ -394,7 +394,7 @@ public class MudrodEngine {
       me.end();
     } catch (Exception e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. " + "User must also provide an ingest method.", options, true);
+      formatter.printHelp("MudrodEngine: 'dataDir' argument is mandatory. " + "User must also provide an ingest method.", options, true);
       LOG.error("Error whilst parsing command line.", e);
     }
   }
