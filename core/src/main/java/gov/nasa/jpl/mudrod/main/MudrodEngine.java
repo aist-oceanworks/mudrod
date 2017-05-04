@@ -18,9 +18,6 @@ import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.integration.LinkageIntegration;
 import org.apache.commons.cli.*;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Document;
@@ -33,9 +30,10 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static gov.nasa.jpl.mudrod.main.MudrodConstants.DATA_DIR;
 
@@ -176,38 +174,40 @@ public class MudrodEngine {
     if (scmArchive == null) {
       throw new IOException("Unable to locate " + archiveName + " as a classpath resource.");
     }
-    File tempDir = Files.createTempDirectory("mudrod", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrw----"))).toFile();
+    File tempDir = Files.createTempDirectory("mudrod").toFile();
+    assert tempDir.setWritable(true);
     File archiveFile = new File(tempDir, archiveName);
     FileUtils.copyURLToFile(scmArchive, archiveFile);
 
     // Decompress archive
     int BUFFER_SIZE = 512000;
-    GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(new FileInputStream(archiveFile));
-    try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn)) {
-      TarArchiveEntry entry;
-
-      while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-        // If the entry is a directory, create the directory.
-        if (entry.isDirectory()) {
-          File f = new File(tempDir, entry.getName());
-          boolean created = f.mkdir();
-          if (!created) {
-            LOG.error("Unable to create directory '%s', during extraction of archive contents.", f.getAbsolutePath());
-          }
-        } else {
-          int count;
-          byte data[] = new byte[BUFFER_SIZE];
-          FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
-          try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
-            while ((count = tarIn.read(data, 0, BUFFER_SIZE)) != -1) {
-              dest.write(data, 0, count);
-            }
+    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(archiveFile));
+    ZipEntry entry;
+    while ((entry = zipIn.getNextEntry()) != null) {
+      File f = new File(tempDir, entry.getName());
+      // If the entry is a directory, create the directory.
+      if (entry.isDirectory() && !f.exists()) {
+        boolean created = f.mkdirs();
+        if (!created) {
+          LOG.error("Unable to create directory '{}', during extraction of archive contents.", f.getAbsolutePath());
+        }
+      } else if (!entry.isDirectory()) {
+        boolean created = f.getParentFile().mkdirs();
+        if (!created && !f.getParentFile().exists()) {
+          LOG.error("Unable to create directory '{}', during extraction of archive contents.", f.getParentFile().getAbsolutePath());
+        }
+        int count;
+        byte data[] = new byte[BUFFER_SIZE];
+        FileOutputStream fos = new FileOutputStream(new File(tempDir, entry.getName()), false);
+        try (BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE)) {
+          while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1) {
+            dest.write(data, 0, count);
           }
         }
       }
     }
 
-    return new File(tempDir, StringUtils.removeEnd(archiveName, ".tar.gz")).toURI().toString();
+    return new File(tempDir, StringUtils.removeEnd(archiveName, ".zip")).toURI().toString();
   }
 
   /**
