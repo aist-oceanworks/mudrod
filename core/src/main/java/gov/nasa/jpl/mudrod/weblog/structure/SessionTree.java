@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * ClassName: SessionTree Function: Convert request list in a session to a tree
@@ -194,12 +195,13 @@ public class SessionTree extends MudrodAbstract {
         continue;
       }
 
-      RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
+      RequestUrl requestURL = new RequestUrl();
       String viewquery = "";
       try {
-        viewquery = requestURL.getSearchInfo(viewnode.getRequest());
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
+        String infoStr = requestURL.getSearchInfo(viewnode.getRequest());
+        viewquery = es.customAnalyzing(props.getProperty("indexName"), infoStr);
+      } catch (UnsupportedEncodingException | InterruptedException | ExecutionException e) {
+        LOG.warn("Exception getting search info. Ignoring...", e);
       }
 
       String dataset = viewnode.getDatasetId();
@@ -482,10 +484,16 @@ public class SessionTree extends MudrodAbstract {
       // method 1: The priority of download data are higher
       if (datasetOpt.size() > 1 && ndownload > 0) {
         // query
-        RequestUrl requestURL = new RequestUrl(this.props, this.es, null);
+        RequestUrl requestURL = new RequestUrl();
         String queryUrl = querynode.getRequest();
-        String query = requestURL.getSearchInfo(queryUrl);
-        Map<String, String> filter = requestURL.getFilterInfo(queryUrl);
+        String infoStr = requestURL.getSearchInfo(queryUrl);
+        String query = null;
+        try {
+          query = es.customAnalyzing(props.getProperty("indexName"), infoStr);
+        } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException("Error performing custom analyzing", e);
+        }
+        Map<String, String> filter = RequestUrl.getFilterInfo(queryUrl);
 
         for (String datasetA : datasetOpt.keySet()) {
           Boolean bDownloadA = datasetOpt.get(datasetA);
