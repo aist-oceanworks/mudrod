@@ -1,0 +1,43 @@
+<div ng-include src="'partials/navbar-plain.html'"></div> 
+
+<div id="container" class="container"> 
+    <div class="landing-dialog">
+        <div class="landing-dialog-header">
+            <h2>Oceanographic Data Discovery</h2>
+        </div>
+        <div class="searchBox toolbar">
+            <div class="landing-toolbar-content">
+                <form id="searchForm" class="search-form" autocomplete="off" ng-controller="searchCtrl">
+                    <div class="form-group">
+
+                        <input id="query" type="search" class="form-control" ng-model="options.term" ng-keyup="complete(options.term)"
+                                placeholder="Enter ocean concepts (e.g. ocean wind) to search">
+                        <button id="search-btn" ng-click="search(options)"
+                                type="submit">
+                            <span class="ico-search"></span>
+                        </button>
+                        <ul class="list-group" ng-model="hidethis" ng-hide="hidethis">  
+                          <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>  
+                        </ul>  
+                    </div>
+                    <div id="searchOption">
+                        <span>Search Operator: </span>
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="options.preference" value="Phrase"> Phrase 
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" ng-model="options.preference" value="And"> And 
+                        </label>
+                        <lable class="radio-inline"> 
+                            <input type="radio" ng-model="options.preference" value="Or">Or
+                        </lable>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
