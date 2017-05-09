@@ -284,6 +284,7 @@ public class SessionTree extends MudrodAbstract {
 
       SessionNode tmp = this.iterChild(parentNode, refer);
       if (tmp == null) {
+		node = parentNode;
         continue;
       } else {
         return tmp;
