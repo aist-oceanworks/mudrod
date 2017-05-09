@@ -53,6 +53,7 @@ public class MudrodEngine {
   private static final String SESSION_RECON = "sessionReconstruction";
   private static final String VOCAB_SIM_FROM_LOG = "vocabSimFromLog";
   private static final String ADD_META_ONTO = "addSimFromMetadataAndOnto";
+  private static final String UPDATE_METADATA = "updateMetadata";
   private static final String LOG_DIR = "logDir";
   private static final String ES_HOST = "esHost";
   private static final String ES_TCP_PORT = "esTCPPort";
@@ -277,7 +278,18 @@ public class MudrodEngine {
     md.process();
     LOG.info("*****************Ontology and metadata similarity have " + "been added successfully******************");
   }
-
+  
+  /**
+   * updating and analysing metadata to metadata similarity results 
+   */
+  public void updateMetadata() {
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+    LOG.info("*****************metadata and their similarity have "
+        + "been updated successfully******************");
+  }
+ 
   /**
    * Only preprocess various
    * {@link DiscoveryEngineAbstract}
@@ -348,6 +360,9 @@ public class MudrodEngine {
     // log vocab similarity
     Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false, "begin adding metadata and ontology results");
 
+    Option updateMetaOpt = new Option("m", UPDATE_METADATA, false,
+        "begin updating and analysing metadata ");
+    
     // argument options
     Option logDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/log/directory").hasArgs(1).withDescription("the log directory to be processed by Mudrod").withLongOpt("logDirectory")
         .isRequired().create(LOG_DIR);
@@ -374,6 +389,7 @@ public class MudrodEngine {
     options.addOption(esHostOpt);
     options.addOption(esTCPPortOpt);
     options.addOption(esPortOpt);
+    options.addOption(updateMetaOpt);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -392,6 +408,8 @@ public class MudrodEngine {
         processingType = VOCAB_SIM_FROM_LOG;
       } else if (line.hasOption(ADD_META_ONTO)) {
         processingType = ADD_META_ONTO;
+      }else if (line.hasOption(UPDATE_METADATA)) {
+         processingType = UPDATE_METADATA;
       }
 
       String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
@@ -437,6 +455,9 @@ public class MudrodEngine {
           break;
         case ADD_META_ONTO:
           me.addMetaAndOntologySim();
+          break;
+        case UPDATE_METADATA:
+          me.updateMetadata();
           break;
         case FULL_INGEST:
           me.startFullIngest();
