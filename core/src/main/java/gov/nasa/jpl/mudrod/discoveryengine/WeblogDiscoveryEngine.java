@@ -97,7 +97,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void preprocess() {
     LOG.info("Starting Web log preprocessing.");
 
-    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
 
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
@@ -139,7 +139,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void logIngest() {
     LOG.info("Starting Web log ingest.");
-    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i);
       props.put("TimeSuffix", timeSuffix);
@@ -156,7 +156,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
    */
   public void sessionRestruct() {
     LOG.info("Starting Session reconstruction.");
-    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.LOG_DIR));
+    ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
     for (int i = 0; i < inputList.size(); i++) {
       timeSuffix = inputList.get(i); // change timeSuffix dynamically
       props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);

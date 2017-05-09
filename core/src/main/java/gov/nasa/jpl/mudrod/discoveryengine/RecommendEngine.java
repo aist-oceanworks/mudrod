@@ -21,13 +21,11 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
 
   public RecommendEngine(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
     LOG.info("Started Mudrod Recommend Engine.");
   }
 
   @Override
   public void preprocess() {
-    // TODO Auto-generated method stub
     LOG.info("*****************Recommendation preprocessing starts******************");
 
     startTime = System.currentTimeMillis();

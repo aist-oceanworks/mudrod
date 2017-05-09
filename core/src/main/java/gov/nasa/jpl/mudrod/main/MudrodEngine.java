@@ -35,6 +35,8 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static gov.nasa.jpl.mudrod.main.MudrodConstants.DATA_DIR;
+
 /**
  * Main entry point for Running the Mudrod system. Invocation of this class is
  * tightly linked to the primary Mudrod configuration which can be located at
@@ -48,12 +50,9 @@ public class MudrodEngine {
   private ESDriver es = null;
   private SparkDriver spark = null;
   private static final String LOG_INGEST = "logIngest";
+  private static final String META_INGEST = "metaIngest";
   private static final String FULL_INGEST = "fullIngest";
   private static final String PROCESSING = "processingWithPreResults";
-  private static final String SESSION_RECON = "sessionReconstruction";
-  private static final String VOCAB_SIM_FROM_LOG = "vocabSimFromLog";
-  private static final String ADD_META_ONTO = "addSimFromMetadataAndOnto";
-  private static final String LOG_DIR = "logDir";
   private static final String ES_HOST = "esHost";
   private static final String ES_TCP_PORT = "esTCPPort";
   private static final String ES_HTTP_PORT = "esPort";
@@ -212,70 +211,44 @@ public class MudrodEngine {
   }
 
   /**
-   * Preprocess and process various
+   * Preprocess and process logs
    * {@link DiscoveryEngineAbstract}
-   * implementations for weblog, ontology and metadata, linkage discovery and
-   * integration.
+   * implementations for weblog
    */
+  public void startLogIngest() {
+    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
+    wd.preprocess();
+    wd.process();
+    LOG.info("*****************logs have been ingested successfully******************");
+  }
+
+  /**
+   * updating and analysing metadata to metadata similarity results
+   */
+  public void startMetaIngest() {
+    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
+    md.preprocess();
+    md.process();
+
+    DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
+    recom.preprocess();
+    recom.process();
+    LOG.info("*****************metadata have been ingested successfully*****************");
+  }
+
   public void startFullIngest() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.preprocess();
     wd.process();
 
-    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
-    od.preprocess();
-    od.process();
-
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
     md.process();
-
-    LinkageIntegration li = new LinkageIntegration(props, es, spark);
-    li.execute();
 
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
-  }
-
-  /**
-   * Begin ingesting logs with the
-   * {@link WeblogDiscoveryEngine}
-   */
-  public void logIngest() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
-    wd.logIngest();
-  }
-
-  /**
-   * Reconstructing user sessions based on raw logs.
-   */
-  public void sessionRestruction() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
-    wd.sessionRestruct();
-  }
-
-  /**
-   * Calculating vocab similarity based on reconstructed sessions.
-   */
-  public void vocabSimFromLog() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
-    wd.process();
-  }
-
-  /**
-   * Adding ontology and metadata results to vocab similarity results from web
-   * logs.
-   */
-  public void addMetaAndOntologySim() {
-    DiscoveryEngineAbstract od = new OntologyDiscoveryEngine(props, es, spark);
-    od.preprocess();
-    od.process();
-
-    DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
-    md.preprocess();
-    md.process();
-    LOG.info("*****************Ontology and metadata similarity have " + "been added successfully******************");
+    LOG.info("*****************full ingest has been finished successfully*****************");
   }
 
   /**
@@ -304,15 +277,6 @@ public class MudrodEngine {
   }
 
   /**
-   * Begin ingesting logs with the
-   * {@link WeblogDiscoveryEngine}
-   */
-  public void startLogIngest() {
-    WeblogDiscoveryEngine wd = new WeblogDiscoveryEngine(props, es, spark);
-    wd.logIngest();
-  }
-
-  /**
    * Close the connection to the {@link ESDriver}
    * instance.
    */
@@ -333,24 +297,18 @@ public class MudrodEngine {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
 
-    // preprocessing + processing
+    // log ingest (preprocessing + processing)
+    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest");
+    // metadata ingest (preprocessing + processing)
+    Option metaIngestOpt = new Option("m", META_INGEST, false, "begin metadata ingest");
+    // ingest both log and metadata
     Option fullIngestOpt = new Option("f", FULL_INGEST, false, "begin full ingest Mudrod workflow");
-    // processing only, assuming that preprocessing results is in logDir
+    // processing only, assuming that preprocessing results is in dataDir
     Option processingOpt = new Option("p", PROCESSING, false, "begin processing with preprocessing results");
 
-    // import raw web log into Elasticsearch
-    Option logIngestOpt = new Option("l", LOG_INGEST, false, "begin log ingest without any processing only");
-    // preprocessing web log, assuming web log has already been imported
-    Option sessionReconOpt = new Option("s", SESSION_RECON, false, "begin session reconstruction");
-    // calculate vocab similarity from session reconstrution results
-    Option vocabSimFromOpt = new Option("v", VOCAB_SIM_FROM_LOG, false, "begin similarity calulation from web log Mudrod workflow");
-    // add metadata and ontology preprocessing and processing results into web
-    // log vocab similarity
-    Option addMetaOntoOpt = new Option("a", ADD_META_ONTO, false, "begin adding metadata and ontology results");
-
     // argument options
-    Option logDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/log/directory").hasArgs(1).withDescription("the log directory to be processed by Mudrod").withLongOpt("logDirectory")
-        .isRequired().create(LOG_DIR);
+    Option dataDirOpt = OptionBuilder.hasArg(true).withArgName("/path/to/data/directory").hasArgs(1).withDescription("the data directory to be processed by Mudrod").withLongOpt("dataDirectory")
+        .isRequired().create(DATA_DIR);
 
     Option esHostOpt = OptionBuilder.hasArg(true).withArgName("host_name").hasArgs(1).withDescription("elasticsearch cluster unicast host").withLongOpt("elasticSearchHost").isRequired(false)
         .create(ES_HOST);
@@ -365,12 +323,10 @@ public class MudrodEngine {
     Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(logIngestOpt);
+    options.addOption(metaIngestOpt);
     options.addOption(fullIngestOpt);
     options.addOption(processingOpt);
-    options.addOption(sessionReconOpt);
-    options.addOption(vocabSimFromOpt);
-    options.addOption(addMetaOntoOpt);
-    options.addOption(logDirOpt);
+    options.addOption(dataDirOpt);
     options.addOption(esHostOpt);
     options.addOption(esTCPPortOpt);
     options.addOption(esPortOpt);
@@ -382,26 +338,22 @@ public class MudrodEngine {
 
       if (line.hasOption(LOG_INGEST)) {
         processingType = LOG_INGEST;
-      } else if (line.hasOption(FULL_INGEST)) {
-        processingType = FULL_INGEST;
       } else if (line.hasOption(PROCESSING)) {
         processingType = PROCESSING;
-      } else if (line.hasOption(SESSION_RECON)) {
-        processingType = SESSION_RECON;
-      } else if (line.hasOption(VOCAB_SIM_FROM_LOG)) {
-        processingType = VOCAB_SIM_FROM_LOG;
-      } else if (line.hasOption(ADD_META_ONTO)) {
-        processingType = ADD_META_ONTO;
+      } else if (line.hasOption(META_INGEST)) {
+        processingType = META_INGEST;
+      } else if (line.hasOption(FULL_INGEST)) {
+        processingType = FULL_INGEST;
       }
 
-      String dataDir = line.getOptionValue(LOG_DIR).replace("\\", "/");
+      String dataDir = line.getOptionValue(DATA_DIR).replace("\\", "/");
       if (!dataDir.endsWith("/")) {
         dataDir += "/";
       }
 
       MudrodEngine me = new MudrodEngine();
       me.loadConfig();
-      me.props.put(LOG_DIR, dataDir);
+      me.props.put(DATA_DIR, dataDir);
 
       if (line.hasOption(ES_HOST)) {
         String esHost = line.getOptionValue(ES_HOST);
@@ -423,20 +375,14 @@ public class MudrodEngine {
       loadFullConfig(me, dataDir);
       if (processingType != null) {
         switch (processingType) {
-        case LOG_INGEST:
-          me.logIngest();
-          break;
         case PROCESSING:
           me.startProcessing();
           break;
-        case SESSION_RECON:
-          me.sessionRestruction();
+        case LOG_INGEST:
+          me.startLogIngest();
           break;
-        case VOCAB_SIM_FROM_LOG:
-          me.vocabSimFromLog();
-          break;
-        case ADD_META_ONTO:
-          me.addMetaAndOntologySim();
+        case META_INGEST:
+          me.startMetaIngest();
           break;
         case FULL_INGEST:
           me.startFullIngest();
@@ -448,7 +394,7 @@ public class MudrodEngine {
       me.end();
     } catch (Exception e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("MudrodEngine: 'logDir' argument is mandatory. " + "User must also provide an ingest method.", options, true);
+      formatter.printHelp("MudrodEngine: 'dataDir' argument is mandatory. " + "User must also provide an ingest method.", options, true);
       LOG.error("Error whilst parsing command line.", e);
     }
   }
@@ -461,7 +407,7 @@ public class MudrodEngine {
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
     me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
     me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
-    me.props.put("raw_metadataPath", dataDir + "RawMetadata");
+    me.props.put("raw_metadataPath", dataDir + me.props.getProperty("raw_metadataType"));
 
     me.props.put("jtopia", dataDir + "jtopiaModel");
     me.props.put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");

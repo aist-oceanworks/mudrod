@@ -233,8 +233,9 @@ public class SessionStatistic extends LogAbstract {
         if (request.contains(datasetlist)) {
           searchDataListRequest_count++;
 
-          RequestUrl requestURL = new RequestUrl(props, es, null);
-          String info = requestURL.getSearchInfo(request) + ",";
+          RequestUrl requestURL = new RequestUrl();
+          String infoStr = requestURL.getSearchInfo(request) + ",";
+          String info = es.customAnalyzing(props.getProperty("indexName"), infoStr);
 
           if (!info.equals(",")) {
             if (keywords.equals("")) {

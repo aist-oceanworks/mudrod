@@ -53,6 +53,10 @@ public class ApiHarvester extends DiscoveryStepAbstract {
   public Object execute() {
     LOG.info("Starting Metadata harvesting.");
     startTime = System.currentTimeMillis();
+    //remove old metadata from ES
+    es.deleteType(props.getProperty("indexName"), props.getProperty("raw_metadataType"));
+    //harvest new metadata using PO.DAAC web services
+    harvestMetadatafromWeb();
     es.createBulkProcessor();
     addMetadataMapping();
     importToES();
@@ -81,6 +85,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    */
   private void importToES() {
     File directory = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
+    if(!directory.exists())
+      directory.mkdir();
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -110,6 +116,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * harvestMetadatafromWeb: Harvest metadata from PO.DAAC web service.
    */
   private void harvestMetadatafromWeb() {
+    LOG.info("*****************Metadata downloading starts******************");
     int startIndex = 0;
     int doc_length = 0;
     JsonParser parser = new JsonParser();
@@ -155,6 +162,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       }
 
     } while (doc_length != 0);
+    
+    LOG.info("*****************Metadata downloading finishes******************");
   }
 
   @Override
