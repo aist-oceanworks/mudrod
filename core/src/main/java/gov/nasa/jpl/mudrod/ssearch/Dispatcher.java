@@ -92,8 +92,12 @@ public class Dispatcher extends MudrodAbstract {
     Map<String, Double> selected_Map = getRelatedTermsByT(input, T);
     selected_Map.put(input, (double) 1);
 
-    String fieldsList[] = { "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full",
-        "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName",
+    String fieldsList[] = { "Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", 
+        "DatasetParameter-Topic", "DatasetParameter-VariableDetail", "DatasetParameter-Category",
+        "DatasetParameter-Variable", "DatasetParameter-Term",       
+        "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full",
+        "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", 
+        "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName",
         "DatasetSource-Sensor-ShortName-Full" };
     BoolQueryBuilder qb = new BoolQueryBuilder();
     for (Entry<String, Double> entry : selected_Map.entrySet()) {
