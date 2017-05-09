@@ -39,9 +39,12 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of SessionCooccurence.
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch drive
-   * @param spark the spark driver
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
    */
   public SessionCooccurence(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -63,7 +66,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
     LabeledRowMatrix datasetSessionMatrix = MatrixUtil.createWordDocMatrix(sessionFiltedDatasetsRDD, spark.sc);
 
     // export
-    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix, datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys, props.getProperty("session_dataset_Matrix"));
+    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix, datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys, props.getProperty("session_metadata_Matrix"));
 
     endTime = System.currentTimeMillis();
 
@@ -80,8 +83,10 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   /**
    * filter out-of-data metadata
    *
-   * @param es              the Elasticsearch drive
-   * @param userDatasetsRDD dataset extracted from session
+   * @param es
+   *          the Elasticsearch drive
+   * @param userDatasetsRDD
+   *          dataset extracted from session
    * @return filtered session datasets
    */
   public JavaPairRDD<String, List<String>> removeRetiredDataset(ESDriver es, JavaPairRDD<String, List<String>> userDatasetsRDD) {
@@ -111,7 +116,8 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
    * getMetadataNameMap: Get on service metadata names, key is lowcase of short
    * name and value is the original short name
    *
-   * @param es the elasticsearch client
+   * @param es
+   *          the elasticsearch client
    * @return a map from lower case metadata name to original metadata name
    */
   private Map<String, String> getOnServiceMetadata(ESDriver es) {

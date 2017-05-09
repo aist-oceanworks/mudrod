@@ -45,18 +45,20 @@ public class SessionExtractor implements Serializable {
   private static final long serialVersionUID = 1L;
 
   public SessionExtractor() {
-    //default constructor
+    // default constructor
   }
 
   /**
    * extractClickStreamFromES:Extract click streams from logs stored in
    * Elasticsearch
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch drive
-   * @param spark the spark driver
-   * @return clickstream list in JavaRDD format
-   * {@link ClickStream}
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   * @return clickstream list in JavaRDD format {@link ClickStream}
    */
   public JavaRDD<ClickStream> extractClickStreamFromES(Properties props, ESDriver es, SparkDriver spark) {
 
@@ -74,10 +76,11 @@ public class SessionExtractor implements Serializable {
   /**
    * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch driver
-   * @return clickstream list
-   * {@link ClickStream}
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @return clickstream list {@link ClickStream}
    */
   protected List<ClickStream> getClickStreamList(Properties props, ESDriver es) {
     List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
@@ -153,10 +156,11 @@ public class SessionExtractor implements Serializable {
   /**
    * loadClickStremFromTxt:Load click stream form txt file
    *
-   * @param clickthroughFile txt file
-   * @param sc               the spark context
-   * @return clickstream list in JavaRDD format
-   * {@link ClickStream}
+   * @param clickthroughFile
+   *          txt file
+   * @param sc
+   *          the spark context
+   * @return clickstream list in JavaRDD format {@link ClickStream}
    */
   public JavaRDD<ClickStream> loadClickStremFromTxt(String clickthroughFile, JavaSparkContext sc) {
     return sc.textFile(clickthroughFile).flatMap(new FlatMapFunction<String, ClickStream>() {
@@ -177,8 +181,10 @@ public class SessionExtractor implements Serializable {
   /**
    * bulidDataQueryRDD: convert click stream list to data set queries pairs.
    *
-   * @param clickstreamRDD: click stream data
-   * @param downloadWeight: weight of download behavior
+   * @param clickstreamRDD:
+   *          click stream data
+   * @param downloadWeight:
+   *          weight of download behavior
    * @return JavaPairRDD, key is short name of data set, and values are queries
    */
   public JavaPairRDD<String, List<String>> bulidDataQueryRDD(JavaRDD<ClickStream> clickstreamRDD, int downloadWeight) {
@@ -224,9 +230,12 @@ public class SessionExtractor implements Serializable {
   /**
    * getSessions: Get sessions from logs
    *
-   * @param props    the Mudrod configuration
-   * @param es       the Elasticsearch driver
-   * @param logIndex a log index name
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @param logIndex
+   *          a log index name
    * @return list of session names
    */
   protected List<String> getSessions(Properties props, ESDriver es, String logIndex) {
@@ -362,14 +371,12 @@ public class SessionExtractor implements Serializable {
 
   public JavaPairRDD<String, List<String>> bulidSessionDatasetRDD(Properties props, ESDriver es, SparkDriver spark) {
 
-    ArrayList<String> sessionstaticTypeList = (ArrayList<String>) es.getTypeListWithPrefix(props.getProperty("indexName"), props.getProperty("SessionStats_prefix"));
     List<String> result = new ArrayList<>();
-    for (int n = 0; n < sessionstaticTypeList.size(); n++) {
-
-      String staticType = sessionstaticTypeList.get(n);
-
-      SearchResponse scrollResp = es.getClient().prepareSearch(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setTypes(staticType).setScroll(new TimeValue(60000))
-          .setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute().actionGet();
+    List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
+    for (int n = 0; n < logIndexList.size(); n++) {
+      String logIndex = logIndexList.get(n);
+      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(props.getProperty("SessionStats_prefix")).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
+          .setSize(100).execute().actionGet();
       while (true) {
         for (SearchHit hit : scrollResp.getHits().getHits()) {
           Map<String, Object> session = hit.getSource();
@@ -391,9 +398,6 @@ public class SessionExtractor implements Serializable {
     JavaRDD<String> sessionRDD = spark.sc.parallelize(result);
 
     return sessionRDD.mapToPair(new PairFunction<String, String, List<String>>() {
-      /**
-       *
-       */
       private static final long serialVersionUID = 1L;
 
       @Override
@@ -420,11 +424,13 @@ public class SessionExtractor implements Serializable {
    * extractClickStreamFromES:Extract click streams from logs stored in
    * Elasticsearch
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch drive
-   * @param spark the spark driver
-   * @return clickstream list in JavaRDD format
-   * {@link ClickStream}
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark driver
+   * @return clickstream list in JavaRDD format {@link ClickStream}
    */
   public JavaRDD<RankingTrainData> extractRankingTrainData(Properties props, ESDriver es, SparkDriver spark) {
 
@@ -436,10 +442,11 @@ public class SessionExtractor implements Serializable {
   /**
    * getClickStreamList:Extract click streams from logs stored in Elasticsearch.
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch driver
-   * @return clickstream list
-   * {@link ClickStream}
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch driver
+   * @return clickstream list {@link ClickStream}
    */
   protected List<RankingTrainData> extractRankingTrainData(Properties props, ESDriver es) {
     List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
