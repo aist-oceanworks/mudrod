@@ -17,6 +17,7 @@ import gov.nasa.jpl.mudrod.utils.SimilarityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -30,9 +31,12 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
   /**
    * Creates a new instance of sessionBasedCF.
    *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch drive
-   * @param spark the spark drive
+   * @param props
+   *          the Mudrod configuration
+   * @param es
+   *          the Elasticsearch drive
+   * @param spark
+   *          the spark drive
    */
   public sessionBasedCF(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
@@ -45,9 +49,12 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
 
     try {
       String session_metadatFile = props.getProperty("session_metadata_Matrix");
-      SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
-      List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
-      analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataSessionBasedSimType"), true, false);
+      File f = new File(session_metadatFile);
+      if (f.exists()) {
+        SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
+        List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
+        analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataSessionBasedSimType"), true, false);
+      }
 
     } catch (Exception e) {
       e.printStackTrace();

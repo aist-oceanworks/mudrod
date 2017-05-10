@@ -28,7 +28,7 @@ public interface MudrodConstants {
 
   public static final String TIME_SUFFIX = "TimeSuffix";
 
-  public static final String LOG_DIR = "logDir";
+  public static final String DATA_DIR = "dataDir";
 
   public static final String LOG_INDEX = "logIndexName";
 

@@ -35,7 +35,7 @@
     <artifactId>mudrod-service</artifactId>
     <packaging>war</packaging>
     <name>Mudrod :: Service</name>
-    <description>Mudrod Frontend and WebService implementation.</description>
+    <description>Mudrod WebService implementation.</description>
 
     <dependencies>
         <!-- Core Module -->
@@ -208,7 +208,7 @@
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
-                <version>2.0.1</version>
+                <version>2.0.3</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -218,13 +218,10 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!-- The license key expires on October 1st, 2018, after which
+                    <!-- The license key expires on may 1st, 2019, after which
                       we can apply to Miredot for a new key. -->
-                    <licence>
-                        cHJvamVjdHxlc2lwdGVzdGJlZC5tdWRyb2Qtc2VydmljZXwyMDE4LTEwLTAxfHRydWV8LTEjTUN3Q0ZEd3lnZS85bmFYWlNXNHA4cE9sbGl2VzAwU29BaFI1V25YN1JXU3BEWWgyUWlZMFJQN3pQWW96MEE9PQ==
-                    </licence>
-                    <organizationId>f3f4ce56-816e-4f1d-963e-e7936ee846c5
-                    </organizationId>
+                    <licence>cHJvamVjdHxnb3YubmFzYS5qcGwubXVkcm9kLm11ZHJvZC1zZXJ2aWNlfDIwMTktMDUtMDJ8dHJ1ZXwtMSNNQ3dDRkZ6QXBGdzA4dUdJVGtYcml3ckJRbis5WjdLWkFoUWgyaVRZS2EwVTF3NGlObWxlRDlDVzJoaWE5UT09</licence>
+                    <organizationId>f3f4ce56-816e-4f1d-963e-e7936ee846c5</organizationId>
                     <restModel>
                         <restFramework>
                             <name>jax-rs</name>

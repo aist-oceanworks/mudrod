@@ -13,34 +13,28 @@
  */
 package gov.nasa.jpl.mudrod.weblog.structure;
 
-import gov.nasa.jpl.mudrod.discoveryengine.MudrodAbstract;
-import gov.nasa.jpl.mudrod.driver.ESDriver;
-import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ClassName: RequestUrl Function: request url relate operations
  */
-public class RequestUrl extends MudrodAbstract {
+public class RequestUrl {
 
-  private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(RequestUrl.class);
 
   /**
-   * Creates a new instance of RequestUrl.
-   *
-   * @param props the Mudrod configuration
-   * @param es    the Elasticsearch drive
-   * @param spark the spark drive
+   * Default Constructor
    */
-  public RequestUrl(Properties props, ESDriver es, SparkDriver spark) {
-    super(props, es, spark);
+  public RequestUrl() {
+    /* Default Constructor */
   }
 
   /**
@@ -189,19 +183,7 @@ public class RequestUrl extends MudrodAbstract {
       }
     }
 
-    String infoStr = String.join(",", info);
-
-    try {
-      return es.customAnalyzing(props.getProperty("indexName"), infoStr);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    return null;
+    return String.join(",", info);
   }
 
   /**
