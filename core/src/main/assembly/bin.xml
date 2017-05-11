@@ -29,8 +29,8 @@
                 <exclude>*.bat</exclude>
             </excludes>
             <lineEnding>unix</lineEnding>
-            <directoryMode>0755</directoryMode>
-            <fileMode>0755</fileMode>
+            <directoryMode>0644</directoryMode>
+            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
             <directory>target/appassembler/bin</directory>
@@ -39,7 +39,7 @@
                 <include>*.bat</include>
             </includes>
             <lineEnding>dos</lineEnding>
-            <directoryMode>0755</directoryMode>
+            <directoryMode>0644</directoryMode>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
