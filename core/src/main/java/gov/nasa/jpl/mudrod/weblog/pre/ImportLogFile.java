@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -119,7 +120,21 @@ public class ImportLogFile extends LogAbstract {
 
   public void readFile() {
 
-    String httplogpath = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    String httplogpath = null;
+    
+    String httplogpath_www = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    File f_www = new File(httplogpath_www);
+    String httplogpath_ssl = props.getProperty(MudrodConstants.DATA_DIR) + "ssl_" + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    File f_ssl = new File(httplogpath_ssl);
+    if(f_www.exists())
+      httplogpath = httplogpath_www;
+    else if(f_ssl.exists())
+      httplogpath = httplogpath_ssl;
+    else
+    {
+      LOG.error("WWW file cannot be found, please check your data directory.");
+      return;
+    }
 
     String ftplogpath = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.FTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
