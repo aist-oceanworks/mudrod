@@ -389,7 +389,6 @@ public class MatrixUtil {
         int nStart = 1;
         int nEnd = fieldsize - 1;
         if (fieldsize < 2) {
-          System.out.println("***************output null***************");
           nStart = 0;
           nEnd = 0;
         }
