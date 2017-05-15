@@ -18,6 +18,17 @@
                     <br><strong>Description:</strong> {{pdresult.Description}}
                 </article>
             </div>
+            <div ng-show="!vm.items.length">
+                <article class="post">
+                    Your search did not match any dataset.
+                    <br>Suggestion
+                    <ul>
+                        <li>Make sure all words are spelled correctly</li>
+                        <li>Try different keywords</li>
+                        <li>Try different search options</li>
+                    </ul>
+                </article>
+            </div>
             <!-- pager -->
             <ul ng-if="vm.pager.pages.length" class="pagination">
                 <li ng-class="{disabled:vm.pager.currentPage === 1}">

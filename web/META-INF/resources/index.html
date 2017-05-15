@@ -26,17 +26,13 @@
 
 
     </head> 
-    <body> 
-    
-    <div style="background-color:#2a6496; top:auto">
-        <div class="container" id="jpl-banner" style="margin-left:0px; margin-right:0px;">
-            <img src="images/logo_nasa_tribrand_colorwhite_rgb.png" alt="NASA" style="margin-top:1px; float:left;" border="0">
-            <a href="http://www.nasa.gov/" id="nasa" title="NASA"><i>NASA</i></a>
-            <a href="http://www.jpl.nasa.gov" id="jplhome0" title="JPL Home Page"><i>JPL Home</i></a>
-            <a href="http://www.caltech.edu/" id="caltech" title="California Institute of Technology"><i>California Institute of Technology</i></a>
-        </div>
-    </div>
-           
+    <body>     
+
+    <!-- main header -->
+    <div ng-include src="'partials/main-header.html'"></div> 
+
     <div ng-view></div> 
+    <div ng-include src="'partials/footer.html'"></div> 
+    
     </body> 
 </html> 
