@@ -116,7 +116,7 @@ public class SessionTree extends MudrodAbstract {
 
     // record insert node
     tmpnode = node;
-    if (node.getKey().equals("dataset")) {
+    if ("dataset".equals(node.getKey())) {
       latestDatasetnode = node;
     }
 
@@ -131,7 +131,7 @@ public class SessionTree extends MudrodAbstract {
    */
   public void printTree(SessionNode node) {
     LOG.info("node: {} \n", node.getRequest());
-    if (node.children.size() != 0) {
+    if (node.children.isEmpty()) {
       for (int i = 0; i < node.children.size(); i++) {
         printTree(node.children.get(i));
       }
@@ -144,7 +144,7 @@ public class SessionTree extends MudrodAbstract {
    * @param node node of the session tree
    * @return tree content in Json format
    */
-  public JsonObject TreeToJson(SessionNode node) {
+  public JsonObject treeToJson(SessionNode node) {
     Gson gson = new Gson();
     JsonObject json = new JsonObject();
 
@@ -166,7 +166,7 @@ public class SessionTree extends MudrodAbstract {
     if (!node.children.isEmpty()) {
       List<JsonObject> jsonChildren = new ArrayList<>();
       for (int i = 0; i < node.children.size(); i++) {
-        JsonObject jsonChild = TreeToJson(node.children.get(i));
+        JsonObject jsonChild = treeToJson(node.children.get(i));
         jsonChildren.add(jsonChild);
       }
       JsonElement jsonElement = gson.toJsonTree(jsonChildren);
@@ -191,7 +191,7 @@ public class SessionTree extends MudrodAbstract {
       SessionNode parent = viewnode.getParent();
       List<SessionNode> children = viewnode.getChildren();
 
-      if (!parent.getKey().equals("datasetlist")) {
+      if (!"datasetlist".equals(parent.getKey())) {
         continue;
       }
 
@@ -214,7 +214,7 @@ public class SessionTree extends MudrodAbstract {
         }
       }
 
-      if (viewquery != null && !viewquery.equals("")) {
+      if (viewquery != null && !"".equals(viewquery)) {
         String[] queries = viewquery.trim().split(",");
         if (queries.length > 0) {
           for (int k = 0; k < queries.length; k++) {
@@ -301,9 +301,8 @@ public class SessionTree extends MudrodAbstract {
    */
   private SessionNode iterChild(SessionNode start, String refer) {
     List<SessionNode> children = start.getChildren();
-    SessionNode tmp = null;
     for (int i = children.size() - 1; i >= 0; i--) {
-      tmp = children.get(i);
+      SessionNode tmp = children.get(i);
       if (tmp.getChildren().isEmpty()) {
         if (refer.equals(tmp.getRequest())) {
           return tmp;
@@ -447,13 +446,13 @@ public class SessionTree extends MudrodAbstract {
    * Obtain the ranking training data.
    *
    * @param indexName   the index from whcih to obtain the data
-   * @param cleanuptype the clean up type identifier
+   * @param type the clean up type identifier
    * @param sessionID   a valid session identifier
    * @return {@link ClickStream}
    * @throws UnsupportedEncodingException if there is an error whilst
    *                                      processing the ranking training data.
    */
-  public List<RankingTrainData> getRankingTrainData(String indexName, String cleanuptype, String sessionID) throws UnsupportedEncodingException {
+  public List<RankingTrainData> getRankingTrainData(String indexName, String sessionID) throws UnsupportedEncodingException {
 
     List<RankingTrainData> trainDatas = new ArrayList<>();
 
@@ -461,11 +460,10 @@ public class SessionTree extends MudrodAbstract {
     for (int i = 0; i < queryNodes.size(); i++) {
       SessionNode querynode = queryNodes.get(i);
       List<SessionNode> children = querynode.getChildren();
-      int size = children.size();
 
       LinkedHashMap<String, Boolean> datasetOpt = new LinkedHashMap<>();
       int ndownload = 0;
-      for (int j = 0; j < size; j++) {
+      for (int j = 0; j < children.size(); j++) {
         SessionNode node = children.get(j);
         if ("dataset".equals(node.getKey())) {
           Boolean bDownload = false;

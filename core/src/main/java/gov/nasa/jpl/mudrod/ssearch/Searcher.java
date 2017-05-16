@@ -36,6 +36,10 @@ import java.util.regex.Pattern;
  * Supports ability to performance semantic search with a given query
  */
 public class Searcher extends MudrodAbstract implements Serializable {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
   DecimalFormat NDForm = new DecimalFormat("#.##");
   final Integer MAX_CHAR = 700;
 
@@ -101,15 +105,15 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @return a list of search result
    */
   @SuppressWarnings("unchecked")
-  public List<SResult> searchByQuery(String index, String type, String query, String query_operator) {
+  public List<SResult> searchByQuery(String index, String type, String query, String queryOperator) {
     boolean exists = es.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
     if (!exists) {
-      return new ArrayList<SResult>();
+      return new ArrayList<>();
     }
 
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);
-    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, query_operator);
-    List<SResult> resultList = new ArrayList<SResult>();
+    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, queryOperator);
+    List<SResult> resultList = new ArrayList<>();
 
     SearchResponse response = es.getClient().prepareSearch(index).setTypes(type).setQuery(qb).setSize(500).execute().actionGet();
 
@@ -123,7 +127,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
 
-      if (!content.equals("")) {
+      if (!"".equals(content)) {
         int maxLength = (content.length() < MAX_CHAR) ? content.length() : MAX_CHAR;
         content = content.trim().substring(0, maxLength - 1) + "...";
       }
@@ -141,7 +145,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       //end date
       String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
       String endDateTxt = "";
-      if (end.equals("")) {
+      if ("".equals(end)) {
         endDateTxt = "now";
       } else {
         Date endDate = new Date(Long.valueOf(end));
@@ -170,15 +174,14 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult.set(re, "endDate", endDateTxt);
       SResult.set(re, "sensors", String.join(", ", sensors));
 
-      QueryBuilder query_label_search = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("query", query)).must(QueryBuilders.termQuery("dataID", shortName));
-      SearchResponse label_res = es.getClient().prepareSearch(index).setTypes("trainingranking").setQuery(query_label_search).setSize(5).execute().actionGet();
-      String label_string = null;
-      for (SearchHit label : label_res.getHits().getHits()) {
-        Map<String, Object> label_item = label.getSource();
-        label_string = (String) label_item.get("label");
+      QueryBuilder queryLabelSearch = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("query", query)).must(QueryBuilders.termQuery("dataID", shortName));
+      SearchResponse labelRes = es.getClient().prepareSearch(index).setTypes("trainingranking").setQuery(queryLabelSearch).setSize(5).execute().actionGet();
+      String labelString = null;
+      for (SearchHit label : labelRes.getHits().getHits()) {
+        Map<String, Object> labelItem = label.getSource();
+        labelString = (String) labelItem.get("label");
       }
-      SResult.set(re, "label", label_string);
-      /***************************************/
+      SResult.set(re, "label", labelString);
       resultList.add(re);
     }
 
@@ -195,8 +198,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @param rr             selected ranking method
    * @return search results
    */
-  public String ssearch(String index, String type, String query, String query_operator, Ranker rr) {
-    List<SResult> resultList = searchByQuery(index, type, query, query_operator);
+  public String ssearch(String index, String type, String query, String queryOperator, Ranker rr) {
+    List<SResult> resultList = searchByQuery(index, type, query, queryOperator);
     List<SResult> li = rr.rank(resultList);
     Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
@@ -217,8 +220,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
 
-    JsonObject PDResults = new JsonObject();
-    PDResults.add("PDResults", fileListElement);
-    return PDResults.toString();
+    JsonObject pDResults = new JsonObject();
+    pDResults.add("PDResults", fileListElement);
+    return pDResults.toString();
   }
 }

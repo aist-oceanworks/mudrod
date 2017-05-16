@@ -28,14 +28,13 @@ import scala.Tuple2;
 import java.util.List;
 
 /**
- * ClassName: SimilarityUtil Function: Similarity calculation tool
+ * Similarity and distrance calculation utilities
  */
 public class SimilarityUtil {
 
-  public static final int SIM_PEARSON = 1;
-  public static final int SIM_HELLINGER = 2;
   public static final int SIM_COSINE = 3;
-
+  public static final int SIM_HELLINGER = 2;
+  public static final int SIM_PEARSON = 1;
   /**
    * CalSimilarityFromMatrix: Calculate term similarity from matrix.
    *
@@ -69,7 +68,12 @@ public class SimilarityUtil {
    *
    * @param importRDD the {@link org.apache.spark.api.java.JavaPairRDD}
    *                  data structure containing the vectors.
-   * @param simType   the similarity calculation to execute
+   * @param simType   the similarity calculation to execute e.g. 
+   * <ul>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_COSINE} - 3,</li>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_HELLINGER} - 2,</li>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_PEARSON} - 1</li>
+   * </ul>
    * @return a new {@link org.apache.spark.api.java.JavaPairRDD}
    */
   public static JavaRDD<LinkageTriple> calculateSimilarityFromVector(JavaPairRDD<String, Vector> importRDD, int simType) {
@@ -203,7 +207,7 @@ public class SimilarityUtil {
   }
 
   /**
-   * calculate similarity between vectors
+   * Calculate similarity (Hellinger Distance) between vectors
    *
    * @param vecA initial vector from which to calculate a similarity
    * @param vecB second vector involved in similarity calculation
@@ -229,7 +233,7 @@ public class SimilarityUtil {
   }
 
   /**
-   * calculate similarity between vectors
+   * Calculate similarity (Pearson Distance) between vectors
    *
    * @param vecA initial vector from which to calculate a similarity
    * @param vecB second vector involved in similarity calculation

@@ -54,11 +54,11 @@ public class ClickStreamGenerator extends DiscoveryStepAbstract {
       JavaRDD<ClickStream> clickstreamRDD = extractor.extractClickStreamFromES(this.props, this.es, this.spark);
       int weight = Integer.parseInt(props.getProperty("downloadWeight"));
       JavaPairRDD<String, List<String>> metaddataQueryRDD = extractor.bulidDataQueryRDD(clickstreamRDD, weight);
-      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metaddataQueryRDD, spark.sc);
+      LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(metaddataQueryRDD);
 
       MatrixUtil.exportToCSV(wordDocMatrix.rowMatrix, wordDocMatrix.rowkeys, wordDocMatrix.colkeys, clickstremMatrixFile);
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Encountered error within ClickStreamGenerator: {}", e);
     }
 
     endTime = System.currentTimeMillis();
