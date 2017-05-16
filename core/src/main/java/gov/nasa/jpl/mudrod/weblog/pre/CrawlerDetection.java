@@ -120,10 +120,10 @@ public class CrawlerDetection extends LogAbstract {
   }
 
   public void checkByRate() throws InterruptedException, IOException {
-    String processingType = props.getProperty("processingType");
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE);
+    if (processingType.equals("sequential")) {
       checkByRateInSequential();
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       checkByRateInParallel();
     }
   }
@@ -160,10 +160,9 @@ public class CrawlerDetection extends LogAbstract {
 
     int userCount = 0;
     userCount = userRDD.mapPartitions((FlatMapFunction<Iterator<String>, Integer>) iterator -> {
-      // TODO Auto-generated method stub
       ESDriver tmpES = new ESDriver(props);
       tmpES.createBulkProcessor();
-      List<Integer> realUserNums = new ArrayList<Integer>();
+      List<Integer> realUserNums = new ArrayList<>();
       while (iterator.hasNext()) {
         String s = iterator.next();
         Integer realUser = checkByRate(tmpES, s);

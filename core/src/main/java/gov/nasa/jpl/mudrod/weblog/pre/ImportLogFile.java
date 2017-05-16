@@ -123,10 +123,10 @@ public class ImportLogFile extends LogAbstract {
 
     String ftplogpath = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.FTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
-    String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE, "parallel");
+    if (processingType.equals("sequential")) {
       readFileInSequential(httplogpath, ftplogpath);
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       readFileInParallel(httplogpath, ftplogpath);
     }
   }

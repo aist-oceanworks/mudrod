@@ -18,6 +18,7 @@ import com.google.gson.JsonParser;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.metadata.pre.ApiHarvester;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.index.IndexRequest;
@@ -45,13 +46,13 @@ public class ImportMetadata extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    LOG.info("*****************Metadata harvesting starts******************");
+    LOG.info("Starting Metadata Harvesting");
     startTime = System.currentTimeMillis();
     addMetadataMapping();
     importToES();
     endTime = System.currentTimeMillis();
     es.refreshIndex();
-    LOG.info("*****************Metadata harvesting ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Finished Metadata Harvesting time elapsed: {}s", (endTime - startTime) / 1000);
     return null;
   }
 
@@ -63,7 +64,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
     String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      " + "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\"," + "\r\n               \"analyzer\": \"csv\"\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
-    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("recom_metadataType")).setSource(mappingJson).execute().actionGet();
+    es.getClient().admin().indices().preparePutMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType(props.getProperty("recom_metadataType")).setSource(mappingJson).execute().actionGet();
 
   }
 
@@ -76,7 +77,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
     es.deleteType(props.getProperty("indexName"), props.getProperty("recom_metadataType"));
 
     es.createBulkProcessor();
-    File directory = new File(props.getProperty("raw_metadataPath"));
+    File directory = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH));
     File[] fList = directory.listFiles();
     for (File file : fList) {
       InputStream is;
@@ -86,7 +87,7 @@ public class ImportMetadata extends DiscoveryStepAbstract {
           String jsonTxt = IOUtils.toString(is);
           JsonParser parser = new JsonParser();
           JsonElement item = parser.parse(jsonTxt);
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("recom_metadataType")).source(item.toString());
+          IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("recom_metadataType")).source(item.toString());
 
           // preprocessdata
 

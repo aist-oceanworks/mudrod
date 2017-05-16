@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * ClassName: SVDUtil Function: Singular value decomposition
+ * Singular value decomposition
  */
 public class SVDUtil extends MudrodAbstract {
 
@@ -54,7 +54,7 @@ public class SVDUtil extends MudrodAbstract {
   }
 
   /**
-   * buildSVDMatrix: build svd matrix from docment-terms pairs.
+   * Build SVD matrix from docment-terms pairs.
    *
    * @param docwordRDD    JavaPairRDD, key is short name of data set and values are terms in
    *                      the corresponding data set
@@ -64,8 +64,8 @@ public class SVDUtil extends MudrodAbstract {
   public RowMatrix buildSVDMatrix(JavaPairRDD<String, List<String>> docwordRDD, int svdDimension) {
 
     RowMatrix svdMatrix = null;
-    LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD, spark.sc);
-    RowMatrix ifIdfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.rowMatrix, spark.sc);
+    LabeledRowMatrix wordDocMatrix = MatrixUtil.createWordDocMatrix(docwordRDD);
+    RowMatrix ifIdfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix.rowMatrix);
     svdMatrix = MatrixUtil.buildSVDMatrix(ifIdfMatrix, svdDimension);
     this.svdMatrix = svdMatrix;
     this.wordRDD = RDDUtil.getAllWordsInDoc(docwordRDD);
@@ -73,7 +73,7 @@ public class SVDUtil extends MudrodAbstract {
   }
 
   /**
-   * buildSVDMatrix: build svd matrix from csv file.
+   * Build svd matrix from CSV file.
    *
    * @param tfidfCSVfile  tf-idf matrix csv file
    * @param svdDimension: Dimension of matrix after singular value decomposition
@@ -93,7 +93,7 @@ public class SVDUtil extends MudrodAbstract {
   }
 
   /**
-   * CalSimilarity: calculate similarity
+   * Calculate similarity
    */
   public void calSimilarity() {
     CoordinateMatrix simMatrix = SimilarityUtil.calculateSimilarityFromMatrix(svdMatrix);
@@ -101,7 +101,7 @@ public class SVDUtil extends MudrodAbstract {
   }
 
   /**
-   * insertLinkageToES:insert linkage triples to elasticsearch
+   * Insert linkage triples to elasticsearch
    *
    * @param index index name
    * @param type  linkage triple name
