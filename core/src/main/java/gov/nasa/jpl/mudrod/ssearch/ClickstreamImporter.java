@@ -50,12 +50,18 @@ public class ClickstreamImporter extends MudrodAbstract {
   public void addClickStreamMapping() {
     XContentBuilder Mapping;
     try {
-      Mapping = jsonBuilder().startObject().startObject(props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE)).startObject("properties").startObject("query").field("type", "string")
-          .field("index", "not_analyzed").endObject().startObject("dataID").field("type", "string").field("index", "not_analyzed").endObject()
+      Mapping = jsonBuilder().startObject().startObject(
+              props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE)).startObject(
+                      "properties").startObject("query").field("type", "string").field(
+                              "index", "not_analyzed").endObject().startObject("dataID").field(
+                                      "type", "string").field("index", "not_analyzed").endObject()
 
           .endObject().endObject().endObject();
 
-      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE)).setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(
+              props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType(
+                      props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE)).setSource(
+                              Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -65,7 +71,8 @@ public class ClickstreamImporter extends MudrodAbstract {
    * Method to import click stream CSV into Elasticsearch
    */
   public void importfromCSVtoES() {
-    es.deleteType(props.getProperty("indexName"), props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE));
+    es.deleteType(props.getProperty(MudrodConstants.ES_INDEX_NAME), 
+            props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE));
     es.createBulkProcessor();
 
     BufferedReader br = null;
@@ -75,13 +82,15 @@ public class ClickstreamImporter extends MudrodAbstract {
       br = new BufferedReader(new FileReader(props.getProperty("clickstreamMatrix")));
       String line = br.readLine();
       // first item needs to be skipped
-      String dataList[] = line.split(cvsSplitBy);
+      String[] dataList = line.split(cvsSplitBy);
       while ((line = br.readLine()) != null) {
         String[] clicks = line.split(cvsSplitBy);
         for (int i = 1; i < clicks.length; i++) {
-          if (!clicks[i].equals("0.0")) {
-            IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE))
-                .source(jsonBuilder().startObject().field("query", clicks[0]).field("dataID", dataList[i]).field("clicks", clicks[i]).endObject());
+          if (!"0.0".equals(clicks[i])) {
+            IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), 
+                    props.getProperty(MudrodConstants.CLICK_STREAM_MATRIX_TYPE))
+                .source(jsonBuilder().startObject().field("query", clicks[0]).field(
+                        "dataID", dataList[i]).field("clicks", clicks[i]).endObject());
             es.getBulkProcessor().add(ir);
           }
         }
