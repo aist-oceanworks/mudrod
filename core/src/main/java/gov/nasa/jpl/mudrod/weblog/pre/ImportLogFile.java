@@ -121,22 +121,30 @@ public class ImportLogFile extends LogAbstract {
   public void readFile() {
 
     String httplogpath = null;
+    String ftplogpath = null;
     
-    String httplogpath_www = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    File f_www = new File(httplogpath_www);
-    String httplogpath_ssl = props.getProperty(MudrodConstants.DATA_DIR) + "ssl_" + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    File f_ssl = new File(httplogpath_ssl);
-    if(f_www.exists())
-      httplogpath = httplogpath_www;
-    else if(f_ssl.exists())
-      httplogpath = httplogpath_ssl;
-    else
+    File directory = new File(props.getProperty(MudrodConstants.DATA_DIR));
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile() && file.getName().contains(props.getProperty(MudrodConstants.TIME_SUFFIX))) 
+      {
+        if (file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) 
+        {
+          httplogpath = file.getAbsolutePath();
+        }
+        
+        if (file.getName().contains(props.getProperty(MudrodConstants.FTP_PREFIX))) 
+        {
+          ftplogpath = file.getAbsolutePath();
+        }
+      }
+    }
+    
+    if(httplogpath == null || ftplogpath == null)
     {
-      LOG.error("WWW file cannot be found, please check your data directory.");
+      LOG.error("WWW file or FTP logs cannot be found, please check your data directory.");
       return;
     }
-
-    String ftplogpath = props.getProperty(MudrodConstants.DATA_DIR) + props.getProperty(MudrodConstants.FTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
 
     String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
     if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
