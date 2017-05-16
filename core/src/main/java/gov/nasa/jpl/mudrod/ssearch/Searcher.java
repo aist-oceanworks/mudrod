@@ -101,7 +101,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @param index          index name in Elasticsearch
    * @param type           type name in Elasticsearch
    * @param query          regular query string
-   * @param query_operator query mode- query, or, and
+   * @param queryOperator query mode- query, or, and
    * @return a list of search result
    */
   @SuppressWarnings("unchecked")
@@ -194,7 +194,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
    * @param index          index name in Elasticsearch
    * @param type           type name in Elasticsearch
    * @param query          regular query string
-   * @param query_operator query mode- query, or, and
+   * @param queryOperator query mode- query, or, and
    * @param rr             selected ranking method
    * @return search results
    */

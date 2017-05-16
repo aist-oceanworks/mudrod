@@ -446,7 +446,6 @@ public class SessionTree extends MudrodAbstract {
    * Obtain the ranking training data.
    *
    * @param indexName   the index from whcih to obtain the data
-   * @param type the clean up type identifier
    * @param sessionID   a valid session identifier
    * @return {@link ClickStream}
    * @throws UnsupportedEncodingException if there is an error whilst
