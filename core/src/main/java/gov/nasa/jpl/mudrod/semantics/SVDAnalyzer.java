@@ -32,6 +32,11 @@ import java.util.Properties;
 public class SVDAnalyzer extends SemanticAnalyzer {
 
   /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Creates a new instance of SVDAnalyzer.
    *
    * @param props the Mudrod configuration
@@ -54,7 +59,7 @@ public class SVDAnalyzer extends SemanticAnalyzer {
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, 1);
     JavaRDD<Vector> vectorRDD = importRDD.values();
     RowMatrix wordDocMatrix = new RowMatrix(vectorRDD.rdd());
-    RowMatrix tfidfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix, spark.sc);
+    RowMatrix tfidfMatrix = MatrixUtil.createTFIDFMatrix(wordDocMatrix);
     RowMatrix svdMatrix = MatrixUtil.buildSVDMatrix(tfidfMatrix, svdDimention);
 
     List<String> rowKeys = importRDD.keys().collect();

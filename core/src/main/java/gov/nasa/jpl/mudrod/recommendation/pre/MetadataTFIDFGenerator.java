@@ -44,26 +44,22 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
   @Override
   public Object execute() {
 
-    LOG.info("*****************Dataset TF_IDF Matrix Generator starts******************");
-
+    LOG.info("Starting Dataset TF_IDF Matrix Generator");
     startTime = System.currentTimeMillis();
     try {
       generateWordBasedTFIDF();
-      // generateTermBasedTFIDF();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Error during Dataset TF_IDF Matrix Generation: {}", e);
     }
     endTime = System.currentTimeMillis();
 
-    LOG.info("*****************Dataset TF_IDF Matrix Generator ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Dataset TF_IDF Matrix Generation complete, time elaspsed: {}s", (endTime - startTime) / 1000);
 
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-
-    // TODO Auto-generated method stub
     return null;
   }
 
@@ -75,7 +71,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     JavaPairRDD<String, List<String>> metadataWords = opt.tokenizeData(metadataContents, " ");
 
-    LabeledRowMatrix wordtfidfMatrix = opt.TFIDFTokens(metadataWords, spark);
+    LabeledRowMatrix wordtfidfMatrix = opt.tFIDFTokens(metadataWords, spark);
 
     MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty("metadata_word_tfidf_matrix"));
 
@@ -86,7 +82,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     MetadataOpt opt = new MetadataOpt(props);
 
-    List<String> variables = new ArrayList<String>();
+    List<String> variables = new ArrayList<>();
     variables.add("DatasetParameter-Term");
     variables.add("DatasetParameter-Variable");
     variables.add("Dataset-ExtractTerm");
@@ -95,7 +91,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     JavaPairRDD<String, List<String>> metadataTokens = opt.tokenizeData(metadataContents, ",");
 
-    LabeledRowMatrix tokentfidfMatrix = opt.TFIDFTokens(metadataTokens, spark);
+    LabeledRowMatrix tokentfidfMatrix = opt.tFIDFTokens(metadataTokens, spark);
 
     MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty("metadata_term_tfidf_matrix"));
 

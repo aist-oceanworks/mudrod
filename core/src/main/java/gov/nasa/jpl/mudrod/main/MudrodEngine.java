@@ -400,6 +400,9 @@ public class MudrodEngine {
   }
 
   private static void loadFullConfig(MudrodEngine me, String dataDir) {
+    //TODO all of the properties defined below, which are determined are
+    //runtime need to be added to MudrodConstants.java and referenced 
+    //accordingly and consistently from Properties.getProperty(MudrodConstant...);
     me.props.put("ontologyInputDir", dataDir + "SWEET_ocean/");
     me.props.put("oceanTriples", dataDir + "Ocean_triples.csv");
     me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
@@ -407,7 +410,7 @@ public class MudrodEngine {
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
     me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
     me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
-    me.props.put("raw_metadataPath", dataDir + me.props.getProperty("raw_metadataType"));
+    me.props.put("raw_metadataPath", dataDir + me.props.getProperty(MudrodConstants.RAW_METADATA_TYPE));
 
     me.props.put("jtopia", dataDir + "jtopiaModel");
     me.props.put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
