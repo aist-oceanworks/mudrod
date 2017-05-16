@@ -98,7 +98,7 @@
         <findbugs.version>3.0.4</findbugs.version>
         <xml.maven.version>1.0.1</xml.maven.version>
         <jacoco.version>0.7.7.201606060606</jacoco.version>
-        <jena.version>3.1.0</jena.version>
+        <jena.version>3.3.0</jena.version>
         <project.reporting.outputEncoding>UTF-8
         </project.reporting.outputEncoding>
         <elastic.version>5.2.0</elastic.version>
