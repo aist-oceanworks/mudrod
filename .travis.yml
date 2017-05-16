@@ -11,18 +11,32 @@
 # specific language governing permissions and limitations
 # under the License.
 language: java
+sudo: false
+install: true
 
-install:
-  - sudo apt-get update
+addons:
+  sonarqube:
+    organization: "lewismc-github"
+    token:
+      secure: "gPD9lVNHzcrdrLM6jeabzqDCfSqo3DtMKcu5E3AIekCg3qO6Smm5AHX9YaEee8QQAquqEGfD+oqA5O4rTLSTT2F6CmNAc5HsvwHnxh+1X+1ha1sQTajNfXipTWs5WWMMagtztWwXGeJaq1xSMzc+4/RYkRl5V7rm/xDprwssT8m+cLondzcQXSEZ7W+KxlCZrkQBwN0Qn7NafPz07EFDRzxawzjnqux+YCHLuw8M2TfeMEzpOmgVsfvw+bqRrs+RDPwu/wzhUd73CUet+JgkZv7ffvZjd4jH1bqxmL9mexTn4JfDiB8s3T+hdTfDQNxU/pTHaeSkymp2qrs74mUiU8gsfYRKB3+AtTnycUvPVCSrZ/3T5uJvQW7X7679Weq0KqTfGStWEZvXIHIeA/Tk34Pyd8ZvF8O3GIqrWVVmWbrfTXsflSjSjHCTNlsPMBUL92yOIKK47OlK4Orr7YlpIgK+ftLKtcmaIRL1VEPGQWajEQd82hl2kPjU+Mk7BQVpfDj2n1LPA4DYZdh/+Po019+bUHCF/hYi59u4pBWWy2l/OC5NlzK55fHzsHJ93yyiDjoa98RZyGgcMWA6KGE4A7JsE0R4DHo8bLr8xizEWbVplFTtVLqdV3mCejrg/+RTp7BM1o3BaA612+qB7cnm6RIYxWystKzdDwxdg+u1Nto="
+    github_token: 
+      secure: "vLZP4mxso5AkGmYZXo/7Kug6JU7FDYo3bf6YkCMg4b/0dDB4X3IbZSh9A89uwi/dYXpwy5kCjGAQfgMBfdFLMcNKvfnvCKLKYwtiROXdyIbWgMFSgMseUDF3gLXP/yFI/r53fryN9Jv50GJhgWvuOA78dRs+3OgwVbD+G66Er3PTWk2q+dDnonh6QjuvmAMhd+LUsG7afSOlOvJ9/J8ztKaifgsxMOtliAhh6pMT7bwG5YUyKluH6qwAsc/gySBxxCM8CNHffseKPf+H2W81tWImeaWt71z7sCCHwBSxpyH/Iyo9EUoD5NrcInURLxnLsNj8hjSxoOPZD5Ed2bGSR7D9ZAZj9vY2Ytkt3ss4a+Uto7DwuRHtPAyC3hQBgRtQ3qo3XMIRQhOSO9yRxY/jWqiYSBZDlV3Q1yMGk7WNIbakMJiRX1+RRXPTzmD1C+YIOV/uuBNqER3XLgFgwWjKGEgEhZHYcpdHnNH8WzCW4P9eSw5jYc/o3hdyCZrtP3y52IrB2LdmVMiTSutVs3nnkRg10QK49WIa2Lbuw4OeLyp5i5S/jDsBepJQbp1d4VoS1Gnb9MHUY0O84SUgA+gWy6/x6CFQ8viNs84lI0eGjOQue2dCV4lz1mr+6AV+cAPEtjkfhptH84RwkwtiVvxnRjfkaLlxdmejVWg1dVbI2Wc="
 
 jdk:
   - oraclejdk8
 
 script:
   - jdk_switcher use oraclejdk8
+  - sonar-scanner
   - mvn test javadoc:aggregate
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
+
 after_success:
-  - mvn jacoco:report org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=803861c9f2087ac0b7ca049677f0f7382b8476b7
+  - mvn clean jacoco:report org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
   - bash <(curl -s https://codecov.io/bash)
 
 notifications:
