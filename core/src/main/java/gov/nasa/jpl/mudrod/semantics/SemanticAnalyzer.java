@@ -54,7 +54,7 @@ public class SemanticAnalyzer extends MudrodAbstract {
   }
 
   /**
-   * CalTermSimfromMatrix: Calculate term similarity from matrix.
+   * Calculate term similarity from CSV matrix.
    *
    * @param csvFileName
    *          csv file of matrix, each row is a term, and each column is a
@@ -69,6 +69,14 @@ public class SemanticAnalyzer extends MudrodAbstract {
     return this.calTermSimfromMatrix(csvFileName, 1);
   }
 
+  /**
+   * Calculate term similarity from CSV matrix.
+   *
+   * @param csvFileName csv file of matrix, each row is a term, and each column is a
+   *                    dimension in feature space
+   * @param skipRow number of rows to skip in input CSV file e.g. header
+   * @return Linkage triple list
+   */
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName, int skipRow) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, skipRow);
@@ -81,6 +89,20 @@ public class SemanticAnalyzer extends MudrodAbstract {
     return SimilarityUtil.matrixToTriples(rowKeyRDD, simMatrix);
   }
 
+  /**
+   * Calculate term similarity from CSV matrix.
+   *
+   * @param csvFileName csv file of matrix, each row is a term, and each column is a
+   *                    dimension in feature space
+   * @param simType the type of similary calculation to execute e.g.
+   * <ul>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_COSINE} - 3,</li>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_HELLINGER} - 2,</li>
+   * <li>{@link gov.nasa.jpl.mudrod.utils.SimilarityUtil#SIM_PEARSON} - 1</li>
+   * </ul>
+   * @param skipRow number of rows to skip in input CSV file e.g. header
+   * @return Linkage triple list
+   */
   public List<LinkageTriple> calTermSimfromMatrix(String csvFileName, int simType, int skipRow) {
 
     JavaPairRDD<String, Vector> importRDD = MatrixUtil.loadVectorFromCSV(spark, csvFileName, skipRow);

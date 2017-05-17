@@ -217,7 +217,7 @@ public class ESDriver implements Serializable {
 
   public List<String> getIndexListWithPrefix(Object object) {
 
-    System.out.println(object.toString());
+    LOG.info("Retrieving index list with prefix: {}", object.toString());
     String[] indices = client.admin().indices().getIndex(new GetIndexRequest()).actionGet().getIndices();
 
     ArrayList<String> indexList = new ArrayList<>();

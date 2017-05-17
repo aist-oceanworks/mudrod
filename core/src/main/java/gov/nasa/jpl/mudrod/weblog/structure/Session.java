@@ -48,8 +48,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   private String newid = null;
   // fmt: time formatter
   private DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-  // type: session type name in Elasticsearch
-  private String type;
 
   private ESDriver es;
   private Properties props;
@@ -148,21 +146,21 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * tree reconstruct
    *
    * @param indexName    name of index from which you wish to obtain session detail.
-   * @param cleanuptype: Session type name in Elasticsearch
+   * @param type: Session type name in Elasticsearch
    * @param sessionID:   Session ID
    * @return Session details in Json format
    */
-  public JsonObject getSessionDetail(String indexName, String cleanuptype, String sessionID) {
+  public JsonObject getSessionDetail(String indexName, String type, String sessionID) {
     JsonObject sessionResults = new JsonObject();
     // for session tree
     SessionTree tree = null;
     JsonElement jsonRequest = null;
     try {
-      tree = this.getSessionTree(indexName, cleanuptype, sessionID);
-      JsonObject jsonTree = tree.TreeToJson(tree.root);
+      tree = this.getSessionTree(indexName, type, sessionID);
+      JsonObject jsonTree = tree.treeToJson(tree.root);
       sessionResults.add("treeData", jsonTree);
 
-      jsonRequest = this.getRequests(cleanuptype, sessionID);
+      jsonRequest = this.getRequests(type, sessionID);
       sessionResults.add("RequestList", jsonRequest);
     } catch (UnsupportedEncodingException e) {
       LOG.error("Encoding error detected.", e);
@@ -176,17 +174,17 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
    * getClickStreamList: Extracted click stream list from current session.
    *
    * @param indexName    an index from which to query for a session list
-   * @param cleanuptype: Session type name in Elasticsearch
+   * @param type: Session type name in Elasticsearch
    * @param sessionID:   Session ID
    * @return Click stram data list
    * {@link ClickStream}
    */
-  public List<ClickStream> getClickStreamList(String indexName, String cleanuptype, String sessionID) {
+  public List<ClickStream> getClickStreamList(String indexName, String type, String sessionID) {
     SessionTree tree = null;
     try {
-      tree = this.getSessionTree(indexName, cleanuptype, sessionID);
+      tree = this.getSessionTree(indexName, type, sessionID);
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      LOG.error("Erro whilst obtaining the Session Tree: {}", e);
     }
 
     List<ClickStream> clickthroughs = tree.getClickStreamList();
@@ -196,17 +194,17 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   /**
    * Method of converting a given session to a tree structure
    *
-   * @param cleanuptype session type name in Elasticsearch
+   * @param type session type name in Elasticsearch
    * @param sessionID   ID of session
    * @return an instance of session tree structure
    * @throws UnsupportedEncodingException UnsupportedEncodingException
    */
-  private SessionTree getSessionTree(String indexName, String cleanuptype, String sessionID) throws UnsupportedEncodingException {
+  private SessionTree getSessionTree(String indexName, String type, String sessionID) throws UnsupportedEncodingException {
 
-    SearchResponse response = es.getClient().prepareSearch(indexName).setTypes(cleanuptype).setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100).addSort("Time", SortOrder.ASC)
+    SearchResponse response = es.getClient().prepareSearch(indexName).setTypes(type).setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100).addSort("Time", SortOrder.ASC)
         .execute().actionGet();
 
-    SessionTree tree = new SessionTree(this.props, this.es, sessionID, cleanuptype);
+    SessionTree tree = new SessionTree(this.props, this.es, sessionID, type);
     int seq = 1;
     for (SearchHit hit : response.getHits().getHits()) {
       Map<String, Object> result = hit.getSource();
@@ -234,7 +232,6 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
   private JsonElement getRequests(String cleanuptype, String sessionID) throws UnsupportedEncodingException {
     SearchResponse response = es.getClient().prepareSearch(props.getProperty("indexName")).setTypes(cleanuptype).setQuery(QueryBuilders.termQuery("SessionID", sessionID)).setSize(100)
         .addSort("Time", SortOrder.ASC).execute().actionGet();
-    int size = response.getHits().getHits().length;
 
     Gson gson = new Gson();
     List<JsonObject> requestList = new ArrayList<>();
@@ -258,9 +255,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
 
       seq++;
     }
-
-    JsonElement jsonElement = gson.toJsonTree(requestList);
-    return jsonElement;
+    return gson.toJsonTree(requestList);
   }
 
   /**
@@ -277,15 +272,16 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
     try {
       tree = this.getSessionTree(indexName, cleanuptype, sessionID);
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      LOG.error("Error whilst retreiving Session Tree: {}", e);
     }
 
-    List<RankingTrainData> trainData = null;
+    List<RankingTrainData> trainData = new ArrayList<>();
     try {
-      trainData = tree.getRankingTrainData(indexName, cleanuptype, sessionID);
+      trainData = tree.getRankingTrainData(indexName, sessionID);
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      LOG.error("Error whilst retreiving ranking training data: {}", e);
     }
+
     return trainData;
   }
 }

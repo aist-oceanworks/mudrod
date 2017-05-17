@@ -16,6 +16,7 @@ package gov.nasa.jpl.mudrod.weblog.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.semantics.SemanticAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class UserHistoryAnalyzer extends DiscoveryStepAbstract {
 
     SemanticAnalyzer sa = new SemanticAnalyzer(props, es, spark);
     List<LinkageTriple> tripleList = sa.calTermSimfromMatrix(props.getProperty("userHistoryMatrix"));
-    sa.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("userHistoryLinkageType"));
+    sa.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.USE_HISTORY_LINKAGE_TYPE));
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

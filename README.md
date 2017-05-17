@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/mudrod/mudrod.svg?branch=master)](https://travis-ci.org/mudrod/mudrod)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mudrod/mudrod.svg?maxAge=2592000?style=plastic)](https://hub.docker.com/r/mudrod/mudrod/) [![](https://images.microbadger.com/badges/image/mudrod/mudrod.svg)](https://microbadger.com/images/mudrod/mudrod "Get your own image badge on microbadger.com")
 [![codecov](https://codecov.io/gh/mudrod/mudrod/branch/master/graph/badge.svg)](https://codecov.io/gh/mudrod/mudrod)
-[![SonarQube Tech Debt](https://img.shields.io/sonar/http/nemo.sonarqube.org/esiptestbed:mudrod-parent/tech_debt.svg?maxAge=2592000?style=plastic)](http://nemo.sonarqube.org/dashboard/index/esiptestbed:mudrod-parent)
+[![Quality Gate](https://sonarqube.com/api/badges/gate?key=gov.nasa.jpl.mudrod:mudrod-parent)](https://sonarqube.com/dashboard/index/gov.nasa.jpl.mudrod:mudrod-parent)
 
 <img src="http://geant4.slac.stanford.edu/Space06/NASAJPLlogo.jpg" align="right" width="300" />
 <img src="http://www.iucrc.org/sites/default/files/centerLogo.png" align="right" width="170" />

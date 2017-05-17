@@ -93,19 +93,19 @@ public class SessionGenerator extends LogAbstract {
   }
 
   public void genSessionByReferer(int timeThres) throws InterruptedException, IOException {
-    String processingType = props.getProperty("processingType");
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE);
+    if (processingType.equals("sequential")) {
       genSessionByRefererInSequential(timeThres);
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       genSessionByRefererInParallel(timeThres);
     }
   }
 
   public void combineShortSessions(int timeThres) throws InterruptedException, IOException {
-    String processingType = props.getProperty("processingType");
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE);
+    if (processingType.equals("sequential")) {
       combineShortSessionsInSequential(timeThres);
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       combineShortSessionsInParallel(timeThres);
     }
   }
