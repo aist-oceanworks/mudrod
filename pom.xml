@@ -97,11 +97,12 @@
         <spark.version>2.1.0</spark.version>
         <findbugs.version>3.0.4</findbugs.version>
         <xml.maven.version>1.0.1</xml.maven.version>
-        <jacoco.version>0.7.7.201606060606</jacoco.version>
+        <jacoco.version>0.7.10-SNAPSHOT</jacoco.version>
         <jena.version>3.3.0</jena.version>
         <project.reporting.outputEncoding>UTF-8
         </project.reporting.outputEncoding>
         <elastic.version>5.2.0</elastic.version>
+        <!--argLine>-Xmx4096m ${itCoverageAgent}</argLine-->
     </properties>
 
     <scm>
@@ -166,9 +167,19 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
                 <configuration>
+                	<forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                     <argLine>${argLine} -Xmx2048m</argLine>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -176,8 +187,7 @@
                 <version>2.19.1</version>
                 <configuration>
                     <reuseForks>true</reuseForks>
-                    <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M
-                        ${itCoverageAgent}
+                    <argLine>${argLine} -Xmx4096m ${itCoverageAgent}
                     </argLine>
                 </configuration>
                 <executions>
@@ -204,6 +214,58 @@
                         <configuration>
                             <outputDirectory>lib</outputDirectory>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <destFile>
+                        ${basedir}/target/coverage-reports/jacoco-unit.exec
+                    </destFile>
+                    <dataFile>
+                        ${basedir}/target/coverage-reports/jacoco-unit.exec
+                    </dataFile>
+                </configuration>
+                <executions>
+                	<execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>prepare-unit-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- prepare agent for measuring integration tests -->
+                    <execution>
+                        <id>prepare-integration-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <propertyName>itCoverageAgent</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -294,52 +356,6 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>test-coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco.version}</version>
-                        <configuration>
-                            <destfile>
-                                ${basedir}/target/coverage-reports/jacoco-unit.exec
-                            </destfile>
-                            <datafile>
-                                ${basedir}/target/coverage-reports/jacoco-unit.exec
-                            </datafile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-unit-tests</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <!-- prepare agent for measuring integration tests -->
-                            <execution>
-                                <id>prepare-integration-tests</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <propertyName>itCoverageAgent</propertyName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>jacoco-site</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
     </profiles>
