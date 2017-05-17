@@ -81,8 +81,8 @@ public class MudrodEngine {
   }
 
   /**
-   * Start the {@link ESDriver}. Should only be called
-   * after call to {@link MudrodEngine#loadConfig()}
+   * Start the {@link ESDriver}. Should only be called after call to
+   * {@link MudrodEngine#loadConfig()}
    *
    * @return fully provisioned {@link ESDriver}
    */
@@ -91,8 +91,7 @@ public class MudrodEngine {
   }
 
   /**
-   * Start the {@link SparkDriver}. Should only be
-   * called after call to
+   * Start the {@link SparkDriver}. Should only be called after call to
    * {@link MudrodEngine#loadConfig()}
    *
    * @return fully provisioned {@link SparkDriver}
@@ -123,7 +122,8 @@ public class MudrodEngine {
   /**
    * Set the Elasticsearch driver for MUDROD
    *
-   * @param es an ES driver instance
+   * @param es
+   *          an ES driver instance
    */
   public void setESDriver(ESDriver es) {
     this.es = es;
@@ -227,9 +227,8 @@ public class MudrodEngine {
   }
 
   /**
-   * Preprocess and process logs
-   * {@link DiscoveryEngineAbstract}
-   * implementations for weblog
+   * Preprocess and process logs {@link DiscoveryEngineAbstract} implementations
+   * for weblog
    */
   public void startLogIngest() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -268,10 +267,8 @@ public class MudrodEngine {
   }
 
   /**
-   * Only preprocess various
-   * {@link DiscoveryEngineAbstract}
-   * implementations for weblog, ontology and metadata, linkage discovery and
-   * integration.
+   * Only preprocess various {@link DiscoveryEngineAbstract} implementations for
+   * weblog, ontology and metadata, linkage discovery and integration.
    */
   public void startProcessing() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -293,8 +290,7 @@ public class MudrodEngine {
   }
 
   /**
-   * Close the connection to the {@link ESDriver}
-   * instance.
+   * Close the connection to the {@link ESDriver} instance.
    */
   public void end() {
     if (es != null) {
@@ -307,7 +303,8 @@ public class MudrodEngine {
    * to a log file which is to be ingested. Help will be provided if invoked
    * with incorrect parameters.
    *
-   * @param args {@link java.lang.String} array contaning correct parameters.
+   * @param args
+   *          {@link java.lang.String} array contaning correct parameters.
    */
   public static void main(String[] args) {
     // boolean options
@@ -450,7 +447,8 @@ public class MudrodEngine {
   /**
    * Set the {@link SparkDriver}
    *
-   * @param sparkDriver a configured {@link SparkDriver}
+   * @param sparkDriver
+   *          a configured {@link SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;

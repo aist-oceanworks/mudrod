@@ -49,13 +49,15 @@ public class MatrixUtil {
    * buildSVDMatrix: Generate SVD matrix from TF-IDF matrix. Please make sure
    * the TF-IDF matrix has been already built from the original documents.
    *
-   * @param tfidfMatrix, each row is a term and each column is a document name and each
-   *                     cell is the TF-IDF value of the term in the corresponding
-   *                     document.
-   * @param dimension    Column number of the SVD matrix
+   * @param tfidfMatrix,
+   *          each row is a term and each column is a document name and each
+   *          cell is the TF-IDF value of the term in the corresponding
+   *          document.
+   * @param dimension
+   *          Column number of the SVD matrix
    * @return RowMatrix, each row is a term and each column is a dimension in the
-   * feature space, each cell is value of the term in the corresponding
-   * dimension.
+   *         feature space, each cell is value of the term in the corresponding
+   *         dimension.
    */
   public static RowMatrix buildSVDMatrix(RowMatrix tfidfMatrix, int dimension) {
     int matrixCol = (int) tfidfMatrix.numCols();
@@ -72,11 +74,13 @@ public class MatrixUtil {
   /**
    * buildSVDMatrix: Generate SVD matrix from Vector RDD.
    *
-   * @param vecRDD    vectors of terms in feature space
-   * @param dimension Column number of the SVD matrix
+   * @param vecRDD
+   *          vectors of terms in feature space
+   * @param dimension
+   *          Column number of the SVD matrix
    * @return RowMatrix, each row is a term and each column is a dimension in the
-   * feature space, each cell is value of the term in the corresponding
-   * dimension.
+   *         feature space, each cell is value of the term in the corresponding
+   *         dimension.
    */
   public static RowMatrix buildSVDMatrix(JavaRDD<Vector> vecRDD, int dimension) {
     RowMatrix tfidfMatrix = new RowMatrix(vecRDD.rdd());
@@ -89,11 +93,12 @@ public class MatrixUtil {
   /**
    * Create TF-IDF matrix from word-doc matrix.
    *
-   * @param wordDocMatrix, each row is a term, each column is a document name and each cell
-   *                       is number of the term in the corresponding document.
+   * @param wordDocMatrix,
+   *          each row is a term, each column is a document name and each cell
+   *          is number of the term in the corresponding document.
    * @return RowMatrix, each row is a term and each column is a document name
-   * and each cell is the TF-IDF value of the term in the corresponding
-   * document.
+   *         and each cell is the TF-IDF value of the term in the corresponding
+   *         document.
    */
   public static RowMatrix createTFIDFMatrix(RowMatrix wordDocMatrix) {
     JavaRDD<Vector> newcountRDD = wordDocMatrix.rows().toJavaRDD();
@@ -105,8 +110,9 @@ public class MatrixUtil {
   /**
    * Create matrix from doc-terms JavaPairRDD.
    *
-   * @param uniqueDocRDD doc-terms JavaPairRDD, in which each key is a doc name, and value
-   *                     is term list extracted from that doc
+   * @param uniqueDocRDD
+   *          doc-terms JavaPairRDD, in which each key is a doc name, and value
+   *          is term list extracted from that doc
    * @return LabeledRowMatrix {@link LabeledRowMatrix}
    */
   public static LabeledRowMatrix createWordDocMatrix(JavaPairRDD<String, List<String>> uniqueDocRDD) {
@@ -337,12 +343,15 @@ public class MatrixUtil {
   /**
    * loadVectorFromCSV: Load term vector from csv file.
    *
-   * @param spark       spark instance
-   * @param csvFileName csv matrix file
-   * @param skipNum     the numbers of rows which should be skipped Ignore the top skip
-   *                    number rows of the csv file
+   * @param spark
+   *          spark instance
+   * @param csvFileName
+   *          csv matrix file
+   * @param skipNum
+   *          the numbers of rows which should be skipped Ignore the top skip
+   *          number rows of the csv file
    * @return JavaPairRDD, each key is a term, and value is the vector of the
-   * term in feature space.
+   *         term in feature space.
    */
   public static JavaPairRDD<String, Vector> loadVectorFromCSV(SparkDriver spark, String csvFileName, int skipNum) {
     // skip the first line (header), important!
@@ -360,6 +369,10 @@ public class MatrixUtil {
       }
     });
 
+    if (importIdRDD.count() == 0) {
+      return null;
+    }
+
     return importIdRDD.mapToPair(new PairFunction<Tuple2<String, Long>, String, Vector>() {
       /** */
       private static final long serialVersionUID = 1L;
@@ -369,7 +382,14 @@ public class MatrixUtil {
         String[] fields = t._1.split(",");
         String word = fields[0];
         int fieldsize = fields.length;
-        String[] numfields = Arrays.copyOfRange(fields, 1, fieldsize - 1);
+        int nStart = 1;
+        int nEnd = fieldsize - 1;
+        if (fieldsize < 2) {
+          nStart = 0;
+          nEnd = 0;
+        }
+        String[] numfields = Arrays.copyOfRange(fields, nStart, nEnd);
+
         double[] nums = Stream.of(numfields).mapToDouble(Double::parseDouble).toArray();
         Vector vec = Vectors.dense(nums);
         return new Tuple2<>(word, vec);
@@ -380,7 +400,8 @@ public class MatrixUtil {
   /**
    * Convert vectorRDD to indexed row matrix.
    *
-   * @param vecs Vector RDD
+   * @param vecs
+   *          Vector RDD
    * @return IndexedRowMatrix
    */
   public static IndexedRowMatrix buildIndexRowMatrix(JavaRDD<Vector> vecs) {
@@ -401,9 +422,10 @@ public class MatrixUtil {
   /**
    * Transpose matrix
    *
-   * @param indexedMatrix spark indexed matrix
+   * @param indexedMatrix
+   *          spark indexed matrix
    * @return rowmatrix, each row is corresponding to the column in the original
-   * matrix and vice versa
+   *         matrix and vice versa
    */
   public static RowMatrix transposeMatrix(IndexedRowMatrix indexedMatrix) {
     return indexedMatrix.toCoordinateMatrix().transpose().toRowMatrix();
@@ -412,10 +434,14 @@ public class MatrixUtil {
   /**
    * Output matrix to a CSV file.
    *
-   * @param matrix   spark row matrix
-   * @param rowKeys  matrix row names
-   * @param colKeys  matrix coloum names
-   * @param fileName csv file name
+   * @param matrix
+   *          spark row matrix
+   * @param rowKeys
+   *          matrix row names
+   * @param colKeys
+   *          matrix coloum names
+   * @param fileName
+   *          csv file name
    */
   public static void exportToCSV(RowMatrix matrix, List<String> rowKeys, List<String> colKeys, String fileName) {
 
