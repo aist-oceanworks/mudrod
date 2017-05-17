@@ -27,8 +27,8 @@ jdk:
 
 script:
   - jdk_switcher use oraclejdk8
-  - sonar-scanner
   - mvn test javadoc:aggregate
+  - sonar-scanner
 
 cache:
   directories:
