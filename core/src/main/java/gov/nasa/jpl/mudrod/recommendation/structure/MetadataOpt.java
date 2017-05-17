@@ -147,13 +147,13 @@ public class MetadataOpt implements Serializable {
     return labelMatrix;
   }
 
-  public LinkedHashMap<Object, Object> sortMapByValue(HashMap<?, ?> passedMap) {
-    List<?> mapKeys = new ArrayList<>(passedMap.keySet());
-    List<?> mapValues = new ArrayList<>(passedMap.values());
+  public Map<Object, Object> sortMapByValue(Map<?, ?> passedMap) {
+    List<?> mapKeys = new ArrayList<Object>(passedMap.keySet());
+    List<?> mapValues = new ArrayList<Object>(passedMap.values());
     Collections.sort(mapValues, Collections.reverseOrder());
     Collections.sort(mapKeys, Collections.reverseOrder());
 
-    LinkedHashMap<Object, Object> sortedMap = new LinkedHashMap<>();
+    LinkedHashMap<Object, Object> sortedMap = new LinkedHashMap<Object, Object>();
 
     Iterator<?> valueIt = mapValues.iterator();
     while (valueIt.hasNext()) {
