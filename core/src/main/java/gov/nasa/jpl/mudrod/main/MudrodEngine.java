@@ -13,11 +13,22 @@
  */
 package gov.nasa.jpl.mudrod.main;
 
-import gov.nasa.jpl.mudrod.discoveryengine.*;
+import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryEngineAbstract;
+import gov.nasa.jpl.mudrod.discoveryengine.MetadataDiscoveryEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.OntologyDiscoveryEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.RecommendEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.integration.LinkageIntegration;
-import org.apache.commons.cli.*;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Document;
@@ -27,7 +38,12 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
@@ -233,7 +249,7 @@ public class MudrodEngine {
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
-    LOG.info("*****************metadata have been ingested successfully*****************");
+    LOG.info("Metadata has been ingested successfully.");
   }
 
   public void startFullIngest() {
@@ -248,7 +264,7 @@ public class MudrodEngine {
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
-    LOG.info("*****************full ingest has been finished successfully*****************");
+    LOG.info("Full ingest has finished successfully.");
   }
 
   /**

@@ -43,21 +43,21 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
    * Method of preprocessing metadata
    */
   public void preprocess() {
-    LOG.info("*****************Metadata preprocessing starts******************");
+    LOG.info("Starting metadata preprocessing...");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract harvester = new ApiHarvester(this.props, this.es, this.spark);
     harvester.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata preprocessing ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Finished metadata preprocessing. Time elapsed: {}s", (endTime - startTime) / 1000);
   }
 
   /**
    * Method of processing metadata
    */
   public void process() {
-    LOG.info("*****************Metadata processing starts******************");
+    LOG.info("Starting metadata processing...");
     startTime = System.currentTimeMillis();
 
     DiscoveryStepAbstract matrix = new MatrixGenerator(this.props, this.es, this.spark);
@@ -67,7 +67,7 @@ public class MetadataDiscoveryEngine extends DiscoveryEngineAbstract implements 
     svd.execute();
 
     endTime = System.currentTimeMillis();
-    LOG.info("*****************Metadata processing ends******************Took {}s", (endTime - startTime) / 1000);
+    LOG.info("Finished metadata processing. Time elapsed: {}s", (endTime - startTime) / 1000);
   }
 
   public void output() {
