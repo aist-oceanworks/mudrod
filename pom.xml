@@ -207,6 +207,45 @@
                     </execution>
                 </executions>
             </plugin>
+             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <destFile>
+                        ${basedir}/target/coverage-reports/jacoco-unit.exec
+                    </destFile>
+                    <dataFile>
+                        ${basedir}/target/coverage-reports/jacoco-unit.exec
+                    </dataFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-unit-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- prepare agent for measuring integration tests -->
+                    <execution>
+                        <id>prepare-integration-tests</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <propertyName>itCoverageAgent</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -294,52 +333,6 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>test-coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco.version}</version>
-                        <configuration>
-                            <destFile>
-                                ${basedir}/target/coverage-reports/jacoco-unit.exec
-                            </destFile>
-                            <dataFile>
-                                ${basedir}/target/coverage-reports/jacoco-unit.exec
-                            </dataFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-unit-tests</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <!-- prepare agent for measuring integration tests -->
-                            <execution>
-                                <id>prepare-integration-tests</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <phase>pre-integration-test</phase>
-                                <configuration>
-                                    <propertyName>itCoverageAgent</propertyName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>jacoco-site</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
             </build>
         </profile>
     </profiles>
