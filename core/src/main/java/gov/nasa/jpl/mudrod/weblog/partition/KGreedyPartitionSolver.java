@@ -7,17 +7,15 @@ public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
   public boolean bsorted = false;
 
   public KGreedyPartitionSolver() {
-    // TODO Auto-generated constructor stub
+    // default constructor
   }
 
   public KGreedyPartitionSolver(boolean bsorted) {
-    // TODO Auto-generated constructor stub
     this.bsorted = true;
   }
 
   @Override
   public Map<String, Integer> solve(Map<String, Double> labelNums, int k) {
-    // TODO Auto-generated method stub
     List<Double> lista = null;
     List<String> months = null;
 
@@ -30,8 +28,8 @@ public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
       months = new ArrayList(labelNums.keySet());
     }
 
-    List<List<Double>> parts = new ArrayList<List<Double>>();
-    List<List<String>> splitMonths = new ArrayList<List<String>>();
+    List<List<Double>> parts = new ArrayList<>();
+    List<List<String>> splitMonths = new ArrayList<>();
 
     for (int i = 0; i < k; i++) {
       List<Double> part = new ArrayList();
