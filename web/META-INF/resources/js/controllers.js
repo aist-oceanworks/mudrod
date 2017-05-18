@@ -1,3 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you 
+ * may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 'use strict';
 
 /* Controllers */
@@ -61,23 +75,42 @@ mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabLi
         );
     }]);
 
-mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$routeParams', 'MetaData', 'PagerService',
-    function metadataViewCtrl($rootScope, $routeParams, MetaData, PagerService) {
+mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$routeParams', 'MetaData', 'PagerService',
+    function metadataViewCtrl($rootScope, $scope, $routeParams, MetaData, PagerService) {
         var vm = this;
         vm.PDItems = [];
         vm.pager = {};
         vm.setPage = setPage;
         vm.totalMatches = 0;
 
-        var word;
-        var opt;
+        var word = new String();
+        var opt = new String();
         
         if(!$routeParams.name){
             word = $rootScope.searchOptions.term;    
             opt = $rootScope.searchOptions.preference; 
         } else {
             word = $routeParams.name;
-            $rootScope.searchOptions.term = word;
+            var searchKeyWords = new String();
+
+            if (word.search(',') != -1) {
+                var topics = word.split(',');
+                for (var i = 0; i < topics.length; i++) {
+                    searchKeyWords += topics[i];
+                }
+            } else {
+                searchKeyWords = word;
+            }
+            
+            if (searchKeyWords.search('/') != -1 ) {
+                var topics = searchKeyWords.split('/');
+                searchKeyWords = "";
+                for (var i = 0; i < topics.length; i++) {
+                    searchKeyWords += topics[i];
+                }
+            } 
+            $rootScope.searchOptions.term = searchKeyWords;
+            word = searchKeyWords;
             opt = 'And';
         }
 
@@ -98,6 +131,41 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$routeParams', 
             vm.items = vm.PDItems.slice(vm.pager.startIndex, vm.pager.endIndex + 1);
         }
 
+        this.searchTopic = function(topic) {
+            var searchKeyWords = new String();
+
+            if (topic.search(',') != -1 ) {
+                var topics = topic.split(',');
+                for (var i = 0; i < topics.length; i++) {
+                    searchKeyWords += topics[i];
+                }
+            } else {
+                searchKeyWords = topic;
+            } 
+            
+            if (searchKeyWords.search('/') != -1) {
+                var topics = searchKeyWords.split('/');
+                searchKeyWords = "";
+                for (var i = 0; i < topics.length; i++) {
+                    searchKeyWords += topics[i];
+                }
+            } 
+            
+            $rootScope.searchOptions.term = searchKeyWords;
+            MetaData.get({query: searchKeyWords, operator: opt}, 
+                function success(response) {
+                    vm.PDItems = response.PDResults;
+                    vm.totalMatches = vm.PDItems.length;
+                    initController();
+                    //$scope.PDResults = response.PDResults;
+
+                },
+                function error(errorResponse) {
+                    console.log("Error:" + JSON.stringify(errorResponse));
+                }
+            );
+        }
+
         MetaData.get({query: word, operator: opt}, 
                 function success(response) {
                     vm.PDItems = response.PDResults;
@@ -115,6 +183,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$routeParams', 
 mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'DatasetDetail',
     function metadataViewCtrl($scope, $routeParams, DatasetDetail) {
         var shortname = $routeParams.shortname;   
+
         DatasetDetail.get({shortname: shortname}, 
                 function success(response) {
                     //alert($scope.challenge.question);

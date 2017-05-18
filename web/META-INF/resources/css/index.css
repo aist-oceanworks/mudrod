@@ -85,7 +85,9 @@ a:link, a:visited {
 }
 
 .landing-dialog {
-    width: 700px;
+    flex: 1;
+    padding: 80px;
+    width: 80%;
     margin: 200px auto 200px;
     color: #fff;
     /*background-color: rgba(17,17,17,0.8);*/
@@ -431,9 +433,15 @@ li:hover
 */
 /* --- GLOBAL FOOTER STYLES --- */
 #site_footer {
+  position: relative;
+  width: 100%;
+  bottom: 0;
   padding: 2em 2em 5em 2em;
-  background-color: black; }
-  #site_footer .gradient_line {
+  margin: 0 auto;
+  background-color: black; 
+}
+  
+#site_footer .gradient_line {
     margin-left: auto;
     margin-right: auto;
     content: " ";
@@ -447,47 +455,62 @@ li:hover
     width: 90%; }
     @media (min-width: 769px) {
       #site_footer .gradient_line {
-        width: 50%; } }
+        width: 50%; 
+    }
+ }
 
 /* --- end GLOBAL FOOTER STYLES --- */
 /* --- UPPER FOOTER --- */
 .upper_footer {
-  padding: 3em 0 4em; }
-  .upper_footer .share, .upper_footer .footer_newsletter {
+  padding: 3em 0 4em; 
+}
+  
+.upper_footer .share, .upper_footer .footer_newsletter {
     text-align: center;
     padding: 1.69492%;
     margin-bottom: 3em;
-    width: 100%; }
-    .upper_footer .share h2, .upper_footer .footer_newsletter h2 {
+    width: 100%; 
+}
+    
+.upper_footer .share h2, .upper_footer .footer_newsletter h2 {
       font-size: 2em;
       font-weight: 600;
       margin-bottom: 0.6em;
       color: white;
-      letter-spacing: -.035em; }
-  @media (min-width: 600px) {
+      letter-spacing: -.035em; 
+}
+  
+@media (min-width: 600px) {
     .upper_footer .footer_newsletter {
       width: 48.71795%;
       float: left;
       margin-left: 0;
-      margin-right: -100%; } }
-  @media (min-width: 769px) {
+      margin-right: -100%; } 
+}
+  
+@media (min-width: 769px) {
     .upper_footer .footer_newsletter {
       width: 40.67797%;
       float: left;
       margin-left: 8.47458%;
-      margin-right: -100%; } }
-  @media (min-width: 600px) {
+      margin-right: -100%; } 
+}
+  
+@media (min-width: 600px) {
     .upper_footer .share {
       width: 48.71795%;
       float: left;
       margin-left: 51.28205%;
-      margin-right: -100%; } }
-  @media (min-width: 769px) {
+      margin-right: -100%; } 
+}
+  
+@media (min-width: 769px) {
     .upper_footer .share {
       width: 40.67797%;
       float: left;
       margin-left: 50.84746%;
-      margin-right: -100%; } }
+      margin-right: -100%; } 
+}
 
 /* --- end UPPER FOOTER --- */
 /* --- SITE MAP (middle footer area) --- */

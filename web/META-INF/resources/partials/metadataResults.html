@@ -1,3 +1,16 @@
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+  -->
 <div ng-include src="'partials/navbar-search.html'"></div> 
 
 <div class="container">
@@ -11,11 +24,20 @@
                 <article class="post">
                     <a href="#!datasetView/{{pdresult['Short Name']}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
                     <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
-                    <br><strong>Topic:</strong> <span style="color:green">{{pdresult.Topic}}</span>
+                    <br><strong>Topic:</strong> 
+                    <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>
+                    <!-- a href="#!metadataView/{{pdresult.Topic}}">{{pdresult.Topic}}</a -->
                     <br><strong>Platform/Sensors:</strong> {{pdresult['Sensor']}}
                     <br><strong>Processing Level:</strong> {{pdresult['Processing Level']}}
                     <br><strong>Start/End Date:</strong> {{pdresult['Start/End Date']}}
-                    <br><strong>Description:</strong> {{pdresult.Description}}
+                    <br><strong>Description:</strong> 
+                    <div ng-init="limit = 150; moreShown = false">
+                        {{pdresult.Description | limitTo: limit}}{{pdresult.Description.length > limit ? '...' : ''}}
+                        <a ng-show="pdresult.Description.length > limit"
+                            href ng-click="limit=pdresult.Description.length; moreShown = true">  More
+                        </a>
+                        <a ng-show="moreShown" href ng-click="limit=150; moreShown = false"> Less </a>
+                    </div>                 
                 </article>
             </div>
             <div ng-show="!vm.items.length">
