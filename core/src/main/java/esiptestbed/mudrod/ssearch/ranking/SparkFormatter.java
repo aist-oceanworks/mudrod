@@ -57,8 +57,10 @@ public class SparkFormatter {
 
   public static void main(String[] args) {
     SparkFormatter sf = new SparkFormatter();
-    sf.toSparkSVMformat("C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv",
-        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt");
+/*    sf.toSparkSVMformat("C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv",
+        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt");*/
+    sf.toSparkSVMformat("C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark_auto_std.csv",
+        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark_auto.txt");
   }
 
 }

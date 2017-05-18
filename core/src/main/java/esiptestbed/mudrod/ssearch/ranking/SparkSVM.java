@@ -17,8 +17,15 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.mllib.classification.SVMModel;
 import org.apache.spark.mllib.classification.SVMWithSGD;
+import org.apache.spark.mllib.feature.StandardScaler;
+import org.apache.spark.mllib.feature.StandardScalerModel;
+import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.util.MLUtils;
+import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 
 import esiptestbed.mudrod.main.MudrodEngine;
 
@@ -30,28 +37,24 @@ public class SparkSVM {
 
   public static void main(String[] args) {
     MudrodEngine me = new MudrodEngine();
-
     JavaSparkContext jsc = me.startSparkDriver().sc;
-    //SparkContext sc = JavaSparkContext.toSparkContext(jsc);
     
-    String path = "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt";
-    JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), path).toJavaRDD();
+    //String path = "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark.txt";
+    String path = "C:/mudrodCoreTestData/rankingResults/inputDataForSVM_spark_auto.txt";
 
-    // Split initial RDD into two... [60% training data, 40% testing data].
-    /*JavaRDD<LabeledPoint> training = data.sample(false, 0.6, 11L);
-    training.cache();
-    JavaRDD<LabeledPoint> test = data.subtract(training);*/
+    JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), path).toJavaRDD();
 
     // Run training algorithm to build the model.
     int numIterations = 100;
-    //final SVMModel model = SVMWithSGD.train(training.rdd(), numIterations);
+    
+    /*StandardScaler scaler = new StandardScaler(true, true);
+    StandardScalerModel scalerModel = scaler.fit(data);*/
+
     final SVMModel model = SVMWithSGD.train(data.rdd(), numIterations);
 
     // Save and load model
-    model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model1003");
-    
-    //SVMModel Model = SVMModel.load(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/javaSVMWithSGDModel");
-    
+    //model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model1003");  
+    model.save(jsc.sc(), "C:/mudrodCoreTestData/rankingResults/model/RankSVM_model0121");    
     jsc.sc().stop();
 
   }

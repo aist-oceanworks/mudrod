@@ -132,19 +132,15 @@ public class Searcher extends MudrodAbstract implements Serializable {
       Double spatialR = attEx.getSpatialR(result);
       Double temporalR = attEx.getTemporalR(result);
       
-      //
-      double top = (double) result.get("DatasetCoverage-Derivative-NorthLat");
-      double bottom = (double) result.get("DatasetCoverage-Derivative-SouthLat");
-      double left = (double) result.get("DatasetCoverage-Derivative-WestLon");
-      double right = (double) result.get("DatasetCoverage-Derivative-EastLon");
-      Bbox b1 = new Bbox(top, bottom, right, left);
-      
-      Bbox bq = new Bbox(68.616, -83.0204773, 20,-83.2160952);
-      
+      /*
+      double top = Double.parseDouble((String)result.get("DatasetCoverage-NorthLat"));
+      double bottom = Double.parseDouble((String)result.get("DatasetCoverage-SouthLat"));
+      double left = Double.parseDouble((String)result.get("DatasetCoverage-WestLon"));
+      double right = Double.parseDouble((String)result.get("DatasetCoverage-EastLon"));
+      Bbox b1 = new Bbox(top, bottom, right, left);   
+      Bbox bq = new Bbox(68.616, -83.0204773, 20,-83.2160952);    
       GeoSimModel simM = new GeoSimModel(b1, bq);
-      simM.getSimilarity();
-      
-      //
+      */
 
       SResult re = new SResult(shortName, longName, topic, content, dateText);
       SResult.set(re, "term", relevance);
@@ -158,6 +154,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SResult.set(re, "monthPop", monthPop);
       SResult.set(re, "spatialR", spatialR);
       SResult.set(re, "temporalR", temporalR);
+      
+      //SResult.set(re, "geoSim", simM.getSimilarity());
 
       /***************************set click count*********************************/
       //important to convert shortName to lowercase
@@ -201,6 +199,117 @@ public class Searcher extends MudrodAbstract implements Serializable {
 
     return resultList;
   }
+  
+  @SuppressWarnings("unchecked")
+  public SResult getAutoPair(String index, String type, String query,
+      String query_operator, String data1, String data2) {
+    boolean exists = es.getClient().admin().indices().prepareExists(index)
+        .execute().actionGet().isExists();
+    if (!exists) {
+      return null;
+    }
+
+    Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);
+    BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, query_operator);
+    SResult result1 = null;
+    SResult result2 = null;
+
+    SearchResponse response = es.getClient().prepareSearch(index).setTypes(type)
+        .setQuery(qb).setSize(500).execute().actionGet();
+
+    for (SearchHit hit : response.getHits().getHits()) {
+      Map<String, Object> result = hit.getSource();
+      String shortName = ((String) result.get("Dataset-ShortName")).toLowerCase();
+      
+      if(!shortName.equals(data1)&&!shortName.equals(data2))
+      continue;
+      
+      Double relevance = Double.valueOf(NDForm.format(hit.getScore()));     
+
+      ArrayList<String> longdate = (ArrayList<String>) result
+          .get("DatasetCitation-ReleaseDateLong");
+      Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
+      SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
+      String dateText = df2.format(date);
+
+      ArrayList<String> versionList = (ArrayList<String>) result.get("DatasetCitation-Version");
+      String version=null;
+      if(versionList!=null)
+      {
+        if(versionList.size()>0)
+        {
+          version = versionList.get(0);
+        }
+      }
+      Double versionNum = attEx.getVersionNum(version);
+      String processingLevel = (String) result.get("Dataset-ProcessingLevel");
+      Double proNum = attEx.getProLevelNum(processingLevel);
+
+      Double userPop = attEx.getPop(
+          ((Integer) result.get("Dataset-UserPopularity")).doubleValue());
+      Double allPop = attEx.getPop(
+          ((Integer) result.get("Dataset-AllTimePopularity")).doubleValue());
+      Double monthPop = attEx.getPop(
+          ((Integer) result.get("Dataset-MonthlyPopularity")).doubleValue());
+      Double spatialR = attEx.getSpatialR(result);
+      Double temporalR = attEx.getTemporalR(result);   
+
+      SResult re = new SResult(shortName, null, null, null, dateText);
+      SResult.set(re, "term", relevance);
+      SResult.set(re, "releaseDate",
+          Long.valueOf(longdate.get(0)).doubleValue());
+      SResult.set(re, "versionNum", versionNum);
+      SResult.set(re, "processingL", proNum);
+      SResult.set(re, "userPop", userPop);
+      SResult.set(re, "allPop", allPop);
+      SResult.set(re, "monthPop", monthPop);
+      SResult.set(re, "spatialR", spatialR);
+      SResult.set(re, "temporalR", temporalR);
+      
+      /***************************set click count*********************************/
+      //important to convert shortName to lowercase
+      QueryBuilder qb_clicks = dp.createQueryForClicks(query, 1.0, shortName.toLowerCase()); 
+      SearchResponse clicks_res = es.getClient().prepareSearch(index)
+          .setTypes(props.getProperty("clickstreamMatrixType"))            
+          .setQuery(qb_clicks)
+          .setSize(500)
+          .execute()
+          .actionGet();
+
+      Double click_count = (double) 0;
+      Map<String, Double> selected_Map = dp.getRelatedTermsByT(query, 1.0);
+      for (SearchHit item : clicks_res.getHits().getHits()) {
+        Map<String,Object> click = item.getSource();
+        Double click_frequency = Double.parseDouble((String) click.get("clicks"));
+        String query_str = (String) click.get("query");
+        Double query_weight = selected_Map.get(query_str);
+        if(query_weight!=null)
+        {
+          click_count += click_frequency * query_weight;
+        }
+      }
+      SResult.set(re, "click", click_count);
+      /***************************************************************************/     
+      
+      if(shortName.equals(data1))
+      {
+        result1 = re;
+      }else if(shortName.equals(data2))
+      {
+        result2 = re;
+      }
+    }
+    
+    if(result1!=null&&result2!=null)
+    {
+      return result1.minus(result2);
+    }else{
+      return null;
+    }
+
+
+  }
+
 
   /**
    * Method of semantic search to generate JSON string
@@ -271,7 +380,8 @@ public class Searcher extends MudrodAbstract implements Serializable {
   public static void main(String[] args) throws IOException {
     //String learnerType = "SparkSVM";
 
-    String learnerType = "SingleVar&term_score";
+    //String learnerType = "SingleVar&processingL_score";
+    String learnerType = "autotest";
     String var = null;
 
     if(learnerType.split("&").length > 1)
@@ -294,7 +404,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
 
     Searcher sr = new Searcher(me.getConfig(), me.getESDriver(), null);
 
-    File dir = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType);
+    File dir = new File("C:/mudrodCoreTestData/rankingResults/test032817/" + learnerType);
     if (!dir.exists()) {
       if (dir.mkdir()) {
         System.out.println("Directory is created!");
@@ -304,17 +414,17 @@ public class Searcher extends MudrodAbstract implements Serializable {
     }
 
 
-    File file_eva = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "_" + evaType + ".csv");
-    if (file_eva.exists()) {
-      file_eva.delete();
-      file_eva.createNewFile();
-    }
-    FileWriter fw_eva = new FileWriter(file_eva.getAbsoluteFile());
-    BufferedWriter bw_eva = new BufferedWriter(fw_eva); 
+//    File file_eva = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "_" + evaType + ".csv");
+//    if (file_eva.exists()) {
+//      file_eva.delete();
+//      file_eva.createNewFile();
+//    }
+//    FileWriter fw_eva = new FileWriter(file_eva.getAbsoluteFile());
+//    BufferedWriter bw_eva = new BufferedWriter(fw_eva); 
 
     for(String q:query_list)
     {
-      File file = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "/" + q + ".csv");
+      File file = new File("C:/mudrodCoreTestData/rankingResults/test032817/" + learnerType + "/" + q + ".csv");
       if (file.exists()) {
         file.delete();
         file.createNewFile();
@@ -324,55 +434,56 @@ public class Searcher extends MudrodAbstract implements Serializable {
       BufferedWriter bw = new BufferedWriter(fw); 
       bw.write(SResult.getHeader(","));
 
-      bw_eva.write(q + ",");
+      //bw_eva.write(q + ",");
 
       List<SResult> resultList = sr.searchByQuery(me.getConfig().getProperty("indexName"), 
           me.getConfig().getProperty("raw_metadataType"), q, "phrase");
 
-      Ranker rr = null;
-      if(var == null)
-      {
-        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType);
-      }else{
-        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType, var);
-      }
-      List<SResult> li = rr.rank(resultList);
-      int[] rank_array = new int[li.size()];
+//      Ranker rr = null;
+//      if(var == null)
+//      {
+//        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType);
+//      }else{
+//        rr = new Ranker(me.getConfig(), me.getESDriver(), me.getSparkDriver(), learnerType, var);
+//      }
+//      List<SResult> li = rr.rank(resultList);
+      List<SResult> li = resultList;
+    //  int[] rank_array = new int[li.size()];
       for(int i = 0; i < li.size(); i++)
       {
         bw.write(li.get(i).toString(","));
-        rank_array[i] = sr.getRankNum(li.get(i).label);
+       // rank_array[i] = sr.getRankNum(li.get(i).label);
       }
 
-      for(int j = 0; j < eva_K; j++)
-      {
-        if(evaType.equals("precision"))
-        {
-          if(j < (eva_K-1))
-          {
-            bw_eva.write(eva.getPrecision(rank_array, j + 1) + ",");
-          }else{
-            bw_eva.write(eva.getPrecision(rank_array, j + 1) + "\n");
-          }
-        }
-
-        if(evaType.equals("ndcg"))
-        {
-          if(j < (eva_K-1))
-          {
-            bw_eva.write(eva.getNDCG(rank_array, j + 1) + ",");
-          }else{
-            bw_eva.write(eva.getNDCG(rank_array, j + 1) + "\n");
-          }
-        }
-      }
-      /*double precision = eva.getPrecision(rank_array, 200);
-      double ndcg = eva.getNDCG(rank_array, 200);     
-      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);*/
+//      for(int j = 0; j < eva_K; j++)
+//      {
+//        if(evaType.equals("precision"))
+//        {
+//          if(j < (eva_K-1))
+//          {
+//            bw_eva.write(eva.getPrecision(rank_array, j + 1) + ",");
+//          }else{
+//            bw_eva.write(eva.getPrecision(rank_array, j + 1) + "\n");
+//          }
+//        }
+//
+//        if(evaType.equals("ndcg"))
+//        {
+//          if(j < (eva_K-1))
+//          {
+//            bw_eva.write(eva.getNDCG(rank_array, j + 1) + ",");
+//          }else{
+//            bw_eva.write(eva.getNDCG(rank_array, j + 1) + "\n");
+//          }
+//        }
+//      }
+//      double precision = eva.getPrecision(rank_array, 200);
+//      double ndcg = eva.getNDCG(rank_array, 200);     
+//      System.out.println("precision and ndcg of " + q + ": " + precision + ", " + ndcg);
 
       bw.close();
     }
-    bw_eva.close();
+//    bw_eva.close();
     me.end();   
   }
 }

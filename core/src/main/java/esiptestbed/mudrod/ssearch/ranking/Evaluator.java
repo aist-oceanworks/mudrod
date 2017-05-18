@@ -89,7 +89,7 @@ public class Evaluator {
 
     int rel_num = 0;
     for (int i = 0; i < K; i++) {
-      if(list[i] == 7){ // 3 refers to "OK"
+      if(list[i] >= 6){ // 3 refers to "OK"
         rel_num++;
       }
     }
@@ -174,12 +174,12 @@ public class Evaluator {
 
   public static void main(String[] args) throws IOException{
     Evaluator eva = new Evaluator();    
-    String learnerType = "OrdinalC";
+    String learnerType = "SingleVar&click_score";
     String evaType = "precision";
     int eva_K = 200;
 
-    String dataFolder = "C:/mudrodCoreTestData/rankingResults/test/ordinalResults_csv";
-    File file_eva = new File("C:/mudrodCoreTestData/rankingResults/test/" + learnerType + "_" + evaType + ".csv");
+    String dataFolder = "C:/mudrodCoreTestData/rankingResults/Geotest/SingleVar&click_score";
+    File file_eva = new File("C:/mudrodCoreTestData/rankingResults/Geotest/" + learnerType + "_" + evaType + ".csv");
     if (file_eva.exists()) {
       file_eva.delete();
       file_eva.createNewFile();
@@ -199,7 +199,7 @@ public class Evaluator {
 
         if(list.length>0)
         {
-          arank_arrayList.add(eva.getRankNum(list[1]));
+          arank_arrayList.add(eva.getRankNum(list[list.length-1]));
         }
         line = br.readLine();
       }

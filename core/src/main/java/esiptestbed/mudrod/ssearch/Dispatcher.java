@@ -36,7 +36,8 @@ import esiptestbed.mudrod.integration.LinkageIntegration;
  */
 public class Dispatcher extends MudrodAbstract {
   private static final Logger LOG = LoggerFactory.getLogger(Dispatcher.class);
-
+  private final String fieldsList[] = {"Dataset-Metadata", "Dataset-ShortName", "Dataset-LongName", "DatasetParameter-*", "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full", "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full", "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full", "DatasetSource-Sensor-ShortName", "DatasetSource-Sensor-ShortName-Full"};
+  
   public Dispatcher(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }
@@ -80,13 +81,6 @@ public class Dispatcher extends MudrodAbstract {
     //Map<String, Double> selected_Map = new HashMap<>();
     selected_Map.put(input, (double) 1);
 
-    String fieldsList[] = { "Dataset-Metadata", "Dataset-ShortName",
-        "Dataset-LongName", "DatasetParameter-*",
-        "DatasetSource-Source-LongName", "DatasetSource-Source-LongName-Full",
-        "DatasetSource-Source-ShortName", "DatasetSource-Source-ShortName-Full",
-        "DatasetSource-Sensor-LongName", "DatasetSource-Sensor-LongName-Full",
-        "DatasetSource-Sensor-ShortName",
-        "DatasetSource-Sensor-ShortName-Full" };
     BoolQueryBuilder qb = new BoolQueryBuilder();
     for (Entry<String, Double> entry : selected_Map.entrySet()) {
       if (query_operator.equals("phrase")) {

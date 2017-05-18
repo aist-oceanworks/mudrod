@@ -63,7 +63,7 @@
   <para name="metadataSessionBasedSimType">MetadataSBSim</para>
   <para name="metadataTopicSimType">MetadataTBSim</para>
   
-  <para name="svmSgdModel">file:///C:/mudrodCoreTestData/rankingResults/model/RankSVM_model1003</para>
+  <para name="svmSgdModel">file:///C:/mudrodCoreTestData/rankingResults/model/RankSVM_model0121</para> <!-- 1003 is the good one-->
   
   <!-- 
   The ontology service implementation. Possible values include

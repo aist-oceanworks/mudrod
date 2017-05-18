@@ -348,8 +348,8 @@ public class DataGenerator {
   }
   
   public static void main(String[] args) {
-    DataGenerator dg = new DataGenerator("C:/mudrodCoreTestData/rankingResults/test/dataforSVM", 
-        "C:/mudrodCoreTestData/rankingResults/inputDataForSVM.csv", 
+    DataGenerator dg = new DataGenerator("C:/mudrodCoreTestData/rankingResults/test032817/autotest", 
+        "C:/mudrodCoreTestData/rankingResults/humanlabelled_no_ocean_temp.csv", 
         true);
     dg.process();
   }

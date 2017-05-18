@@ -48,6 +48,8 @@ public class SResult {
   public Double spatialR = null;
   public Double temporalR = null;
   
+  public Double geoSim = null;
+  
   public Double releaseDate = null;
   public Double click = null;
   public Double term = null;
@@ -94,9 +96,8 @@ public class SResult {
     {
       str += rlist[i] + delimiter;
     }
-    //return "ShortName" + delimiter + "final_score" + delimiter + str + "\n";
+    //return "ShortName" + delimiter + /*"geoSim" + delimiter +*/ str + "label" + "\n"; //for searcher.java
     str = str + "label" + "\n";
-
     return str;
   }
  
@@ -107,15 +108,35 @@ public class SResult {
    */
   public String toString(String delimiter){
     String str = "";
+//    for(int i =0; i <rlist.length; i++)
+//    {
+//      double score = get(this, rlist[i]);
+//      str += score + delimiter;
+//    }
+    
     for(int i =0; i <rlist.length; i++)
     {
-      double score = get(this, rlist[i]);
+      String att = SResult.rlist[i].split("_")[0];
+      double score = (double) SResult.get(this, att);
       str += score + delimiter;
     }
     
-    //return shortName + delimiter + final_score + delimiter + str + "\n";
+    //return shortName + delimiter + /*geoSim + delimiter +*/ str + label + "\n";
     str = str + label + "\n";
     return str;
+  }
+  
+  public SResult minus(SResult sr1){
+    SResult minusResult = new SResult(null, null, null, null, null);
+    for(int i =0; i <rlist.length; i++)
+    {
+      String att = SResult.rlist[i].split("_")[0];
+      String scoreId = SResult.rlist[i];
+      double score = (double) SResult.get(this, att) - (double) SResult.get(sr1, att);
+      SResult.set(minusResult, scoreId, score);
+    }
+    
+    return minusResult;
   }
 
   /**
