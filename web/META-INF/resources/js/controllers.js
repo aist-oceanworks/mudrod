@@ -181,7 +181,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
     }]);
 
 mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'DatasetDetail',
-    function metadataViewCtrl($scope, $routeParams, DatasetDetail) {
+    function datasetViewCtrl($scope, $routeParams, DatasetDetail) {
         var shortname = $routeParams.shortname;   
 
         DatasetDetail.get({shortname: shortname}, 
@@ -198,7 +198,7 @@ mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'Data
     }]);
 
 mudrodControllers.controller('hRecommendationCtrl', ['$scope', '$routeParams', 'HRecommendation',
-    function metadataViewCtrl($scope, $routeParams, HRecommendation) {
+    function hRecommendationCtrl($scope, $routeParams, HRecommendation) {
         var shortname = $routeParams.shortname;   
         HRecommendation.get({shortname: shortname}, 
                 function success(response) {
@@ -212,3 +212,17 @@ mudrodControllers.controller('hRecommendationCtrl', ['$scope', '$routeParams', '
                 }
         );
     }]);
+
+mudrodControllers.controller('TabCtrl', ['$scope', 
+    function($scope) {
+    $scope.tab = 1;
+
+    $scope.setTab = function(newTab){
+      $scope.tab = newTab;
+    };
+
+    $scope.isSet = function(tabNum){
+      return $scope.tab === tabNum;
+    };
+}]);
+

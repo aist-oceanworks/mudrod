@@ -702,3 +702,10 @@ li:hover
     .social_icons .all_icon:hover {
       color: white; }
 
+/* button recolor */
+.nav-pills > li.active > a, .btn-primary {
+  background-color: #069 !important;
+  border-color: #069 !important;
+  border-radius: 4px; 
+}
+

@@ -94,24 +94,26 @@
             </div>
         </div>
         <div class="col-md-3 col-sm-4">
-            <div class="panel panel-default">
-                <div class="sidenav" ng-controller="hRecommendationCtrl">
-                    <div class="heading heading-t4">
-                        <span class="title">Related datasets </span>
+            <div class="panel panel-default" ng-controller="TabCtrl">
+                <ul class="nav nav-pills nav-stacked">
+                <li ng-class="{ active: isSet(1) }">
+                    <a href ng-click="setTab(1)">Related datasets</a>
+                </li>
+                <li ng-class="{ active: isSet(2) }">
+                    <a href ng-click="setTab(2)">Related Searches</a>
+                </li>
+                </ul>
+                <div class="sidenav">
+                    <div ng-show="isSet(1)" ng-controller="hRecommendationCtrl">
+                        <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
+                            <a href="#!datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
+                        </div>
                     </div>
-                    <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
-                        <a href="#!datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="sidenav" ng-controller="vocabularyCtrl">
-                    <div class="heading heading-t4">
-                        <span class="title">Related Searches </span>
-                    </div>
-                    <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                        <a href="#!metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
-                    </div>
+                    <div ng-show="isSet(2)" ng-controller="vocabularyCtrl">
+                        <div class="list-related-searches" ng-repeat="ontology in ontologyList">
+                            <a href="#!metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                        </div>
+                   </div>
                 </div>
             </div>
         </div>
