@@ -33,44 +33,44 @@
                         https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a></td>
                     </tr>
                     <tr>
-                        <td>Topic</td>
-                        <td><a href="#!metadataView/{{dataset.Topic}}">{{dataset.Topic}}</a></td>
+                        <td>Doi</td>
+                        <td>{{dataset['Dataset-Doi']}}</td>
                     </tr>
                     <tr>
-                        <td>Category</td>
-                        <td>{{dataset.DatasetParameter-Category}}</td>
+                        <td>Measurement</td>
+                        <td>{{dataset['DatasetParameter-Category']}}>{{dataset['DatasetParameter-Variable']}}>{{dataset['DatasetParameter-Term']}}</td>
                     </tr>
                     <tr>
-                        <td>Variable</td>
-                        <td>{{dataset['DatasetParameter-Variable']}}</td>
+                        <td>Version</td>
+                        <td>{{dataset['Version']}}</td>
                     </tr>
                     <tr>
-                        <td>Term</td>
-                        <td>{{dataset['DatasetParameter-Term']}}</td>
-                    </tr>
-                    <tr>
-                        <td>Release Date</td>
-                        <td>{{dataset['Release Date']}}</td>
-                    </tr>
-                    <tr>
-                        <td>Abstract</td>
-                        <td>{{dataset['Abstract']}}</td>
+                        <td>Description</td>
+                        <td>{{dataset['Dataset-Description']}}</td>
                     </tr>
                     <tr>
                         <td>Processing Level</td>
                         <td>{{dataset['Processing Level']}}</td>
                     </tr>
                     <tr>
-                        <td>TemporalRepeat</td>
-                        <td>{{dataset['Dataset-TemporalRepeat']}}</td>
+                        <td>Region</td>
+                        <td>{{dataset['Region']}}</td>
                     </tr>
                     <tr>
-                        <td>TemporalRepeatMax</td>
-                        <td>{{dataset['Dataset-TemporalRepeatMax']}}</td>
+                        <td>Coverage</td>
+                        <td>{{dataset['Coverage']}}</td>
                     </tr>
                     <tr>
-                        <td>TemporalRepeatMin</td>
-                        <td>{{dataset['Dataset-TemporalRepeatMin']}}</td>
+                        <td>Time Span</td>
+                        <td>{{dataset['Time Span']}}</td>
+                    </tr>
+                    <tr>
+                        <td>Spatial Resolution</td>
+                        <td>{{dataset['SpatiallResolution']}}</td>
+                    </tr>
+                    <tr>
+                        <td>Temporal Repeat</td>
+                        <td>{{dataset['TemporalResolution']}}</td>
                     </tr>
                     <tr>
                         <td>Sensor</td>
@@ -85,8 +85,9 @@
                         <td>{{dataset['DataFormat']}}</td>
                     </tr>
                     <tr>
-                        <td>DataLatency</td>
-                        <td>{{dataset['DatasetPolicy-DataLatency']}}</td>
+                        <td>Data Access</td>
+                        <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}">
+                            {{dataset['DatasetLocationPolicy-BasePath']}}</a></td> 
                     </tr>
                 </tbody>
                 </table>
