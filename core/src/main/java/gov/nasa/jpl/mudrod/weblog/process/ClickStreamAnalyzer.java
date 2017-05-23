@@ -22,6 +22,7 @@ import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -49,17 +50,21 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     LOG.info("Starting ClickStreamAnalyzer...");
     startTime = System.currentTimeMillis();
     try {
-      SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-      svd.getSVDMatrix(props.getProperty("clickstreamMatrix"), Integer.parseInt(props.getProperty("clickstreamSVDDimension")), props.getProperty("clickstreamSVDMatrix_tmp"));
-      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
-      svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("clickStreamLinkageType"));
+      String clickstream_matrixFile = props.getProperty("clickstreamMatrix");
+      File f = new File(clickstream_matrixFile);
+      if (f.exists()) {
+        SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
+        svd.getSVDMatrix(props.getProperty("clickstreamMatrix"), Integer.parseInt(props.getProperty("clickstreamSVDDimension")), props.getProperty("clickstreamSVDMatrix_tmp"));
+        List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
+        svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("clickStreamLinkageType"));
+      
+        // Store click stream in ES for the ranking use
+        ClickstreamImporter cs = new ClickstreamImporter(props, es, spark);
+        cs.importfromCSVtoES();
+      }
     } catch (Exception e) {
       LOG.error("Encountered an error during execution of ClickStreamAnalyzer.", e);
     }
-
-    //Store click stream in ES for the ranking use
-    ClickstreamImporter cs = new ClickstreamImporter(props, es, spark);
-    cs.importfromCSVtoES();
 
     endTime = System.currentTimeMillis();
     es.refreshIndex();

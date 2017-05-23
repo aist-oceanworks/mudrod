@@ -81,27 +81,16 @@ public class SessionStatistic extends LogAbstract {
   }
 
   public void processSession() throws InterruptedException, IOException, ExecutionException {
-    String processingType = props.getProperty("processingType");
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE);
+    if (processingType.equals("sequential")) {
       processSessionInSequential();
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       processSessionInParallel();
     }
   }
 
   public void processSessionInSequential() throws IOException, InterruptedException, ExecutionException {
     es.createBulkProcessor();
-    /*String inputType = this.cleanupType;
-    String outputType = this.sessionStats;
-    
-    int docCount = es.getDocCount(logIndex, inputType);
-    SearchResponse sr = es.getClient().prepareSearch(logIndex)
-        .setTypes(inputType).setQuery(QueryBuilders.matchAllQuery())
-        .addAggregation(AggregationBuilders.terms("Sessions").field("SessionID")
-            .size(docCount))
-        .execute().actionGet();
-    
-    Terms Sessions = sr.getAggregations().get("Sessions");*/
     Terms Sessions = this.getSessionTerms();
     int session_count = 0;
     for (Terms.Bucket entry : Sessions.getBuckets()) {
@@ -147,7 +136,6 @@ public class SessionStatistic extends LogAbstract {
     sessionCount = sessionRDD.mapPartitions(new FlatMapFunction<Iterator<String>, Integer>() {
       @Override
       public Iterator<Integer> call(Iterator<String> arg0) throws Exception {
-        // TODO Auto-generated method stub
         ESDriver tmpES = new ESDriver(props);
         tmpES.createBulkProcessor();
         List<Integer> sessionNums = new ArrayList<Integer>();
@@ -155,7 +143,6 @@ public class SessionStatistic extends LogAbstract {
         while (arg0.hasNext()) {
           String s = arg0.next();
           Integer sessionNum = processSession(tmpES, s);
-          // System.out.println(s + ", session number: " + sessionNum);
           sessionNums.add(sessionNum);
         }
         tmpES.destroyBulkProcessor();
