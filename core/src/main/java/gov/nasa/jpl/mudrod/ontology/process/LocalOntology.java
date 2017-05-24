@@ -16,7 +16,6 @@ package gov.nasa.jpl.mudrod.ontology.process;
 import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import gov.nasa.jpl.mudrod.ontology.Ontology;
 import gov.nasa.jpl.mudrod.ontology.OntologyFactory;
-import shapeless.newtype;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -74,8 +72,6 @@ public class LocalOntology implements Ontology {
   private static Map<AnonId, String> mAnonIDs = new HashMap<>();
   private static int mAnonCount = 0;
   private List<String> ontArrayList;
-  private byte[] buf=new byte[12*1000];
-  public static InputStream owlStream;
 
   public LocalOntology() {
     //only initialize all the static variables

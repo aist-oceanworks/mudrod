@@ -13,7 +13,6 @@
  */
 package gov.nasa.jpl.mudrod.ontology;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -35,7 +34,6 @@ public interface Ontology {
 
   /**
    * Load a collection of default ontology resources.
-   * @throws IOException 
    */
   public void load() ;
 
