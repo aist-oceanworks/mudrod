@@ -105,7 +105,6 @@ public class LocalOntology implements Ontology {
    * Load the default <i>sweetAll.owl</i> ontology
    * from <a href="https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl">
    * https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl</a>
-   * @throws IOException 
    */
   @Override
   public void load() {
@@ -153,7 +152,7 @@ public class LocalOntology implements Ontology {
   /**
    * Get the {@link gov.nasa.jpl.mudrod.ontology.process.OntologyParser}
    * implementation being used to process the input ontology resources.
-   * @return
+   * @return an {@link gov.nasa.jpl.mudrod.ontology.process.OntologyParser} implementation
    */
   public static OntologyParser getParser() {
     if (parser == null) {
@@ -165,12 +164,16 @@ public class LocalOntology implements Ontology {
   /**
    * Return the {@link org.apache.jena.ontology.OntModel} instance
    * which created from input ontology resources.
-   * @return
+   * @return a constructed {@link org.apache.jena.ontology.OntModel}
    */
   public static OntModel getModel() {
     return ontologyModel;
   }
 
+  /**
+   * Return the loaded Ontology resources.
+   * @return a {@link java.util.List} of resources.
+   */
   public List<String> getLoadedOntologyResources() {
     if (ontArrayList != null) {
       return ontArrayList;
@@ -188,6 +191,9 @@ public class LocalOntology implements Ontology {
 
   /**
    * Retrieve all subclasses of entity(ies) hashed to searchTerm
+   * @param entitySearchTerm a query (keywords) for which to obtain
+   * subclasses.
+   * @return an {@link java.util.Iterator} containing the subclass as Strings.
    */
   @Override
   public Iterator<String> subclasses(String entitySearchTerm) {
