@@ -16,8 +16,22 @@ package gov.nasa.jpl.mudrod.ontology.process;
 import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import gov.nasa.jpl.mudrod.ontology.Ontology;
 import gov.nasa.jpl.mudrod.ontology.OntologyFactory;
-import org.apache.commons.cli.*;
-import org.apache.jena.ontology.*;
+import shapeless.newtype;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.jena.ontology.Individual;
+import org.apache.jena.ontology.OntClass;
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.ontology.OntModelSpec;
+import org.apache.jena.ontology.OntResource;
+import org.apache.jena.ontology.Restriction;
+import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
@@ -26,8 +40,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * The LocalOntology implementation enables us to work with Ontology files
@@ -41,13 +66,16 @@ public class LocalOntology implements Ontology {
 
   public static final String DELIMITER_SEARCHTERM = " ";
 
-  private static final String ONT_DIR = "ontDir";
-  private static Hashtable searchTerms = new Hashtable<>();
+  private static String ONT_DIR = "ontDir";
+  private static Map<Object, Object> searchTerms = new HashMap<>();
   private static OntologyParser parser;
   private static OntModel ontologyModel;
-  private static Ontology ontology;
-  private static Map mAnonIDs = new HashMap<>();
+  private Ontology ontology;
+  private static Map<AnonId, String> mAnonIDs = new HashMap<>();
   private static int mAnonCount = 0;
+  private List<String> ontArrayList;
+  private byte[] buf=new byte[12*1000];
+  public static InputStream owlStream;
 
   public LocalOntology() {
     //only initialize all the static variables
@@ -61,6 +89,7 @@ public class LocalOntology implements Ontology {
     }
     if (ontologyModel == null)
       ontologyModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
+    load();
   }
 
   /**
@@ -69,7 +98,7 @@ public class LocalOntology implements Ontology {
    *
    * @return a {@link LocalOntology}
    */
-  public static Ontology getInstance() {
+  public Ontology getInstance() {
     if (ontology == null) {
       ontology = new LocalOntology();
     }
@@ -77,23 +106,27 @@ public class LocalOntology implements Ontology {
   }
 
   /**
-   * Load the default <i>ontology</i> directory contained within Mudrod.
-   * This contains at a minimum SWEET v2.3.
+   * Load the default <i>sweetAll.owl</i> ontology
+   * from <a href="https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl">
+   * https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl</a>
+   * @throws IOException 
    */
   @Override
   public void load() {
-    File ontDir = new File(LocalOntology.class.getClassLoader().getResource("ontology").getFile());
-
-    //Fail if the input is not a directory.
-    if (ontDir.isDirectory()) {
-      List<String> owlFiles = new ArrayList<>();
-      for (File owlFile : ontDir.listFiles()) {
-        owlFiles.add(owlFile.toString());
-      }
-      //convert to correct iput for ontology loading.
-      String[] owlArray = new String[owlFiles.size()];
-      owlArray = owlFiles.toArray(owlArray);
-      load(owlArray);
+    URL ontURL = null;
+    try {
+      ontURL = new URL("https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl");
+    } catch (MalformedURLException e) {
+      LOG.error("Error when attempting to create URL resource: ", e);
+    }
+    ontArrayList = new ArrayList<>();
+    try {
+      ontArrayList.add(ontURL.toURI().toString());
+    } catch (URISyntaxException e) {
+      LOG.error("Error in URL syntax, please check your Ontology resource: ", e);
+    }
+    if (!ontArrayList.isEmpty()) {
+      load(ontArrayList.stream().toArray(String[]::new));
     }
   }
 
@@ -105,22 +138,27 @@ public class LocalOntology implements Ontology {
     for (int i = 0; i < urls.length; i++) {
       String url = urls[i].trim();
       if (!"".equals(url))
-        load(ontologyModel, url);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Reading and processing {}", url);
+        }
+      load(ontologyModel, url);
     }
     parser.parse(ontologyModel);
   }
 
   private void load(Object m, String url) {
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Reading {}", url);
-      }
       ((OntModel) m).read(url, null, null);
     } catch (Exception e) {
-      LOG.error("Failed whilst attempting to read ontology {}", url, e);
+      LOG.error("Failed whilst attempting to read ontology {}: Error: ", url, e);
     }
   }
 
+  /**
+   * Get the {@link gov.nasa.jpl.mudrod.ontology.process.OntologyParser}
+   * implementation being used to process the input ontology resources.
+   * @return
+   */
   public static OntologyParser getParser() {
     if (parser == null) {
       parser = new OwlParser();
@@ -128,10 +166,22 @@ public class LocalOntology implements Ontology {
     return parser;
   }
 
+  /**
+   * Return the {@link org.apache.jena.ontology.OntModel} instance
+   * which created from input ontology resources.
+   * @return
+   */
   public static OntModel getModel() {
     return ontologyModel;
   }
 
+  public List<String> getLoadedOntologyResources() {
+    if (ontArrayList != null) {
+      return ontArrayList;
+    } else {
+      return new ArrayList<>();
+    }
+  }
   /**
    * Not yet implemented.
    */
@@ -145,8 +195,8 @@ public class LocalOntology implements Ontology {
    */
   @Override
   public Iterator<String> subclasses(String entitySearchTerm) {
-    Map classMap = retrieve(entitySearchTerm);
-    Map subclasses = new HashMap<>();
+    Map<OntResource, String> classMap = retrieve(entitySearchTerm);
+    Map<String, String> subclasses = new HashMap<>();
 
     Iterator<OntResource> iter = classMap.keySet().iterator();
     while (iter.hasNext()) {
@@ -154,73 +204,77 @@ public class LocalOntology implements Ontology {
 
       if (resource instanceof OntClass) {
         //get subclasses
-        for (Iterator i = ((OntClass) resource).listSubClasses(); i.hasNext(); ) {
+        for (Iterator<?> i = ((OntClass) resource).listSubClasses(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
+          for (Iterator<?> j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
           }
         }
         //get individuals
-        for (Iterator i = ((OntClass) resource).listInstances(); i.hasNext(); ) {
+        for (Iterator<?> i = ((OntClass) resource).listInstances(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
+          for (Iterator<?> j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
           }
         }
       } else if (resource instanceof Individual) {
-        for (Iterator i = resource.listSameAs(); i.hasNext(); ) {
+        for (Iterator<?> i = resource.listSameAs(); i.hasNext(); ) {
           OntResource subclass = (OntResource) i.next();
-          for (Iterator j = subclass.listLabels(null); j.hasNext(); ) {
+          for (Iterator<?> j = subclass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             subclasses.put(l.toString(), "1");
           }
         }
       }
     }
-
     return subclasses.keySet().iterator();
   }
 
   /**
-   * retrieves synonyms from wordnet via sweet's web interface
+   * Retreives synonyms for an given phrase if the phrase
+   * is present in the ontology
+   * @param queryKeyPhrase an input string representing a phrase
+   * for which we wish to obtain synonyms.
+   * @return an {@link java.util.Iterator} containing synonyms string tokens
+   * or an empty if no synonyms exist for the given queryKeyPhrase.
    */
   @Override
   public Iterator synonyms(String queryKeyPhrase) {
     //need to have a html quote method instead
     String qKeyPhrase = queryKeyPhrase.replaceAll("\\s+", "\\+");
 
-    Map classMap = retrieve(qKeyPhrase);
+    Map<?, ?> classMap = retrieve(qKeyPhrase);
 
-    Map synonyms = new HashMap<>();
+    Map<Object, Object> synonyms = new HashMap<>();
 
-    Iterator iter = classMap.keySet().iterator();
+    Iterator<?> iter = classMap.keySet().iterator();
     while (iter.hasNext()) {
       OntResource resource = (OntResource) iter.next();
 
       //listLabels
-      for (Iterator i = resource.listLabels(null); i.hasNext(); ) {
+      for (Iterator<?> i = resource.listLabels(null); i.hasNext(); ) {
         Literal l = (Literal) i.next();
         synonyms.put(l.toString(), "1");
       }
 
       if (resource instanceof Individual) {
         //get all individuals same as this one
-        for (Iterator i = resource.listSameAs(); i.hasNext(); ) {
+        for (Iterator<?> i = resource.listSameAs(); i.hasNext(); ) {
           Individual individual = (Individual) i.next();
           //add labels
-          for (Iterator j = individual.listLabels(null); j.hasNext(); ) {
+          for (Iterator<?> j = individual.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) i.next();
             synonyms.put(l.toString(), "1");
           }
         }
       } else if (resource instanceof OntClass) {
         //list equivalent classes
-        for (Iterator i = ((OntClass) resource).listEquivalentClasses(); i.hasNext(); ) {
+        for (Iterator<?> i = ((OntClass) resource).listEquivalentClasses(); i.hasNext(); ) {
           OntClass equivClass = (OntClass) i.next();
           //add labels
-          for (Iterator j = equivClass.listLabels(null); j.hasNext(); ) {
+          for (Iterator<?> j = equivClass.listLabels(null); j.hasNext(); ) {
             Literal l = (Literal) j.next();
             synonyms.put(l.toString(), "1");
           }
@@ -241,20 +295,21 @@ public class LocalOntology implements Ontology {
   }
 
   public static Map<OntResource, String> retrieve(String label) {
-    @SuppressWarnings("unchecked") Map<OntResource, String> m = (Map<OntResource, String>) searchTerms.get(label.toLowerCase());
+    @SuppressWarnings("unchecked")
+    Map<OntResource, String> m = (Map<OntResource, String>) searchTerms.get(label.toLowerCase());
     if (m == null) {
       m = new HashMap<>();
     }
     return m;
   }
 
-  protected static void renderHierarchy(PrintStream out, OntClass cls, List occurs, int depth) {
+  protected static void renderHierarchy(PrintStream out, OntClass cls, List<Object> occurs, int depth) {
     renderClassDescription(out, cls, depth);
     out.println();
 
     // recurse to the next level down
     if (cls.canAs(OntClass.class) && !occurs.contains(cls)) {
-      for (Iterator i = cls.listSubClasses(true); i.hasNext(); ) {
+      for (Iterator<?> i = cls.listSubClasses(true); i.hasNext(); ) {
         OntClass sub = (OntClass) i.next();
 
         // we push this expression on the occurs list before we recurse
@@ -262,11 +317,11 @@ public class LocalOntology implements Ontology {
         renderHierarchy(out, sub, occurs, depth + 1);
         occurs.remove(cls);
       }
-      for (Iterator i = cls.listInstances(); i.hasNext(); ) {
+      for (Iterator<?> i = cls.listInstances(); i.hasNext(); ) {
         Individual individual = (Individual) i.next();
         renderURI(out, individual.getModel(), individual.getURI());
         out.print(" [");
-        for (Iterator j = individual.listLabels(null); j.hasNext(); ) {
+        for (Iterator<?> j = individual.listLabels(null); j.hasNext(); ) {
           out.print(((Literal) j.next()).getString() + ", ");
         }
         out.print("] ");
@@ -288,7 +343,7 @@ public class LocalOntology implements Ontology {
         out.print(c.getLocalName());
 
         out.print(" [");
-        for (Iterator i = c.listLabels(null); i.hasNext(); ) {
+        for (Iterator<?> i = c.listLabels(null); i.hasNext(); ) {
           out.print(((Literal) i.next()).getString() + ", ");
         }
         out.print("] ");
@@ -315,7 +370,7 @@ public class LocalOntology implements Ontology {
   }
 
   protected static void renderAnonymous(PrintStream out, Resource anon, String name) {
-    String anonID = (String) mAnonIDs.get(anon.getId());
+    String anonID = mAnonIDs.get(anon.getId());
     if (anonID == null) {
       anonID = "a-" + mAnonCount++;
       mAnonIDs.put(anon.getId(), anonID);
@@ -374,7 +429,7 @@ public class LocalOntology implements Ontology {
       MudrodEngine mEngine = new MudrodEngine();
       Properties props = mEngine.loadConfig();
       Ontology ontology = new OntologyFactory(props).getOntology();
-      //convert to correct iput for ontology loading.
+      //convert to correct input for ontology loading.
       String[] owlArray = new String[owlFiles.size()];
       owlArray = owlFiles.toArray(owlArray);
       ontology.load(owlArray);

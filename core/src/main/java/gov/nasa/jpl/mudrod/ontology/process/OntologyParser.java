@@ -21,8 +21,6 @@ import java.util.Iterator;
 /**
  * Interface for specific ontology parsers e.g. .ttl, RDFXML,
  * etc.
- *
- * @author lewismc
  */
 public interface OntologyParser {
 

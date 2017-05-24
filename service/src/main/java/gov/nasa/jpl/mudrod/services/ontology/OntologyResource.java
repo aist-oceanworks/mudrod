@@ -23,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,10 +52,10 @@ public class OntologyResource {
   @Path("/synonym")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response getOntologySynonyms(@QueryParam("query") String term) {
+  public Response getOntologySynonyms(@QueryParam("query") String query) {
     List<String> result = new ArrayList<>();
-    if (term != null) {
-      Iterator<String> synonyms = ontImpl.synonyms(term);
+    if (query != null) {
+      Iterator<String> synonyms = ontImpl.synonyms(query);
       while (synonyms.hasNext()) {
         result.add((String) synonyms.next());
       }
@@ -68,10 +69,10 @@ public class OntologyResource {
   @Path("/subclass")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
-  public Response getOntologySubclasses(@QueryParam("query") String term) {
+  public Response getOntologySubclasses(@QueryParam("query") String query) {
     List<String> result = new ArrayList<>();
-    if (term != null) {
-      Iterator<String> subclasses = ontImpl.subclasses(term);
+    if (query != null) {
+      Iterator<String> subclasses = ontImpl.subclasses(query);
       while (subclasses.hasNext()) {
         result.add((String) subclasses.next());
       }
