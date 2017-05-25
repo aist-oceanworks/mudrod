@@ -46,7 +46,7 @@ public class FtpLog extends WebLog implements Serializable {
     try {
       date = formatter.parse(time);
     } catch (ParseException e) {
-      LOG.error("Error whilst parsing ftp log [" + log + "]. ", e);
+      LOG.error("Error whilst parsing ftp log [{}]. ", log, e);
     }
     
     String bytes = log.split(" +")[7];
