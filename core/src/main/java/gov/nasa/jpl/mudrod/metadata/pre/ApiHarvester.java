@@ -105,7 +105,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       String jsonTxt = IOUtils.toString(is);
       JsonParser parser = new JsonParser();
       JsonElement item = parser.parse(jsonTxt);
-      IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_PATH)).source(item.toString());
+      IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE)).source(item.toString());
       es.getBulkProcessor().add(ir);
     } catch (IOException e) {
       LOG.error("Error indexing metadata record!", e);
