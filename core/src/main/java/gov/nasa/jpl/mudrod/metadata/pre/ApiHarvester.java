@@ -54,7 +54,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     LOG.info("Starting Metadata harvesting.");
     startTime = System.currentTimeMillis();
     //remove old metadata from ES
-    es.deleteType(props.getProperty("indexName"), props.getProperty("raw_metadataType"));
+    es.deleteType(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE));
     //harvest new metadata using PO.DAAC web services
     harvestMetadatafromWeb();
     es.createBulkProcessor();
@@ -75,7 +75,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      " + "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
         + "\r\n            \"mapping\": {\r\n               \"type\": \"string\"," + "\r\n               \"analyzer\": \"english\"\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
-    es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType(props.getProperty("raw_metadataType")).setSource(mappingJson).execute().actionGet();
+    es.getClient().admin().indices().preparePutMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType(props.getProperty(MudrodConstants.RAW_METADATA_TYPE)).setSource(mappingJson).execute().actionGet();
   }
 
   /**
@@ -105,7 +105,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
       String jsonTxt = IOUtils.toString(is);
       JsonParser parser = new JsonParser();
       JsonElement item = parser.parse(jsonTxt);
-      IndexRequest ir = new IndexRequest(props.getProperty("indexName"), props.getProperty("raw_metadataType")).source(item.toString());
+      IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE)).source(item.toString());
       es.getBulkProcessor().add(ir);
     } catch (IOException e) {
       LOG.error("Error indexing metadata record!", e);
@@ -116,7 +116,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    * harvestMetadatafromWeb: Harvest metadata from PO.DAAC web service.
    */
   private void harvestMetadatafromWeb() {
-    LOG.info("*****************Metadata downloading starts******************");
+    LOG.info("Metadata download started.");
     int startIndex = 0;
     int doc_length = 0;
     JsonParser parser = new JsonParser();
@@ -163,7 +163,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
 
     } while (doc_length != 0);
     
-    LOG.info("*****************Metadata downloading finishes******************");
+    LOG.info("Metadata downloading finished");
   }
 
   @Override

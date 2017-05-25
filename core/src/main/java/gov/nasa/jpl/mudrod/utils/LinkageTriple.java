@@ -80,6 +80,10 @@ public class LinkageTriple implements Serializable {
       LinkageTriple.addMapping(es, index, type);
     }
 
+    if (triples == null) {
+      return;
+    }
+
     es.createBulkProcessor();
     int size = triples.size();
     for (int i = 0; i < size; i++) {

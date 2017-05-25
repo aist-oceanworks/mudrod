@@ -30,7 +30,7 @@
             </excludes>
             <lineEnding>unix</lineEnding>
             <directoryMode>0755</directoryMode>
-            <fileMode>0755</fileMode>
+            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
             <directory>target/appassembler/bin</directory>

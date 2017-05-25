@@ -13,11 +13,22 @@
  */
 package gov.nasa.jpl.mudrod.main;
 
-import gov.nasa.jpl.mudrod.discoveryengine.*;
+import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryEngineAbstract;
+import gov.nasa.jpl.mudrod.discoveryengine.MetadataDiscoveryEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.OntologyDiscoveryEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.RecommendEngine;
+import gov.nasa.jpl.mudrod.discoveryengine.WeblogDiscoveryEngine;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.integration.LinkageIntegration;
-import org.apache.commons.cli.*;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Document;
@@ -27,7 +38,12 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
@@ -65,8 +81,8 @@ public class MudrodEngine {
   }
 
   /**
-   * Start the {@link ESDriver}. Should only be called
-   * after call to {@link MudrodEngine#loadConfig()}
+   * Start the {@link ESDriver}. Should only be called after call to
+   * {@link MudrodEngine#loadConfig()}
    *
    * @return fully provisioned {@link ESDriver}
    */
@@ -75,8 +91,7 @@ public class MudrodEngine {
   }
 
   /**
-   * Start the {@link SparkDriver}. Should only be
-   * called after call to
+   * Start the {@link SparkDriver}. Should only be called after call to
    * {@link MudrodEngine#loadConfig()}
    *
    * @return fully provisioned {@link SparkDriver}
@@ -107,7 +122,8 @@ public class MudrodEngine {
   /**
    * Set the Elasticsearch driver for MUDROD
    *
-   * @param es an ES driver instance
+   * @param es
+   *          an ES driver instance
    */
   public void setESDriver(ESDriver es) {
     this.es = es;
@@ -211,9 +227,8 @@ public class MudrodEngine {
   }
 
   /**
-   * Preprocess and process logs
-   * {@link DiscoveryEngineAbstract}
-   * implementations for weblog
+   * Preprocess and process logs {@link DiscoveryEngineAbstract} implementations
+   * for weblog
    */
   public void startLogIngest() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -233,7 +248,7 @@ public class MudrodEngine {
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
-    LOG.info("*****************metadata have been ingested successfully*****************");
+    LOG.info("Metadata has been ingested successfully.");
   }
 
   public void startFullIngest() {
@@ -248,14 +263,12 @@ public class MudrodEngine {
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
     recom.preprocess();
     recom.process();
-    LOG.info("*****************full ingest has been finished successfully*****************");
+    LOG.info("Full ingest has finished successfully.");
   }
 
   /**
-   * Only preprocess various
-   * {@link DiscoveryEngineAbstract}
-   * implementations for weblog, ontology and metadata, linkage discovery and
-   * integration.
+   * Only preprocess various {@link DiscoveryEngineAbstract} implementations for
+   * weblog, ontology and metadata, linkage discovery and integration.
    */
   public void startProcessing() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -277,8 +290,7 @@ public class MudrodEngine {
   }
 
   /**
-   * Close the connection to the {@link ESDriver}
-   * instance.
+   * Close the connection to the {@link ESDriver} instance.
    */
   public void end() {
     if (es != null) {
@@ -291,7 +303,8 @@ public class MudrodEngine {
    * to a log file which is to be ingested. Help will be provided if invoked
    * with incorrect parameters.
    *
-   * @param args {@link java.lang.String} array contaning correct parameters.
+   * @param args
+   *          {@link java.lang.String} array contaning correct parameters.
    */
   public static void main(String[] args) {
     // boolean options
@@ -400,6 +413,9 @@ public class MudrodEngine {
   }
 
   private static void loadFullConfig(MudrodEngine me, String dataDir) {
+    //TODO all of the properties defined below, which are determined are
+    //runtime need to be added to MudrodConstants.java and referenced 
+    //accordingly and consistently from Properties.getProperty(MudrodConstant...);
     me.props.put("ontologyInputDir", dataDir + "SWEET_ocean/");
     me.props.put("oceanTriples", dataDir + "Ocean_triples.csv");
     me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
@@ -407,7 +423,7 @@ public class MudrodEngine {
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
     me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
     me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
-    me.props.put("raw_metadataPath", dataDir + me.props.getProperty("raw_metadataType"));
+    me.props.put("raw_metadataPath", dataDir + me.props.getProperty(MudrodConstants.RAW_METADATA_TYPE));
 
     me.props.put("jtopia", dataDir + "jtopiaModel");
     me.props.put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
@@ -431,7 +447,8 @@ public class MudrodEngine {
   /**
    * Set the {@link SparkDriver}
    *
-   * @param sparkDriver a configured {@link SparkDriver}
+   * @param sparkDriver
+   *          a configured {@link SparkDriver}
    */
   public void setSparkDriver(SparkDriver sparkDriver) {
     this.spark = sparkDriver;

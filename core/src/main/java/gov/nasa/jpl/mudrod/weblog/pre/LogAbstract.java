@@ -31,6 +31,11 @@ import java.util.*;
 
 public class LogAbstract extends DiscoveryStepAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   private static final Logger LOG = LoggerFactory.getLogger(LogAbstract.class);
 
   public String logIndex = null;
@@ -42,8 +47,6 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
   public LogAbstract(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    // TODO Auto-generated constructor stub
-
     if (props != null) {
       initLogIndex();
     }
@@ -84,30 +87,23 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
   @Override
   public Object execute() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Object execute(Object o) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   public JavaRDD<String> getUserRDD(String... type) {
-
-    // List<String> users = getUsers();
-    // JavaRDD<String> userRDD = spark.sc.parallelize(users, this.partition);
-
     Map<String, Double> userDocs = getUserDocs(type);
-    JavaRDD<String> userRDD = parallizeUsers(userDocs);
-    return userRDD;
+    return parallizeUsers(userDocs);
   }
 
   public List<String> getUsers(String type) {
 
     Terms users = this.getUserTerms(type);
-    List<String> userList = new ArrayList<String>();
+    List<String> userList = new ArrayList<>();
     for (Terms.Bucket entry : users.getBuckets()) {
       String ip = (String) entry.getKey();
       userList.add(ip);
@@ -122,15 +118,13 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
     SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(AggregationBuilders.terms("Users").field("IP").size(docCount)).execute().actionGet();
-    Terms users = sr.getAggregations().get("Users");
-
-    return users;
+    return sr.getAggregations().get("Users");
   }
 
   public Map<String, Double> getUserDocs(String... type) {
 
     Terms users = this.getUserTerms(type);
-    Map<String, Double> userList = new HashMap<String, Double>();
+    Map<String, Double> userList = new HashMap<>();
     for (Terms.Bucket entry : users.getBuckets()) {
       String ip = (String) entry.getKey();
       Long count = entry.getDocCount();
@@ -149,7 +143,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
     SearchResponse sr = es.getClient().prepareSearch(logIndex).setTypes(httpType).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
         .addAggregation(AggregationBuilders.terms("Users").field("IP").size(docCount).subAggregation(dailyAgg)).execute().actionGet();
     Terms users = sr.getAggregations().get("Users");
-    Map<String, Long> userList = new HashMap<String, Long>();
+    Map<String, Long> userList = new HashMap<>();
     for (Terms.Bucket user : users.getBuckets()) {
       String ip = (String) user.getKey();
 
@@ -191,23 +185,20 @@ public class LogAbstract extends DiscoveryStepAbstract {
   public JavaRDD<String> parallizeUsers(Map<String, Double> userDocs) {
 
     // prepare list for parallize
-    List<Tuple2<String, Double>> list = new ArrayList<Tuple2<String, Double>>();
+    List<Tuple2<String, Double>> list = new ArrayList<>();
     for (String user : userDocs.keySet()) {
       list.add(new Tuple2<String, Double>(user, userDocs.get(user)));
     }
 
     // group users
     ThePartitionProblemSolver solution = new KGreedyPartitionSolver();
-    Map<String, Integer> UserGroups = solution.solve(userDocs, this.partition);
+    Map<String, Integer> userGroups = solution.solve(userDocs, this.partition);
 
     JavaPairRDD<String, Double> pairRdd = spark.sc.parallelizePairs(list);
-    JavaPairRDD<String, Double> userPairRDD = pairRdd.partitionBy(new logPartitioner(UserGroups, this.partition));
+    JavaPairRDD<String, Double> userPairRDD = pairRdd.partitionBy(new logPartitioner(userGroups, this.partition));
 
     // repartitioned user RDD
-    JavaRDD<String> userRDD = userPairRDD.keys();
-    // checkUserPartition(userRDD);
-
-    return userRDD;
+    return userPairRDD.keys();
   }
 
   public Terms getSessionTerms() {
@@ -223,9 +214,9 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
   public List<String> getSessions() {
 
-    Terms Sessions = this.getSessionTerms();
-    List<String> sessionList = new ArrayList<String>();
-    for (Terms.Bucket entry : Sessions.getBuckets()) {
+    Terms sessions = this.getSessionTerms();
+    List<String> sessionList = new ArrayList<>();
+    for (Terms.Bucket entry : sessions.getBuckets()) {
       if (entry.getDocCount() >= 3 && !entry.getKey().equals("invalid")) {
         String session = (String) entry.getKey();
         sessionList.add(session);
