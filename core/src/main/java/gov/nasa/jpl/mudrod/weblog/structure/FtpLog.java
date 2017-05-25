@@ -15,11 +15,16 @@ package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
 
+import gov.nasa.jpl.mudrod.weblog.pre.ImportLogFile;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class represents an Apache access log line. See
@@ -27,6 +32,8 @@ import java.util.Date;
  */
 public class FtpLog extends WebLog implements Serializable {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
+  
   public static String parseFromLogLine(String log) throws IOException, ParseException {
 
     String ip = log.split(" +")[6];
@@ -35,12 +42,18 @@ public class FtpLog extends WebLog implements Serializable {
 
     time = SwithtoNum(time);
     SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
-    Date date = formatter.parse(time);
+    Date date = null;
+    try {
+      date = formatter.parse(time);
+    } catch (ParseException e) {
+      LOG.error("Error whilst parsing ftp log [" + log + "]. ", e);
+    }
+    
     String bytes = log.split(" +")[7];
 
     String request = log.split(" +")[8].toLowerCase();
 
-    if (!request.contains("/misc/") && !request.contains("readme")) {
+    if (!request.contains("/misc/") && !request.contains("readme")  && date != null) {
       FtpLog ftplog = new FtpLog();
       ftplog.LogType = "ftp";
       ftplog.IP = ip;
