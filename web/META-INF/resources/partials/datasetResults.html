@@ -13,7 +13,7 @@
   -->
 <div ng-include src="'partials/navbar-search.html'"></div> 
 
-<div id="container" class="container "> 
+<div id="container" class="container view-area"> 
     <div class="row no-gutter content-holder">
         <div class="col-md-9 col-sm-8" id="content">
             <div class="panel panel-default post-holder">
@@ -86,8 +86,15 @@
                     </tr>
                     <tr>
                         <td>Data Access</td>
-                        <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}">
-                            {{dataset['DatasetLocationPolicy-BasePath']}}</a></td> 
+                        <div ng-model="hideUrls" ng-hide="hideUrls">
+                            <td><a href="{{ftpUrl}}">{{ftpUrl}}</a>
+                            <br>
+                            <a href="{{httpsUrl}}">{{httpsUrl}}</a>
+                            </td> 
+                        </div>
+                        <div ng-model="hideUrl" ng-hide="hideUrl">
+                            <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}">{{dataset['DatasetLocationPolicy-BasePath']}}</a></td>
+                        </div>
                     </tr>
                 </tbody>
                 </table>

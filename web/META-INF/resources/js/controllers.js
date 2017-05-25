@@ -20,13 +20,14 @@ var mudrodControllers = angular.module('mudrodControllers', []);
 mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete',
     function ($scope, $rootScope, $location, Autocomplete) {
         $scope.options = {
-            preference: 'Phrase'
+            preference: 'And'
         };
         //$scope.relatedTerms = [];
         //$rootScope.searchOptions = {};
         
         $scope.complete = function(string) {  
             $scope.hidethis = false;  
+            $scope.hideoption = true;
             var output = [];  
             Autocomplete.get({term: string},
                 function success(response) {
@@ -45,6 +46,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         $scope.fillTextbox = function(string){  
             $scope.options.term = string;  
             $scope.hidethis = true;  
+            $scope.hideoption = false;
         }  
 
         $scope.search = function(options) {
@@ -186,10 +188,14 @@ mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'Data
 
         DatasetDetail.get({shortname: shortname}, 
                 function success(response) {
-                    //alert($scope.challenge.question);
-                    // console.log("Success:" + JSON.stringify(response));
+                    var dataAccessUrls;
                     $scope.dataset = response.PDResults[0];
-
+                    var dataAccessUrl = $scope.dataset['DatasetLocationPolicy-BasePath'];
+                    if(dataAccessUrl.search(',') != -1) {
+                        dataAccessUrls =  dataAccessUrl.split(',');
+                    }
+                    $scope.ftpUrl = dataAccessUrls[0];
+                    $scope.httpsUrl = dataAccessUrls[1];
                 },
                 function error(errorResponse) {
                     console.log("Error:" + JSON.stringify(errorResponse));

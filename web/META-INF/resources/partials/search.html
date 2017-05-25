@@ -13,7 +13,7 @@
   -->
 <div ng-include src="'partials/navbar-plain.html'"></div> 
 
-<div id="container" class="container"> 
+<div id="container" class="container view-area"> 
     <div class="landing-dialog">
         <div class="landing-dialog-header">
             <h2>Oceanographic Data Discovery</h2>
@@ -33,7 +33,7 @@
                           <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>  
                         </ul>  
                     </div>
-                    <div id="searchOption">
+                    <div id="searchOption" ng-model="hideoption" ng-hide="hideoption">
                         <span>Search Operator: </span>
                         <label class="radio-inline">
                             <input type="radio" ng-model="options.preference" value="Phrase"> Phrase 

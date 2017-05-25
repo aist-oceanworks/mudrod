@@ -7,10 +7,7 @@ html, body {
 body {
     font-size: 16px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-image: url('../images/OceanWave.jpg');
-    background-repeat:repeat-y;
-    background-size:cover;
-    line-height: 1.42857143;
+    background-color: #2a6496;
 }
 
 .fixed-table-body {
@@ -84,6 +81,13 @@ a:link, a:visited {
     color: #2980b9;
 }
 
+.view-area {
+    background-image: url('../images/OceanWave.jpg');
+    background-repeat:repeat-y;
+    background-size:cover;
+    line-height: 1.42857143;
+    width: 100%;
+}
 .landing-dialog {
     flex: 1;
     padding: 80px;
