@@ -14,69 +14,51 @@
 package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
-
 import gov.nasa.jpl.mudrod.weblog.pre.ImportLogFile;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
- * This class represents an Apache access log line. See
- * http://httpd.apache.org/docs/2.2/logs.html for more details.
+ * This class represents an FTP access log line.
  */
 public class FtpLog extends WebLog implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
-  
-  public static String parseFromLogLine(String log) throws IOException, ParseException {
 
-    String ip = log.split(" +")[6];
+  public static String parseFromLogLine(String log) {
 
-    String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3] + ":" + log.split(" +")[4];
-
-    time = SwithtoNum(time);
-    SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
-    Date date = null;
     try {
-      date = formatter.parse(time);
-    } catch (ParseException e) {
-      LOG.error("Error whilst parsing ftp log [{}]. ", log, e);
+      String ip = log.split(" +")[6];
+
+      String time = log.split(" +")[1] + ":" + log.split(" +")[2] + ":" + log.split(" +")[3] + ":" + log.split(" +")[4];
+
+      time = SwithtoNum(time);
+      SimpleDateFormat formatter = new SimpleDateFormat("MM:dd:HH:mm:ss:yyyy");
+      Date date = formatter.parse(time);
+
+      String bytes = log.split(" +")[7];
+
+      String request = log.split(" +")[8].toLowerCase();
+
+      if (!request.contains("/misc/") && !request.contains("readme")) {
+        FtpLog ftplog = new FtpLog();
+        ftplog.LogType = "ftp";
+        ftplog.IP = ip;
+        ftplog.Request = request;
+        ftplog.Bytes = Double.parseDouble(bytes);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+        ftplog.Time = df.format(date);
+
+        return new Gson().toJson(ftplog);
+      }
+    } catch (Exception e) {
+      LOG.warn("Error parsing ftp log line [{}]. Skipping this line.", log, e);
     }
-    
-    String bytes = log.split(" +")[7];
-
-    String request = log.split(" +")[8].toLowerCase();
-
-    if (!request.contains("/misc/") && !request.contains("readme")  && date != null) {
-      FtpLog ftplog = new FtpLog();
-      ftplog.LogType = "ftp";
-      ftplog.IP = ip;
-      ftplog.Request = request;
-      ftplog.Bytes = Double.parseDouble(bytes);
-
-      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-      ftplog.Time = df.format(date);
-      // ftplog.Time = date;
-
-      Gson gson = new Gson();
-      String lineJson = gson.toJson(ftplog);
-
-      return lineJson;
-    }
-
     return "{}";
-  }
-
-  public static boolean checknull(WebLog s) {
-    if (s == null) {
-      return false;
-    }
-    return true;
   }
 }
