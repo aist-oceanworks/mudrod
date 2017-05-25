@@ -84,17 +84,16 @@
                         <td>Format</td>
                         <td>{{dataset['DataFormat']}}</td>
                     </tr>
-                    <tr>
+                    <tr ng-model="hideUrls" ng-hide="hideUrls">
                         <td>Data Access</td>
-                        <div ng-model="hideUrls" ng-hide="hideUrls">
-                            <td><a href="{{ftpUrl}}">{{ftpUrl}}</a>
-                            <br>
-                            <a href="{{httpsUrl}}">{{httpsUrl}}</a>
-                            </td> 
-                        </div>
-                        <div ng-model="hideUrl" ng-hide="hideUrl">
-                            <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}">{{dataset['DatasetLocationPolicy-BasePath']}}</a></td>
-                        </div>
+                        <td><a href="{{ftpUrl}}" target="_blank">{{ftpUrl}}</a>
+                        <br>
+                        <a href="{{httpsUrl}}" target="_blank">{{httpsUrl}}</a>
+                        </td> 
+                    </tr>
+                    <tr  ng-model="hideUrl" ng-hide="hideUrl">
+                        <td>Data Access</td>
+                        <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}" target="_blank">{{dataset['DatasetLocationPolicy-BasePath']}}</a></td>
                     </tr>
                 </tbody>
                 </table>

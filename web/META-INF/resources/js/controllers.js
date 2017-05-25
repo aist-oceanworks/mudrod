@@ -189,13 +189,19 @@ mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'Data
         DatasetDetail.get({shortname: shortname}, 
                 function success(response) {
                     var dataAccessUrls;
+
                     $scope.dataset = response.PDResults[0];
                     var dataAccessUrl = $scope.dataset['DatasetLocationPolicy-BasePath'];
                     if(dataAccessUrl.search(',') != -1) {
                         dataAccessUrls =  dataAccessUrl.split(',');
+                        $scope.ftpUrl = dataAccessUrls[0];
+                        $scope.httpsUrl = dataAccessUrls[1];    
+                        $scope.hideUrls = false;
+                        $scope.hideUrl = true;                
+                    } else {
+                        $scope.hideUrl = false;
+                        $scope.hideUrls = true;
                     }
-                    $scope.ftpUrl = dataAccessUrls[0];
-                    $scope.httpsUrl = dataAccessUrls[1];
                 },
                 function error(errorResponse) {
                     console.log("Error:" + JSON.stringify(errorResponse));
