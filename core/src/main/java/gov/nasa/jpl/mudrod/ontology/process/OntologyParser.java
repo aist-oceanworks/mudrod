@@ -16,6 +16,8 @@ package gov.nasa.jpl.mudrod.ontology.process;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 
+import gov.nasa.jpl.mudrod.ontology.Ontology;
+
 import java.util.Iterator;
 
 /**
@@ -27,9 +29,11 @@ public interface OntologyParser {
   /**
    * An ontology model (RDF graph) to parse for literals.
    *
+   * @param ont the associated {@link gov.nasa.jpl.mudrod.ontology.Ontology}
+   * implementation processing the ontology operation(s).
    * @param ontModel the {@link org.apache.jena.ontology.OntModel}
    */
-  public void parse(OntModel ontModel);
+  public void parse(Ontology ont, OntModel ontModel);
 
   /**
    * An ontology model (RDF graph) for which to obtain an
