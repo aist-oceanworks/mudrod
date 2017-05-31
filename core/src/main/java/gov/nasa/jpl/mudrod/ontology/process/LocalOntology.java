@@ -14,6 +14,7 @@
 package gov.nasa.jpl.mudrod.ontology.process;
 
 import gov.nasa.jpl.mudrod.ontology.Ontology;
+
 import org.apache.jena.ontology.Individual;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
@@ -50,7 +51,7 @@ public class LocalOntology implements Ontology {
 
   public static final String DELIMITER_SEARCHTERM = " ";
 
-  private static Map<Object, Object> searchTerms = new HashMap<>();
+  private Map<Object, Object> searchTerms = new HashMap<>();
   private static OntologyParser parser;
   private static OntModel ontologyModel;
   private Ontology ontology;
@@ -95,11 +96,8 @@ public class LocalOntology implements Ontology {
   public void load() {
     URL ontURL = null;
     try {
-      //TODO aggregate/collection ontologies e.g. ontologies which have ONLY imports,
-      //such as sweetAll.owl are not currently supported. See Javadoc comment in 
-      // gov.nasa.jpl.mudrod.ontology.process.OwlParser#rootClasses
-      //ontURL = new URL("https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl");
-      ontURL = new URL("https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/reprDataProduct.owl");
+      ontURL = new URL("https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl");
+      //ontURL = new URL("https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/reprDataProduct.owl");
     } catch (MalformedURLException e) {
       LOG.error("Error when attempting to create URL resource: ", e);
     }
@@ -297,7 +295,7 @@ public class LocalOntology implements Ontology {
    * or an empty {@link java.util.HashMap} if there are no
    * matches.
    */
-  public static Map<OntResource, String> retrieve(String label) {
+  public Map<OntResource, String> retrieve(String label) {
     @SuppressWarnings("unchecked")
     Map<OntResource, String> m = (Map<OntResource, String>) searchTerms.get(label.toLowerCase());
     if (m == null) {
