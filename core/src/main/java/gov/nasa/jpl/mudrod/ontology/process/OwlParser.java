@@ -25,6 +25,7 @@ import gov.nasa.jpl.mudrod.ontology.Ontology;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
 public class OwlParser implements OntologyParser {
   
   private Ontology ont;
+  private List<OntClass> roots = new ArrayList<>();
 
   public OwlParser() {
     //default constructor
@@ -110,10 +112,6 @@ public class OwlParser implements OntologyParser {
   /**
    * Parses out all root classes of the given 
    * {@link org.apache.jena.ontology.OntModel}
-   * TODO This implementation DOES NOT currently handle
-   * aggregate/collection ontologies e.g. ontologies which have ONLY imports,
-   * and NO root classes such as 
-   * <a href="https://raw.githubusercontent.com/ESIPFed/sweet/master/2.4/sweetAll.owl">sweetAll.owl</a>.
    * @param m the {@link org.apache.jena.ontology.OntModel} we wish to obtain 
    * all root classes for.
    * @return an {@link java.util.Iterator} of {@link org.apache.jena.ontology.OntClass}
@@ -121,8 +119,19 @@ public class OwlParser implements OntologyParser {
    */
   @Override
   public Iterator<OntClass> rootClasses(OntModel m) {
-    List<OntClass> roots = new ArrayList<>();
+    Iterator<?> i = m.listClasses();
+    if (i.hasNext() && i.next() instanceof OntClass) {
+      //assume ontology has root classes
+      processSingle(m);
+    } else {
+      //check for presence of aggregate/collection ontologies such as sweetAll.owl
+      processCollection(m);
+    }
 
+    return roots.iterator();
+  }
+
+  private void processSingle(OntModel m) {
     for (Iterator<?> i = m.listClasses(); i.hasNext(); ) {
       OntClass c = (OntClass) i.next();
       try {
@@ -131,19 +140,21 @@ public class OwlParser implements OntologyParser {
           continue;
         }
 
-        if (c.hasSuperClass(m.getProfile().THING(), true)) {
+        if (c.hasSuperClass(m.getProfile().THING(), true) || c.getCardinality(m.getProfile().SUB_CLASS_OF()) == 0) {
           // this class is directly descended from Thing
-          roots.add(c);
-        } else if (c.getCardinality(m.getProfile().SUB_CLASS_OF()) == 0) {
-          // this class has no super-classes (can occur if we're not using the reasoner)
           roots.add(c);
         }
       } catch (Exception e) {
         Log.error("Error during extraction or root Classes from Ontology Model: ", e);
       }
     }
+  }
 
-    return roots.iterator();
+  private void processCollection(OntModel m) {
+    for (Iterator<?> i = m.listSubModels(true); i.hasNext(); ) {
+      OntModel ontModel = (OntModel) i.next();
+      processSingle(ontModel);
+    }
   }
 
   public String rdfidToLabel(String idString) {
