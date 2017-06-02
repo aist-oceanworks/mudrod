@@ -54,7 +54,7 @@ mudrodServices.factory('HRecommendation', ['$resource',
     }]);
 
 mudrodServices.factory('SearchOptions', function(){
-	var searchOptions = {'preference':'And'};
+	var searchOptions = {'opt':'And'};
 	return {
 	    getSearchOptions: function () {
 	        return searchOptions;
