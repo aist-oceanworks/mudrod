@@ -259,7 +259,7 @@ public class ESDriver implements Serializable {
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
       Date date = new Date(Long.parseLong(longdate.get(0)));
-      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy");
+      SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yyyy");
       String dateText = df2.format(date);
 
       JsonObject file = new JsonObject();
@@ -270,7 +270,11 @@ public class ESDriver implements Serializable {
       file.addProperty("Release Date", dateText);
 
       if (bDetail) {    	  
-    	file.addProperty("DataFormat", (String) result.get("DatasetPolicy-DataFormat"));  
+      String dataFormat = (String) result.get("DatasetPolicy-DataFormat");
+      if("RAW".equals(dataFormat)){
+        dataFormat = "BINARY";
+      }
+    	file.addProperty("DataFormat", dataFormat);  
     	file.addProperty("Dataset-Doi", (String) result.get("Dataset-Doi"));
         file.addProperty("Processing Level",
             (String) result.get("Dataset-ProcessingLevel"));
@@ -319,13 +323,11 @@ public class ESDriver implements Serializable {
         List<String> region = (List<String>) result.get("DatasetRegion-Region");
         file.addProperty("Region", String.join(", ", region));
 
-        String northLat = (String) result.get("DatasetCoverage-NorthLat");
-        String southLat = (String) result.get("DatasetCoverage-SouthLat");
-        String westLon = (String) result.get("DatasetCoverage-WestLon");
-        String eastLon = (String) result.get("DatasetCoverage-EastLon");
-        file.addProperty("Coverage",
-            northLat + " (northernmost latitude) x " + southLat + " (southernmost latitude) x " + westLon + " (westernmost longitude) x " + eastLon + " (easternmost longitude)");
-
+        file.addProperty("NorthLat", (String) result.get("DatasetCoverage-NorthLat"));
+        file.addProperty("SouthLat", (String) result.get("DatasetCoverage-SouthLat"));
+        file.addProperty("WestLon", (String) result.get("DatasetCoverage-WestLon"));
+        file.addProperty("EastLon", (String) result.get("DatasetCoverage-EastLon"));
+            
         //start date
         Long start = (Long) result.get("DatasetCoverage-StartTimeLong-Long");
         Date startDate = new Date(start);
@@ -355,13 +357,13 @@ public class ESDriver implements Serializable {
         String latResolution = (String) result.get("Dataset-LatitudeResolution");
         String lonResolution = (String) result.get("Dataset-LongitudeResolution");
         if (!latResolution.isEmpty() && !lonResolution.isEmpty()) {
-          file.addProperty("SpatiallResolution", latResolution + " degrees (latitude) x " + lonResolution + " degrees (longitude)");
+          file.addProperty("SpatialResolution", latResolution + " degrees (latitude) x " + lonResolution + " degrees (longitude)");
         } else {
-
           String acrossResolution = (String) result.get("Dataset-AcrossTrackResolution");
           String alonResolution = (String) result.get("Dataset-AlongTrackResolution");
-
-          file.addProperty("SpatiallResolution", alonResolution + " m (Along) x " + acrossResolution + " m (Across)");
+          double dAcrossResolution = Double.parseDouble(acrossResolution)/1000;
+          double dAlonResolution = Double.parseDouble(alonResolution)/1000;
+          file.addProperty("SpatialResolution", dAlonResolution + " km (Along) x " + dAcrossResolution + " km (Across)");
         }
       }
 
