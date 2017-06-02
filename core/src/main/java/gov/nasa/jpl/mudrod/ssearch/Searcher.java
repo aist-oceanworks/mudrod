@@ -146,7 +146,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
       String endDateTxt = "";
       if ("".equals(end)) {
-        endDateTxt = "now";
+        endDateTxt = "Present";
       } else {
         Date endDate = new Date(Long.valueOf(end));
         endDateTxt = df2.format(endDate);
