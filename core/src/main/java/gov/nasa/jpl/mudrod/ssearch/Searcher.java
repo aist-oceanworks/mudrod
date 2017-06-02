@@ -124,7 +124,10 @@ public class Searcher extends MudrodAbstract implements Serializable {
       String longName = (String) result.get("Dataset-LongName");
 
       ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
-      String topic = String.join(", ", topicList);
+      String topic = "";
+      if(null != topicList){
+        topic = String.join(", ", topicList);
+      }
       String content = (String) result.get("Dataset-Description");
 
       if (!"".equals(content)) {

@@ -32,11 +32,11 @@ blogApp.config(['$routeProvider', '$locationProvider',
                 }).when('/metadataView/', {
                     templateUrl: 'partials/metadataResults.html',
                     controller: 'metadataViewCtrl'
-                }).when('/metadataView/:name', {
+                }).when('/metadataView/:query/:opt/', {
                     templateUrl: 'partials/metadataResults.html'
                     //controller: 'metadataViewCtrl',
                     //controllerAs: 'vm'
-                }).when('/datasetView/:shortname', {
+                }).when('/datasetView/:shortname/:query/:opt/', {
                     templateUrl: 'partials/datasetResults.html',
                     controller: 'datasetViewCtrl'
                 });

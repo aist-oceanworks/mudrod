@@ -17,8 +17,8 @@
 /* Controllers */
 var mudrodControllers = angular.module('mudrodControllers', []);
 
-mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete',
-    function ($scope, $rootScope, $location, Autocomplete) {
+mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete', 'SearchOptions', 
+    function ($scope, $rootScope, $location, Autocomplete, SearchOptions) {
         $scope.options = {
             preference: 'And'
         };
@@ -27,7 +27,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         
         $scope.complete = function(string) {  
             $scope.hidethis = false;  
-            $scope.hideoption = true;
+            $scope.hideoption = false;
             var output = [];  
             Autocomplete.get({term: string},
                 function success(response) {
@@ -51,11 +51,15 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
 
         $scope.search = function(options) {
             $rootScope.searchOptions = angular.copy(options);
-            
-            $location.path("/metadataView/"+options.term);
-
+            $location.path("/metadataView/" + options.term + '/' + options.preference);
         };
 
+        $scope.$watch(function () { return SearchOptions.getSearchOptions(); }, function (newValue, oldValue) {
+            if (newValue != null) {
+                $scope.options.term= newValue.query;
+                $scope.options.preference= newValue.opt;
+            }
+        }, true);
     }]);
     
 mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabList',
@@ -77,8 +81,8 @@ mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabLi
         );
     }]);
 
-mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$routeParams', 'MetaData', 'PagerService',
-    function metadataViewCtrl($rootScope, $scope, $routeParams, MetaData, PagerService) {
+mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$routeParams', 'MetaData', 'PagerService', 'SearchOptions', 
+    function metadataViewCtrl($rootScope, $scope, $routeParams, MetaData, PagerService, SearchOptions) {
         var vm = this;
         vm.PDItems = [];
         vm.pager = {};
@@ -88,11 +92,15 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         var word = new String();
         var opt = new String();
         
-        if(!$routeParams.name){
+        if(!$routeParams.query){
             word = $rootScope.searchOptions.term;    
             opt = $rootScope.searchOptions.preference; 
+            SearchOptions.setSearchOptions({'query':word, 'opt':opt});
         } else {
-            word = $routeParams.name;
+            word = $routeParams.query;
+            opt = $routeParams.opt;
+            SearchOptions.setSearchOptions({'query':word, 'opt':opt});
+            
             var searchKeyWords = new String();
 
             if (word.search(',') != -1) {
@@ -111,9 +119,11 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     searchKeyWords += topics[i];
                 }
             } 
+            
+            if(!$rootScope.searchOptions) $rootScope.searchOptions = {};
             $rootScope.searchOptions.term = searchKeyWords;
             word = searchKeyWords;
-            opt = 'And';
+            //opt = 'And';
         }
 
         function initController() {
@@ -158,6 +168,8 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 function success(response) {
                     vm.PDItems = response.PDResults;
                     vm.totalMatches = vm.PDItems.length;
+                    vm.query = word;
+                    vm.opt = opt;
                     initController();
                     //$scope.PDResults = response.PDResults;
 
@@ -172,6 +184,8 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 function success(response) {
                     vm.PDItems = response.PDResults;
                     vm.totalMatches = vm.PDItems.length;
+                    vm.query = word;
+                    vm.opt = opt;
                     initController();
                     //$scope.PDResults = response.PDResults;
 
@@ -182,10 +196,22 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         );
     }]);
 
-mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'DatasetDetail',
-    function datasetViewCtrl($scope, $routeParams, DatasetDetail) {
+mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'DatasetDetail', 'SearchOptions',
+    function datasetViewCtrl($scope, $routeParams, DatasetDetail, SearchOptions) {
         var shortname = $routeParams.shortname;   
-
+        
+        var query = new String();
+        var opt = new String();
+        if(!$routeParams.query){
+        	query = $rootScope.searchOptions.term;    
+            opt = $rootScope.searchOptions.preference; 
+            SearchOptions.setSearchOptions({'query':query, 'opt':opt});
+        } else {
+        	query = $routeParams.query;
+            opt = $routeParams.opt;
+            SearchOptions.setSearchOptions({'query':query, 'opt':opt});
+        }
+        
         DatasetDetail.get({shortname: shortname}, 
                 function success(response) {
                     var dataAccessUrls;

@@ -53,6 +53,18 @@ mudrodServices.factory('HRecommendation', ['$resource',
         });
     }]);
 
+mudrodServices.factory('SearchOptions', function(){
+	var searchOptions = {'preference':'And'};
+	return {
+	    getSearchOptions: function () {
+	        return searchOptions;
+	    },
+	    setSearchOptions: function (value) {
+	    	searchOptions = value;
+	    }
+	};
+});
+
 mudrodServices.factory('PagerService',
     function() {
         // service definition
