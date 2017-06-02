@@ -357,13 +357,13 @@ public class ESDriver implements Serializable {
         String latResolution = (String) result.get("Dataset-LatitudeResolution");
         String lonResolution = (String) result.get("Dataset-LongitudeResolution");
         if (!latResolution.isEmpty() && !lonResolution.isEmpty()) {
-          file.addProperty("SpatiallResolution", latResolution + " degrees (latitude) x " + lonResolution + " degrees (longitude)");
+          file.addProperty("SpatialResolution", latResolution + " degrees (latitude) x " + lonResolution + " degrees (longitude)");
         } else {
           String acrossResolution = (String) result.get("Dataset-AcrossTrackResolution");
           String alonResolution = (String) result.get("Dataset-AlongTrackResolution");
           double dAcrossResolution = Double.parseDouble(acrossResolution)/1000;
           double dAlonResolution = Double.parseDouble(alonResolution)/1000;
-          file.addProperty("SpatiallResolution", dAlonResolution + " km (Along) x " + dAcrossResolution + " km (Across)");
+          file.addProperty("SpatialResolution", dAlonResolution + " km (Along) x " + dAcrossResolution + " km (Across)");
         }
       }
 
