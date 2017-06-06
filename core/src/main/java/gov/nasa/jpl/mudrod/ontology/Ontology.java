@@ -26,16 +26,16 @@ import java.util.Iterator;
 public interface Ontology {
 
   /**
-   * Loading an array URIs which resolve to ontology resources.
+   * Load an array URIs which resolve to ontology resources.
    *
    * @param urls a {@link java.lang.String} containing ontology URIs.
    */
   public void load(String[] urls);
 
   /**
-   * Load a collection of default ontological resources.
+   * Load a collection of default ontology resources.
    */
-  public void load();
+  public void load() ;
 
   /**
    * merge relevant ontology subgraphs into a new subgraph which can
