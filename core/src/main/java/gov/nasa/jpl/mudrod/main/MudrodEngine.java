@@ -145,7 +145,7 @@ public class MudrodEngine {
     InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.xml");
 
     if (configStream != null) {
-      LOG.info("Loaded config file from " + MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
+      LOG.info("Loaded config file from {}", MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
     }
 
     return configStream;

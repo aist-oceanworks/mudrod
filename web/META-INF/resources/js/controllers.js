@@ -27,7 +27,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         
         $scope.complete = function(string) {  
             $scope.hidethis = false;  
-            $scope.hideoption = false;
+            $scope.hideoption = true;
             var output = [];  
             Autocomplete.get({term: string},
                 function success(response) {
