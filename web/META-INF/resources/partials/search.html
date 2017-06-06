@@ -23,7 +23,7 @@
                 <form id="searchForm" class="search-form" autocomplete="off" ng-controller="searchCtrl">
                     <div class="form-group">
 
-                        <input id="query" type="search" class="form-control" ng-model="options.term" ng-keyup="complete(options.term)"
+                        <input id="query" type="search" class="form-control" ng-model="options.query" ng-keyup="complete(options.query)"
                                 placeholder="Enter ocean concepts (e.g. ocean wind) to search">
                         <button id="search-btn" ng-click="search(options)"
                                 type="submit">
@@ -36,13 +36,13 @@
                     <div id="searchOption" ng-model="hideoption" ng-hide="hideoption">
                         <span>Search Operator: </span>
                         <label class="radio-inline">
-                            <input type="radio" ng-model="options.preference" value="Phrase"> Phrase 
+                            <input type="radio" ng-model="options.opt" value="Phrase"> Phrase 
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" ng-model="options.preference" value="And"> And 
+                            <input type="radio" ng-model="options.opt" value="And"> And 
                         </label>
-                        <label class="radio-inline">
-                            <input type="radio" ng-model="options.preference" value="Or">Or
+                        <label class="radio-inline"> 
+                            <input type="radio" ng-model="options.opt" value="Or">Or
                         </label>
                     </div>
                 </form>

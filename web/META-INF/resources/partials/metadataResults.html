@@ -22,7 +22,7 @@
             </div>
             <div ng-repeat="pdresult in vm.items">
                 <article class="post">
-                    <a href="#!datasetView/{{pdresult['Short Name']}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
+                    <a href="#!datasetView/{{pdresult['Short Name']}}/{{vm.query}}/{{vm.opt}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
                     <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
                     <br><strong>Topic:</strong> 
                     <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>
