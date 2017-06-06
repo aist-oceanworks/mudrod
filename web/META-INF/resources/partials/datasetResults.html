@@ -33,7 +33,7 @@
                         https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a></td>
                     </tr>
                     <tr>
-                        <td>Doi</td>
+                        <td>DOI</td>
                         <td>{{dataset['Dataset-Doi']}}</td>
                     </tr>
                     <tr>
@@ -53,16 +53,15 @@
                         <td>{{dataset['Processing Level']}}</td>
                     </tr>
                     <tr>
-                        <td>Region</td>
-                        <td>{{dataset['Region']}}</td>
-                    </tr>
-                    <tr>
                         <td>Coverage</td>
-                        <td>{{dataset['Coverage']}}</td>
-                    </tr>
-                    <tr>
-                        <td>Time Span</td>
-                        <td>{{dataset['Time Span']}}</td>
+                        <td>
+                        	Region:	{{dataset['Region']}}<br>
+                        	Northernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+							Southernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+							Westernmost Longitude: {{dataset['WestLon']}} degrees<br>
+							Easternmost Longitude: {{dataset['EastLon']}} degrees<br>
+                        	Time Span: {{dataset['Time Span']}}
+                        </td>
                     </tr>
                     <tr>
                         <td>Spatial Resolution</td>
