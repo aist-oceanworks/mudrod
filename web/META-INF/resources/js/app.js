@@ -16,14 +16,14 @@
 
 /* App Module */
 
-var blogApp = angular.module('mudrodApp', [
+var mudrod = angular.module('mudrodApp', [
     'ngRoute',     
     'mudrodControllers',
     'mudrodServices'  
 ]);
 
 
-blogApp.config(['$routeProvider', '$locationProvider',
+mudrod.config(['$routeProvider', '$locationProvider',
     function($routeProvider, $locationProvider) {
         $routeProvider.
                 when('/', {
@@ -46,6 +46,3 @@ blogApp.config(['$routeProvider', '$locationProvider',
 
         $locationProvider.html5Mode(false).hashPrefix('!');
     }]);
-
-
-
