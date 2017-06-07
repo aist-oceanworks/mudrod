@@ -33,7 +33,7 @@
                         https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a></td>
                     </tr>
                     <tr>
-                        <td>DOI</td>
+                        <td>Doi</td>
                         <td>{{dataset['Dataset-Doi']}}</td>
                     </tr>
                     <tr>
@@ -53,15 +53,16 @@
                         <td>{{dataset['Processing Level']}}</td>
                     </tr>
                     <tr>
+                        <td>Region</td>
+                        <td>{{dataset['Region']}}</td>
+                    </tr>
+                    <tr>
                         <td>Coverage</td>
-                        <td>
-                        	Region:	{{dataset['Region']}}<br>
-                        	Northernmost Latitude: {{dataset['NorthLat']}} degrees<br>
-							Southernmost Latitude: {{dataset['NorthLat']}} degrees<br>
-							Westernmost Longitude: {{dataset['WestLon']}} degrees<br>
-							Easternmost Longitude: {{dataset['EastLon']}} degrees<br>
-                        	Time Span: {{dataset['Time Span']}}
-                        </td>
+                        <td>{{dataset['Coverage']}}</td>
+                    </tr>
+                    <tr>
+                        <td>Time Span</td>
+                        <td>{{dataset['Time Span']}}</td>
                     </tr>
                     <tr>
                         <td>Spatial Resolution</td>
@@ -101,12 +102,12 @@
         </div>
         <div class="col-md-3 col-sm-4">
             <div class="panel panel-default" ng-controller="TabCtrl">
-                <ul class="nav nav-pills nav-stacked">
+                <ul class="nav nav-pills  nav-stacked">
                 <li ng-class="{ active: isSet(1) }">
-                    <a href ng-click="setTab(1)">Related datasets</a>
+                    <a href ng-click="setTab(1)">Related Datasets</a>
                 </li>
                 <li ng-class="{ active: isSet(2) }">
-                    <a href ng-click="setTab(2)">Related Searches</a>
+                    <a href ng-click="setTab(2)">Related Keyword Searches</a>
                 </li>
                 </ul>
                 <div class="sidenav">
