@@ -60,9 +60,127 @@
         "type": "string",
         "index": "not_analyzed"
       },
+      "Collection-LongName": {
+        "type": "completion"
+      },
+      "Collection-LongName-Full": {
+        "type": "completion"
+      },
+      "Collection-ShortName": {
+        "type": "completion"
+      },
+      "Collection-ShortName-Full": {
+        "type": "completion"
+      },
+      "Dataset-Doi": {
+        "type": "completion"
+      },
+      "Dataset-EllipsoidType": {
+        "type": "completion"
+      },
+      "Dataset-LongName": {
+        "type": "completion"
+      },
+      "Dataset-LongName-Full": {
+        "type": "completion"
+      },
       "Dataset-Metadata": {
         "type": "completion"
-      }
+      },
+      "Dataset-PersistentId": {
+        "type": "completion"
+      },
+      "Dataset-ProviderDatasetName": {
+        "type": "completion"
+      },
+      "Dataset-ShortName": {
+        "type": "completion"
+      },
+      "Dataset-ShortName-Full": {
+        "type": "completion"
+      },
+      "Dataset-TemporalResolution-Group": {
+        "type": "completion"
+      },
+      "DatasetCitation-SeriesName": {
+        "type": "completion"
+      },
+      "DatasetCitation-Title": {
+        "type": "completion"
+      },
+      
+      "DatasetParameter-Category": {
+        "type": "completion"
+      },
+      "DatasetParameter-Term": {
+        "type": "completion"
+      },
+      "DatasetParameter-Term-Full": {
+        "type": "completion"
+      },
+      "DatasetParameter-Topic": {
+        "type": "completion"
+      },
+      "DatasetParameter-Variable": {
+        "type": "completion"
+      },
+      "DatasetParameter-Variable-Full": {
+        "type": "completion"
+      },
+      "DatasetParameter-VariableDetail": {
+        "type": "completion"
+      },
+      "DatasetProject-Project-LongName": {
+        "type": "completion"
+      },
+      "DatasetProject-Project-LongName-Full": {
+        "type": "completion"
+      },
+      "DatasetProject-Project-ShortName": {
+        "type": "completion"
+      },
+      "DatasetProject-Project-ShortName-Full": {
+        "type": "completion"
+      },
+      "DatasetSource-Sensor-LongName": {
+        "type": "completion"
+      },
+      "DatasetSource-Sensor-LongName-Full": {
+        "type": "completion"
+      },
+      "DatasetSource-Sensor-ShortName": {
+        "type": "completion"
+      },
+      "DatasetSource-Sensor-ShortName-Full": {
+        "type": "completion"
+      },
+      "DatasetSource-Source-LongName": {
+        "type": "completion"
+      },
+      "DatasetSource-Source-LongName-Full": {
+        "type": "completion"
+      },
+      "DatasetSource-Source-ShortName": {
+        "type": "completion"
+      },
+      "DatasetSource-Source-ShortName-Full": {
+        "type": "completion"
+      },
+      "": {
+        "type": "completion"
+      },
+      "": {
+        "type": "completion"
+      },
+      "": {
+        "type": "completion"
+      },
+      "": {
+        "type": "completion"
+      },
+      "": {
+        "type": "completion"
+      },
     }
   }
 }
