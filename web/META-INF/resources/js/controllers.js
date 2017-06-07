@@ -109,7 +109,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     searchKeyWords += topics[i];
                 }
             }
-            
+
             word = searchKeyWords;
 
             if(!$rootScope.searchOptions) {
@@ -122,7 +122,6 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
             SearchOptions.setSearchOptions({'query':word, 'opt':opt});
             $rootScope.searchOptions.query = searchKeyWords;
             $rootScope.searchOptions.opt = opt;
-            
         }
 
         function initController() {
