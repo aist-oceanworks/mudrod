@@ -252,10 +252,12 @@ public class ESDriver implements Serializable {
       Map<String, Object> result = hit.getSource();
       String shortName = (String) result.get("Dataset-ShortName");
       String longName = (String) result.get("Dataset-LongName");
+      @SuppressWarnings("unchecked")
       ArrayList<String> topicList = (ArrayList<String>) result.get(DS_PARAM_VAR);
       String topic = String.join(", ", topicList);
       String content = (String) result.get("Dataset-Description");
 
+      @SuppressWarnings("unchecked")
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
 
       Date date = new Date(Long.parseLong(longdate.get(0)));
@@ -275,47 +277,54 @@ public class ESDriver implements Serializable {
         file.addProperty("Processing Level",
             (String) result.get("Dataset-ProcessingLevel"));
         
+        @SuppressWarnings("unchecked")
         List<String> versions = (List<String>) result
                 .get("DatasetCitation-Version");
         file.addProperty("Version",  String.join(", ", versions));
 
+        @SuppressWarnings("unchecked")
         List<String> sensors = (List<String>) result
             .get("DatasetSource-Sensor-ShortName");
         file.addProperty("DatasetSource-Sensor-ShortName",
             String.join(", ", sensors));
 
+        @SuppressWarnings("unchecked")
         List<String> projects = (List<String>) result
             .get("DatasetProject-Project-ShortName");
         file.addProperty("DatasetProject-Project-ShortName",
             String.join(", ", projects));
 
+        @SuppressWarnings("unchecked")
         List<String> categories = (List<String>) result
             .get("DatasetParameter-Category");
         file.addProperty("DatasetParameter-Category",
             String.join(", ", categories));
         
+        @SuppressWarnings("unchecked")
         List<String> urls = (List<String>) result
             .get("DatasetLocationPolicy-BasePath");
         
-        List<String> filtered_urls = new ArrayList<String>();
-        for(String url:urls)
-        {
+        List<String> filteredUrls = new ArrayList<>();
+        for(String url:urls) {
           if(url.startsWith("ftp")||url.startsWith("http"))
-            filtered_urls.add(url);
+            filteredUrls.add(url);
         }
         file.addProperty("DatasetLocationPolicy-BasePath",
-            String.join(",", filtered_urls));
+            String.join(",", filteredUrls));
 
+        @SuppressWarnings("unchecked")
         List<String> variables = (List<String>) result
             .get(DS_PARAM_VAR);
 
         file.addProperty(DS_PARAM_VAR, String.join(", ", variables));
 
+        @SuppressWarnings("unchecked")
         List<String> terms = (List<String>) result.get("DatasetParameter-Term");
         file.addProperty("DatasetParameter-Term", String.join(", ", terms));
 
         /********coverage*********/
 
+        @SuppressWarnings("unchecked")
         List<String> region = (List<String>) result.get("DatasetRegion-Region");
         file.addProperty("Region", String.join(", ", region));
 
@@ -334,7 +343,7 @@ public class ESDriver implements Serializable {
         //end date
         String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
         String endDateTxt = "";
-        if (end.equals("")) {
+        if ("".equals(end)) {
           endDateTxt = "Present";
         } else {
           Date endDate = new Date(Long.valueOf(end));
@@ -376,17 +385,25 @@ public class ESDriver implements Serializable {
     return pdResults.toString();
   }
 
+  /**
+   * Perform term autocompletion for the given term over a given index.
+   * @param index a string representing the name of the index we wish to
+   * use for autocompletion.
+   * @param term the term for which to perform autocompletion.
+   * @return a {@link java.util.List} of String's representing phrases which may
+   * be useful for autocompletion purposes.
+   */
   public List<String> autoComplete(String index, String term) {
     boolean exists = this.getClient().admin().indices().prepareExists(index).execute().actionGet().isExists();
     if (!exists) {
       return new ArrayList<>();
     }
 
-    Set<String> suggestHS = new HashSet<String>();
+    Set<String> suggestHS = new HashSet<>();
     List<String> suggestList = new ArrayList<>();
 
-    // please make sure that the completion field is configured in the ES mapping
-    CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("Dataset-Metadata").prefix(term, Fuzziness.fromEdits(2)).size(100);
+    // make sure that the completion field is configured in the ES mapping
+    CompletionSuggestionBuilder suggestionsBuilder = SuggestBuilders.completionSuggestion("_all").prefix(term, Fuzziness.fromEdits(2)).size(100);
     SearchRequestBuilder suggestRequestBuilder = getClient().prepareSearch(index).suggest(new SuggestBuilder().addSuggestion("completeMe", suggestionsBuilder));
     SearchResponse sr = suggestRequestBuilder.setFetchSource(false).execute().actionGet();
 
@@ -442,6 +459,7 @@ public class ESDriver implements Serializable {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
+      @SuppressWarnings("resource")
       TransportClient transportClient = new ESTransportClient(settings);
       for (String host : hosts)
         transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
@@ -537,7 +555,6 @@ public class ESDriver implements Serializable {
   public int getDocCount(String[] index, String[] type, QueryBuilder filterSearch) {
     SearchRequestBuilder countSrBuilder = getClient().prepareSearch(index).setTypes(type).setQuery(filterSearch).setSize(0);
     SearchResponse countSr = countSrBuilder.execute().actionGet();
-    int docCount = (int) countSr.getHits().getTotalHits();
-    return docCount;
+    return (int) countSr.getHits().getTotalHits();
   }
 }
