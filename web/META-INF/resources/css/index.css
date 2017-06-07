@@ -340,10 +340,11 @@ a {
 }
 
 .pagination {
-    float: right;
+    float: left;
     overflow: hidden;
     margin-bottom: 14px;
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .list-related-searches {
@@ -711,5 +712,9 @@ li:hover
   background-color: #069 !important;
   border-color: #069 !important;
   border-radius: 4px; 
+}
+
+.mudrod-navbar {
+    margin-bottom: 5px !important;
 }
 
