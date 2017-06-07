@@ -51,6 +51,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
             $scope.options.query = string;  
             $scope.hidethis = true;  
             $scope.hideoption = false;
+            document.getElementById("search-btn").focus();
         }  
 
         $scope.search = function(options) {
