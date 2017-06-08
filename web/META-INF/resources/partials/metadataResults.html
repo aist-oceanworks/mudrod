@@ -19,6 +19,18 @@
         <div class="panel panel-default post-holder" ng-controller="metadataViewCtrl as vm">
             <div class="heading heading-t3">
                 <strong class="title">{{vm.totalMatches}} matches</strong>
+                <select class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankOpt" ng-change="vm.rankData(vm.rankOpt)">
+				  <option value ="Rank-SVM" ng-selected="true">default(machine learning ranking)</option>
+				  <option value="Rank-AllTimePopularity">Popularity (All Time)</option>
+				  <option value="Rank-MonthlyPopularity">Popularity (This Month)</option>
+				  <option value="Rank-UserPopularity">Popularity (Users)</option>
+				  <option value="Rank-LongName-Full">Long Name (A-Z)</option>
+				  <option value="Rank-ShortName-Full">Short Name (A-Z)</option>
+				  <option value="Rank-GridSpatialResolution">Grid Spatial Resolution</option>
+				  <option value="Rank-SatelliteSpatialResolution">Satellite Spatial Resolution</option>
+				  <option value="Rank-StartTimeLong-Long">Start Date</option>
+				  <option value="Rank-StopTimeLong-Long">Stop Date</option>
+				</select>
             </div>
             <!-- pager -->
 
