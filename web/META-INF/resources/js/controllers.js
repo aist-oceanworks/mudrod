@@ -20,14 +20,18 @@ var mudrodControllers = angular.module('mudrodControllers', []);
 mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete', 'SearchOptions', 
     function ($scope, $rootScope, $location, Autocomplete, SearchOptions) {
         $scope.options = {
-            opt: 'And'
+            opt: 'Or'
         };
+
+        //if ($rootScope.SearchOptions.opt != null)
+        //    $scope.options.opt = $rootScope.searchOptions.opt;
+
         //$scope.relatedTerms = [];
         //$rootScope.searchOptions = {};
         
         $scope.complete = function(string) {  
             $scope.hidethis = false;  
-            $scope.hideoption = false;
+            $scope.hideoption = true;
             var output = [];  
             Autocomplete.get({term: string},
                 function success(response) {
@@ -47,6 +51,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
             $scope.options.query = string;  
             $scope.hidethis = true;  
             $scope.hideoption = false;
+            document.getElementById("search-btn").focus();
         }  
 
         $scope.search = function(options) {
@@ -99,7 +104,6 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         } else {
             word = $routeParams.query;
             opt = $routeParams.opt;
-            SearchOptions.setSearchOptions({'query':word, 'opt':opt});
             
             var searchKeyWords = new String();
 
@@ -120,9 +124,19 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 }
             } 
             
-            if(!$rootScope.searchOptions) $rootScope.searchOptions = {};
-            $rootScope.searchOptions.query = searchKeyWords;
             word = searchKeyWords;
+
+            if(!$rootScope.searchOptions) {
+                $rootScope.searchOptions = {};
+                opt = 'Or';
+            }
+            else
+                opt = $rootScope.searchOptions.opt;
+
+            SearchOptions.setSearchOptions({'query':word, 'opt':opt});
+            $rootScope.searchOptions.query = searchKeyWords;
+            $rootScope.searchOptions.opt = opt;
+            
             //opt = 'And';
         }
 
@@ -196,8 +210,8 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         );
     }]);
 
-mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'DatasetDetail', 'SearchOptions',
-    function datasetViewCtrl($scope, $routeParams, DatasetDetail, SearchOptions) {
+mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$routeParams', 'DatasetDetail', 'SearchOptions',
+    function datasetViewCtrl($rootScope, $scope, $routeParams, DatasetDetail, SearchOptions) {
         var shortname = $routeParams.shortname;   
         
         var query = new String();
@@ -209,6 +223,8 @@ mudrodControllers.controller('datasetViewCtrl', ['$scope', '$routeParams', 'Data
         } else {
         	query = $routeParams.query;
             opt = $routeParams.opt;
+            $rootScope.searchOptions.query = query;
+            $rootScope.searchOptions.opt = opt;
             SearchOptions.setSearchOptions({'query':query, 'opt':opt});
         }
         

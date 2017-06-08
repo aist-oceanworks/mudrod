@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-    font-size: 16px;
+    font-size: 14px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #2a6496;
 }
@@ -340,10 +340,11 @@ a {
 }
 
 .pagination {
-    float: right;
+    float: left;
     overflow: hidden;
     margin-bottom: 14px;
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .list-related-searches {
@@ -440,7 +441,7 @@ li:hover
   position: relative;
   width: 100%;
   bottom: 0;
-  padding: 2em 2em 5em 2em;
+  padding: 1em 2em 1em 2em;
   margin: 0 auto;
   background-color: black; 
 }
@@ -465,14 +466,11 @@ li:hover
 
 /* --- end GLOBAL FOOTER STYLES --- */
 /* --- UPPER FOOTER --- */
-.upper_footer {
-  padding: 3em 0 4em; 
-}
   
 .upper_footer .share, .upper_footer .footer_newsletter {
     text-align: center;
     padding: 1.69492%;
-    margin-bottom: 3em;
+    /* margin-bottom: 3em; */
     width: 100%; 
 }
     
@@ -711,5 +709,9 @@ li:hover
   background-color: #069 !important;
   border-color: #069 !important;
   border-radius: 4px; 
+}
+
+.mudrod-navbar {
+    margin-bottom: 5px !important;
 }
 
