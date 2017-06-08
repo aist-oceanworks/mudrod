@@ -93,6 +93,11 @@
     font-size: 16pt;
 }
 
+.rankoption{
+	float:right;
+	margin-top:5px;
+}
+
 #jpl-banner a { position: absolute; text-decoration: none; }
 #jpl-banner i { visibility:hidden; }
 a#nasa { top: 15px; left: 10px; width: 85px; height: 80px; }
