@@ -92,10 +92,13 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         vm.PDItems = [];
         vm.pager = {};
         vm.setPage = setPage;
+        vm.rankData = rankData;
         vm.totalMatches = 0;
+        
 
         var word = new String();
         var opt = new String();
+        var rankopt = 'Rank-SVM';
         
         if(!$routeParams.query){
             word = $rootScope.searchOptions.query;    
@@ -136,7 +139,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
             SearchOptions.setSearchOptions({'query':word, 'opt':opt});
             $rootScope.searchOptions.query = searchKeyWords;
             $rootScope.searchOptions.opt = opt;
-            
+            searchMetadata();
             //opt = 'And';
         }
 
@@ -155,6 +158,11 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
 
             // get current page of items
             vm.items = vm.PDItems.slice(vm.pager.startIndex, vm.pager.endIndex + 1);
+        }
+        
+        function rankData(opt){
+        	rankopt = opt;
+        	searchMetadata();
         }
 
         this.searchTopic = function(topic) {
@@ -193,21 +201,22 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 }
             );
         }
-
-        MetaData.get({query: word, operator: opt}, 
-                function success(response) {
-                    vm.PDItems = response.PDResults;
-                    vm.totalMatches = vm.PDItems.length;
-                    vm.query = word;
-                    vm.opt = opt;
-                    initController();
-                    //$scope.PDResults = response.PDResults;
-
-                },
-                function error(errorResponse) {
-                    console.log("Error:" + JSON.stringify(errorResponse));
-                }
-        );
+  
+        function searchMetadata(){
+        	MetaData.get({query: word, operator: opt, rankoption: rankopt}, 
+                    function success(response) {
+                        vm.PDItems = response.PDResults;
+                        vm.totalMatches = vm.PDItems.length;
+                        vm.query = word;
+                        vm.opt = opt;
+                        initController();
+                        //$scope.PDResults = response.PDResults;
+                    },
+                    function error(errorResponse) {
+                        console.log("Error:" + JSON.stringify(errorResponse));
+                    }
+            );
+        }
     }]);
 
 mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$routeParams', 'DatasetDetail', 'SearchOptions',
