@@ -201,20 +201,6 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 }
             );
         }
-
-        /*MetaData.get({query: word, operator: opt}, 
-                function success(response) {
-                    vm.PDItems = response.PDResults;
-                    vm.totalMatches = vm.PDItems.length;
-                    vm.query = word;
-                    vm.opt = opt;
-                    initController();
-                    //$scope.PDResults = response.PDResults;
-                },
-                function error(errorResponse) {
-                    console.log("Error:" + JSON.stringify(errorResponse));
-                }
-        );*/
   
         function searchMetadata(){
         	MetaData.get({query: word, operator: opt, rankoption: rankopt}, 

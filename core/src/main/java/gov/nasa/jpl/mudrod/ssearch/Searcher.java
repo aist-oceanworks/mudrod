@@ -117,49 +117,49 @@ public class Searcher extends MudrodAbstract implements Serializable {
 
     SortOrder order = null;
     String sortFiled = "";
-    switch(rankOption){
-      case "Rank-AllTimePopularity":
-        sortFiled = "Dataset-AllTimePopularity";
-        order = SortOrder.DESC;
-        break;
-      case "Rank-MonthlyPopularity":
-        sortFiled = "Dataset-MonthlyPopularity";
-        order = SortOrder.DESC;
-        break;
-      case "Rank-UserPopularity":
-        sortFiled = "Dataset-UserPopularity";
-        order = SortOrder.DESC;
-        break;
-      case "Rank-LongName-Full":
-        sortFiled = "Dataset-LongName.raw";
-        order = SortOrder.ASC;
-        break;
-      case "Rank-ShortName-Full":
-        sortFiled = "Dataset-ShortName.raw";
-        order = SortOrder.ASC;
-        break;
-      case "Rank-GridSpatialResolution":
-        sortFiled = "Dataset-GridSpatialResolution";
-        order = SortOrder.DESC;
-        break;
-      case "Rank-SatelliteSpatialResolution":
-        sortFiled = "Dataset-SatelliteSpatialResolution";
-        order = SortOrder.DESC;
-        break;
-      case "Rank-StartTimeLong-Long":
-        sortFiled = "DatasetCoverage-StartTimeLong-Long";
-        order = SortOrder.ASC;
-        break;
-      case "Rank-StopTimeLong-Long":
-        sortFiled = "DatasetCoverage-StopTimeLong-Long";
-        order = SortOrder.DESC;
-        break;
-      default:
-        sortFiled = "Dataset-ShortName";
-        order = SortOrder.ASC;
-        break;
+    switch (rankOption) {
+    case "Rank-AllTimePopularity":
+      sortFiled = "Dataset-AllTimePopularity";
+      order = SortOrder.DESC;
+      break;
+    case "Rank-MonthlyPopularity":
+      sortFiled = "Dataset-MonthlyPopularity";
+      order = SortOrder.DESC;
+      break;
+    case "Rank-UserPopularity":
+      sortFiled = "Dataset-UserPopularity";
+      order = SortOrder.DESC;
+      break;
+    case "Rank-LongName-Full":
+      sortFiled = "Dataset-LongName.raw";
+      order = SortOrder.ASC;
+      break;
+    case "Rank-ShortName-Full":
+      sortFiled = "Dataset-ShortName.raw";
+      order = SortOrder.ASC;
+      break;
+    case "Rank-GridSpatialResolution":
+      sortFiled = "Dataset-GridSpatialResolution";
+      order = SortOrder.DESC;
+      break;
+    case "Rank-SatelliteSpatialResolution":
+      sortFiled = "Dataset-SatelliteSpatialResolution";
+      order = SortOrder.DESC;
+      break;
+    case "Rank-StartTimeLong-Long":
+      sortFiled = "DatasetCoverage-StartTimeLong-Long";
+      order = SortOrder.ASC;
+      break;
+    case "Rank-StopTimeLong-Long":
+      sortFiled = "DatasetCoverage-StopTimeLong-Long";
+      order = SortOrder.DESC;
+      break;
+    default:
+      sortFiled = "Dataset-ShortName";
+      order = SortOrder.ASC;
+      break;
     }
-    
+
     Dispatcher dp = new Dispatcher(this.getConfig(), this.getES(), null);
     BoolQueryBuilder qb = dp.createSemQuery(query, 1.0, queryOperator);
     List<SResult> resultList = new ArrayList<>();
@@ -175,7 +175,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
 
       ArrayList<String> topicList = (ArrayList<String>) result.get("DatasetParameter-Variable");
       String topic = "";
-      if(null != topicList){
+      if (null != topicList) {
         topic = String.join(", ", topicList);
       }
       String content = (String) result.get("Dataset-Description");
@@ -190,12 +190,12 @@ public class Searcher extends MudrodAbstract implements Serializable {
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
-      //start date
+      // start date
       Long start = (Long) result.get("DatasetCoverage-StartTimeLong-Long");
       Date startDate = new Date(start);
       String startDateTxt = df2.format(startDate);
 
-      //end date
+      // end date
       String end = (String) result.get("Dataset-DatasetCoverage-StopTimeLong");
       String endDateTxt = "";
       if ("".equals(end)) {
@@ -253,7 +253,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
    */
   public String ssearch(String index, String type, String query, String queryOperator, String rankOption, Ranker rr) {
     List<SResult> li = searchByQuery(index, type, query, queryOperator, rankOption);
-    if("Rank-SVM".equals(rankOption)){
+    if ("Rank-SVM".equals(rankOption)) {
       li = rr.rank(li);
     }
     Gson gson = new Gson();
