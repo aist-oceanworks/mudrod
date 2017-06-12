@@ -17,32 +17,28 @@
 /* App Module */
 
 var mudrod = angular.module('mudrodApp', [
-    'ngRoute',     
+    'ngRoute',
     'mudrodControllers',
-    'mudrodServices'  
+    'mudrodServices'
 ]);
 
 
 mudrod.config(['$routeProvider', '$locationProvider',
-    function($routeProvider, $locationProvider) {
-        $routeProvider.
-                when('/', {
-                    templateUrl: 'partials/search.html'
-                    //controller: 'searchCtrl'
-                }).when('/metadataView/:query', {
-                    templateUrl: 'partials/metadataResults.html',
-                    controller: 'metadataViewCtrl'
-                }).when('/metadataView/:query/:opt/', {
-                    templateUrl: 'partials/metadataResults.html'
-                    //controller: 'metadataViewCtrl',
-                    //controllerAs: 'vm'
-                }).when('/datasetView/:shortname/', {
-                    templateUrl: 'partials/datasetResults.html',
-                    controller: 'datasetViewCtrl'
-                }).when('/datasetView/:shortname/:query/:opt/', {
-                    templateUrl: 'partials/datasetResults.html',
-                    controller: 'datasetViewCtrl'
-                });;
+    function ($routeProvider, $locationProvider) {
+        $routeProvider.when('/', {
+            templateUrl: 'partials/search.html'
+        }).when('/metadataView/:query', {
+            templateUrl: 'partials/metadataResults.html',
+            controller: 'metadataViewCtrl'
+        }).when('/metadataView/:query/:opt/', {
+            templateUrl: 'partials/metadataResults.html'
+        }).when('/datasetView/:shortname/', {
+            templateUrl: 'partials/datasetResults.html',
+            controller: 'datasetViewCtrl'
+        }).when('/datasetView/:shortname/:query/:opt/', {
+            templateUrl: 'partials/datasetResults.html',
+            controller: 'datasetViewCtrl'
+        });
 
         $locationProvider.html5Mode(false).hashPrefix('!');
     }]);

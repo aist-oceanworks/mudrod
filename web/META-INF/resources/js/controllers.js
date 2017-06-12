@@ -28,7 +28,6 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
             Autocomplete.get({term: string},
                 function success(response) {
                     $scope.filterSearch = response;
-
                 },
                 function error(errorResponse) {
                     console.log("Error:" + JSON.stringify(errorResponse));
