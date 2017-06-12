@@ -33,63 +33,61 @@
                                 <td>Landing Page</td>
                                 <td><a href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}" target="_blank">
                                 https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a></td>
-                            </tr>
-                            <tr>
-                                <td>DOI</td>
-                                <td><a href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}" target="_blank">
-                                {{dataset['Dataset-Doi']}}</a></td>
-                            </tr>
-                            <tr>
-                                <td>Measurement</td>
-                                <td>{{dataset['DatasetParameter-Category']}}>{{dataset['DatasetParameter-Variable']}}>{{dataset['DatasetParameter-Term']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Version</td>
-                                <td>{{dataset['Version']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Description</td>
-                                <td>{{dataset['Dataset-Description']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Processing Level</td>
-                                <td>{{dataset['Processing Level']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Region</td>
-                                <td>{{dataset['Region']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Coverage</td>
-                                <td>{{dataset['Coverage']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Time Span</td>
-                                <td>{{dataset['Time Span']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Spatial Resolution</td>
-                                <td>{{dataset['SpatiallResolution']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Temporal Repeat</td>
-                                <td>{{dataset['TemporalResolution']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Sensor</td>
-                                <td>{{dataset['DatasetSource-Sensor-ShortName']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Project</td>
-                                <td>{{dataset['DatasetProject-Project-ShortName']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Format</td>
-                                <td>{{dataset['DataFormat']}}</td>
-                            </tr>
-                            <tr ng-model="hideUrls" ng-hide="hideUrls">
-                                <td>Data Access</td>
-                                <td><a href="{{ftpUrl}}" target="_blank">{{ftpUrl}}</a>
+                        </tr>
+                        <tr>
+                            <td>DOI</td>
+                            <td><a href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}" target="_blank">{{dataset['Dataset-Doi']}}</a></td>
+                        </tr>
+                        <tr>
+                            <td>Measurement</td>
+                            <td>{{dataset['DatasetParameter-Category']}}>{{dataset['DatasetParameter-Variable']}}>{{dataset['DatasetParameter-Term']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Version</td>
+                            <td>{{dataset['Version']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>{{dataset['Dataset-Description']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Processing Level</td>
+                            <td>{{dataset['Processing Level']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Coverage</td>
+                            <td>
+                                Region:	{{dataset['Region']}}<br>
+                                Northernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+                                Southernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+                                Westernmost Longitude: {{dataset['WestLon']}} degrees<br>
+                                Easternmost Longitude: {{dataset['EastLon']}} degrees<br>
+                                Time Span: {{dataset['Time Span']}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Spatial Resolution</td>
+                            <td>{{dataset['SpatialResolution']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Temporal Repeat</td>
+                            <td>{{dataset['TemporalResolution']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Sensor</td>
+                            <td>{{dataset['DatasetSource-Sensor-ShortName']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Project</td>
+                            <td>{{dataset['DatasetProject-Project-ShortName']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Format</td>
+                            <td>{{dataset['DataFormat']}}</td>
+                        </tr>
+                        <tr ng-model="hideUrls" ng-hide="hideUrls">
+                            <td>Data Access</td>
+                            <td><a href="{{ftpUrl}}" target="_blank">{{ftpUrl}}</a>
                                 <br>
                                 <a href="{{httpsUrl}}" target="_blank">{{httpsUrl}}</a>
                                 </td> 
