@@ -64,7 +64,7 @@ public class OntologyFactory {
 
     String ontologyImpl = this.props.getProperty(MudrodConstants.ONTOLOGY_IMPL, "Local");
 
-    LOG.info("Using ontology extension: " + ontologyImpl);
+    LOG.info("Using ontology extension: {}", ontologyImpl);
     Ontology ontImpl;
     switch (ontologyImpl) {
     case "EsipCOR":
@@ -77,7 +77,6 @@ public class OntologyFactory {
       ontImpl = new LocalOntology();
       break;
     }
-    ontImpl.load();
     return ontImpl;
   }
 
