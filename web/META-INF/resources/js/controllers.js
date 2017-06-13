@@ -62,6 +62,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
 mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabList',
     function vocabularyCtrl($scope, $rootScope, VocabList) {
 
+        // TODO Fix this
         var word = $rootScope.searchOptions.query;
         VocabList.get({query: word},
             function success(response) {
@@ -76,6 +77,9 @@ mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabLi
 
 mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$routeParams', 'MetaData', 'PagerService', 'SearchOptions',
     function metadataViewCtrl($rootScope, $scope, $routeParams, MetaData, PagerService, SearchOptions) {
+
+        $scope.searchComplete = false;
+
         var vm = this;
         vm.PDItems = [];
         vm.pager = {};
@@ -83,7 +87,6 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         vm.rankData = rankData;
         vm.totalMatches = 0;
         vm.rankopt = 'Rank-SVM';
-
 
         var word = String();
         var opt = String();
@@ -182,9 +185,11 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     vm.totalMatches = vm.PDItems.length;
                     vm.query = word;
                     vm.opt = opt;
+                    $scope.searchComplete = true;
                     initController();
                 },
                 function error(errorResponse) {
+                    $scope.searchComplete = true;
                     console.log("Error:" + JSON.stringify(errorResponse));
                 }
             );
@@ -197,9 +202,11 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     vm.totalMatches = vm.PDItems.length;
                     vm.query = word;
                     vm.opt = opt;
+                    $scope.searchComplete = true;
                     initController();
                 },
                 function error(errorResponse) {
+                    $scope.searchComplete = true;
                     console.log("Error:" + JSON.stringify(errorResponse));
                 }
             );
@@ -220,7 +227,7 @@ mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$route
             query = $routeParams.query;
             opt = $routeParams.opt;
             SearchOptions.setSearchOptions({'query': query, 'opt': opt});
-            $rootScope.searchOptions= SearchOptions.getSearchOptions();
+            $rootScope.searchOptions = SearchOptions.getSearchOptions();
         }
 
         DatasetDetail.get({shortname: shortname},
