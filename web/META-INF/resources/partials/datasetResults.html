@@ -114,6 +114,9 @@
                             <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
                                 <a title="{{recommendation['name']}}" href="#datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
                             </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/recommendation-algorithms/" target="_blank">How does MUDROD find related Datasets?</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,6 +130,9 @@
                         <div class="panel-body" ng-controller="vocabularyCtrl">
                             <div class="list-related-searches" ng-repeat="ontology in ontologyList">
                                 <a title="{{ontology['word']}}" href="#metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                            </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/vocabulary-similarity-algorithm/" target="_blank">How does MUDROD find related keyword searches?</a>
                             </div>
                         </div>
                     </div>
