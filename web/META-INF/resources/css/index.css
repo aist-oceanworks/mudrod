@@ -54,6 +54,7 @@ a:link, a:visited {
 
 .view-area-fixed {
     width: 100%;
+    padding-top: 1em;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: 0 0;
