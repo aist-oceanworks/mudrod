@@ -220,7 +220,7 @@ mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$route
             query = $routeParams.query;
             opt = $routeParams.opt;
             SearchOptions.setSearchOptions({'query': query, 'opt': opt});
-            $rootScope.searchOptions= SearchOptions
+            $rootScope.searchOptions= SearchOptions.getSearchOptions();
         }
 
         DatasetDetail.get({shortname: shortname},
