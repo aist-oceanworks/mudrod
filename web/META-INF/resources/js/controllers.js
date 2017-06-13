@@ -44,6 +44,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         $scope.search = function (options) {
             $rootScope.searchOptions = angular.copy(options);
             $location.path("/metadataView/" + options.query + '/' + options.opt);
+            $scope.hidethis = true;
         };
 
         $scope.$watch(function () {

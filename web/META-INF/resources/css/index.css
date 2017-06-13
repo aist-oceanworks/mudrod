@@ -407,8 +407,8 @@ li:hover {
     z-index: 1000;
     min-width: 195px;
     list-style: none;
-    padding: 5px 0;
-    margin: 2px 0 0;
+    width: 100%;
+    text-align: left;
 }
 
 /* button recolor */
@@ -420,5 +420,6 @@ li:hover {
 
 .mudrod-navbar {
     margin-bottom: 0;
+    padding-left: 1em;
+    padding-right: 1em;
 }
-
