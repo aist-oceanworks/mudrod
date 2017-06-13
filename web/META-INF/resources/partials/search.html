@@ -33,13 +33,13 @@
                             <label for="searchOption" style="padding-right: 1em;">Search Operator:</label>
                             <div id="searchOption" class="btn-group" data-toggle="buttons">
                                 <label class="radio-inline">
+                                    <input type="radio" ng-model="options.opt" value="Or">Or
+                                </label>
+                                <label class="radio-inline">
                                     <input type="radio" ng-model="options.opt" value="Phrase">Phrase
                                 </label>
                                 <label class="radio-inline">
                                     <input type="radio" ng-model="options.opt" value="And">And
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" ng-model="options.opt" value="Or">Or
                                 </label>
                             </div>
                         </div>
