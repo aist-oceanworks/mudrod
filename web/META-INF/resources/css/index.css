@@ -76,9 +76,9 @@ a:link, a:visited {
 
 .landing-dialog {
     flex: 1;
-    padding: 80px;
+    padding: 6em;
     width: 80%;
-    margin: 200px auto 200px;
+    margin: 15em auto 15em;
     color: #fff;
     border-radius: 6px;
     box-shadow: 0 0 20px 0 rgba(17, 17, 17, 0.7);
@@ -291,7 +291,7 @@ a {
     color: white;
 }
 
-.sidenav .learn-more a{
+.sidenav .learn-more a {
     font-size: 1.2em;
     font-style: italic;
     text-align: center;
@@ -412,11 +412,10 @@ li:hover {
 
 .search-ul {
     position: absolute;
-    top: 100%;
     z-index: 1000;
     min-width: 195px;
+    width: 20%;
     list-style: none;
-    width: 100%;
     text-align: left;
 }
 
@@ -431,4 +430,27 @@ li:hover {
     margin-bottom: 0;
     padding-left: 1em;
     padding-right: 1em;
+}
+
+.mudrod-navbar #searchForm {
+    width: 50%;
+}
+
+.mudrod-navbar #searchForm .form-group {
+    width: 100%;
+}
+
+.mudrod-navbar #searchForm .form-group input{
+    width: 45%;
+}
+
+
+.mudrod-navbar .nav-item {
+    margin: 1em 0 0 1em;
+    font-size: 1em;
+}
+
+.mudrod-footer {
+    color: white;
+    padding-left: 2em;
 }
