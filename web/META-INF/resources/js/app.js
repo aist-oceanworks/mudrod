@@ -23,8 +23,8 @@ var mudrod = angular.module('mudrodApp', [
 ]);
 
 
-mudrod.config(['$routeProvider', '$locationProvider',
-    function ($routeProvider, $locationProvider) {
+mudrod.config(['$routeProvider',
+    function ($routeProvider) {
         $routeProvider.when('/', {
             templateUrl: 'partials/search.html'
         }).when('/metadataView/:query', {
@@ -39,6 +39,4 @@ mudrod.config(['$routeProvider', '$locationProvider',
             templateUrl: 'partials/datasetResults.html',
             controller: 'datasetViewCtrl'
         });
-
-        $locationProvider.html5Mode(false).hashPrefix('!');
     }]);

@@ -57,7 +57,7 @@
                     <hr style="clear:both; margin: 0; border: 0; border-bottom: 1px solid #c3c3c3;">
                     <div ng-repeat="pdresult in vm.items">
                         <article class="post">
-                            <a href="#!datasetView/{{pdresult['Short Name']}}/{{vm.query}}/{{vm.opt}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
+                            <a href="#datasetView/{{pdresult['Short Name']}}/{{vm.query}}/{{vm.opt}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
                             <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
                             <br><strong>Topic:</strong>
                             <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>
@@ -117,7 +117,7 @@
                 <div id="collapse1" class="panel-collapse collapse in">
                     <div class="panel-body" ng-controller="vocabularyCtrl">
                         <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                            <a href="#!metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                            <a href="#metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
                         </div>
                     </div>
                 </div>
