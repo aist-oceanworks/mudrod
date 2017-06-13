@@ -117,7 +117,7 @@
                 <div id="collapse1" class="panel-collapse collapse in">
                     <div class="panel-body" ng-controller="vocabularyCtrl">
                         <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                            <a href="#metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                            <a href="#metadataView/{{ontology['word']}}" title="{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
                         </div>
                     </div>
                 </div>
