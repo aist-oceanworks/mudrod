@@ -38,5 +38,6 @@ mudrod.config(['$routeProvider',
         }).when('/datasetView/:shortname/:query/:opt/', {
             templateUrl: 'partials/datasetResults.html',
             controller: 'datasetViewCtrl'
-        });
+        })
+            .otherwise({redirectTo: '/', templateUrl: 'partials/search.html'});
     }]);

@@ -212,11 +212,11 @@ mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$route
 
         var query = String();
         var opt = String();
-        if (!$routeParams.query) {
+        if ($rootScope.searchOptions) {
             query = $rootScope.searchOptions.query;
             opt = $rootScope.searchOptions.opt;
             SearchOptions.setSearchOptions({'query': query, 'opt': opt});
-        } else {
+        } else if ($routeParams.query && $routeParams.opt) {
             query = $routeParams.query;
             opt = $routeParams.opt;
             $rootScope.searchOptions.query = query;
