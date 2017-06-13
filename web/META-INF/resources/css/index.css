@@ -306,10 +306,8 @@ a {
     padding-top: 0;
 }
 
-.post-holder {
-    overflow: hidden;
-    font-size: 15px;
-    line-height: 1.4;
+.post-holder .panel-body{
+    overflow-x: auto;
 }
 
 .post-holder .post {
