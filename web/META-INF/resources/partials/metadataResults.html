@@ -18,7 +18,7 @@
         <div class="col-md-9 col-sm-8" id="content">
             <div class="panel panel-primary post-holder" ng-controller="metadataViewCtrl as vm">
                 <div class="panel-heading">
-                    <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankOpt" ng-change="vm.rankData(vm.rankOpt)">
+                    <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankopt" ng-change="vm.rankData(vm.rankOpt)">
                         <option value="Rank-SVM" ng-selected="true">Default (Machine Learning Ranking)</option>
                         <option value="Rank-AllTimePopularity">Popularity (All Time)</option>
                         <option value="Rank-MonthlyPopularity">Popularity (This Month)</option>
@@ -33,6 +33,7 @@
                     <h4 class="panel-title">
                         <strong ng-if="vm.pager.pages.length > 1" class="title">Showing {{vm.items.length}} of {{vm.pager.totalItems}} total match(es)</strong>
                         <strong ng-if="vm.pager.pages.length <= 1" class="title">Showing {{vm.items.length}} total match(es)</strong>
+                        <strong ng-if="vm.items.length === 0" class="title">No matches found</strong>
                     </h4>
                 </div>
                 <div class="panel-body">

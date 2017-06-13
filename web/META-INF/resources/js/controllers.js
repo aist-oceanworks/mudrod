@@ -82,6 +82,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         vm.setPage = setPage;
         vm.rankData = rankData;
         vm.totalMatches = 0;
+        vm.rankopt = 'Rank-SVM';
 
 
         var word = String();
