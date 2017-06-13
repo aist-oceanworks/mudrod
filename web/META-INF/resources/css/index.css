@@ -1,19 +1,12 @@
 html, body {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     height: 100%;
 }
 
 body {
-    font-size: 14px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background: url('../images/OceanWave.jpg') no-repeat scroll 0 0 / cover transparent
-}
-
-.fixed-table-body {
-    background-color: lightsteelblue;
-    margin: 0.5em;
-    font-size: .7em;
+    background-color: black;
 }
 
 h1, h2, h3, p {
@@ -59,11 +52,25 @@ a:link, a:visited {
     color: #2980b9;
 }
 
-.view-area {
-    /*background: url('../images/OceanWave.jpg');*/
-    /*background-size: cover;*/
-    line-height: 1.42857143;
+.view-area-fixed {
     width: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url('../images/OceanWave.jpg');
+    background-color: transparent;
+    background-attachment: fixed;
+}
+
+.view-area-scroll{
+    width: 100%;
+    height: 800px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url('../images/OceanWave.jpg');
+    background-color: transparent;
+    background-attachment: scroll;
 }
 
 .landing-dialog {
@@ -271,7 +278,7 @@ a {
     color: #8ab9e7;
 }
 
-.sidenav h4 a{
+.sidenav h4 a {
     padding: 2px 8px 0 10px;
     color: white;
 }
