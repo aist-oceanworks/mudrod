@@ -19,15 +19,17 @@ var mudrodControllers = angular.module('mudrodControllers', []);
 
 mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete', 'SearchOptions',
     function ($scope, $rootScope, $location, Autocomplete, SearchOptions) {
+
+        $scope.hidethis = true;
         $scope.options = {
             opt: 'Or'
         };
 
         $scope.complete = function (string) {
-            $scope.hidethis = false;
             Autocomplete.get({term: string},
                 function success(response) {
                     $scope.filterSearch = response;
+                    $scope.hidethis = false;
                 },
                 function error(errorResponse) {
                     console.log("Error:" + JSON.stringify(errorResponse));
@@ -42,9 +44,9 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         };
 
         $scope.search = function (options) {
+            $scope.hidethis = true;
             $rootScope.searchOptions = angular.copy(options);
             $location.path("/metadataView/" + options.query + '/' + options.opt);
-            $scope.hidethis = true;
         };
 
         $scope.$watch(function () {

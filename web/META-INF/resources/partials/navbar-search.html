@@ -26,7 +26,7 @@
 
                             <input id="query" type="search" class="form-control" ng-model="options.query" ng-keyup="complete(options.query)"
                                    placeholder="Enter ocean concepts (e.g. ocean wind) to search">
-                            <ul class="list-group search-ul autocomplete ng-hide" ng-model="hidethis" ng-hide="hidethis">
+                            <ul class="list-group search-ul autocomplete" ng-model="hidethis" ng-hide="hidethis">
                                 <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>
                             </ul>
                             <div class="input-group-btn" style="width: 1%">

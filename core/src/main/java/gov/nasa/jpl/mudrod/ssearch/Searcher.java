@@ -155,7 +155,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       order = SortOrder.DESC;
       break;
     default:
-      sortFiled = "Dataset-ShortName";
+      sortFiled = "Dataset-ShortName.raw";
       order = SortOrder.ASC;
       break;
     }
