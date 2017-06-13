@@ -102,6 +102,10 @@ a:link, a:visited {
     margin-left: .5em;
 }
 
+.panel-title{
+    font-size: 1.5em;
+}
+
 .rankoption {
     background-color: white;
     color: #2980b9;

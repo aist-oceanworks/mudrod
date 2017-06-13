@@ -31,12 +31,13 @@
                         <option value="Rank-StopTimeLong-Long">Stop Date</option>
                     </select>
                     <h4 class="panel-title">
-                        <strong class="title">{{vm.totalMatches}} matches</strong>
+                        <strong ng-if="vm.pager.pages.length > 1" class="title">Showing {{vm.items.length}} of {{vm.pager.totalItems}} total match(es)</strong>
+                        <strong ng-if="vm.pager.pages.length <= 1" class="title">Showing {{vm.items.length}} total match(es)</strong>
                     </h4>
                 </div>
                 <div class="panel-body">
                     <!-- pager -->
-                    <ul ng-if="vm.pager.pages.length" class="pagination">
+                    <ul ng-if="vm.pager.pages.length > 1" class="pagination">
                         <li ng-class="{disabled:vm.pager.currentPage === 1}">
                             <a ng-click="vm.setPage(1)">First</a>
                         </li>
@@ -53,14 +54,13 @@
                             <a ng-click="vm.setPage(vm.pager.totalPages)">Last</a>
                         </li>
                     </ul>
-                    <br style="clear:both"/>
+                    <hr style="clear:both; margin: 0; border: 0; border-bottom: 1px solid #c3c3c3;">
                     <div ng-repeat="pdresult in vm.items">
                         <article class="post">
                             <a href="#!datasetView/{{pdresult['Short Name']}}/{{vm.query}}/{{vm.opt}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
                             <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
                             <br><strong>Topic:</strong>
                             <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>
-                            <!-- a href="#!metadataView/{{pdresult.Topic}}">{{pdresult.Topic}}</a -->
                             <br><strong>Platform/Sensors:</strong> {{pdresult['Sensor']}}
                             <br><strong>Processing Level:</strong> {{pdresult['Processing Level']}}
                             <br><strong>Start/End Date:</strong> {{pdresult['Start/End Date']}}
@@ -86,7 +86,7 @@
                         </article>
                     </div>
                     <!-- pager -->
-                    <ul ng-if="vm.pager.pages.length" class="pagination">
+                    <ul ng-if="vm.pager.pages.length > 1" class="pagination">
                         <li ng-class="{disabled:vm.pager.currentPage === 1}">
                             <a ng-click="vm.setPage(1)">First</a>
                         </li>
