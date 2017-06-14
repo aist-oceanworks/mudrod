@@ -184,8 +184,8 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     vm.totalMatches = vm.PDItems.length;
                     vm.query = word;
                     vm.opt = opt;
-                    $scope.searchComplete = true;
                     initController();
+                    $scope.searchComplete = true;
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
@@ -201,8 +201,8 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                     vm.totalMatches = vm.PDItems.length;
                     vm.query = word;
                     vm.opt = opt;
-                    $scope.searchComplete = true;
                     initController();
+                    $scope.searchComplete = true;
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
