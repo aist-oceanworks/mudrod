@@ -22,6 +22,15 @@ var mudrod = angular.module('mudrodApp', [
     'mudrodServices'
 ]);
 
+mudrod.filter('urlencode', function() {
+    return function(input) {
+        if(input) {
+            return window.encodeURIComponent(input);
+        }
+        return "";
+    }
+});
+
 
 mudrod.config(['$routeProvider',
     function ($routeProvider) {
