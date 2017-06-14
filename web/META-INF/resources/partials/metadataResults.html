@@ -31,8 +31,12 @@
                 </div>
                 <div id="collapse1" class="panel-collapse collapse in">
                     <div class="panel-body" ng-controller="vocabularyCtrl">
-                        <div ng-if="searchComplete" ng-model="searchComplete" class="list-related-searches" ng-repeat="ontology in ontologyList">
+                        <div ng-if="searchComplete && ontologyList.length > 0" ng-model="searchComplete" class="list-related-searches" ng-repeat="ontology in ontologyList">
                             <a href="#metadataView/{{ontology['word']}}" title="{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                        </div>
+
+                        <div ng-if="searchComplete && ontologyList.length === 0" ng-model="searchComplete">
+                            <span>No related searches found</span>
                         </div>
 
                         <div ng-if="!searchComplete" ng-model="searchComplete" id="spinner">

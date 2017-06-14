@@ -189,7 +189,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
-                    vm.searchError = { "status": errorResponse.status, "message": errorResponse.data};
+                    vm.searchError = {"status": errorResponse.status, "message": errorResponse.data};
                 }
             );
         };
@@ -206,7 +206,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
-                    vm.searchError = { "status": errorResponse.status, "message": errorResponse.data};
+                    vm.searchError = {"status": errorResponse.status, "message": errorResponse.data};
                 }
             );
         }
@@ -245,6 +245,29 @@ mudrodControllers.controller('datasetViewCtrl', ['$rootScope', '$scope', '$route
                     $scope.hideUrl = false;
                     $scope.hideUrls = true;
                 }
+
+
+                //Sometimes category, variable, term, and sensor can have multiple values. Split them by comma and add each list to scope so we can search on individual phrases.
+                $scope.categories = $scope.dataset['DatasetParameter-Category'].split(',');
+                $scope.categories = $scope.categories.map(function (s) {
+                    return s.trim()
+                });
+
+                $scope.variables = $scope.dataset['DatasetParameter-Variable'].split(',');
+                $scope.variables = $scope.variables.map(function (s) {
+                    return s.trim()
+                });
+
+                $scope.terms = $scope.dataset['DatasetParameter-Term'].split(',');
+                $scope.terms = $scope.terms.map(function (s) {
+                    return s.trim()
+                });
+
+                $scope.sensors = $scope.dataset['DatasetSource-Sensor-ShortName'].split(',');
+                $scope.sensors = $scope.sensors.map(function (s) {
+                    return s.trim()
+                });
+
             },
             function error(errorResponse) {
                 console.log("Error:" + JSON.stringify(errorResponse));

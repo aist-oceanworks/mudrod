@@ -40,7 +40,11 @@
                         </tr>
                         <tr>
                             <td>Measurement</td>
-                            <td>{{dataset['DatasetParameter-Category']}}>{{dataset['DatasetParameter-Variable']}}>{{dataset['DatasetParameter-Term']}}</td>
+                            <td>
+                                <a ng-repeat="category in categories track by $index" href="#metadataView/{{category}}">{{category}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
+                                <a ng-repeat="variable in variables track by $index" href="#metadataView/{{variable}}">{{variable}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
+                                <a ng-repeat="term in terms track by $index" href="#metadataView/{{term}}">{{term}}{{$last ? '' : ', '}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Version</td>
@@ -75,11 +79,13 @@
                         </tr>
                         <tr>
                             <td>Sensor</td>
-                            <td>{{dataset['DatasetSource-Sensor-ShortName']}}</td>
+                            <td>
+                                <a ng-repeat="sensor in sensors track by $index" href="#metadataView/{{sensor}}">{{sensor}}{{$last ? '' : ', '}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Project</td>
-                            <td>{{dataset['DatasetProject-Project-ShortName']}}</td>
+                            <td><a href="#metadataView/{{dataset['DatasetProject-Project-ShortName']}}">{{dataset['DatasetProject-Project-ShortName']}}</a></td>
                         </tr>
                         <tr>
                             <td>Format</td>
