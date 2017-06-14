@@ -336,26 +336,8 @@ public class ESDriver implements Serializable {
         }
 
         // Measurement is a list of hierarchies that goes Topic -> Term -> Variable -> Variable Detail. Need to construct these hierarchies.
-        List<List<String>> measurements = new ArrayList<>();
-        List<String> topics = (List<String>) searchResult.get("Topic");
-        List<String> terms = (List<String>) searchResult.get("DatasetParameter-Term-Full");
-        List<String> variables = (List<String>) searchResult.get("DatasetParameter-Variable-Full");
-        List<String> variableDetails = (List<String>) searchResult.get("DatasetParameter-VariableDetail");
-
-        for (int x = 0; x < topics.size(); x++){
-          measurements.add(new ArrayList<>());
-          measurements.get(x).add(topics.get(x));
-          // Only add the next 'level' if we can
-          if(x < terms.size() && !"None".equalsIgnoreCase(terms.get(x)) && StringUtils.isNotBlank(terms.get(x))){
-            measurements.get(x).add(terms.get(x));
-            if(x < variables.size() && !"None".equalsIgnoreCase(variables.get(x)) && StringUtils.isNotBlank(variables.get(x))){
-              measurements.get(x).add(variables.get(x));
-              if(x < variableDetails.size() && !"None".equalsIgnoreCase(variableDetails.get(x)) && StringUtils.isNotBlank(variableDetails.get(x))){
-                measurements.get(x).add(variableDetails.get(x));
-              }
-            }
-          }
-        }
+        List<List<String>> measurements = buildMeasurementHierarchies((List<String>) searchResult.get("Topic"), (List<String>) searchResult.get("DatasetParameter-Term-Full"),
+            (List<String>) searchResult.get("DatasetParameter-Variable-Full"), (List<String>) searchResult.get("DatasetParameter-VariableDetail"));
 
         searchResult.put("Measurements", measurements);
 
@@ -368,6 +350,59 @@ public class ESDriver implements Serializable {
     pdResults.put("PDResults", searchResults);
 
     return new GsonBuilder().create().toJson(pdResults);
+  }
+
+  /**
+   * Builds a List of Measurement Hierarchies given the individual source lists.
+   * The hierarchy is built from the element in the same position from each input list in the order: Topic -> Term -> Variable -> VariableDetail
+   * "None" and blank strings are ignored. If, at any level, an element does not exist for that position or it is "None" or blank, that hierarchy is considered complete.
+   *
+   * For example, if the input is:
+   * <pre>
+   * topics = ["Oceans", "Oceans"]
+   * terms = ["Sea Surface Topography", "Ocean Waves"]
+   * variables = ["Sea Surface Height", "Significant Wave Height"]
+   * variableDetails = ["None", "None"]
+   * </pre>
+   *
+   * The output would be:
+   * <pre>
+   *   [
+   *     ["Oceans", "Sea Surface Topography", "Sea Surface Height"],
+   *     ["Oceans", "Ocean Waves", "Significant Wave Height"]
+   *   ]
+   * </pre>
+   *     Oceans > Sea Surface Topography > Sea Surface Height
+   *     Oceans > Ocean Waves > Significant Wave Height
+   *
+   * @param topics List of topics, the first element of a measurement
+   * @param terms List of terms, the second element of a measurement
+   * @param variables List of variables, the third element of a measurement
+   * @param variableDetails List of variable details, the fourth element of a measurement
+   *
+   * @return A List where each element is a single hierarchy (as a List) built from the provided input lists.
+   */
+  private List<List<String>> buildMeasurementHierarchies(List<String> topics, List<String> terms, List<String> variables, List<String> variableDetails) {
+
+    List<List<String>> measurements = new ArrayList<>();
+
+    for (int x = 0; x < topics.size(); x++) {
+      measurements.add(new ArrayList<>());
+      measurements.get(x).add(topics.get(x));
+      // Only add the next 'level' if we can
+      if (x < terms.size() && !"None".equalsIgnoreCase(terms.get(x)) && StringUtils.isNotBlank(terms.get(x))) {
+        measurements.get(x).add(terms.get(x));
+        if (x < variables.size() && !"None".equalsIgnoreCase(variables.get(x)) && StringUtils.isNotBlank(variables.get(x))) {
+          measurements.get(x).add(variables.get(x));
+          if (x < variableDetails.size() && !"None".equalsIgnoreCase(variableDetails.get(x)) && StringUtils.isNotBlank(variableDetails.get(x))) {
+            measurements.get(x).add(variableDetails.get(x));
+          }
+        }
+      }
+    }
+
+    return measurements;
+
   }
 
   public List<String> autoComplete(String index, String term) {
