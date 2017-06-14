@@ -13,7 +13,7 @@
   -->
 <div ng-include src="'partials/navbar-search.html'"></div> 
 
-<div id="container" class="container view-area"> 
+<div id="container" class="container view-area-fixed">
     <div class="row no-gutter content-holder">
         <div class="col-md-9 col-sm-8" id="content">
             <div class="panel panel-primary post-holder">
@@ -40,7 +40,11 @@
                         </tr>
                         <tr>
                             <td>Measurement</td>
-                            <td>{{dataset['DatasetParameter-Category']}}>{{dataset['DatasetParameter-Variable']}}>{{dataset['DatasetParameter-Term']}}</td>
+                            <td>
+                                <a ng-repeat="category in categories track by $index" href="#metadataView/{{category}}">{{category}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
+                                <a ng-repeat="variable in variables track by $index" href="#metadataView/{{variable}}">{{variable}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
+                                <a ng-repeat="term in terms track by $index" href="#metadataView/{{term}}">{{term}}{{$last ? '' : ', '}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Version</td>
@@ -75,11 +79,13 @@
                         </tr>
                         <tr>
                             <td>Sensor</td>
-                            <td>{{dataset['DatasetSource-Sensor-ShortName']}}</td>
+                            <td>
+                                <a ng-repeat="sensor in sensors track by $index" href="#metadataView/{{sensor}}">{{sensor}}{{$last ? '' : ', '}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Project</td>
-                            <td>{{dataset['DatasetProject-Project-ShortName']}}</td>
+                            <td><a href="#metadataView/{{dataset['DatasetProject-Project-ShortName']}}">{{dataset['DatasetProject-Project-ShortName']}}</a></td>
                         </tr>
                         <tr>
                             <td>Format</td>
@@ -103,7 +109,7 @@
         </div>
         <div class="col-md-3 col-sm-4">
               <div class="panel-group">
-                <div class="panel panel-primary">
+                <div class="panel panel-primary sidenav">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse1">Related Datasets</a>
@@ -112,12 +118,15 @@
                     <div id="collapse1" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="hRecommendationCtrl">
                             <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
-                                <a href="#!datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
+                                <a title="{{recommendation['name']}}" href="#datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
+                            </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/recommendation-algorithms/" target="_blank">How does MUDROD find related Datasets?</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-primary">
+                <div class="panel panel-primary sidenav">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse2">Related Keyword Searches</a>
@@ -126,7 +135,10 @@
                     <div id="collapse2" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="vocabularyCtrl">
                             <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                                <a href="#!metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                                <a title="{{ontology['word']}}" href="#metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                            </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/vocabulary-similarity-algorithm/" target="_blank">How does MUDROD find related keyword searches?</a>
                             </div>
                         </div>
                     </div>

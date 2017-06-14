@@ -13,7 +13,7 @@
   -->
 <div ng-include src="'partials/navbar-plain.html'"></div>
 
-<div id="container" class="container view-area">
+<div id="container" class="container view-area-scroll">
     <div class="landing-dialog">
         <div class="landing-dialog-header">
             <h2>Oceanographic Data Discovery</h2>
@@ -33,13 +33,13 @@
                             <label for="searchOption" style="padding-right: 1em;">Search Operator:</label>
                             <div id="searchOption" class="btn-group" data-toggle="buttons">
                                 <label class="radio-inline">
+                                    <input type="radio" ng-model="options.opt" value="Or">Or
+                                </label>
+                                <label class="radio-inline">
                                     <input type="radio" ng-model="options.opt" value="Phrase">Phrase
                                 </label>
                                 <label class="radio-inline">
                                     <input type="radio" ng-model="options.opt" value="And">And
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" ng-model="options.opt" value="Or">Or
                                 </label>
                             </div>
                         </div>

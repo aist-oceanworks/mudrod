@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <!-- 
   Licensed under the Apache License, Version 2.0 (the "License"); 
   you may not use this file except in compliance with the License. 
@@ -12,40 +12,49 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
   -->
-<html lang="en" ng-app="mudrodApp"> 
-    <head> 
-        <title>MUDROD</title>             
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
-        <link rel="icon" href="images/logo_nasa.png">
-        <!-- link rel="stylesheet" href="lib-css/bootstrap.min.css"  media="screen"/--> 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/styles.css"  media="screen"/> 
-        <link href="css/index.css" rel="stylesheet">
-        
-        <script src="js/libs/jquery-1.10.2.min.js"></script>
-        <!-- script src="js/libs/bootstrap.min.js"></script -->  
-        <script src="js/libs/angular.min.js"></script>        
-        <script src="js/libs/angular-route.min.js"></script> 
-        <script src="js/libs/angular-resource.min.js"></script> 
-        <script src="js/libs/angular-cookies.min.js"></script> 
-        <script src="js/libs/underscore-min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<html lang="en" ng-app="mudrodApp">
+<head>
+    <title>JPL | MUDROD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="css/index.css" rel="stylesheet">
+    <link href="css/main-header.css" rel="stylesheet">
+    <link href="css/footer.css" rel="stylesheet">
+    <link href="images/logo.png" rel="icon">
 
-        <script src="js/app.js"></script>         
-        <script src="js/controllers.js"></script> 
-        <script src="js/services.js"></script>
+    <script src="js/libs/jquery-1.10.2.min.js"></script>
+    <script src="js/libs/angular.min.js"></script>
+    <script src="js/libs/angular-route.min.js"></script>
+    <script src="js/libs/angular-resource.min.js"></script>
+    <script src="js/libs/angular-cookies.min.js"></script>
+    <script src="js/libs/underscore-min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/services.js"></script>
 
 
-    </head> 
-    <body>     
+</head>
+<body>
 
-    <!-- main header -->
-    <div ng-include src="'partials/main-header.html'"></div> 
+<!-- main header -->
+<div ng-include src="'partials/main-header.html'"></div>
 
-    <div ng-view></div> 
-    <div ng-include src="'partials/footer.html'"></div> 
-    
-    </body> 
+<div ng-view></div>
+<footer class="mudrod-footer">
+    <p>
+        <a href="https://mudrod.github.io/"
+           target="_blank">Mining and Utilizing Dataset Relevancy from Oceanographic Datasets (MUDROD)</a>
+        is funded by NASA AIST Program(NNX15AM85G), developed by <a
+            href="http://stcenter.net/stc/">NSF Spatiotemporal
+        Innovation Center</a> in collaboration with <a
+            href="http://www.jpl.nasa.gov/">NASA JPL</a>
+    </p>
+</footer>
+<div ng-include src="'partials/footer.html'"></div>
+
+</body>
 </html> 

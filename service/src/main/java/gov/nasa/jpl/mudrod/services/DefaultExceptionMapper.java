@@ -13,6 +13,7 @@
  */
 package gov.nasa.jpl.mudrod.services;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,8 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
     UUID errorId = UUID.randomUUID();
     LOG.error("Internal server error " + errorId.toString(), e);
 
-    return Response.serverError()
-        .entity("<p>An error occurred while processing your request. Please contact the system administrator and provide the following error log ID " + errorId.toString() + "</p>").build();
+    String errorString = "An error occurred while processing your request. Please contact the system administrator and provide the following error log ID " + errorId.toString();
+
+    return Response.serverError().entity(new Gson().toJson(errorString)).build();
   }
 }

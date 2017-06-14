@@ -134,7 +134,8 @@ The REST API documentation can also be seen at [https://mudrod.github.io/miredot
  * David Moroni - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * Chris Finch - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
  * [Lewis John Mcgibbney](https://www.linkedin.com/in/lmcgibbney) - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
-
+ * [Frank Greguska](https://www.linkedin.com/in/frankgreguska/) - [Jet Propulsion Laboratory](http://www.jpl.nasa.gov/), [NASA](http://www.nasa.gov)
+ 
 # License
 This source code is licensed under the [Apache License v2.0](http://www.apache.org/licenses/LICENSE-2.0), a
 copy of which is shipped with this project. 
