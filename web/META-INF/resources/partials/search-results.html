@@ -1,6 +1,6 @@
 <div class="panel panel-primary post-holder" ng-controller="metadataViewCtrl as vm">
     <div class="panel-heading">
-        <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankopt" ng-change="vm.rankData(vm.rankOpt)">
+        <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankopt" ng-change="vm.rankData(vm.rankOpt)" ng-if="!vm.searchError">
             <option value="Rank-SVM" ng-selected="true">Default (Machine Learning Ranking)</option>
             <option value="Rank-AllTimePopularity">Popularity (All Time)</option>
             <option value="Rank-MonthlyPopularity">Popularity (This Month)</option>
@@ -15,6 +15,7 @@
         <h4 class="panel-title">
             <strong ng-if="vm.pager.pages.length > 1" class="title">Showing {{vm.items.length}} of {{vm.pager.totalItems}} total match(es)</strong>
             <strong ng-if="vm.pager.pages.length <= 1" class="title">Showing {{vm.items.length}} total match(es)</strong>
+            <strong ng-if="vm.searchError" class="title">No matches</strong>
         </h4>
     </div>
     <div class="panel-body">
@@ -76,7 +77,7 @@
             </li>
         </ul>
 
-        <div ng-show="!vm.items.length">
+        <div ng-show="!vm.searchError && !vm.items.length">
             <article class="post">
                 Your search did not match any dataset.
                 <br>Suggestion
@@ -85,6 +86,28 @@
                     <li>Try different keywords</li>
                     <li>Try different search options</li>
                 </ul>
+            </article>
+        </div>
+
+        <div ng-show="vm.searchError">
+            <article class="post">
+                There was an error while executing your search.
+                <br>Suggestion
+                <ul>
+                    <li>Make sure all words are spelled correctly</li>
+                    <li>Try different keywords</li>
+                    <li>Try different search options</li>
+                </ul>
+                <br>
+
+                <a ng-show="!showErrorDetails" ng-click="showErrorDetails = true;">Show error details</a>
+                <div ng-show="showErrorDetails" class="animate-show">
+                    <span>Error details:</span>
+                    <br>
+                    <pre>{{vm.searchError | json}}</pre>
+                    <br>
+                    <a ng-click="showErrorDetails = false;">Hide error details</a>
+                </div>
             </article>
         </div>
     </div>

@@ -62,7 +62,6 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
 mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabList',
     function vocabularyCtrl($scope, $rootScope, VocabList) {
 
-        // TODO Fix this
         var word = $rootScope.searchOptions.query;
         VocabList.get({query: word},
             function success(response) {
@@ -190,7 +189,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
-                    console.log("Error:" + JSON.stringify(errorResponse));
+                    vm.searchError = { "status": errorResponse.status, "message": errorResponse.data};
                 }
             );
         };
@@ -207,7 +206,7 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
                 },
                 function error(errorResponse) {
                     $scope.searchComplete = true;
-                    console.log("Error:" + JSON.stringify(errorResponse));
+                    vm.searchError = { "status": errorResponse.status, "message": errorResponse.data};
                 }
             );
         }
