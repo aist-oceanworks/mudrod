@@ -11,7 +11,7 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
   -->
-<div ng-include src="'partials/navbar-search.html'"></div> 
+<div ng-include src="'partials/navbar-search.html'"></div>
 
 <div id="container" class="container view-area-fixed">
     <div class="row no-gutter content-holder">
@@ -25,30 +25,34 @@
                 <div class="panel-body">
                     <table class="table table-strip">
                         <tbody>
-                            <tr>
-                                <td>Long Name</td>
-                                <td>{{dataset['Long Name']}}</td>
-                            </tr>
-                            <tr>
-                                <td>Landing Page</td>
-                                <td><a href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}" target="_blank">
-                                https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a></td>
+                        <tr>
+                            <td>Long Name</td>
+                            <td>{{dataset['Long Name']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Landing Page</td>
+                            <td>
+                                <a ng-href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name'] | urlencode}}" target="_blank">https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>DOI</td>
-                            <td><a href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}" target="_blank">{{dataset['Dataset-Doi']}}</a></td>
+                            <td>
+                                <a ng-if="dataset['Dataset-Doi']" ng-href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name'] | urlencode}}" target="_blank">{{dataset['Dataset-Doi']}}</a>
+                                <span ng-if="!dataset['Dataset-Doi']">Not Registered</span>
+                            </td>
                         </tr>
                         <tr>
                             <td>Measurement</td>
                             <td>
-                                <a ng-repeat="category in categories track by $index" href="#metadataView/{{category}}">{{category}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
-                                <a ng-repeat="variable in variables track by $index" href="#metadataView/{{variable}}">{{variable}}{{$last ? '' : ', '}}</a>&nbsp>&nbsp
-                                <a ng-repeat="term in terms track by $index" href="#metadataView/{{term}}">{{term}}{{$last ? '' : ', '}}</a>
+                                <p ng-repeat="measurement in dataset['Measurements'] track by $index">
+                                    <span ng-repeat="element in measurement track by $index"><a ng-href="#metadataView/{{element | urlencode}}">{{element}}</a>{{$last ? '' : ' > '}}</span>
+                                </p>
                             </td>
                         </tr>
                         <tr>
                             <td>Version</td>
-                            <td>{{dataset['Version']}}</td>
+                            <td>{{dataset['Version'].join(', ')}}</td>
                         </tr>
                         <tr>
                             <td>Description</td>
@@ -61,7 +65,7 @@
                         <tr>
                             <td>Coverage</td>
                             <td>
-                                Region:	{{dataset['Region']}}<br>
+                                Region: {{dataset['Region'].join(', ')}}<br>
                                 Northernmost Latitude: {{dataset['NorthLat']}} degrees<br>
                                 Southernmost Latitude: {{dataset['NorthLat']}} degrees<br>
                                 Westernmost Longitude: {{dataset['WestLon']}} degrees<br>
@@ -80,35 +84,34 @@
                         <tr>
                             <td>Sensor</td>
                             <td>
-                                <a ng-repeat="sensor in sensors track by $index" href="#metadataView/{{sensor}}">{{sensor}}{{$last ? '' : ', '}}</a>
+                                <a ng-repeat="sensor in dataset['DatasetSource-Sensor-ShortName']" ng-href="#metadataView/{{sensor | urlencode}}">{{sensor}}{{$last ? '' : ', '}}</a>
                             </td>
                         </tr>
                         <tr>
                             <td>Project</td>
-                            <td><a href="#metadataView/{{dataset['DatasetProject-Project-ShortName']}}">{{dataset['DatasetProject-Project-ShortName']}}</a></td>
+                            <td>
+                                <a ng-repeat="project in dataset['DatasetProject-Project-ShortName']" ng-href="#metadataView/{{project | urlencode}}" target="_blank">{{project}}{{$last ? '' : ', '}}</a>
+                            </td>
                         </tr>
                         <tr>
                             <td>Format</td>
                             <td>{{dataset['DataFormat']}}</td>
                         </tr>
-                        <tr ng-model="hideUrls" ng-hide="hideUrls">
+                        <tr>
                             <td>Data Access</td>
-                            <td><a href="{{ftpUrl}}" target="_blank">{{ftpUrl}}</a>
-                                <br>
-                                <a href="{{httpsUrl}}" target="_blank">{{httpsUrl}}</a>
-                                </td> 
-                            </tr>
-                            <tr  ng-model="hideUrl" ng-hide="hideUrl">
-                                <td>Data Access</td>
-                                <td><a href="{{dataset['DatasetLocationPolicy-BasePath']}}" target="_blank">{{dataset['DatasetLocationPolicy-BasePath']}}</a></td>
-                            </tr>
+                            <td>
+                                <p ng-repeat="path in dataset['DatasetLocationPolicy-BasePath']">
+                                    <a ng-href="{{path | urlencode}}" target="_blank">{{path}}</a>
+                                </p>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
         <div class="col-md-3 col-sm-4">
-              <div class="panel-group">
+            <div class="panel-group">
                 <div class="panel panel-primary sidenav">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -118,7 +121,7 @@
                     <div id="collapse1" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="hRecommendationCtrl">
                             <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
-                                <a title="{{recommendation['name']}}" href="#datasetView/{{recommendation['name']}}">{{recommendation['name']}}</a>
+                                <a title="{{recommendation['name']}}" ng-href="#datasetView/{{recommendation['name'] | urlencode}}">{{recommendation['name']}}</a>
                             </div>
                             <div class="learn-more">
                                 <a href="https://mudrod.github.io/recommendation-algorithms/" target="_blank">How does MUDROD find related Datasets?</a>
@@ -135,7 +138,7 @@
                     <div id="collapse2" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="vocabularyCtrl">
                             <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                                <a title="{{ontology['word']}}" href="#metadataView/{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                                <a title="{{ontology['word']}}" ng-href="#metadataView/{{ontology['word'] | urlencode}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
                             </div>
                             <div class="learn-more">
                                 <a href="https://mudrod.github.io/vocabulary-similarity-algorithm/" target="_blank">How does MUDROD find related keyword searches?</a>
@@ -143,7 +146,7 @@
                         </div>
                     </div>
                 </div>
-              </div>
+            </div>
         </div>
     </div>
 </div>
