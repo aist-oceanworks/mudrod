@@ -115,6 +115,7 @@ a:link, a:visited {
 .autocomplete {
     overflow-y: auto;
     height: 15em;
+    color: black;
 }
 
 .toolbar .form {
