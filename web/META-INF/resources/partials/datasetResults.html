@@ -46,7 +46,7 @@
                             <td>Measurement</td>
                             <td>
                                 <p ng-repeat="measurement in dataset['Measurements'] track by $index">
-                                    <span ng-repeat="element in measurement track by $index"><a ng-href="#metadataView/{{element | urlencode}}">{{element}}</a>{{$last ? '' : ' > '}}</span>
+                                    <span ng-repeat="element in measurement track by $index"><a ng-href="#/metadataView?query={{element | urlencode}}">{{element}}</a>{{$last ? '' : ' > '}}</span>
                                 </p>
                             </td>
                         </tr>
@@ -84,13 +84,13 @@
                         <tr>
                             <td>Sensor</td>
                             <td>
-                                <a ng-repeat="sensor in dataset['DatasetSource-Sensor-ShortName']" ng-href="#metadataView/{{sensor | urlencode}}">{{sensor}}{{$last ? '' : ', '}}</a>
+                                <a ng-repeat="sensor in dataset['DatasetSource-Sensor-ShortName']" ng-href="#/metadataView?query={{sensor | urlencode}}">{{sensor}}{{$last ? '' : ', '}}</a>
                             </td>
                         </tr>
                         <tr>
                             <td>Project</td>
                             <td>
-                                <a ng-repeat="project in dataset['DatasetProject-Project-ShortName']" ng-href="#metadataView/{{project | urlencode}}" target="_blank">{{project}}{{$last ? '' : ', '}}</a>
+                                <a ng-repeat="project in dataset['DatasetProject-Project-ShortName']" ng-href="#/metadataView?query={{project | urlencode}}">{{project}}{{$last ? '' : ', '}}</a>
                             </td>
                         </tr>
                         <tr>
@@ -121,7 +121,7 @@
                     <div id="collapse1" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="hRecommendationCtrl">
                             <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
-                                <a title="{{recommendation['name']}}" ng-href="#datasetView/{{recommendation['name'] | urlencode}}">{{recommendation['name']}}</a>
+                                <a title="{{recommendation['name']}}" ng-href="#/datasetView?shortname={{recommendation['name'] | urlencode}}">{{recommendation['name']}}</a>
                             </div>
                             <div class="learn-more">
                                 <a href="https://mudrod.github.io/recommendation-algorithms/" target="_blank">How does MUDROD find related Datasets?</a>
@@ -138,7 +138,7 @@
                     <div id="collapse2" class="panel-collapse collapse in">
                         <div class="panel-body" ng-controller="vocabularyCtrl">
                             <div class="list-related-searches" ng-repeat="ontology in ontologyList">
-                                <a title="{{ontology['word']}}" ng-href="#metadataView/{{ontology['word'] | urlencode}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                                <a title="{{ontology['word']}}" ng-href="#/metadataView?query={{ontology['word'] | urlencode}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
                             </div>
                             <div class="learn-more">
                                 <a href="https://mudrod.github.io/vocabulary-similarity-algorithm/" target="_blank">How does MUDROD find related keyword searches?</a>

@@ -1,7 +1,7 @@
 <div class="panel panel-primary post-holder">
     <div class="panel-heading">
         <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankopt" ng-change="vm.rankData(vm.rankopt)" ng-if="!vm.searchError">
-            <option value="Rank-SVM" ng-selected="true">Default (Machine Learning Ranking)</option>
+            <option value="Rank-SVM">Default (Machine Learning Ranking)</option>
             <option value="Rank-AllTimePopularity">Popularity (All Time)</option>
             <option value="Rank-MonthlyPopularity">Popularity (This Month)</option>
             <option value="Rank-UserPopularity">Popularity (Users)</option>
@@ -41,7 +41,9 @@
         <hr style="clear:both; margin: 0; border: 0; border-bottom: 1px solid #c3c3c3;">
         <div ng-repeat="pdresult in vm.items">
             <article class="post">
-                <a href="#datasetView/{{pdresult['Short Name']}}/{{vm.query}}/{{vm.opt}}"><strong>Name:</strong> {{pdresult['Short Name']}}</a>
+                <a href="#/datasetView?shortname={{pdresult['Short Name'] | urlencode}}&query={{vm.query | urlencode}}&opt={{vm.opt | urlencode}}">
+                    <strong>Name:</strong> {{pdresult['Short Name']}}
+                </a>
                 <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
                 <br><strong>Topic:</strong>
                 <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>

@@ -46,7 +46,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
         $scope.search = function (options) {
             $scope.hidethis = true;
             $rootScope.searchOptions = angular.copy(options);
-            $location.path("/metadataView/" + options.query + '/' + options.opt);
+            $location.path("/metadataView/").search({'query': options.query, 'opt': options.opt});
         };
 
         $scope.$watch(function () {
@@ -74,8 +74,8 @@ mudrodControllers.controller('vocabularyCtrl', ['$scope', '$rootScope', 'VocabLi
         );
     }]);
 
-mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$routeParams', 'MetaData', 'PagerService', 'SearchOptions',
-    function metadataViewCtrl($rootScope, $scope, $routeParams, MetaData, PagerService, SearchOptions) {
+mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$location', '$routeParams', 'MetaData', 'PagerService', 'SearchOptions',
+    function metadataViewCtrl($rootScope, $scope, $location, $routeParams, MetaData, PagerService, SearchOptions) {
 
         $scope.searchComplete = false;
 
@@ -85,55 +85,36 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
         vm.setPage = setPage;
         vm.rankData = rankData;
         vm.totalMatches = 0;
-        vm.rankopt = 'Rank-SVM';
+        vm.rankopt = $routeParams.rankopt ? $routeParams.rankopt : 'Rank-SVM';
 
         var word = String();
         var opt = String();
-        var rankopt = 'Rank-SVM';
+        var rankopt = vm.rankopt;
 
         if (!$routeParams.query) {
+            if(!$rootScope.searchOptions){
+                $location.path('/').search({});
+            }
             word = $rootScope.searchOptions.query;
             opt = $rootScope.searchOptions.opt;
             SearchOptions.setSearchOptions({'query': word, 'opt': opt});
         } else {
             word = $routeParams.query;
-            opt = $routeParams.opt;
-
-            var searchKeyWords = String();
-            var topics;
-
-            if (word.search(',') !== -1) {
-                topics = word.split(',');
-                for (var i = 0; i < topics.length; i++) {
-                    searchKeyWords += topics[i];
-                }
-            } else {
-                searchKeyWords = word;
-            }
-
-            if (searchKeyWords.search('/') !== -1) {
-                topics = searchKeyWords.split('/');
-                searchKeyWords = "";
-                for (var i = 0; i < topics.length; i++) {
-                    searchKeyWords += topics[i];
-                }
-            }
-
-            word = searchKeyWords;
-
-            if (!$rootScope.searchOptions) {
-                $rootScope.searchOptions = {};
-                opt = 'Or';
-            }
-            else {
+            if($routeParams.opt){
+                opt = $routeParams.opt;
+            }else if ($rootScope.searchOptions.opt){
                 opt = $rootScope.searchOptions.opt;
+            }else{
+                opt = 'Or'
             }
+
+            word = word.replace(/,/g , " ");
+            word = word.replace(/\//g , " ");
 
             SearchOptions.setSearchOptions({'query': word, 'opt': opt});
-            $rootScope.searchOptions.query = searchKeyWords;
-            $rootScope.searchOptions.opt = opt;
-            searchMetadata();
         }
+        $rootScope.searchOptions = SearchOptions.getSearchOptions();
+        searchMetadata();
 
         function initController() {
             vm.setPage(1);
@@ -153,6 +134,9 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$rout
 
         function rankData(opt) {
             rankopt = opt;
+            var qParams = $location.search();
+            qParams.rankopt = rankopt;
+            $location.search(qParams);
             searchMetadata();
         }
 
