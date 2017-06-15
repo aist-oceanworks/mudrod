@@ -17,8 +17,8 @@
 /* Controllers */
 var mudrodControllers = angular.module('mudrodControllers', []);
 
-mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', 'Autocomplete', 'SearchOptions',
-    function ($scope, $rootScope, $location, Autocomplete, SearchOptions) {
+mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location', '$route', 'Autocomplete', 'SearchOptions',
+    function ($scope, $rootScope, $location, $route, Autocomplete, SearchOptions) {
 
         $scope.hidethis = true;
         $scope.options = {
@@ -47,6 +47,7 @@ mudrodControllers.controller('searchCtrl', ['$scope', '$rootScope', '$location',
             $scope.hidethis = true;
             $rootScope.searchOptions = angular.copy(options);
             $location.path("/metadataView/").search({'query': options.query, 'opt': options.opt});
+            $route.reload();
         };
 
         $scope.$watch(function () {
@@ -102,10 +103,12 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$loca
             word = $routeParams.query;
             if($routeParams.opt){
                 opt = $routeParams.opt;
-            }else if ($rootScope.searchOptions.opt){
+            }else if ($rootScope.searchOptions && $rootScope.searchOptions.opt){
                 opt = $rootScope.searchOptions.opt;
+                upsertQueryParam('opt', opt);
             }else{
-                opt = 'Or'
+                opt = 'Or';
+                upsertQueryParam('opt', opt);
             }
 
             word = word.replace(/,/g , " ");
@@ -134,49 +137,15 @@ mudrodControllers.controller('metadataViewCtrl', ['$rootScope', '$scope', '$loca
 
         function rankData(opt) {
             rankopt = opt;
-            var qParams = $location.search();
-            qParams.rankopt = rankopt;
-            $location.search(qParams);
+            upsertQueryParam('rankopt', opt);
             searchMetadata();
         }
 
-        this.searchTopic = function (topic) {
-            var searchKeyWords = String();
-            var topics;
-
-            if (topic.search(',') !== -1) {
-                topics = topic.split(',');
-                for (var i = 0; i < topics.length; i++) {
-                    searchKeyWords += topics[i];
-                }
-            } else {
-                searchKeyWords = topic;
-            }
-
-            if (searchKeyWords.search('/') !== -1) {
-                topics = searchKeyWords.split('/');
-                searchKeyWords = "";
-                for (var i = 0; i < topics.length; i++) {
-                    searchKeyWords += topics[i];
-                }
-            }
-
-            $rootScope.searchOptions.query = searchKeyWords;
-            MetaData.get({query: searchKeyWords, operator: opt},
-                function success(response) {
-                    vm.PDItems = response.PDResults;
-                    vm.totalMatches = vm.PDItems.length;
-                    vm.query = word;
-                    vm.opt = opt;
-                    initController();
-                    $scope.searchComplete = true;
-                },
-                function error(errorResponse) {
-                    $scope.searchComplete = true;
-                    vm.searchError = {"status": errorResponse.status, "message": errorResponse.data};
-                }
-            );
-        };
+        function upsertQueryParam(paramName, paramValue){
+            var qParams = $location.search();
+            qParams[paramName] = paramValue;
+            $location.search(qParams);
+        }
 
         function searchMetadata() {
             MetaData.get({query: word, operator: opt, rankoption: rankopt},
