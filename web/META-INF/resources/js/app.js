@@ -36,17 +36,14 @@ mudrod.config(['$routeProvider',
     function ($routeProvider) {
         $routeProvider.when('/', {
             templateUrl: 'partials/search.html'
-        }).when('/metadataView/:query', {
+        }).when('/metadataView/', {
             templateUrl: 'partials/metadataResults.html',
-            controller: 'metadataViewCtrl'
-        }).when('/metadataView/:query/:opt/', {
-            templateUrl: 'partials/metadataResults.html'
-        }).when('/datasetView/:shortname/', {
+            controller: 'metadataViewCtrl',
+            reloadOnSearch: false
+        }).when('/datasetView/', {
             templateUrl: 'partials/datasetResults.html',
             controller: 'datasetViewCtrl'
-        }).when('/datasetView/:shortname/:query/:opt/', {
-            templateUrl: 'partials/datasetResults.html',
-            controller: 'datasetViewCtrl'
-        })
-            .otherwise({redirectTo: '/', templateUrl: 'partials/search.html'});
+        }).otherwise({
+            redirectTo: '/',
+            templateUrl: 'partials/search.html'});
     }]);
