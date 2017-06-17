@@ -1,0 +1,152 @@
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+  -->
+<div ng-include src="'partials/navbar-search.html'"></div>
+
+<div id="container" class="container view-area-fixed">
+    <div class="row no-gutter content-holder">
+        <div class="col-md-9 col-sm-8" id="content">
+            <div class="panel panel-primary post-holder">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <strong class="title">{{dataset['Short Name']}}</strong>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-strip">
+                        <tbody>
+                        <tr>
+                            <td>Long Name</td>
+                            <td>{{dataset['Long Name']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Landing Page</td>
+                            <td>
+                                <a ng-href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name'] | urlencode}}" target="_blank">https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name']}}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>DOI</td>
+                            <td>
+                                <a ng-if="dataset['Dataset-Doi']" ng-href="https://podaac.jpl.nasa.gov/dataset/{{dataset['Short Name'] | urlencode}}" target="_blank">{{dataset['Dataset-Doi']}}</a>
+                                <span ng-if="!dataset['Dataset-Doi']">Not Registered</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Measurement</td>
+                            <td>
+                                <p ng-repeat="measurement in dataset['Measurements'] track by $index">
+                                    <span ng-repeat="element in measurement track by $index"><a ng-href="#/metadataView?query={{element | urlencode}}">{{element}}</a>{{$last ? '' : ' > '}}</span>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Version</td>
+                            <td>{{dataset['Version'].join(', ')}}</td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>{{dataset['Dataset-Description']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Processing Level</td>
+                            <td>{{dataset['Processing Level']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Coverage</td>
+                            <td>
+                                Region: {{dataset['Region'].join(', ')}}<br>
+                                Northernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+                                Southernmost Latitude: {{dataset['NorthLat']}} degrees<br>
+                                Westernmost Longitude: {{dataset['WestLon']}} degrees<br>
+                                Easternmost Longitude: {{dataset['EastLon']}} degrees<br>
+                                Time Span: {{dataset['Time Span']}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Spatial Resolution</td>
+                            <td>{{dataset['SpatialResolution']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Temporal Repeat</td>
+                            <td>{{dataset['TemporalResolution']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Sensor</td>
+                            <td>
+                                <a ng-repeat="sensor in dataset['DatasetSource-Sensor-ShortName']" ng-href="#/metadataView?query={{sensor | urlencode}}">{{sensor}}{{$last ? '' : ', '}}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Project</td>
+                            <td>
+                                <a ng-repeat="project in dataset['DatasetProject-Project-ShortName']" ng-href="#/metadataView?query={{project | urlencode}}">{{project}}{{$last ? '' : ', '}}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Format</td>
+                            <td>{{dataset['DataFormat']}}</td>
+                        </tr>
+                        <tr>
+                            <td>Data Access</td>
+                            <td>
+                                <p ng-repeat="path in dataset['DatasetLocationPolicy-BasePath']">
+                                    <a ng-href="{{path}}" target="_blank">{{path}}</a>
+                                </p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-4">
+            <div class="panel-group">
+                <div class="panel panel-primary sidenav">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse1">Related Datasets</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse in">
+                        <div class="panel-body" ng-controller="hRecommendationCtrl">
+                            <div class="list-related-searches" ng-repeat="recommendation in recommendationList">
+                                <a title="{{recommendation['name']}}" ng-href="#/datasetView?shortname={{recommendation['name'] | urlencode}}">{{recommendation['name']}}</a>
+                            </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/recommendation-algorithms/" target="_blank">How does MUDROD find related Datasets?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-primary sidenav">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse2">Related Keyword Searches</a>
+                        </h4>
+                    </div>
+                    <div id="collapse2" class="panel-collapse collapse in">
+                        <div class="panel-body" ng-controller="vocabularyCtrl">
+                            <div class="list-related-searches" ng-repeat="ontology in ontologyList">
+                                <a title="{{ontology['word']}}" ng-href="#/metadataView?query={{ontology['word'] | urlencode}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                            </div>
+                            <div class="learn-more">
+                                <a href="https://mudrod.github.io/vocabulary-similarity-algorithm/" target="_blank">How does MUDROD find related keyword searches?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

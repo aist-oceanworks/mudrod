@@ -73,9 +73,12 @@ public class ApiHarvester extends DiscoveryStepAbstract {
    */
   public void addMetadataMapping() {
     String mappingJson = "{\r\n   \"dynamic_templates\": " + "[\r\n      " + "{\r\n         \"strings\": " + "{\r\n            \"match_mapping_type\": \"string\","
-        + "\r\n            \"mapping\": {\r\n               \"type\": \"string\"," + "\r\n               \"analyzer\": \"english\"\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
+        + "\r\n            \"mapping\": {\r\n               \"type\": \"text\"," + "\r\n               \"fielddata\": true," + "\r\n               \"analyzer\": \"english\","
+        + "\r\n            \"fields\": {\r\n               \"raw\": {" + "\r\n               \"type\": \"string\"," + "\r\n               \"index\": \"not_analyzed\"" + "\r\n            }"
+        + "\r\n         }\r\n " + "\r\n            }" + "\r\n         }\r\n      }\r\n   ]\r\n}";
 
-    es.getClient().admin().indices().preparePutMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType(props.getProperty(MudrodConstants.RAW_METADATA_TYPE)).setSource(mappingJson).execute().actionGet();
+    es.getClient().admin().indices().preparePutMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType(props.getProperty(MudrodConstants.RAW_METADATA_TYPE)).setSource(mappingJson).execute()
+        .actionGet();
   }
 
   /**

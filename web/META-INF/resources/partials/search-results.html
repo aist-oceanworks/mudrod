@@ -1,0 +1,116 @@
+<div class="panel panel-primary post-holder">
+    <div class="panel-heading">
+        <select title="Sort By" class="title rankoption" name="rankOption" id="rankOption" ng-model="vm.rankopt" ng-change="vm.rankData(vm.rankopt)" ng-if="!vm.searchError">
+            <option value="Rank-SVM">Default (Machine Learning Ranking)</option>
+            <option value="Rank-AllTimePopularity">Popularity (All Time)</option>
+            <option value="Rank-MonthlyPopularity">Popularity (This Month)</option>
+            <option value="Rank-UserPopularity">Popularity (Users)</option>
+            <option value="Rank-LongName-Full">Long Name (A-Z)</option>
+            <option value="Rank-ShortName-Full">Short Name (A-Z)</option>
+            <option value="Rank-GridSpatialResolution">Grid Spatial Resolution</option>
+            <option value="Rank-SatelliteSpatialResolution">Satellite Spatial Resolution</option>
+            <option value="Rank-StartTimeLong-Long">Start Date</option>
+            <option value="Rank-StopTimeLong-Long">Stop Date</option>
+        </select>
+        <h4 class="panel-title">
+            <strong ng-if="vm.pager.pages.length > 1" class="title">Showing {{vm.items.length}} of {{vm.pager.totalItems}} total match(es)</strong>
+            <strong ng-if="vm.pager.pages.length <= 1" class="title">Showing {{vm.items.length}} total match(es)</strong>
+            <strong ng-if="vm.searchError" class="title">No matches</strong>
+        </h4>
+    </div>
+    <div class="panel-body">
+
+        <!-- pager -->
+        <ul ng-if="vm.pager.pages.length > 1" class="pagination" style="margin-top: 0">
+            <li ng-class="{disabled:vm.pager.currentPage === 1}">
+                <a ng-click="vm.setPage(1)">First</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === 1}">
+                <a ng-click="vm.setPage(vm.pager.currentPage - 1)">Previous</a>
+            </li>
+            <li ng-repeat="page in vm.pager.pages" ng-class="{active:vm.pager.currentPage === page}">
+                <a ng-click="vm.setPage(page)">{{page}}</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === vm.pager.totalPages}">
+                <a ng-click="vm.setPage(vm.pager.currentPage + 1)">Next</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === vm.pager.totalPages}">
+                <a ng-click="vm.setPage(vm.pager.totalPages)">Last</a>
+            </li>
+        </ul>
+        <hr style="clear:both; margin: 0; border: 0; border-bottom: 1px solid #c3c3c3;">
+        <div ng-repeat="pdresult in vm.items">
+            <article class="post">
+                <a href="#/datasetView?shortname={{pdresult['Short Name'] | urlencode}}&query={{vm.query | urlencode}}&opt={{vm.opt | urlencode}}">
+                    <strong>Name:</strong> {{pdresult['Short Name']}}
+                </a>
+                <br><strong>Long Name:</strong> {{pdresult['Long Name']}}
+                <br><strong>Topic:</strong>
+                <span style="color:green" ng-click="vm.searchTopic(pdresult.Topic)">{{pdresult.Topic}}</span>
+                <br><strong>Platform/Sensors:</strong> {{pdresult['Sensor']}}
+                <br><strong>Processing Level:</strong> {{pdresult['Processing Level']}}
+                <br><strong>Start/End Date:</strong> {{pdresult['Start/End Date']}}
+                <br><strong>Description:</strong>
+                <div ng-init="limit = 150; moreShown = false">
+                    {{pdresult.Description | limitTo: limit}}{{pdresult.Description.length > limit ? '...' : ''}}
+                    <a ng-show="pdresult.Description.length > limit"
+                       href ng-click="limit=pdresult.Description.length; moreShown = true"> More
+                    </a>
+                    <a ng-show="moreShown" href ng-click="limit=150; moreShown = false"> Less </a>
+                </div>
+            </article>
+        </div>
+        <!-- pager -->
+        <ul ng-if="vm.pager.pages.length > 1" class="pagination">
+            <li ng-class="{disabled:vm.pager.currentPage === 1}">
+                <a ng-click="vm.setPage(1)">First</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === 1}">
+                <a ng-click="vm.setPage(vm.pager.currentPage - 1)">Previous</a>
+            </li>
+            <li ng-repeat="page in vm.pager.pages" ng-class="{active:vm.pager.currentPage === page}">
+                <a ng-click="vm.setPage(page)">{{page}}</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === vm.pager.totalPages}">
+                <a ng-click="vm.setPage(vm.pager.currentPage + 1)">Next</a>
+            </li>
+            <li ng-class="{disabled:vm.pager.currentPage === vm.pager.totalPages}">
+                <a ng-click="vm.setPage(vm.pager.totalPages)">Last</a>
+            </li>
+        </ul>
+
+        <div ng-show="!vm.searchError && !vm.items.length">
+            <article class="post">
+                Your search did not match any dataset.
+                <br>Suggestion
+                <ul>
+                    <li>Make sure all words are spelled correctly</li>
+                    <li>Try different keywords</li>
+                    <li>Try different search options</li>
+                </ul>
+            </article>
+        </div>
+
+        <div ng-show="vm.searchError">
+            <article class="post">
+                There was an error while executing your search.
+                <br>Suggestion
+                <ul>
+                    <li>Make sure all words are spelled correctly</li>
+                    <li>Try different keywords</li>
+                    <li>Try different search options</li>
+                </ul>
+                <br>
+
+                <a ng-show="!showErrorDetails" ng-click="showErrorDetails = true;">Show error details</a>
+                <div ng-show="showErrorDetails" class="animate-show">
+                    <span>Error details:</span>
+                    <br>
+                    <pre>{{vm.searchError | json}}</pre>
+                    <br>
+                    <a ng-click="showErrorDetails = false;">Hide error details</a>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>

@@ -1,42 +1,24 @@
 html, body {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     height: 100%;
 }
 
 body {
-    font-size: 16px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    line-height: 1em;
-}
-
-.background {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: #246 url('../images/OceanWave.jpg') no-repeat 0 0;
-    background-size: cover;
-    z-index: -1;
+    background-color: black;
 }
 
 h1, h2, h3, p {
     margin: 0 0 .2em 0;
 }
 
-footer, .toolbar {
-    background: #2c3e50;
-    color: #fff;
-}
-
 .toolbar {
     background-color: #2276ac;
-    /*padding: 25px 0 60px 0;*/
     height: 60px;
 }
 
-
-article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+article, aside, details, figcaption, figure, header, hgroup, main, menu, nav, section, summary {
     display: block;
 }
 
@@ -46,7 +28,6 @@ header h1 {
 
 .toolbar a:link, .toolbar a:visited {
     color: #fff;
-    background-color: #2276ac;
 }
 
 header h1 > a {
@@ -55,6 +36,7 @@ header h1 > a {
 
 a {
     color: #428bca;
+    text-decoration: none;
     background-color: transparent;
 }
 
@@ -62,72 +44,42 @@ a:focus, a:hover {
     text-decoration: none;
 }
 
-header .site-logo {
-    margin-left: 1em;
-    height: 40px;
-    float: left;
-    line-height: 40px;
-    font-weight: 300;
-    font-size: 1em;
-    -webkit-transition: background 0.2s ease-in-out;
-    -moz-transition: background 0.2s ease-in-out;
-    transition: background 0.2s ease-in-out;
-}
-
-header .site-logo-org {
-    font-family: 'Open Sans', sans-serif;
-    display: block;
-    font-size: .475em;
-    font-weight: bold;
-    text-transform: uppercase;
-    line-height: 1em;
-}
-
-.footer-content {
-    height: 35px;
-    font-size: .7em;
-    text-align: center;
-}
-
-.footer-content p {
-    padding: 10px 20px 0 20px;
-}
-
-.footer-content .version {
-    background: #315880;
-    padding: 2px 8px;
-    border-radius: 2px;
-    text-shadow: 1px 1px 1px #283949;
-}
-
 b, strong {
     font-weight: bold;
 }
 
-.footer-content a:link, .footer-content a:visited {
-    color: #92bfec;
-}
-
-footer a:link, a:visited {
+a:link, a:visited {
     color: #2980b9;
-    background-color: #2c3e50;
 }
 
-footer {
-    position: absolute;
-    bottom: 0;
-}
-
-body > footer {
-    z-index: 1000;
+.view-area-fixed {
     width: 100%;
+    padding-top: 1em;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url('../images/OceanWave.jpg');
+    background-color: transparent;
+    background-attachment: fixed;
+}
+
+.view-area-scroll {
+    width: 100%;
+    height: 800px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image: url('../images/OceanWave.jpg');
+    background-color: transparent;
+    background-attachment: scroll;
 }
 
 .landing-dialog {
-    width: 700px;
-    margin: 200px auto 0;
+    flex: 1;
+    padding: 6em;
+    width: 80%;
+    margin: 15em auto 15em;
     color: #fff;
-    /*background-color: rgba(17,17,17,0.8);*/
     border-radius: 6px;
     box-shadow: 0 0 20px 0 rgba(17, 17, 17, 0.7);
 }
@@ -143,21 +95,27 @@ body > footer {
     text-shadow: 1px 1px 1px #111;
 }
 
-.fa {
-    display: inline-block;
-    font-family: FontAwesome;
-    font-style: normal;
-    font-weight: normal;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 .searchBox {
     height: 100px;
     padding: .5em 0;
     background: transparent;
     margin-left: .5em;
+}
+
+.panel-title {
+    font-size: 1.5em;
+}
+
+.rankoption {
+    background-color: white;
+    color: black;
+    float: right;
+}
+
+.autocomplete {
+    overflow-y: auto;
+    height: 15em;
+    color: black;
 }
 
 .toolbar .form {
@@ -214,7 +172,7 @@ input[type="text"], input[type="search"], input[type="password"], textarea {
     border-color: #1a5981;
     color: #FFFFFF;
     padding: 9px 12px 9px 12px;
-    font-size: 1.1em;
+    font-size: 1.3em;
 }
 
 .checkbox-inline, .radio-inline {
@@ -301,4 +259,187 @@ input[type="text"], input[type="search"], input[type="password"], textarea {
 
 .radio-info input[type="radio"]:checked + label::after {
     background-color: #5bc0de;
+}
+
+a {
+    cursor: pointer;
+}
+
+.sidenav {
+    height: 100%;
+    transition: 0.5s;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #2980b9;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover, .offcanvas a:focus {
+    color: #8ab9e7;
+}
+
+.sidenav h4 a {
+    padding: 2px 8px 0 10px;
+    color: white;
+}
+
+.sidenav .learn-more a {
+    font-size: 0.9em;
+    font-style: italic;
+    text-align: center;
+}
+
+.no-gutter > [class*='col-'] {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.content-holder .post-holder {
+    padding-top: 0;
+}
+
+.post-holder .panel-body {
+    overflow-x: auto;
+}
+
+.post-holder .post {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #c3c3c3;
+    padding: 14px 16px;
+}
+
+.content-holder .heading-t3 {
+    height: 42px;
+    margin-bottom: 16px;
+}
+
+.content-holder .heading-t3, .heading-t3 {
+    background: #738dca;
+    padding: 0 18px 0 16px;
+    overflow: hidden;
+}
+
+.content-holder .heading-t3 .title {
+    display: inline-block;
+    vertical-align: top;
+    padding: 6px 8px;
+}
+
+.list-related-searches {
+    text-align: left;
+    border-bottom: 2px solid #069;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    list-style: none;
+}
+
+.heading-t4 {
+    background: #fff;
+    border-top: 6px solid #738dca;
+    border-bottom: 6px solid #738dca;
+    overflow: hidden;
+    font-size: 1.2em;
+}
+
+.search-form {
+    position: relative;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.search-form button {
+    position: absolute;
+    right: 10px;
+    top: 3px;
+    border: 0;
+    padding: 0;
+    background: none;
+}
+
+.ico-search {
+    display: inline-block;
+    background: url(../images/sprite.png) no-repeat 0 0;
+    width: 17px;
+    height: 23px;
+}
+
+.search-form #query {
+    height: 28px;
+    border: 2px solid #39c;
+    border-radius: 14px;
+    line-height: 20px;
+    padding: 1px 35px 1px 15px;
+    width: 100%;
+    background: #f3f3f3;
+    box-shadow: none !important;
+}
+
+.searchOption {
+    color: white;
+}
+
+li {
+    cursor: default;
+}
+
+.search-ul {
+    position: absolute;
+    z-index: 1000;
+    min-width: 195px;
+    width: 20%;
+    list-style: none;
+    text-align: left;
+}
+
+#spinner {
+    text-align: center;
+}
+
+#spinner img{
+    height: 10em;
+}
+
+/* button recolor */
+.nav-pills > li.active > a, .btn-primary {
+    background-color: #069;
+    border-color: #069;
+    border-radius: 4px;
+}
+
+.mudrod-navbar {
+    margin-bottom: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.mudrod-navbar #searchForm {
+    width: 50%;
+}
+
+.mudrod-navbar #searchForm .form-group {
+    width: 100%;
+}
+
+.mudrod-navbar #searchForm .form-group input {
+    width: 45%;
+}
+
+.mudrod-navbar .nav-item {
+    margin: 1em 0 0 1em;
+}
+
+.mudrod-footer {
+    color: white;
+    padding-left: 2em;
 }
