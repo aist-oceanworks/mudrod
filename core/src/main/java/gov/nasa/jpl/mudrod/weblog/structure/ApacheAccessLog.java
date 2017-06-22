@@ -110,9 +110,6 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
       return lineJson;
     }
-
-    lineJson = "{}";
-    return lineJson;
   }
 
   public static boolean checknull(WebLog s) {
