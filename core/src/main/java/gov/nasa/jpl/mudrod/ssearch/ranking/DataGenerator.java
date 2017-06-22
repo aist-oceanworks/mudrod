@@ -276,9 +276,7 @@ public class DataGenerator {
   public static void storeHead(String[][] arr) {
     myHeader = new String[arr[0].length]; // Reside private variable
 
-    for (int col = 0; col < arr[0].length; col++) {
-      myHeader[col] = arr[0][col];
-    }
+    System.arraycopy(arr[0], 0, myHeader, 0, arr[0].length);
   }
 
   /**
