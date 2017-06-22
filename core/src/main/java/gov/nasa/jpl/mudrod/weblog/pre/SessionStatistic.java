@@ -266,9 +266,7 @@ public class SessionStatistic extends LogAbstract {
           if ("".equals(downloads)) {
             downloads = download;
           } else {
-            if (downloads.contains(download)) {
-
-            } else {
+            if (!downloads.contains(download)) {
               downloads = downloads + "," + download;
             }
           }
