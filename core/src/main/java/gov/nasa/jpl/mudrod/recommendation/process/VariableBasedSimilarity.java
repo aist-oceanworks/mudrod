@@ -280,7 +280,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
         if (aList != null && bList != null) {
 
           int lengthA = aList.size();
-          int lengthB = bList.size();
           List<String> newAList = new ArrayList<>(aList);
           List<String> newBList = new ArrayList<>(bList);
           newAList.retainAll(newBList);
