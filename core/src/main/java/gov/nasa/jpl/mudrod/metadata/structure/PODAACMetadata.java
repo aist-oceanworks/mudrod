@@ -16,6 +16,7 @@ package gov.nasa.jpl.mudrod.metadata.structure;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * ClassName: PODAACMetadata Function: PODAACMetadata setter and getter methods
@@ -327,7 +328,7 @@ public class PODAACMetadata implements Serializable {
         if (str.endsWith(",") || str.endsWith("\"")) {
           str = str.substring(0, str.length() - 1);
         }
-        if (str == "") {
+        if ("".equals(str)) {
           continue;
         }
         list.add(str);
