@@ -147,7 +147,7 @@ public class ApiHarvester extends DiscoveryStepAbstract {
         int docId = startIndex + i;
         File itemfile = new File(props.getProperty(MudrodConstants.RAW_METADATA_PATH) + "/" + docId + ".json");
 
-        try (FileWriter fw = new FileWriter(itemfile.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(fw);) {
+        try (FileWriter fw = new FileWriter(itemfile.getAbsoluteFile()); BufferedWriter bw = new BufferedWriter(fw)) {
           itemfile.createNewFile();
           bw.write(item.toString());
         } catch (IOException e) {

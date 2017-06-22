@@ -435,7 +435,6 @@ public class SessionGenerator extends LogAbstract {
             }
           }
         }
-        ;
       }
       lastoldID = s.getID();
       lastnewID = s.getNewID();
