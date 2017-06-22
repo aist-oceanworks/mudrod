@@ -186,7 +186,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       }
 
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-      Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
+      Date date = new Date(Long.valueOf(longdate.get(0)));
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
