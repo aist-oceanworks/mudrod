@@ -82,7 +82,7 @@ public class DataGenerator {
     try {
       String sourceDir = mySourceDir;
 
-      if (isMultFiles == true) // Case where multiple files have to be processed
+      if (isMultFiles) // Case where multiple files have to be processed
       {
         // Iterate over files in directory 
         File directory = new File(sourceDir);
