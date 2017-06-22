@@ -29,7 +29,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   private static final Logger LOG = LoggerFactory.getLogger(VariableBasedSimilarity.class);
 
-  private DecimalFormat df = new DecimalFormat("#.000");
   // a map from variable to its type
   public Map<String, Integer> variableTypes;
   public Map<String, Integer> variableWeights;
