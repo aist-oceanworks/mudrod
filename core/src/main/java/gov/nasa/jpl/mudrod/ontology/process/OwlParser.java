@@ -25,7 +25,6 @@ import gov.nasa.jpl.mudrod.ontology.Ontology;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -19,9 +19,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.serializer.KryoSerializer;
 import org.apache.spark.sql.SQLContext;
 
-import java.io.File;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.Properties;
 //import org.apache.spark.sql.SparkSession;
 

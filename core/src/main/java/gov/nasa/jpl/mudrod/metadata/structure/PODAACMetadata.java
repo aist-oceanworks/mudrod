@@ -16,7 +16,6 @@ package gov.nasa.jpl.mudrod.metadata.structure;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * ClassName: PODAACMetadata Function: PODAACMetadata setter and getter methods
