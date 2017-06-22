@@ -259,7 +259,7 @@ public class SessionStatistic extends LogAbstract {
           ftpRequest_count++;
           String download = "";
           String requestLowercase = request.toLowerCase();
-          if (requestLowercase.endsWith(".jpg") == false && requestLowercase.endsWith(".pdf") == false && requestLowercase.endsWith(".txt") == false && requestLowercase.endsWith(".gif") == false) {
+          if (!requestLowercase.endsWith(".jpg") && !requestLowercase.endsWith(".pdf") && !requestLowercase.endsWith(".txt") && !requestLowercase.endsWith(".gif")) {
             download = request;
           }
 
