@@ -104,9 +104,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
       public Tuple2<String, List<String>> call(Tuple2<String, List<String>> arg0) throws Exception {
         List<String> oriDatasets = arg0._2;
         List<String> newDatasets = new ArrayList<>();
-        int size = oriDatasets.size();
-        for (int i = 0; i < size; i++) {
-          String name = oriDatasets.get(i);
+        for (String name : oriDatasets) {
           if (nameMap.containsKey(name)) {
             newDatasets.add(nameMap.get(name));
           }

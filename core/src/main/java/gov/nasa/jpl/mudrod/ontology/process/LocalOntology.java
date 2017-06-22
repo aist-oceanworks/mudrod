@@ -117,8 +117,8 @@ public class LocalOntology implements Ontology {
    */
   @Override
   public void load(String[] urls) {
-    for (int i = 0; i < urls.length; i++) {
-      String url = urls[i].trim();
+    for (String url1 : urls) {
+      String url = url1.trim();
       if (!"".equals(url))
         if (LOG.isInfoEnabled()) {
           LOG.info("Reading and processing {}", url);

@@ -152,14 +152,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
       }
     }
 
-    int size = metadatas.size();
-    for (int i = 0; i < size; i++) {
-      Map<String, Object> metadataA = metadatas.get(i);
+    for (Map<String, Object> metadataA : metadatas) {
       String shortNameA = (String) metadataA.get("Dataset-ShortName");
 
-      for (int j = 0; j < size; j++) {
-        metadataA = metadatas.get(i);
-        Map<String, Object> metadataB = metadatas.get(j);
+      for (Map<String, Object> metadataB : metadatas) {
         String shortNameB = (String) metadataB.get("Dataset-ShortName");
 
         try {

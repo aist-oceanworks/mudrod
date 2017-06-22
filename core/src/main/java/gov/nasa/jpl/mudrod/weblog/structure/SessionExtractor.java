@@ -96,15 +96,13 @@ public class SessionExtractor implements Serializable {
     List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
 
     List<ClickStream> result = new ArrayList<>();
-    for (int n = 0; n < logIndexList.size(); n++) {
-      String logIndex = logIndexList.get(n);
+    for (String logIndex : logIndexList) {
       List<String> sessionIdList;
       try {
         sessionIdList = this.getSessions(props, es, logIndex);
         Session session = new Session(props, es);
-        int sessionNum = sessionIdList.size();
-        for (int i = 0; i < sessionNum; i++) {
-          String[] sArr = sessionIdList.get(i).split(",");
+        for (String aSessionIdList : sessionIdList) {
+          String[] sArr = aSessionIdList.split(",");
           List<ClickStream> datas = session.getClickStreamList(sArr[1], sArr[2], sArr[0]);
           result.addAll(datas);
         }
@@ -123,8 +121,7 @@ public class SessionExtractor implements Serializable {
     LOG.info("Retrieved {}", logIndexList.toString());
 
     List<String> sessionIdList = new ArrayList<>();
-    for (int n = 0; n < logIndexList.size(); n++) {
-      String logIndex = logIndexList.get(n);
+    for (String logIndex : logIndexList) {
       List<String> tmpsessionList = this.getSessions(props, es, logIndex);
       sessionIdList.addAll(tmpsessionList);
     }
@@ -383,8 +380,7 @@ public class SessionExtractor implements Serializable {
 
     List<String> result = new ArrayList<>();
     List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
-    for (int n = 0; n < logIndexList.size(); n++) {
-      String logIndex = logIndexList.get(n);
+    for (String logIndex : logIndexList) {
       SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(props.getProperty(MudrodConstants.SESSION_STATS_PREFIX)).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
               .setSize(100).execute().actionGet();
       while (true) {
@@ -418,11 +414,9 @@ public class SessionExtractor implements Serializable {
 
         String items = splits[1];
         String[] itemArr = items.split(",");
-        int size = itemArr.length;
-        for (int i = 0; i < size; i++) {
-          String item = itemArr[i];
+        for (String item : itemArr) {
           if (!itemList.contains(item))
-            itemList.add(itemArr[i]);
+            itemList.add(item);
         }
 
         return new Tuple2<>(sessionId, itemList);
@@ -464,15 +458,13 @@ public class SessionExtractor implements Serializable {
     LOG.info(logIndexList.toString());
 
     List<RankingTrainData> result = new ArrayList<>();
-    for (int n = 0; n < logIndexList.size(); n++) {
-      String logIndex = logIndexList.get(n);
+    for (String logIndex : logIndexList) {
       List<String> sessionIdList;
       try {
         sessionIdList = this.getSessions(props, es, logIndex);
         Session session = new Session(props, es);
-        int sessionNum = sessionIdList.size();
-        for (int i = 0; i < sessionNum; i++) {
-          String[] sArr = sessionIdList.get(i).split(",");
+        for (String aSessionIdList : sessionIdList) {
+          String[] sArr = aSessionIdList.split(",");
           List<RankingTrainData> datas = session.getRankingTrainData(sArr[1], sArr[2], sArr[0]);
           result.addAll(datas);
         }
@@ -491,8 +483,7 @@ public class SessionExtractor implements Serializable {
     LOG.info(logIndexList.toString());
 
     List<String> sessionIdList = new ArrayList<>();
-    for (int n = 0; n < logIndexList.size(); n++) {
-      String logIndex = logIndexList.get(n);
+    for (String logIndex : logIndexList) {
       List<String> tmpsessionList = this.getSessions(props, es, logIndex);
       sessionIdList.addAll(tmpsessionList);
     }

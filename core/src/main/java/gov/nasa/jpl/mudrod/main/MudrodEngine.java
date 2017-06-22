@@ -168,8 +168,7 @@ public class MudrodEngine {
       Element rootNode = document.getRootElement();
       List<Element> paraList = rootNode.getChildren("para");
 
-      for (int i = 0; i < paraList.size(); i++) {
-        Element paraNode = paraList.get(i);
+      for (Element paraNode : paraList) {
         String attributeName = paraNode.getAttributeValue("name");
         if (MudrodConstants.SVM_SGD_MODEL.equals(attributeName)) {
           props.put(attributeName, decompressSVMWithSGDModel(paraNode.getTextTrim()));

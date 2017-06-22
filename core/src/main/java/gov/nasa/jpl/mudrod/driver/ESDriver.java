@@ -169,8 +169,8 @@ public class ESDriver implements Serializable {
     }
     int size = list.size();
     List<String> customlist = new ArrayList<>();
-    for (int i = 0; i < size; i++) {
-      customlist.add(this.customAnalyzing(indexName, list.get(i)));
+    for (String aList : list) {
+      customlist.add(this.customAnalyzing(indexName, aList));
     }
 
     return customlist;
@@ -223,9 +223,7 @@ public class ESDriver implements Serializable {
     String[] indices = client.admin().indices().getIndex(new GetIndexRequest()).actionGet().getIndices();
 
     ArrayList<String> indexList = new ArrayList<>();
-    int length = indices.length;
-    for (int i = 0; i < length; i++) {
-      String indexName = indices[i];
+    for (String indexName : indices) {
       if (indexName.startsWith(object.toString())) {
         indexList.add(indexName);
       }

@@ -94,8 +94,8 @@ public class SResult {
   }
 
   public SResult(SResult sr) {
-    for (int i = 0; i < rlist.length; i++) {
-      set(this, rlist[i], get(sr, rlist[i]));
+    for (String aRlist : rlist) {
+      set(this, aRlist, get(sr, aRlist));
     }
   }
 
@@ -107,8 +107,8 @@ public class SResult {
    */
   public static String getHeader(String delimiter) {
     String str = "";
-    for (int i = 0; i < rlist.length; i++) {
-      str += rlist[i] + delimiter;
+    for (String aRlist : rlist) {
+      str += aRlist + delimiter;
     }
     str = str + "label" + "\n";
     return "ShortName" + delimiter + "below" + delimiter + str;
@@ -122,8 +122,8 @@ public class SResult {
    */
   public String toString(String delimiter) {
     String str = "";
-    for (int i = 0; i < rlist.length; i++) {
-      double score = get(this, rlist[i]);
+    for (String aRlist : rlist) {
+      double score = get(this, aRlist);
       str += score + delimiter;
     }
     str = str + label + "\n";

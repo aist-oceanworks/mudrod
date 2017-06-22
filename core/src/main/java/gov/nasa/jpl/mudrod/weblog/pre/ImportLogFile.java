@@ -307,8 +307,8 @@ public class ImportLogFile extends LogAbstract {
     if (!crawlerDe.checkKnownCrawler(agent)) {
       boolean tag = false;
       String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
-      for (int i = 0; i < mimeTypes.length; i++) {
-        if (request.contains(mimeTypes[i])) {
+      for (String mimeType : mimeTypes) {
+        if (request.contains(mimeType)) {
           tag = true;
           break;
         }

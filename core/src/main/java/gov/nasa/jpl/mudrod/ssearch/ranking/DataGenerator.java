@@ -296,10 +296,9 @@ public class DataGenerator {
       if (!alreadyExists) {
         csvOutput.writeNext(myHeader); // Write the text headers first before data
 
-        for (int i = 0; i < list.size(); i++) // Iterate through all rows in 2D array
-        {
-          String[] temp = new String[list.get(i).size()]; // Convert row array list in 2D array to regular string array
-          temp = list.get(i).toArray(temp);
+        for (List<String> aList : list) {
+          String[] temp = new String[aList.size()]; // Convert row array list in 2D array to regular string array
+          temp = aList.toArray(temp);
           csvOutput.writeNext(temp); // Write this array to the file
         }
       }

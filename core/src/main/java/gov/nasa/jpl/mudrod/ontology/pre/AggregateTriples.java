@@ -167,8 +167,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
   public void getAllClass() throws IOException {
     List<?> classElements = rootNode.getChildren("Class", Namespace.getNamespace("owl", owl_namespace));
 
-    for (int i = 0; i < classElements.size(); i++) {
-      Element classElement = (Element) classElements.get(i);
+    for (Object classElement1 : classElements) {
+      Element classElement = (Element) classElement1;
       String className = classElement.getAttributeValue("about", Namespace.getNamespace("rdf", rdf_namespace));
 
       if (className == null) {
@@ -176,8 +176,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       }
 
       List<?> subclassElements = classElement.getChildren("subClassOf", Namespace.getNamespace("rdfs", rdfs_namespace));
-      for (int j = 0; j < subclassElements.size(); j++) {
-        Element subclassElement = (Element) subclassElements.get(j);
+      for (Object subclassElement1 : subclassElements) {
+        Element subclassElement = (Element) subclassElement1;
         String subclassName = subclassElement.getAttributeValue("resource", Namespace.getNamespace("rdf", rdf_namespace));
         if (subclassName == null) {
           Element allValuesFromEle = findChild("allValuesFrom", subclassElement);
@@ -192,8 +192,8 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       }
 
       List equalClassElements = classElement.getChildren("equivalentClass", Namespace.getNamespace("owl", owl_namespace));
-      for (int k = 0; k < equalClassElements.size(); k++) {
-        Element equalClassElement = (Element) equalClassElements.get(k);
+      for (Object equalClassElement1 : equalClassElements) {
+        Element equalClassElement = (Element) equalClassElement1;
         String equalClassElementName = equalClassElement.getAttributeValue("resource", Namespace.getNamespace("rdf", rdf_namespace));
 
         if (equalClassElementName != null) {

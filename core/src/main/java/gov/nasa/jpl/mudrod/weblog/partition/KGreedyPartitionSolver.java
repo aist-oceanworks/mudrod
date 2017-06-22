@@ -77,8 +77,8 @@ public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
     Map<String, Integer> LabelGroups = new HashMap<String, Integer>();
     for (int i = 0; i < splitMonths.size(); i++) {
       List<String> list = splitMonths.get(i);
-      for (int m = 0; m < list.size(); m++) {
-        LabelGroups.put(list.get(m), i);
+      for (String aList : list) {
+        LabelGroups.put(aList, i);
       }
     }
 
@@ -118,8 +118,8 @@ public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
 
   private Double Suma(List<Double> part) {
     Double ret = 0.0;
-    for (int i = 0; i < part.size(); i++) {
-      ret += part.get(i);
+    for (Double aPart : part) {
+      ret += aPart;
     }
     return ret;
   }
@@ -133,8 +133,8 @@ public class KGreedyPartitionSolver implements ThePartitionProblemSolver {
   }
 
   private void printStrList(List<String> list) {
-    for (int i = 0; i < list.size(); i++) {
-      System.out.print(list.get(i) + ",");
+    for (String aList : list) {
+      System.out.print(aList + ",");
     }
     System.out.println();
   }

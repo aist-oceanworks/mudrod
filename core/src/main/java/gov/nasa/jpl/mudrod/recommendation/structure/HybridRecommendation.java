@@ -182,9 +182,8 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
     Map<String, Double> sortedMap = new HashMap<>();
     try {
       List<LinkedTerm> links = getRelatedDataFromES(type, input, num);
-      int size = links.size();
-      for (int i = 0; i < size; i++) {
-        termsMap.put(links.get(i).term, links.get(i).weight);
+      for (LinkedTerm link : links) {
+        termsMap.put(link.term, link.weight);
       }
 
       sortedMap = sortMapByValue(termsMap); // terms_map will be empty
