@@ -197,7 +197,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     if (pro == null) {
       return 1.0;
     }
-    Double proNum = 0.0;
+    Double proNum;
     Pattern p = Pattern.compile(".*[a-zA-Z].*");
     if (pro.matches("[0-9]{1}[a-zA-Z]{1}")) {
       proNum = Double.parseDouble(pro.substring(0, 1));
