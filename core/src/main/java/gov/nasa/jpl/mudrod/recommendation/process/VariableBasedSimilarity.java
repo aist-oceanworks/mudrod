@@ -230,10 +230,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   public void temporalSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
 
-    double similarity = 0.0;
+    double similarity;
     double startTimeA = Double.parseDouble((String) metadataA.get("Dataset-DatasetCoverage-StartTimeLong"));
     String endTimeAStr = (String) metadataA.get("Dataset-DatasetCoverage-StopTimeLong");
-    double endTimeA = 0.0;
+    double endTimeA;
     if ("".equals(endTimeAStr)) {
       endTimeA = System.currentTimeMillis();
     } else {
@@ -243,7 +243,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
     double startTimeB = Double.parseDouble((String) metadataB.get("Dataset-DatasetCoverage-StartTimeLong"));
     String endTimeBStr = (String) metadataB.get("Dataset-DatasetCoverage-StopTimeLong");
-    double endTimeB = 0.0;
+    double endTimeB;
     if ("".equals(endTimeBStr)) {
       endTimeB = System.currentTimeMillis();
     } else {
@@ -251,7 +251,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
     }
     double timespanB = endTimeB - startTimeB;
 
-    double intersect = 0.0;
+    double intersect;
     if (startTimeB >= endTimeA || endTimeB <= startTimeA) {
       intersect = 0.0;
     } else if (startTimeB >= startTimeA && endTimeB <= endTimeA) {
