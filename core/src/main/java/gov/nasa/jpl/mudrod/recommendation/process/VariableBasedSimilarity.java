@@ -33,8 +33,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
   public Map<String, Integer> variableTypes;
   public Map<String, Integer> variableWeights;
 
-  private static final Integer VAR_SPATIAL = 1;
-  private static final Integer VAR_TEMPORAL = 2;
   private static final Integer VAR_CATEGORICAL = 3;
   private static final Integer VAR_ORDINAL = 4;
 
