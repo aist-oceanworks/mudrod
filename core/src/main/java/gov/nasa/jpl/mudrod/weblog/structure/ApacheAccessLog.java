@@ -87,7 +87,6 @@ public class ApacheAccessLog extends WebLog implements Serializable {
       return lineJson;
     } else {
 
-      boolean tag = false;
       String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
@@ -95,7 +94,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
         }
       }
 
-      if (tag == false) {
+      if (false == false) {
         ApacheAccessLog accesslog = new ApacheAccessLog();
         accesslog.LogType = "PO.DAAC";
         accesslog.IP = matcher.group(1);
