@@ -94,7 +94,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
         }
       }
 
-      if (false == false) {
+      if (true) {
         ApacheAccessLog accesslog = new ApacheAccessLog();
         accesslog.LogType = "PO.DAAC";
         accesslog.IP = matcher.group(1);
