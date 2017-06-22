@@ -91,7 +91,6 @@ public class ApacheAccessLog extends WebLog implements Serializable {
       String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
       for (int i = 0; i < mimeTypes.length; i++) {
         if (request.contains(mimeTypes[i])) {
-          tag = true;
           return lineJson;
         }
       }
