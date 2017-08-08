@@ -100,10 +100,10 @@ $ cp mudrod/service/target/mudrod-service-${version}-SNAPSHOT.war $CATALINA_HOME
 Once Tomcat hot deploys the .war artifact, you will be able to browse to the running application similar to what is shown above [http://localhost:8080/mudrod-service](http://localhost:8080/mudrod-service)
 
 # Publications
-* Jiang, Y., Y. Li, C. Yang, E. M. Armstrong, T. Huang & D. Moroni (2016) Reconstructing Sessions from Data Discovery and Access Logs to Build a Semantic Knowledge Base for Improving Data Discovery. ISPRS International Journal of Geo-Information, 5, 54. http://www.mdpi.com/2220-9964/5/5/54#stats 
+* Jiang, Y., Li, Y., Yang, C., Liu, K., Armstrong, E.M., Huang, T., Moroni, D.F. and Finch, C.J., 2017. [A comprehensive methodology for discovering semantic relationships among geospatial vocabularies using oceanographic data discovery as an example](http://www.tandfonline.com/eprint/JgGYJBk4mhdt5NFjEx8f/full). International Journal of Geographical Information Science, pp.1-19.
+* Jiang, Y., Y. Li, C. Yang, K. Liu, E. M. Armstrong, T. Huang, D. Moroni & L. Mcgibbney (2016) Towards intelligent geospatial discovery: a machine learning ranking framework. Remote Sensning (Accepted). International Journal of Digital Earth
+* Jiang, Y., Y. Li, C. Yang, E. M. Armstrong, T. Huang & D. Moroni (2016) [Reconstructing Sessions from Data Discovery and Access Logs to Build a Semantic Knowledge Base for Improving Data Discovery](http://www.mdpi.com/2220-9964/5/5/54#stats ). ISPRS International Journal of Geo-Information, 5, 54.
 * Y. Li, Jiang, Y., C. Yang, K. Liu, E. M. Armstrong, T. Huang & D. Moroni (2016) Leverage cloud computing to improve data access log mining. IEEE Oceans 2016.
-* Jiang, Y., Y. Li, C. Yang, K. Liu, E. M. Armstrong, T. Huang & D. Moroni (2016) A Comprehensive Approach to Determining the Linkage Weights among Geospatial Vocabularies - An Example with Oceanographic Data Discovery. International Journal of Geographical Information Science (under review)
-* Jiang, Y., Y. Li, C. Yang, K. Liu, E. M. Armstrong, T. Huang, D. Moroni & L. Mcgibbney (2016) Towards intelligent geospatial discovery: a machine learning ranking framework. Remote Sensning (under review)
 
 ## Mudrod Wiki
 
