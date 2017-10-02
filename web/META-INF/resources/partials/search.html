@@ -1,0 +1,58 @@
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+  -->
+<div ng-include src="'partials/navbar-plain.html'"></div>
+
+<div id="container" class="container view-area-scroll">
+    <div class="landing-dialog">
+        <div class="landing-dialog-header">
+            <h2>Oceanographic Data Discovery</h2>
+        </div>
+        <div class="searchBox toolbar">
+            <div class="landing-toolbar-content">
+                <form id="searchForm" class="search-form" autocomplete="off" ng-controller="searchCtrl">
+                    <div class="form-group" style="position: relative">
+
+                        <input id="query" type="search" class="form-control" ng-model="options.query" ng-keyup="complete(options.query)"
+                               placeholder="Enter ocean concepts (e.g. ocean wind) to search">
+                        <button id="search-btn" ng-click="search(options)"
+                                type="submit">
+                            <span class="ico-search"></span>
+                        </button>
+                        <div style="position: absolute; padding-top: 1em;">
+                            <label for="searchOption" style="padding-right: 1em;">Search Operator:</label>
+                            <div id="searchOption" class="btn-group" data-toggle="buttons">
+                                <label class="radio-inline">
+                                    <input type="radio" ng-model="options.opt" value="Or">Or
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" ng-model="options.opt" value="Phrase">Phrase
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" ng-model="options.opt" value="And">And
+                                </label>
+                            </div>
+                        </div>
+                        <ul class="list-group autocomplete" ng-model="hidethis" ng-hide="hidethis">
+                            <li class="list-group-item" ng-repeat="searchdata in filterSearch" ng-click="fillTextbox(searchdata.value)">{{searchdata.value}}</li>
+                        </ul>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+
+    </div>
+
+</div>

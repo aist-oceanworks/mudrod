@@ -60,7 +60,6 @@ target
 .git
 .svn
 build
-target
 dist
 lib
 dependency-reduced-pom.xml

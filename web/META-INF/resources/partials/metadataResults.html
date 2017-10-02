@@ -1,0 +1,50 @@
+<!-- 
+  Licensed under the Apache License, Version 2.0 (the "License"); 
+  you may not use this file except in compliance with the License. 
+  You may obtain  a copy of the License at 
+  
+  http://www.apache.org/licenses/LICENSE-2.0 Unless 
+  
+  required by applicable law or agreed to in writing, software 
+  distributed under the License is distributed on an "AS IS" 
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  express or implied. See the License for the specific language 
+  governing permissions and limitations under the License. 
+  -->
+<div ng-include src="'partials/navbar-search.html'"></div>
+
+<div id="container" class="container view-area-fixed" ng-controller="metadataViewCtrl as vm">
+    <div class="row no-gutter content-holder">
+        <div class="col-md-9 col-sm-8" id="content">
+
+            <ng-include ng-if="!searchComplete" ng-model="searchComplete" src="'partials/search-in-progress.html'"></ng-include>
+            <ng-include ng-if="searchComplete" ng-model="searchComplete" src="'partials/search-results.html'"></ng-include>
+
+        </div>
+
+        <div class="col-md-3 col-sm-4">
+            <div class="panel panel-primary sidenav">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" data-target="#collapse1">Related Searches</a>
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse in">
+                    <div class="panel-body" ng-controller="vocabularyCtrl">
+                        <div ng-if="searchComplete && ontologyList.length > 0" ng-model="searchComplete" class="list-related-searches" ng-repeat="ontology in ontologyList">
+                            <a ng-href="#/metadataView?query={{ontology['word'] | urlencode}}" title="{{ontology['word']}}">{{ontology['word'] | uppercase}} ({{ontology['weight']}})</a>
+                        </div>
+
+                        <div ng-if="searchComplete && ontologyList.length === 0" ng-model="searchComplete">
+                            <span style="font-size: 1em;">No related searches found</span>
+                        </div>
+
+                        <div ng-if="!searchComplete" ng-model="searchComplete" id="spinner">
+                            <img src="images/spinner.gif" title="Search in progress" style="height: 5em;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

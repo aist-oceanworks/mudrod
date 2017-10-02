@@ -57,16 +57,14 @@ public class SearchDatasetDetailResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes("text/plain")
   public Response searchDatasetDetail(@QueryParam("shortname") String shortName) {
-
     Properties config = mEngine.getConfig();
     String dataDetailJson = null;
     try {
       String query = "Dataset-ShortName:\"" + shortName + "\"";
       dataDetailJson = mEngine.getESDriver().searchByQuery(config.getProperty(MudrodConstants.ES_INDEX_NAME), config.getProperty(MudrodConstants.RAW_METADATA_TYPE), query, true);
     } catch (InterruptedException | ExecutionException | IOException e) {
-      LOG.error("Error whilst searching for a Dataset-ShortName", e);
+      LOG.error("Error whilst searching for a Dataset-ShortName: ", e);
     }
-
     LOG.info("Response received: {}", dataDetailJson);
     return Response.ok(dataDetailJson, MediaType.APPLICATION_JSON).build();
   }

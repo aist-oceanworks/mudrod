@@ -55,7 +55,7 @@ public class ClickStream implements Serializable {
   }
 
   public ClickStream() {
-
+    //default constructor
   }
 
   public String getSessionID() {
@@ -113,7 +113,7 @@ public class ClickStream implements Serializable {
    * @return True or False
    */
   public Boolean isDownload() {
-    if (this.downloadDataset.equals("")) {
+    if ("".equals(this.downloadDataset)) {
       return false;
     }
     return true;
@@ -144,7 +144,7 @@ public class ClickStream implements Serializable {
    */
   @Override
   public String toString() {
-    return "query:" + keywords + "|| view dataset:" + viewDataset + "|| download Dataset:" + downloadDataset;
+    return "Query: " + keywords + " || View Dataset: " + viewDataset + " || Download Dataset: " + downloadDataset;
   }
 
   /**
@@ -181,7 +181,6 @@ public class ClickStream implements Serializable {
 
     } catch (JSONException e) {
       e.printStackTrace();
-
     }
 
     return data;

@@ -23,6 +23,11 @@ import java.util.Properties;
  */
 public abstract class DiscoveryStepAbstract extends MudrodAbstract {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   public DiscoveryStepAbstract(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
   }

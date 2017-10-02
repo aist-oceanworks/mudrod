@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -119,14 +120,36 @@ public class ImportLogFile extends LogAbstract {
 
   public void readFile() {
 
-    String httplogpath = props.getProperty("logDir") + props.getProperty(MudrodConstants.HTTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
+    String httplogpath = null;
+    String ftplogpath = null;
+    
+    File directory = new File(props.getProperty(MudrodConstants.DATA_DIR));
+    File[] fList = directory.listFiles();
+    for (File file : fList) {
+      if (file.isFile() && file.getName().contains(props.getProperty(MudrodConstants.TIME_SUFFIX))) 
+      {
+        if (file.getName().contains(props.getProperty(MudrodConstants.HTTP_PREFIX))) 
+        {
+          httplogpath = file.getAbsolutePath();
+        }
+        
+        if (file.getName().contains(props.getProperty(MudrodConstants.FTP_PREFIX))) 
+        {
+          ftplogpath = file.getAbsolutePath();
+        }
+      }
+    }
+    
+    if(httplogpath == null || ftplogpath == null)
+    {
+      LOG.error("WWW file or FTP logs cannot be found, please check your data directory.");
+      return;
+    }
 
-    String ftplogpath = props.getProperty("logDir") + props.getProperty(MudrodConstants.FTP_PREFIX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-
-    String processingType = props.getProperty("processingType", MudrodConstants.PARALLEL_PROCESS);
-    if (processingType.equals(MudrodConstants.SEQUENTIAL_PROCESS)) {
+    String processingType = props.getProperty(MudrodConstants.PROCESS_TYPE, "parallel");
+    if (processingType.equals("sequential")) {
       readFileInSequential(httplogpath, ftplogpath);
-    } else if (processingType.equals(MudrodConstants.PARALLEL_PROCESS)) {
+    } else if (processingType.equals("parallel")) {
       readFileInParallel(httplogpath, ftplogpath);
     }
   }
