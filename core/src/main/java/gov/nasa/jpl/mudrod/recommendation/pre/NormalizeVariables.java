@@ -98,7 +98,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     if (version == null) {
       return 0.0;
     }
-    Double versionNum = 0.0;
+    Double versionNum;
     Pattern p = Pattern.compile(".*[a-zA-Z].*");
     if ("Operational/Near-Real-Time".equals(version)) {
       versionNum = 2.0;
@@ -197,7 +197,7 @@ public class NormalizeVariables extends DiscoveryStepAbstract {
     if (pro == null) {
       return 1.0;
     }
-    Double proNum = 0.0;
+    Double proNum;
     Pattern p = Pattern.compile(".*[a-zA-Z].*");
     if (pro.matches("[0-9]{1}[a-zA-Z]{1}")) {
       proNum = Double.parseDouble(pro.substring(0, 1));

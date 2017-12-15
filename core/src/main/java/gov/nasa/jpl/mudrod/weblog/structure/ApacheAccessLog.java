@@ -87,36 +87,29 @@ public class ApacheAccessLog extends WebLog implements Serializable {
       return lineJson;
     } else {
 
-      boolean tag = false;
       String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
-      for (int i = 0; i < mimeTypes.length; i++) {
-        if (request.contains(mimeTypes[i])) {
-          tag = true;
+      for (String mimeType : mimeTypes) {
+        if (request.contains(mimeType)) {
           return lineJson;
         }
       }
 
-      if (tag == false) {
-        ApacheAccessLog accesslog = new ApacheAccessLog();
-        accesslog.LogType = "PO.DAAC";
-        accesslog.IP = matcher.group(1);
-        accesslog.Request = matcher.group(5);
-        accesslog.Response = matcher.group(6);
-        accesslog.Bytes = Double.parseDouble(bytes);
-        accesslog.Referer = matcher.group(8);
-        accesslog.Browser = matcher.group(9);
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
-        accesslog.Time = df.format(date);
+      ApacheAccessLog accesslog = new ApacheAccessLog();
+      accesslog.LogType = "PO.DAAC";
+      accesslog.IP = matcher.group(1);
+      accesslog.Request = matcher.group(5);
+      accesslog.Response = matcher.group(6);
+      accesslog.Bytes = Double.parseDouble(bytes);
+      accesslog.Referer = matcher.group(8);
+      accesslog.Browser = matcher.group(9);
+      SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
+      accesslog.Time = df.format(date);
 
-        Gson gson = new Gson();
-        lineJson = gson.toJson(accesslog);
+      Gson gson = new Gson();
+      lineJson = gson.toJson(accesslog);
 
-        return lineJson;
-      }
+      return lineJson;
     }
-
-    lineJson = "{}";
-    return lineJson;
   }
 
   public static boolean checknull(WebLog s) {

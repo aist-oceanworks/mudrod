@@ -99,11 +99,11 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
     ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
 
-    for (int i = 0; i < inputList.size(); i++) {
-      timeSuffix = inputList.get(i);
+    for (String anInputList : inputList) {
+      timeSuffix = anInputList;
       props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
       startTime = System.currentTimeMillis();
-      LOG.info("Processing logs dated {}", inputList.get(i));
+      LOG.info("Processing logs dated {}", anInputList);
 
       DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
@@ -122,7 +122,7 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
 
       endTime = System.currentTimeMillis();
 
-      LOG.info("Web log preprocessing for logs dated {} complete. Time elapsed {} seconds.", inputList.get(i), (endTime - startTime) / 1000);
+      LOG.info("Web log preprocessing for logs dated {} complete. Time elapsed {} seconds.", anInputList, (endTime - startTime) / 1000);
     }
 
     DiscoveryStepAbstract hg = new HistoryGenerator(this.props, this.es, this.spark);
@@ -140,8 +140,8 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void logIngest() {
     LOG.info("Starting Web log ingest.");
     ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
-    for (int i = 0; i < inputList.size(); i++) {
-      timeSuffix = inputList.get(i);
+    for (String anInputList : inputList) {
+      timeSuffix = anInputList;
       props.put("TimeSuffix", timeSuffix);
       DiscoveryStepAbstract im = new ImportLogFile(this.props, this.es, this.spark);
       im.execute();
@@ -157,8 +157,8 @@ public class WeblogDiscoveryEngine extends DiscoveryEngineAbstract {
   public void sessionRestruct() {
     LOG.info("Starting Session reconstruction.");
     ArrayList<String> inputList = (ArrayList<String>) getFileList(props.getProperty(MudrodConstants.DATA_DIR));
-    for (int i = 0; i < inputList.size(); i++) {
-      timeSuffix = inputList.get(i); // change timeSuffix dynamically
+    for (String anInputList : inputList) {
+      timeSuffix = anInputList; // change timeSuffix dynamically
       props.put(MudrodConstants.TIME_SUFFIX, timeSuffix);
       DiscoveryStepAbstract cd = new CrawlerDetection(this.props, this.es, this.spark);
       cd.execute();

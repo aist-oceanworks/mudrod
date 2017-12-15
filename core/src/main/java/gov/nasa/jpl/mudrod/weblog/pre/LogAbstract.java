@@ -151,10 +151,9 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
       Histogram agg = user.getAggregations().get("by_day");
       List<? extends Histogram.Bucket> dateList = agg.getBuckets();
-      int size = dateList.size();
-      for (int i = 0; i < size; i++) {
-        Long count = dateList.get(i).getDocCount();
-        String date = dateList.get(i).getKey().toString();
+      for (Histogram.Bucket aDateList : dateList) {
+        Long count = aDateList.getDocCount();
+        String date = aDateList.getKey().toString();
 
         System.out.println(date);
         System.out.println(count);

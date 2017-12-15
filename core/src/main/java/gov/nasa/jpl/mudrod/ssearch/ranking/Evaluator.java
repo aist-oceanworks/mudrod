@@ -135,7 +135,7 @@ public class Evaluator {
       }
     };
     List<Integer> sortlist = IntStream.of(list).boxed().collect(Collectors.toList());
-    ;
+
     Collections.sort(sortlist, comparator);
     int[] sortedArr = sortlist.stream().mapToInt(i -> i).toArray();
     double idcg = this.getDCG(sortedArr, K);

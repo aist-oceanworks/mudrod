@@ -113,9 +113,9 @@ public class HistoryGenerator extends LogAbstract {
 
             ipMap.put(IP.getKey().toString(), 1);
           }
-          for (int i = 0; i < ipList.size(); i++) {
-            if (ipMap.containsKey(ipList.get(i))) {
-              bw.write(ipMap.get(ipList.get(i)) + ",");
+          for (String anIpList : ipList) {
+            if (ipMap.containsKey(anIpList)) {
+              bw.write(ipMap.get(anIpList) + ",");
             } else {
               bw.write("0,");
             }

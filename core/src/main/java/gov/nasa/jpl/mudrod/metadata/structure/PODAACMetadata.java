@@ -319,15 +319,15 @@ public class PODAACMetadata implements Serializable {
 
     String strs[] = oristr.trim().split(",");
     if (strs != null) {
-      for (int i = 0; i < strs.length; i++) {
-        String str = strs[i].trim();
+      for (String str1 : strs) {
+        String str = str1.trim();
         if (str.startsWith(",") || str.startsWith("\"")) {
           str = str.substring(1);
         }
         if (str.endsWith(",") || str.endsWith("\"")) {
           str = str.substring(0, str.length() - 1);
         }
-        if (str == "") {
+        if ("".equals(str)) {
           continue;
         }
         list.add(str);

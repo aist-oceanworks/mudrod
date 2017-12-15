@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.*;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -29,13 +28,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   private static final Logger LOG = LoggerFactory.getLogger(VariableBasedSimilarity.class);
 
-  private DecimalFormat df = new DecimalFormat("#.000");
   // a map from variable to its type
   public Map<String, Integer> variableTypes;
   public Map<String, Integer> variableWeights;
 
-  private static final Integer VAR_SPATIAL = 1;
-  private static final Integer VAR_TEMPORAL = 2;
   private static final Integer VAR_CATEGORICAL = 3;
   private static final Integer VAR_ORDINAL = 4;
 
@@ -155,14 +151,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
       }
     }
 
-    int size = metadatas.size();
-    for (int i = 0; i < size; i++) {
-      Map<String, Object> metadataA = metadatas.get(i);
+    for (Map<String, Object> metadataA : metadatas) {
       String shortNameA = (String) metadataA.get("Dataset-ShortName");
 
-      for (int j = 0; j < size; j++) {
-        metadataA = metadatas.get(i);
-        Map<String, Object> metadataB = metadatas.get(j);
+      for (Map<String, Object> metadataB : metadatas) {
         String shortNameB = (String) metadataB.get("Dataset-ShortName");
 
         try {
@@ -230,10 +222,10 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
   public void temporalSimilarity(Map<String, Object> metadataA, Map<String, Object> metadataB, XContentBuilder contentBuilder) throws IOException {
 
-    double similarity = 0.0;
+    double similarity;
     double startTimeA = Double.parseDouble((String) metadataA.get("Dataset-DatasetCoverage-StartTimeLong"));
     String endTimeAStr = (String) metadataA.get("Dataset-DatasetCoverage-StopTimeLong");
-    double endTimeA = 0.0;
+    double endTimeA;
     if ("".equals(endTimeAStr)) {
       endTimeA = System.currentTimeMillis();
     } else {
@@ -243,7 +235,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
 
     double startTimeB = Double.parseDouble((String) metadataB.get("Dataset-DatasetCoverage-StartTimeLong"));
     String endTimeBStr = (String) metadataB.get("Dataset-DatasetCoverage-StopTimeLong");
-    double endTimeB = 0.0;
+    double endTimeB;
     if ("".equals(endTimeBStr)) {
       endTimeB = System.currentTimeMillis();
     } else {
@@ -251,7 +243,7 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
     }
     double timespanB = endTimeB - startTimeB;
 
-    double intersect = 0.0;
+    double intersect;
     if (startTimeB >= endTimeA || endTimeB <= startTimeA) {
       intersect = 0.0;
     } else if (startTimeB >= startTimeA && endTimeB <= endTimeA) {
@@ -283,7 +275,6 @@ public class VariableBasedSimilarity extends DiscoveryStepAbstract implements Se
         if (aList != null && bList != null) {
 
           int lengthA = aList.size();
-          int lengthB = bList.size();
           List<String> newAList = new ArrayList<>(aList);
           List<String> newBList = new ArrayList<>(bList);
           newAList.retainAll(newBList);

@@ -112,9 +112,7 @@ public class MetadataOpt implements Serializable {
         String shortName = (String) result.get("Dataset-ShortName");
 
         String filedStr = "";
-        int size = variables.size();
-        for (int i = 0; i < size; i++) {
-          String filed = variables.get(i);
+        for (String filed : variables) {
           Object filedValue = result.get(filed);
 
           if (filedValue != null) {

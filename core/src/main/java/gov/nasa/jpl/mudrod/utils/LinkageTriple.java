@@ -85,20 +85,19 @@ public class LinkageTriple implements Serializable {
     }
 
     es.createBulkProcessor();
-    int size = triples.size();
-    for (int i = 0; i < size; i++) {
+    for (LinkageTriple triple : triples) {
 
       XContentBuilder jsonBuilder = jsonBuilder().startObject();
       if (bTriple) {
 
-        jsonBuilder.field("concept_A", triples.get(i).keyA);
-        jsonBuilder.field("concept_B", triples.get(i).keyB);
+        jsonBuilder.field("concept_A", triple.keyA);
+        jsonBuilder.field("concept_B", triple.keyB);
 
       } else {
-        jsonBuilder.field("keywords", triples.get(i).keyA + "," + triples.get(i).keyB);
+        jsonBuilder.field("keywords", triple.keyA + "," + triple.keyB);
       }
 
-      jsonBuilder.field("weight", Double.parseDouble(df.format(triples.get(i).weight)));
+      jsonBuilder.field("weight", Double.parseDouble(df.format(triple.weight)));
       jsonBuilder.endObject();
 
       IndexRequest ir = new IndexRequest(index, type).source(jsonBuilder);
@@ -106,10 +105,10 @@ public class LinkageTriple implements Serializable {
 
       if (bTriple && bSymmetry) {
         XContentBuilder symmetryJsonBuilder = jsonBuilder().startObject();
-        symmetryJsonBuilder.field("concept_A", triples.get(i).keyB);
-        symmetryJsonBuilder.field("concept_B", triples.get(i).keyA);
+        symmetryJsonBuilder.field("concept_A", triple.keyB);
+        symmetryJsonBuilder.field("concept_B", triple.keyA);
 
-        symmetryJsonBuilder.field("weight", Double.parseDouble(df.format(triples.get(i).weight)));
+        symmetryJsonBuilder.field("weight", Double.parseDouble(df.format(triple.weight)));
 
         symmetryJsonBuilder.endObject();
 

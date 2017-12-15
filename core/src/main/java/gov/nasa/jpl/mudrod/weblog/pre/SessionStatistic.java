@@ -230,9 +230,9 @@ public class SessionStatistic extends LogAbstract {
             } else {
               String[] items = info.split(",");
               String[] keywordList = keywords.split(",");
-              for (int m = 0; m < items.length; m++) {
-                if (!Arrays.asList(keywordList).contains(items[m])) {
-                  keywords = keywords + items[m] + ",";
+              for (String item : items) {
+                if (!Arrays.asList(keywordList).contains(item)) {
+                  keywords = keywords + item + ",";
                 }
               }
             }
@@ -259,16 +259,14 @@ public class SessionStatistic extends LogAbstract {
           ftpRequest_count++;
           String download = "";
           String requestLowercase = request.toLowerCase();
-          if (requestLowercase.endsWith(".jpg") == false && requestLowercase.endsWith(".pdf") == false && requestLowercase.endsWith(".txt") == false && requestLowercase.endsWith(".gif") == false) {
+          if (!requestLowercase.endsWith(".jpg") && !requestLowercase.endsWith(".pdf") && !requestLowercase.endsWith(".txt") && !requestLowercase.endsWith(".gif")) {
             download = request;
           }
 
           if ("".equals(downloads)) {
             downloads = download;
           } else {
-            if (downloads.contains(download)) {
-
-            } else {
+            if (!downloads.contains(download)) {
               downloads = downloads + "," + download;
             }
           }

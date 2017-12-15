@@ -82,7 +82,7 @@ public class DataGenerator {
     try {
       String sourceDir = mySourceDir;
 
-      if (isMultFiles == true) // Case where multiple files have to be processed
+      if (isMultFiles) // Case where multiple files have to be processed
       {
         // Iterate over files in directory 
         File directory = new File(sourceDir);
@@ -276,9 +276,7 @@ public class DataGenerator {
   public static void storeHead(String[][] arr) {
     myHeader = new String[arr[0].length]; // Reside private variable
 
-    for (int col = 0; col < arr[0].length; col++) {
-      myHeader[col] = arr[0][col];
-    }
+    System.arraycopy(arr[0], 0, myHeader, 0, arr[0].length);
   }
 
   /**
@@ -296,10 +294,9 @@ public class DataGenerator {
       if (!alreadyExists) {
         csvOutput.writeNext(myHeader); // Write the text headers first before data
 
-        for (int i = 0; i < list.size(); i++) // Iterate through all rows in 2D array
-        {
-          String[] temp = new String[list.get(i).size()]; // Convert row array list in 2D array to regular string array
-          temp = list.get(i).toArray(temp);
+        for (List<String> aList : list) {
+          String[] temp = new String[aList.size()]; // Convert row array list in 2D array to regular string array
+          temp = aList.toArray(temp);
           csvOutput.writeNext(temp); // Write this array to the file
         }
       }

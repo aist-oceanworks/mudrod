@@ -27,7 +27,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.Serializable;
@@ -186,7 +185,7 @@ public class Searcher extends MudrodAbstract implements Serializable {
       }
 
       ArrayList<String> longdate = (ArrayList<String>) result.get("DatasetCitation-ReleaseDateLong");
-      Date date = new Date(Long.valueOf(longdate.get(0)).longValue());
+      Date date = new Date(Long.valueOf(longdate.get(0)));
       SimpleDateFormat df2 = new SimpleDateFormat("MM/dd/yyyy");
       String dateText = df2.format(date);
 
@@ -259,19 +258,19 @@ public class Searcher extends MudrodAbstract implements Serializable {
     Gson gson = new Gson();
     List<JsonObject> fileList = new ArrayList<>();
 
-    for (int i = 0; i < li.size(); i++) {
+    for (SResult aLi : li) {
       JsonObject file = new JsonObject();
-      file.addProperty("Short Name", (String) SResult.get(li.get(i), "shortName"));
-      file.addProperty("Long Name", (String) SResult.get(li.get(i), "longName"));
-      file.addProperty("Topic", (String) SResult.get(li.get(i), "topic"));
-      file.addProperty("Description", (String) SResult.get(li.get(i), "description"));
-      file.addProperty("Release Date", (String) SResult.get(li.get(i), "relase_date"));
+      file.addProperty("Short Name", (String) SResult.get(aLi, "shortName"));
+      file.addProperty("Long Name", (String) SResult.get(aLi, "longName"));
+      file.addProperty("Topic", (String) SResult.get(aLi, "topic"));
+      file.addProperty("Description", (String) SResult.get(aLi, "description"));
+      file.addProperty("Release Date", (String) SResult.get(aLi, "relase_date"));
       fileList.add(file);
 
-      file.addProperty("Start/End Date", (String) SResult.get(li.get(i), "startDate") + " - " + (String) SResult.get(li.get(i), "endDate"));
-      file.addProperty("Processing Level", (String) SResult.get(li.get(i), "processingLevel"));
+      file.addProperty("Start/End Date", (String) SResult.get(aLi, "startDate") + " - " + (String) SResult.get(aLi, "endDate"));
+      file.addProperty("Processing Level", (String) SResult.get(aLi, "processingLevel"));
 
-      file.addProperty("Sensor", (String) SResult.get(li.get(i), "sensors"));
+      file.addProperty("Sensor", (String) SResult.get(aLi, "sensors"));
     }
     JsonElement fileListElement = gson.toJsonTree(fileList);
 
