@@ -263,7 +263,7 @@ public class ImportLogFile extends LogAbstract {
       IndexRequest ir;
       try {
         ir = new IndexRequest(index, type)
-            .source(jsonBuilder().startObject().field("LogType", "ftp").field("IP", ip).field("Time", date).field("Request", request).field("Bytes", Long.parseLong(bytes)).endObject());
+            .source(jsonBuilder().startObject().field("LogType", props.get("LogType_FTP")).field("IP", ip).field("Time", date).field("Request", request).field("Bytes", Long.parseLong(bytes)).endObject());
         es.getBulkProcessor().add(ir);
       } catch (NumberFormatException e) {
         LOG.error("Error whilst processing numbers", e);
@@ -306,9 +306,9 @@ public class ImportLogFile extends LogAbstract {
     CrawlerDetection crawlerDe = new CrawlerDetection(this.props, this.es, this.spark);
     if (!crawlerDe.checkKnownCrawler(agent)) {
       boolean tag = false;
-      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
+      String[] mimeTypes = (props.get("blacklist_request") +"").split(",");
       for (int i = 0; i < mimeTypes.length; i++) {
-        if (request.contains(mimeTypes[i])) {
+        if (request.contains(mimeTypes[i].trim())) {
           tag = true;
           break;
         }
@@ -325,7 +325,7 @@ public class ImportLogFile extends LogAbstract {
     IndexRequest newIr = ir;
     try {
       newIr = new IndexRequest(index, type).source(
-          jsonBuilder().startObject().field("LogType", "PO.DAAC").field("IP", matcher.group(1)).field("Time", date).field("Request", matcher.group(5)).field("Response", matcher.group(6))
+          jsonBuilder().startObject().field("LogType", props.get("LogType_HTTP")).field("IP", matcher.group(1)).field("Time", date).field("Request", matcher.group(5)).field("Response", matcher.group(6))
               .field("Bytes", Integer.parseInt(bytes)).field("Referer", matcher.group(8)).field("Browser", matcher.group(9)).endObject());
 
       es.getBulkProcessor().add(newIr);

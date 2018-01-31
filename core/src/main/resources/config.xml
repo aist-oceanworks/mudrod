@@ -126,7 +126,27 @@
     -->
     <para name="parallelOptimization">repartition</para>
     
-    <!-- customerized log configuration -->
+    <!-- NEW CONFIGURATION, PLEASE MOVE THE ABOVE CONFIGURATION DOWN BELOW WHEN YOU SEE A FIT -->
+    
+    <!-- Database configuration -->
+    
+    
+    <!-- Web log processing configuration -->
 	<para name="basicUrl">http://podaac.jpl.nasa.gov</para>
-	<para name="fitlterUrlTypes">".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/"</para>
+	<para name="blacklist_request">.js, .css, .jpg, .png, .ico, image_captcha, autocomplete, .gif, /alldata/, /api/, get / http/1.1, .jpeg, /ws/</para>
+    <para name="blacklist_agent">crawler, googlebot, bingbot, slurp, yacybot, rogerbot, yandexbot, -, apache-httpclient, java, curl</para>	
+	<para name="LogType_FTP">ftp</para>
+	<para name="LogType_HTTP">PO.DAAC</para> 
+		<!-- User search history --> 
+		
+		<!-- clickstream --> 
+		
+		 	
+	<!-- Metadata configuration -->
+	
+	<!-- Semantic similarity configuration -->
+	
+	<!-- Ranking configuration -->
+	
+	<!-- Recommendation configuration -->
 </Config>
