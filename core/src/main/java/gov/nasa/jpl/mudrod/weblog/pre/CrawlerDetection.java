@@ -208,7 +208,8 @@ public class CrawlerDetection extends LogAbstract {
             boolean find = false;
             while (matcher.find()) {
               request = matcher.group(1);
-              result.put("RequestUrl", "http://podaac.jpl.nasa.gov" + request);
+              //result.put("RequestUrl", "http://podaac.jpl.nasa.gov" + request);
+              result.put("RequestUrl", props.get("basicUrl") + request);
               find = true;
             }
             if (!find) {

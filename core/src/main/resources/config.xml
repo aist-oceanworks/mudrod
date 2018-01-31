@@ -125,5 +125,8 @@
     repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
     -->
     <para name="parallelOptimization">repartition</para>
-
+    
+    <!-- customerized log configuration -->
+	<para name="basicUrl">http://podaac.jpl.nasa.gov</para>
+	<para name="fitlterUrlTypes">".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/"</para>
 </Config>

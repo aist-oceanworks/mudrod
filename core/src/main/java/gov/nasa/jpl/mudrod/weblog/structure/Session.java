@@ -213,7 +213,7 @@ public class Session /*extends MudrodAbstract*/ implements Comparable<Session> {
       String logType = (String) result.get("LogType");
       String referer = (String) result.get("Referer");
 
-      SessionNode node = new SessionNode(request, logType, referer, time, seq);
+      SessionNode node = new SessionNode(request, logType, referer, props.getProperty("basicUrl"), time, seq);
       tree.insert(node);
       seq++;
     }

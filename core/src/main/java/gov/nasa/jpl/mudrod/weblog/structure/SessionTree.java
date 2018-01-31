@@ -61,7 +61,7 @@ public class SessionTree extends MudrodAbstract {
    */
   public SessionTree(Properties props, ESDriver es, SessionNode rootData, String sessionID, String cleanupType) {
     super(props, es, null);
-    root = new SessionNode("root", "root", "", "", 0);
+    root = new SessionNode("root", "root", "", props.getProperty("basicUrl"),"", 0);
     tmpnode = root;
     this.sessionID = sessionID;
     this.cleanupType = cleanupType;
@@ -77,7 +77,7 @@ public class SessionTree extends MudrodAbstract {
    */
   public SessionTree(Properties props, ESDriver es, String sessionID, String cleanupType) {
     super(props, es, null);
-    root = new SessionNode("root", "root", "", "", 0);
+    root = new SessionNode("root", "root", "", props.getProperty("basicUrl"), "", 0);
     root.setParent(root);
     tmpnode = root;
     this.sessionID = sessionID;
