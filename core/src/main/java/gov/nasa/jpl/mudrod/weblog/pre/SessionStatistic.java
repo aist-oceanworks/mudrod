@@ -255,7 +255,7 @@ public class SessionStatistic extends LogAbstract {
             }
           }
         }
-        if ("ftp".equals(logType)) {
+        if (props.getProperty("LogType_FTP").equals(logType)) {
           ftpRequest_count++;
           String download = "";
           String requestLowercase = request.toLowerCase();

@@ -255,7 +255,7 @@ public class SessionGenerator extends LogAbstract {
         time = fmt.parseDateTime((String) result.get("Time"));
         id = hit.getId();
 
-        if ("PO.DAAC".equals(logType)) {
+        if (props.get("LogType_HTTP").equals(logType)) {
           if ("-".equals(referer) || referer.equals(indexUrl) || !referer.contains(indexUrl)) {
             sessionCountIn++;
             sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
@@ -314,7 +314,7 @@ public class SessionGenerator extends LogAbstract {
               }
             }
           }
-        } else if ("ftp".equals(logType)) {
+        } else if (props.getProperty("LogType_FTP").equals(logType)) {
 
           // may affect computation efficiency
           Map<String, DateTime> requests = sessionReqs.get(ip + "@" + sessionCountIn);
