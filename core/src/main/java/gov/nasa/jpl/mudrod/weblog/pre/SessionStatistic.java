@@ -111,7 +111,7 @@ public class SessionStatistic extends LogAbstract {
    * @return dataset ID
    */
   public String findDataset(String request) {
-    String pattern1 = "/dataset/";
+    String pattern1 = props.get("URL_view") + "";
     String pattern2;
     if (request.contains("?")) {
       pattern2 = "?";
@@ -215,8 +215,8 @@ public class SessionStatistic extends LogAbstract {
           request = matcher.group(1);
         }
 
-        String datasetlist = "/datasetlist?";
-        String dataset = "/dataset/";
+        String datasetlist = props.get("URL_search") + "";
+        String dataset = props.get("URL_view") + "";
         if (request.contains(datasetlist)) {
           searchDataListRequest_count++;
 
@@ -241,19 +241,14 @@ public class SessionStatistic extends LogAbstract {
         }
         if (request.startsWith(dataset)) {
           searchDataRequest_count++;
-          if (findDataset(request) != null) {
+          if (findDataset(request) != null) 
+          {
             String view = findDataset(request);
-
-            if ("".equals(views)) {
+            if (views.equals("")) 
               views = view;
-            } else {
-              if (views.contains(view)) {
-
-              } else {
-                views = views + "," + view;
-              }
-            }
-          }
+             else if (!views.contains(view)) 
+                views = views + "," + view;          
+           }          
         }
         if (props.getProperty("LogType_FTP").equals(logType)) {
           ftpRequest_count++;

@@ -241,7 +241,6 @@ public class SessionGenerator extends LogAbstract {
     String logType = "";
     String id = "";
     String ip = user;
-    //String indexUrl = "http://podaac.jpl.nasa.gov/";
     String indexUrl = props.getProperty("basicUrl") + "/";
     DateTime time = null;
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();

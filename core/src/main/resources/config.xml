@@ -12,106 +12,74 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
 -->
-<Config>
-    <para name="Cleanup_type_prefix">cleanupLog</para>
-
-    <para name="clickStreamLinkageType">ClickStreamLinkage</para>
-
-    <para name="clickStreamMatrixType">clickstreamMatrix</para>
-
-    <para name="clickstreamSVDDimension">50</para>
-
-    <para name="clickStream_w">2</para>
-
-    <para name="commentType">comment</para>
-
-    <para name="downloadf">100</para>
-
-    <para name="downloadWeight">3</para>
-
+<Config>   
+    <!-- NEW CONFIGURATION, PLEASE MOVE THE ABOVE CONFIGURATION DOWN BELOW WHEN YOU SEE A FIT -->  
+    <!-- Database configuration -->
     <para name="clusterName">MudrodES</para>
-
     <para name="ES_Transport_TCP_Port">9300</para>
-
     <para name="ES_unicast_hosts">127.0.0.1</para>
-
     <para name="ES_HTTP_port">9200</para>
-
     <para name="indexName">mudrod</para>
-
-    <para name="ftpPrefix">FTP.</para>
     
-    <para name="FTP_type_prefix">rawftp</para>
-
-    <para name="HTTP_type_prefix">rawhttp</para>
-
-    <para name="httpPrefix">WWW.</para>
-
-    <para name="logIndexName">podaaclog</para>
-
-    <para name="metadataLinkageType">MetadataLinkage</para>
-
-    <para name="metadataSVDDimension">50</para>
-
-    <para name="metadataurl">null</para>
-
-    <para name="metadata_w">1</para>
-
-    <para name="mini_userHistory">5</para>
-
-    <!--
-    The ontology service implementation. Possible values include
-     EsipPortal - EsipPortalOntology
-     EsipCOR - EsipCOROntology
-     Local - gov.nasa.jpl.mudrod.ontology.process.Local
-     -->
-    <para name="mudrod.ontology.implementation">Local</para>
-
-    <para name="ontologyLinkageType">SWEETLinkage</para>
-
-    <para name="ontology_w">2</para>
-
-    <!--
-     Log processing type. Possible values include
-     'sequential' or 'parallel'.
-     -->
-    <para name="processingType">parallel</para>
-
-    <para name="raw_metadataType">RawMetadata</para>
-
-    <para name="searchf">100</para>
-
-    <para name="sendingrate">30</para>
-
-    <para name="SessionPort">8080</para>
-
-    <para name="SessionStats_prefix">sessionstats</para>
-
-    <para name="SessionUrl">/mudrod-service/session.html</para>
-
-    <!-- The name of your application. This will appear in the UI and in log data.-->
-    <para name="spark.app.name">MudrodSparkApp</para>
-
-    <!--
-    The default Spark cluster manager to connect to. See the list of allowed master URL's.
-    For more information, consult http://spark.apache.org/docs/latest/submitting-applications.html#master-urls
-    -->
+    <!-- Spark related -->
+    <para name="spark.app.name">MudrodSparkApp</para> <!-- The name of your application. This will appear in the UI and in log data.-->
     <para name="spark.master">local[4]</para>
-
-    <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
-    <para name="svmSgdModel">${svmSgdModel.value}.zip</para>
+    <para name="processingType">parallel</para> <!-- Log processing type. Possible values include 'sequential' or 'parallel'.-->
+    <para name="parallelOptimization">repartition</para> <!-- Log processing parallel optimization type. Possible values: default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION -->
     
+    <!-- Web log processing configuration -->
+    <para name="ftpPrefix">FTP.</para>   
+    <para name="FTP_type_prefix">rawftp</para>
+    <para name="HTTP_type_prefix">rawhttp</para>
+    <para name="httpPrefix">WWW.</para>
+    <para name="logIndexName">podaaclog</para>
+	<para name="basicUrl">http://podaac.jpl.nasa.gov</para>
+	<para name="blacklist_request">.js, .css, .jpg, .png, .ico, image_captcha, autocomplete, .gif, /alldata/, /api/, get / http/1.1, .jpeg, /ws/</para>
+    <para name="blacklist_agent">crawler, googlebot, bingbot, slurp, yacybot, rogerbot, yandexbot, -, apache-httpclient, java, curl</para>	
+	<para name="LogType_FTP">ftp</para>
+	<para name="LogType_HTTP">PO.DAAC</para> 
+	<para name="Cleanup_type_prefix">cleanupLog</para>
+	<para name="searchf">100</para>
+    <para name="sendingrate">30</para>
+    <para name="SessionPort">8080</para>
+    <para name="SessionStats_prefix">sessionstats</para>
+    <para name="SessionUrl">/mudrod-service/session.html</para>
+    <para name="commentType">comment</para> 
     <para name="timegap">600</para>
+    <para name="viewf">200</para>    
+	<para name="URL_view">/dataset/</para> 
+	<para name="URL_search">/datasetlist?</para>
+	<!-- IMPORTANT NOTE: In order to better parse a URL (getting searching keyword, etc.), please consider custimize 
+	gov.nasa.jpl.mudrod.weblog.structure.RequestUrl: GetSearchInfo, getFilterInfo -->
+	
+		<!-- User search history --> 
+		<para name="mini_userHistory">5</para>
+		<para name="userHistoryLinkageType">UserHistoryLinkage</para>  
+        <para name="userHistory_w">2</para>
+		
+		<!-- clickstream --> 
+		<para name="downloadf">100</para>
+        <para name="downloadWeight">3</para>
+		<para name="clickStreamLinkageType">ClickStreamLinkage</para>
+	    <para name="clickStreamMatrixType">clickstreamMatrix</para>
+	    <para name="clickstreamSVDDimension">50</para>
+	    <para name="clickStream_w">2</para>
+		
+		 	
+	<!-- Metadata configuration -->
+	<para name="metadataLinkageType">MetadataLinkage</para>
+    <para name="metadataSVDDimension">50</para>
+    <para name="metadataurl">null</para>
+    <para name="metadata_w">1</para>
+    <para name="raw_metadataType">RawMetadata</para>
     
-    <para name="userHistoryLinkageType">UserHistoryLinkage</para>
+    	
+	<!-- Ranking configuration -->
+    <para name="svmSgdModel">${svmSgdModel.value}.zip</para> <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
     
-    <para name="userHistory_w">2</para>
-
-    <para name="viewf">200</para>
-
-
-
-    <!-- FOLLOWING NEEDS TO BE ADDED TO MudrodConstants.java -->
+    	
+	<!-- Recommendation configuration -->
+	<!-- FOLLOWING NEEDS TO BE ADDED TO MudrodConstants.java -->
     <para name="recom_metadataType">RecomMetadata</para>
     <!-- recommendation -->
     <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
@@ -119,34 +87,13 @@
     <para name="metadataCodeSimType">MetadataCodeSim</para>
     <para name="metadataSessionBasedSimType">MetadataSBSim</para>
     <para name="metadataTopicSimType">MetadataTBSim</para>
-    <!--
-    Log processing parallel optimization type. Possible values include
-    default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT
-    repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION
-    -->
-    <para name="parallelOptimization">repartition</para>
-    
-    <!-- NEW CONFIGURATION, PLEASE MOVE THE ABOVE CONFIGURATION DOWN BELOW WHEN YOU SEE A FIT -->
-    
-    <!-- Database configuration -->
     
     
-    <!-- Web log processing configuration -->
-	<para name="basicUrl">http://podaac.jpl.nasa.gov</para>
-	<para name="blacklist_request">.js, .css, .jpg, .png, .ico, image_captcha, autocomplete, .gif, /alldata/, /api/, get / http/1.1, .jpeg, /ws/</para>
-    <para name="blacklist_agent">crawler, googlebot, bingbot, slurp, yacybot, rogerbot, yandexbot, -, apache-httpclient, java, curl</para>	
-	<para name="LogType_FTP">ftp</para>
-	<para name="LogType_HTTP">PO.DAAC</para> 
-		<!-- User search history --> 
-		
-		<!-- clickstream --> 
-		
-		 	
-	<!-- Metadata configuration -->
-	
-	<!-- Semantic similarity configuration -->
-	
-	<!-- Ranking configuration -->
-	
-	<!-- Recommendation configuration -->
+    <!--The ontology service implementation. Possible values include
+     EsipPortal - EsipPortalOntology
+     EsipCOR - EsipCOROntology
+     Local - gov.nasa.jpl.mudrod.ontology.process.Local-->
+    <para name="mudrod.ontology.implementation">Local</para>
+    <para name="ontologyLinkageType">SWEETLinkage</para>
+    <para name="ontology_w">2</para>
 </Config>
