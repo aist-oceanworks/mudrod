@@ -16,322 +16,368 @@ package gov.nasa.jpl.mudrod.metadata.structure;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import gov.nasa.jpl.mudrod.driver.ESDriver;
 
 /**
  * ClassName: PODAACMetadata Function: PODAACMetadata setter and getter methods
  */
-public class PODAACMetadata implements Serializable {
+public class PODAACMetadata extends Metadata {
 
-  /**
-   *
-   */
-  private static final long serialVersionUID = 1L;
-  // shortname: data set short name
-  private String shortname;
-  // abstractStr: data set abstract
-  private String abstractStr;
-  // isoTopic: data set topic
-  private String isoTopic;
-  // sensor: sensor
-  private String sensor;
-  // source: data source
-  private String source;
-  // project: data project
-  private String project;
-  // hasAbstarct: whether data set has abstract
-  boolean hasAbstarct;
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
+	// shortname: data set short name
+	// private String shortname;
+	// abstractStr: data set abstract
+	private String abstractStr;
+	// isoTopic: data set topic
+	private String isoTopic;
+	// sensor: sensor
+	private String sensor;
+	// source: data source
+	private String source;
+	// project: data project
+	private String project;
+	// hasAbstarct: whether data set has abstract
+	boolean hasAbstarct;
 
-  // longnameList: data set long name list
-  private List<String> longnameList;
-  // keywordList:data set key word list
-  private List<String> keywordList;
-  // termList: data set term list
-  private List<String> termList;
-  // topicList: data set topic list
-  private List<String> topicList;
-  // variableList: data set variable list
-  private List<String> variableList;
-  // abstractList: data set abstract term list
-  private List<String> abstractList;
-  // isotopicList: data set iso topic list
-  private List<String> isotopicList;
-  // sensorList: data set sensor list
-  private List<String> sensorList;
-  // sourceList: data set source list
-  private List<String> sourceList;
-  // projectList: data set project list
-  private List<String> projectList;
-  // regionList: data set region list
-  private List<String> regionList;
+	// longnameList: data set long name list
+	private List<String> longnameList;
+	// keywordList:data set key word list
+	private List<String> keywordList;
+	// termList: data set term list
+	private List<String> termList;
+	// topicList: data set topic list
+	private List<String> topicList;
+	// variableList: data set variable list
+	private List<String> variableList;
+	// abstractList: data set abstract term list
+	private List<String> abstractList;
+	// isotopicList: data set iso topic list
+	private List<String> isotopicList;
+	// sensorList: data set sensor list
+	private List<String> sensorList;
+	// sourceList: data set source list
+	private List<String> sourceList;
+	// projectList: data set project list
+	private List<String> projectList;
+	// regionList: data set region list
+	private List<String> regionList;
 
-  public PODAACMetadata() {
-    // Default constructor
-  }
+	public PODAACMetadata() {
+		// Default constructor
+	}
 
-  /**
-   * Creates a new instance of PODAACMetadata.
-   *
-   * @param shortname data set short name
-   * @param longname  data set long name
-   * @param topics    data set topics
-   * @param terms     data set terms
-   * @param variables data set variables
-   * @param keywords  data set keywords
-   * @param region    list of regions
-   */
-  public PODAACMetadata(String shortname, List<String> longname, List<String> topics, List<String> terms, List<String> variables, List<String> keywords, List<String> region) {
-    this.shortname = shortname;
-    this.longnameList = longname;
-    this.keywordList = keywords;
-    this.termList = terms;
-    this.topicList = topics;
-    this.variableList = variables;
-    this.regionList = region;
-  }
+	/**
+	 * Creates a new instance of PODAACMetadata.
+	 *
+	 * @param shortname
+	 *            data set short name
+	 * @param longname
+	 *            data set long name
+	 * @param topics
+	 *            data set topics
+	 * @param terms
+	 *            data set terms
+	 * @param variables
+	 *            data set variables
+	 * @param keywords
+	 *            data set keywords
+	 * @param region
+	 *            list of regions
+	 */
+	public PODAACMetadata(String shortname, List<String> longname, List<String> topics, List<String> terms,
+			List<String> variables, List<String> keywords, List<String> region) {
+		this.shortname = shortname;
+		this.longnameList = longname;
+		this.keywordList = keywords;
+		this.termList = terms;
+		this.topicList = topics;
+		this.variableList = variables;
+		this.regionList = region;
+	}
 
-  /**
-   * setTerms: set term of data set
-   *
-   * @param termstr data set terms
-   */
-  public void setTerms(String termstr) {
-    this.splitString(termstr, this.termList);
-  }
+	public PODAACMetadata(Map<String, Object> result, ESDriver es, String index) {
 
-  /**
-   * setKeywords: set key word of data set
-   *
-   * @param keywords data set keywords
-   */
-  public void setKeywords(String keywords) {
-    this.splitString(keywords, this.keywordList);
-  }
+		String shortname = (String) result.get("Dataset-ShortName");
+		List<String> topic = (List<String>) result.get("DatasetParameter-Topic");
+		List<String> term = (List<String>) result.get("DatasetParameter-Term");
+		List<String> keyword = (List<String>) result.get("Dataset-Metadata");
+		List<String> variable = (List<String>) result.get("DatasetParameter-Variable");
+		List<String> longname = (List<String>) result.get("DatasetProject-Project-LongName");
+		List<String> region = (List<String>) result.get("DatasetRegion-Region");
 
-  /**
-   * setTopicList: set topic of data set
-   *
-   * @param topicStr data set topics
-   */
-  public void setTopicList(String topicStr) {
-    this.splitString(topicStr, this.topicList);
-  }
+		this.shortname = shortname;
+		this.longnameList = longname;
+		try {
+			this.keywordList = es.customAnalyzing(index, keyword);
+			this.termList = es.customAnalyzing(index, term);
+			this.topicList = es.customAnalyzing(index, topic);
+			this.variableList = es.customAnalyzing(index, variable);
+			this.regionList = es.customAnalyzing(index, region);
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
-  /**
-   * setVaraliableList: set varilable of data set
-   *
-   * @param varilableStr data set variables
-   */
-  public void setVaraliableList(String varilableStr) {
-    this.splitString(varilableStr, this.variableList);
-  }
+	/**
+	 * setTerms: set term of data set
+	 *
+	 * @param termstr
+	 *            data set terms
+	 */
+	public void setTerms(String termstr) {
+		this.splitString(termstr, this.termList);
+	}
 
-  /**
-   * setProjectList:set project of data set
-   *
-   * @param project data set projects
-   */
-  public void setProjectList(String project) {
-    this.splitString(project, this.projectList);
-  }
+	/**
+	 * setKeywords: set key word of data set
+	 *
+	 * @param keywords
+	 *            data set keywords
+	 */
+	public void setKeywords(String keywords) {
+		this.splitString(keywords, this.keywordList);
+	}
 
-  /**
-   * setSourceList: set source of data set
-   *
-   * @param source data set sources
-   */
-  public void setSourceList(String source) {
-    this.splitString(source, this.sourceList);
-  }
+	/**
+	 * setTopicList: set topic of data set
+	 *
+	 * @param topicStr
+	 *            data set topics
+	 */
+	public void setTopicList(String topicStr) {
+		this.splitString(topicStr, this.topicList);
+	}
 
-  /**
-   * setSensorList: set sensor of data set
-   *
-   * @param sensor data set sensors
-   */
-  public void setSensorList(String sensor) {
-    this.splitString(sensor, this.sensorList);
-  }
+	/**
+	 * setVaraliableList: set varilable of data set
+	 *
+	 * @param varilableStr
+	 *            data set variables
+	 */
+	public void setVaraliableList(String varilableStr) {
+		this.splitString(varilableStr, this.variableList);
+	}
 
-  /**
-   * setISOTopicList:set iso topic of data set
-   *
-   * @param isoTopic data set iso topics
-   */
-  public void setISOTopicList(String isoTopic) {
-    this.splitString(isoTopic, this.isotopicList);
-  }
+	/**
+	 * setProjectList:set project of data set
+	 *
+	 * @param project
+	 *            data set projects
+	 */
+	public void setProjectList(String project) {
+		this.splitString(project, this.projectList);
+	}
 
-  /**
-   * getKeywordList: get key word of data set
-   *
-   * @return data set keyword list
-   */
-  public List<String> getKeywordList() {
-    return this.keywordList;
-  }
+	/**
+	 * setSourceList: set source of data set
+	 *
+	 * @param source
+	 *            data set sources
+	 */
+	public void setSourceList(String source) {
+		this.splitString(source, this.sourceList);
+	}
 
-  /**
-   * getTermList:get term list of data set
-   *
-   * @return data set term list
-   */
-  public List<String> getTermList() {
-    return this.termList;
-  }
+	/**
+	 * setSensorList: set sensor of data set
+	 *
+	 * @param sensor
+	 *            data set sensors
+	 */
+	public void setSensorList(String sensor) {
+		this.splitString(sensor, this.sensorList);
+	}
 
-  /**
-   * getShortName:get short name of data set
-   *
-   * @return data set short name
-   */
-  public String getShortName() {
-    return this.shortname;
-  }
+	/**
+	 * setISOTopicList:set iso topic of data set
+	 *
+	 * @param isoTopic
+	 *            data set iso topics
+	 */
+	public void setISOTopicList(String isoTopic) {
+		this.splitString(isoTopic, this.isotopicList);
+	}
 
-  /**
-   * getKeyword:get key word of data set
-   *
-   * @return data set keyword string
-   */
-  public String getKeyword() {
-    return String.join(",", this.keywordList);
-  }
+	/**
+	 * getKeywordList: get key word of data set
+	 *
+	 * @return data set keyword list
+	 */
+	public List<String> getKeywordList() {
+		return this.keywordList;
+	}
 
-  /**
-   * getTerm:get term of data set
-   *
-   * @return data set term string
-   */
-  public String getTerm() {
-    return String.join(",", this.termList);
-  }
+	/**
+	 * getTermList:get term list of data set
+	 *
+	 * @return data set term list
+	 */
+	public List<String> getTermList() {
+		return this.termList;
+	}
 
-  /**
-   * getTopic:get topic of data set
-   *
-   * @return data set topic string
-   */
-  public String getTopic() {
-    return String.join(",", this.topicList);
-  }
+	/**
+	 * getShortName:get short name of data set
+	 *
+	 * @return data set short name
+	 */
+	/*
+	 * public String getShortName() { return this.shortname; }
+	 */
 
-  /**
-   * getVariable:get variable of data set
-   *
-   * @return data set variable string
-   */
-  public String getVariable() {
-    return String.join(",", this.variableList);
-  }
+	/**
+	 * getKeyword:get key word of data set
+	 *
+	 * @return data set keyword string
+	 */
+	public String getKeyword() {
+		return String.join(",", this.keywordList);
+	}
 
-  /**
-   * getAbstract:get abstract of data set
-   *
-   * @return data set abstract
-   */
-  public String getAbstract() {
-    return this.abstractStr;
-  }
+	/**
+	 * getTerm:get term of data set
+	 *
+	 * @return data set term string
+	 */
+	public String getTerm() {
+		return String.join(",", this.termList);
+	}
 
-  /**
-   * getProject:get project of data set
-   *
-   * @return data set project string
-   */
-  public String getProject() {
-    return this.project;
-  }
+	/**
+	 * getTopic:get topic of data set
+	 *
+	 * @return data set topic string
+	 */
+	public String getTopic() {
+		return String.join(",", this.topicList);
+	}
 
-  /**
-   * getSource:get source of data set
-   *
-   * @return data set source string
-   */
-  public String getSource() {
-    return this.source;
-  }
+	/**
+	 * getVariable:get variable of data set
+	 *
+	 * @return data set variable string
+	 */
+	public String getVariable() {
+		return String.join(",", this.variableList);
+	}
 
-  /**
-   * getSensor:get sensor of data set
-   *
-   * @return data set sensor string
-   */
-  public String getSensor() {
-    return this.sensor;
-  }
+	/**
+	 * getAbstract:get abstract of data set
+	 *
+	 * @return data set abstract
+	 */
+	public String getAbstract() {
+		return this.abstractStr;
+	}
 
-  /**
-   * getISOTopic:get iso topic of data set
-   *
-   * @return data set ISO topic string
-   */
-  public String getISOTopic() {
-    return this.isoTopic;
-  }
+	/**
+	 * getProject:get project of data set
+	 *
+	 * @return data set project string
+	 */
+	public String getProject() {
+		return this.project;
+	}
 
-  /**
-   * getAllTermList: get all term list of data set
-   *
-   * @return data set term list
-   */
-  public List<String> getAllTermList() {
-    List<String> allterms = new ArrayList<>();
+	/**
+	 * getSource:get source of data set
+	 *
+	 * @return data set source string
+	 */
+	public String getSource() {
+		return this.source;
+	}
 
-    if (this.termList != null && !this.termList.isEmpty()) {
-      allterms.addAll(this.termList);
-    }
+	/**
+	 * getSensor:get sensor of data set
+	 *
+	 * @return data set sensor string
+	 */
+	public String getSensor() {
+		return this.sensor;
+	}
 
-    if (this.keywordList != null && !this.keywordList.isEmpty()) {
-      allterms.addAll(this.keywordList);
-    }
+	/**
+	 * getISOTopic:get iso topic of data set
+	 *
+	 * @return data set ISO topic string
+	 */
+	public String getISOTopic() {
+		return this.isoTopic;
+	}
 
-    if (this.topicList != null && !this.topicList.isEmpty()) {
-      allterms.addAll(this.topicList);
-    }
+	/**
+	 * getAllTermList: get all term list of data set
+	 *
+	 * @return data set term list
+	 */
+	public List<String> getAllTermList() {
+		List<String> allterms = new ArrayList<>();
 
-    if (this.variableList != null && !this.variableList.isEmpty()) {
-      allterms.addAll(this.variableList);
-    }
+		if (this.termList != null && !this.termList.isEmpty()) {
+			allterms.addAll(this.termList);
+		}
 
-    if (this.regionList != null && !this.regionList.isEmpty()) {
-      allterms.addAll(this.regionList);
-    }
-    return allterms;
-  }
+		if (this.keywordList != null && !this.keywordList.isEmpty()) {
+			allterms.addAll(this.keywordList);
+		}
 
-  /**
-   * splitString: split value of fields of data set
-   *
-   * @param oristr original string
-   * @param list   result after splitting
-   */
-  private void splitString(String oristr, List<String> list) {
-    if (oristr == null) {
-      return;
-    }
+		if (this.topicList != null && !this.topicList.isEmpty()) {
+			allterms.addAll(this.topicList);
+		}
 
-    if (oristr.startsWith("\"")) {
-      oristr = oristr.substring(1);
-    }
-    if (oristr.endsWith("\"")) {
-      oristr = oristr.substring(0, oristr.length() - 1);
-    }
+		if (this.variableList != null && !this.variableList.isEmpty()) {
+			allterms.addAll(this.variableList);
+		}
 
-    String strs[] = oristr.trim().split(",");
-    if (strs != null) {
-      for (int i = 0; i < strs.length; i++) {
-        String str = strs[i].trim();
-        if (str.startsWith(",") || str.startsWith("\"")) {
-          str = str.substring(1);
-        }
-        if (str.endsWith(",") || str.endsWith("\"")) {
-          str = str.substring(0, str.length() - 1);
-        }
-        if (str == "") {
-          continue;
-        }
-        list.add(str);
-      }
-    }
-  }
+		if (this.regionList != null && !this.regionList.isEmpty()) {
+			allterms.addAll(this.regionList);
+		}
+		return allterms;
+	}
+
+	/**
+	 * splitString: split value of fields of data set
+	 *
+	 * @param oristr
+	 *            original string
+	 * @param list
+	 *            result after splitting
+	 */
+	private void splitString(String oristr, List<String> list) {
+		if (oristr == null) {
+			return;
+		}
+
+		if (oristr.startsWith("\"")) {
+			oristr = oristr.substring(1);
+		}
+		if (oristr.endsWith("\"")) {
+			oristr = oristr.substring(0, oristr.length() - 1);
+		}
+
+		String strs[] = oristr.trim().split(",");
+		if (strs != null) {
+			for (int i = 0; i < strs.length; i++) {
+				String str = strs[i].trim();
+				if (str.startsWith(",") || str.startsWith("\"")) {
+					str = str.substring(1);
+				}
+				if (str.endsWith(",") || str.endsWith("\"")) {
+					str = str.substring(0, str.length() - 1);
+				}
+				if (str == "") {
+					continue;
+				}
+				list.add(str);
+			}
+		}
+	}
 }

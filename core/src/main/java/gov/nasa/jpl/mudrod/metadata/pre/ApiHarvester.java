@@ -124,7 +124,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     int doc_length = 0;
     JsonParser parser = new JsonParser();
     do {
-      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      //String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      String searchAPI = props.getProperty("metadataAPI");
+      searchAPI = searchAPI.replace("$startIndex", Integer.toString(startIndex));
       HttpRequest http = new HttpRequest();
       String response = http.getRequest(searchAPI);
 
