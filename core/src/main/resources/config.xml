@@ -13,7 +13,6 @@
   governing permissions and limitations under the License. 
 -->
 <Config>   
-    <!-- NEW CONFIGURATION, PLEASE MOVE THE ABOVE CONFIGURATION DOWN BELOW WHEN YOU SEE A FIT -->  
     <!-- Database configuration -->
     <para name="clusterName">MudrodES</para>
     <para name="ES_Transport_TCP_Port">9300</para>
@@ -72,12 +71,10 @@
     <para name="metadataurl">null</para>
     <para name="metadata_w">1</para>
     <para name="raw_metadataType">RawMetadata</para>
-    
-    	
+       	
 	<!-- Ranking configuration -->
     <para name="svmSgdModel">${svmSgdModel.value}.zip</para> <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
-    
-    	
+       	
 	<!-- Recommendation configuration -->
 	<!-- FOLLOWING NEEDS TO BE ADDED TO MudrodConstants.java -->
     <para name="recom_metadataType">RecomMetadata</para>

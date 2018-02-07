@@ -53,7 +53,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    */
   class LinkedTerm {
     String term = null;
-    double weight = 0;
+    double weight = 0.0;
     String model = null;
 
     public LinkedTerm(String str, double w, String m) {
@@ -107,13 +107,10 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
 
       double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
-      if (finalWeight < 0) {
-        finalWeight = 0;
-      }
-
-      if (finalWeight > 1) {
-        finalWeight = 1;
-      }
+      
+      if (finalWeight < 0) finalWeight = 0;
+      if (finalWeight > 1) finalWeight = 1;
+      
       termsMap.put(entry.getKey(), Double.parseDouble(df.format(finalWeight)));
     }
 
@@ -197,7 +194,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       return Integer.parseInt(props.getProperty("ontology_w"));
     }
 
-    return 999999;
+    return Integer.MAX_VALUE;
   }
 
   /**
