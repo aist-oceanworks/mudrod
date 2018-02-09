@@ -64,11 +64,4 @@ public abstract class Metadata implements Serializable  {
    * @return data set abstract
    */
   public abstract List<String> getAllTermList();
-  
-  
-  public Metadata create(Map<String, Object> result, ESDriver es, String index){
-	 // change metadata class for other kind of metadata !!! important
-	 Metadata data = new PODAACMetadata(result, es, index);
-	 return data;	  
-  }
 }

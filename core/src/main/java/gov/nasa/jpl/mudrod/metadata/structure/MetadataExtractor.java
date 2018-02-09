@@ -75,7 +75,7 @@ public class MetadataExtractor implements Serializable {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> result = hit.getSource();
-        String shortname = (String) result.get("Dataset-ShortName");
+        /*String shortname = (String) result.get("Dataset-ShortName");
         List<String> topic = (List<String>) result.get("DatasetParameter-Topic");
         List<String> term = (List<String>) result.get("DatasetParameter-Term");
         List<String> keyword = (List<String>) result.get("Dataset-Metadata");
@@ -91,7 +91,10 @@ public class MetadataExtractor implements Serializable {
         } catch (InterruptedException | ExecutionException e) {
           e.printStackTrace();
 
-        }
+        }*/
+        
+        // change PODAACMetadata class for other kind of metadata !!! important
+        Metadata metadata = new PODAACMetadata(result, es, index);
         metadatas.add(metadata);
       }
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
