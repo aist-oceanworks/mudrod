@@ -86,7 +86,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   public JsonObject getRecomDataInJson(String input, int num) {
     JsonObject resultJson = new JsonObject();
 
-    String type = props.getProperty("metadataCodeSimType");
+    String type = props.getProperty("metadataFeatureSimType");
     Map<String, Double> sortedVariableSimMap = getRelatedData(type, input, num + 10);
 
     type = props.getProperty("metadataWordTFIDFSimType");

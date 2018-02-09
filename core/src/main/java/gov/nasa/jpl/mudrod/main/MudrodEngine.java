@@ -430,9 +430,11 @@ public class MudrodEngine {
     me.props.put("metadata_word_tfidf_matrix", dataDir + "metadata_word_tfidf.csv");
     me.props.put("session_metadata_Matrix", dataDir + "metadata_session_coocurrence_matrix.csv");
 
-    me.props.put("metadataOBCode", dataDir + "MetadataOHCode");
-    me.props.put("metadata_topic", dataDir + "metadata_topic");
-    me.props.put("metadata_topic_matrix", dataDir + "metadata_topic_matrix.csv");
+    //for recommendation
+    me.props.put("metadataTermTFIDFSimType", dataDir + "MetadataTermTFIDFSim");
+    me.props.put("metadataWordTFIDFSimType", dataDir + "MetadataWordTFIDFSim");
+    me.props.put("metadataFeatureSimType", dataDir + "MetadataFeatureSim");
+    me.props.put("metadataSessionBasedSimType", dataDir + "MetadataSessionSim");
   }
 
   /**

@@ -136,7 +136,8 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
-        String shortName = (String) metadata.get("Dataset-ShortName");
+        //String shortName = (String) metadata.get("Dataset-ShortName");
+        String shortName = (String) metadata.get(props.getProperty("metadataName"));
         shortnameMap.put(shortName.toLowerCase(), shortName);
       }
 

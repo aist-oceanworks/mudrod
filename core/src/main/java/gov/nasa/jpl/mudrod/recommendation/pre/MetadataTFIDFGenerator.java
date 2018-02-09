@@ -11,7 +11,7 @@ package gov.nasa.jpl.mudrod.recommendation.pre;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.recommendation.structure.MetadataOpt;
+import gov.nasa.jpl.mudrod.recommendation.structure.MetadataTokenizer;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -65,9 +66,10 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
   public LabeledRowMatrix generateWordBasedTFIDF() throws Exception {
 
-    MetadataOpt opt = new MetadataOpt(props);
+    MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark);
+    String metadataName = props.getProperty("metadataName");
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, metadataName);
 
     JavaPairRDD<String, List<String>> metadataWords = opt.tokenizeData(metadataContents, " ");
 
@@ -80,14 +82,18 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
   public LabeledRowMatrix generateTermBasedTFIDF() throws Exception {
 
-    MetadataOpt opt = new MetadataOpt(props);
+    MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    List<String> variables = new ArrayList<>();
+    String source = props.getProperty("metadataSemanticSourece");
+    List<String> variables = new ArrayList<String>(Arrays.asList(source.split(",")));
+    
+    /*List<String> variables = new ArrayList<>();
     variables.add("DatasetParameter-Term");
     variables.add("DatasetParameter-Variable");
-    variables.add("Dataset-ExtractTerm");
+    variables.add("Dataset-ExtractTerm");*/
 
-    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables);
+    String metadataName = props.getProperty("metadataName");
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables, metadataName);
 
     JavaPairRDD<String, List<String>> metadataTokens = opt.tokenizeData(metadataContents, ",");
 

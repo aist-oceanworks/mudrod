@@ -89,8 +89,6 @@ public class ImportMetadata extends DiscoveryStepAbstract {
           JsonElement item = parser.parse(jsonTxt);
           IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("recom_metadataType")).source(item.toString());
 
-          // preprocessdata
-
           es.getBulkProcessor().add(ir);
         } catch (IOException e) {
           e.printStackTrace();

@@ -79,11 +79,13 @@
 	<!-- FOLLOWING NEEDS TO BE ADDED TO MudrodConstants.java -->
     <para name="recom_metadataType">RecomMetadata</para>
     <!-- recommendation -->
-    <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
+    <para name="metadataName">Dataset-ShortName</para> 
+    <para name="metadataSemanticSourece">DatasetParameter-Term,DatasetParameter-Variable,Dataset-ExtractTerm</para> 
+    <!-- <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
     <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
     <para name="metadataCodeSimType">MetadataCodeSim</para>
     <para name="metadataSessionBasedSimType">MetadataSBSim</para>
-    <para name="metadataTopicSimType">MetadataTBSim</para>
+    <para name="metadataTopicSimType">MetadataTBSim</para> -->
     
     
     <!--The ontology service implementation. Possible values include
