@@ -47,7 +47,7 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
   public LogAbstract(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    if (props != null) {
+    if (props != null && es != null) {
       initLogIndex();
     }
   }

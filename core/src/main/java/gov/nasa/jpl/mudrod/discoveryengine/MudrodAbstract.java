@@ -52,7 +52,7 @@ public abstract class MudrodAbstract implements Serializable {
     this.es = es;
     this.spark = spark;
 
-    if (this.props != null) {
+    if (this.props != null && this.es!=null) {
       this.initMudrod();
     }
   }
