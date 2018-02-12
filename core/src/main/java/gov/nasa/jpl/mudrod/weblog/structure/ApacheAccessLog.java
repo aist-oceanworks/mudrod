@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,10 +54,10 @@ public class ApacheAccessLog extends WebLog implements Serializable {
   }
 
   public ApacheAccessLog() {
-
+	  super();
   }
 
-  public static String parseFromLogLine(String log) throws IOException, ParseException {
+  public static String parseFromLogLine(String log, Properties props) throws IOException, ParseException {
 
     String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
     final int NUM_FIELDS = 9;
@@ -82,7 +83,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
     String request = matcher.group(5).toLowerCase();
     String agent = matcher.group(9);
-    CrawlerDetection crawlerDe = new CrawlerDetection();
+    CrawlerDetection crawlerDe = new CrawlerDetection(props);
     if (crawlerDe.checkKnownCrawler(agent)) {
       return lineJson;
     } else {

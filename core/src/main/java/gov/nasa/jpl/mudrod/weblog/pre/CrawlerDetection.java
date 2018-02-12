@@ -70,8 +70,8 @@ public class CrawlerDetection extends LogAbstract {
     super(props, es, spark);
   }
 
-  public CrawlerDetection() {
-    super(null, null, null);
+  public CrawlerDetection(Properties props) {
+    super(props, null, null);
   }
 
   @Override

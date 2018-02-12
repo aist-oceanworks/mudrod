@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * This class represents an FTP access log line.
@@ -28,8 +29,12 @@ import java.util.Date;
 public class FtpLog extends WebLog implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
+  
+  public FtpLog() {
+	  super();
+  }
 
-  public static String parseFromLogLine(String log) {
+  public static String parseFromLogLine(String log, Properties props) {
 
     try {
       String ip = log.split(" +")[6];
