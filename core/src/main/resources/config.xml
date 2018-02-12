@@ -52,7 +52,7 @@
 	gov.nasa.jpl.mudrod.weblog.structure.RequestUrl: GetSearchInfo, getFilterInfo -->
 	
 	<!-- User search history --> 
-	<para name="mini_userHistory">5</para>
+	<para name="mini_userHistory">0</para>
 	<para name="userHistoryLinkageType">UserHistoryLinkage</para>  
     <para name="userHistory_w">2</para>
 	
