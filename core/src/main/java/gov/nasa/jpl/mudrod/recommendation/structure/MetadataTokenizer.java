@@ -33,15 +33,9 @@ public class MetadataTokenizer implements Serializable {
 
   public MetadataTokenizer(Properties props) {
     indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    metadataType = props.getProperty("recom_metadataType");
-
-    /*variables = new ArrayList<>();
-    variables.add("DatasetParameter-Term");
-    variables.add("DatasetParameter-Variable");
-    variables.add("Dataset-Description");
-    variables.add("Dataset-LongName");*/
+    metadataType = MudrodConstants.RECOM_METADATA_TYPE;
     
-    String source = props.getProperty("metadataSemanticSourece");
+    String source = props.getProperty(MudrodConstants.SEMANTIC_FIELDS);
     variables = new ArrayList<String>(Arrays.asList(source.split(",")));
   }
 

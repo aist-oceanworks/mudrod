@@ -3,6 +3,7 @@ package gov.nasa.jpl.mudrod.recommendation.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.recommendation.structure.MetadataFeature;
 import gov.nasa.jpl.mudrod.recommendation.structure.PODAACMetadataFeature;
 
@@ -55,8 +56,8 @@ public class FeatureBasedSimilarity extends DiscoveryStepAbstract implements Ser
   public FeatureBasedSimilarity(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
 
-    indexName = props.getProperty("indexName");
-    metadataType = props.getProperty("recom_metadataType");
+    indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    metadataType = MudrodConstants.RECOM_METADATA_TYPE;
     variableSimType = props.getProperty("metadataFeatureSimType");
  
     // !!! important, please change to other class when using other metadata
@@ -110,11 +111,11 @@ public class FeatureBasedSimilarity extends DiscoveryStepAbstract implements Ser
 
     for (int i = 0; i < size; i++) {
       Map<String, Object> metadataA = metadatas.get(i);
-      String shortNameA = (String) metadataA.get(props.getProperty("metadataName"));
+      String shortNameA = (String) metadataA.get(props.getProperty(MudrodConstants.METADATA_ID));
       for (int j = 0; j < size; j++) {
     	metadataA = metadatas.get(i);
         Map<String, Object> metadataB = metadatas.get(j);
-        String shortNameB = (String) metadataB.get(props.getProperty("metadataName"));
+        String shortNameB = (String) metadataB.get(props.getProperty(MudrodConstants.METADATA_ID));
 
         try {
           XContentBuilder contentBuilder = jsonBuilder().startObject();

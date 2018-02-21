@@ -28,7 +28,6 @@
                 gov.nasa.jpl.mudrod.services.autocomplete.AutoCompleteResource,
                 gov.nasa.jpl.mudrod.services.search.SearchDatasetDetailResource,
                 gov.nasa.jpl.mudrod.services.recommendation.HybridRecomDatasetsResource,
-                gov.nasa.jpl.mudrod.services.recommendation.RecomDatasetsResource,
                 gov.nasa.jpl.mudrod.services.search.SearchMetadataResource,
                 gov.nasa.jpl.mudrod.services.search.SearchVocabResource,
                 gov.nasa.jpl.mudrod.services.search.SessionDetailResource,

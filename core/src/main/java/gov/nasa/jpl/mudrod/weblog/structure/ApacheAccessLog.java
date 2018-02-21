@@ -14,6 +14,8 @@
 package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
+
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.weblog.pre.CrawlerDetection;
 
 import java.io.IOException;
@@ -89,9 +91,10 @@ public class ApacheAccessLog extends WebLog implements Serializable {
     } else {
 
       boolean tag = false;
-      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
+      
+      String[] mimeTypes = props.getProperty(MudrodConstants.BLACK_LIST_REQUEST).split(",");
       for (int i = 0; i < mimeTypes.length; i++) {
-        if (request.contains(mimeTypes[i])) {
+        if (request.contains(mimeTypes[i].trim())) {
           tag = true;
           return lineJson;
         }
@@ -99,7 +102,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
       if (tag == false) {
         ApacheAccessLog accesslog = new ApacheAccessLog();
-        accesslog.LogType = "PO.DAAC";
+        accesslog.LogType = MudrodConstants.HTTP_LOG;
         accesslog.IP = matcher.group(1);
         accesslog.Request = matcher.group(5);
         accesslog.Response = matcher.group(6);

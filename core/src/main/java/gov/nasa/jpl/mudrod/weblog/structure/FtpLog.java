@@ -14,6 +14,8 @@
 package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
+
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.weblog.pre.ImportLogFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ public class FtpLog extends WebLog implements Serializable {
 
       if (!request.contains("/misc/") && !request.contains("readme")) {
         FtpLog ftplog = new FtpLog();
-        ftplog.LogType = "ftp";
+        ftplog.LogType = MudrodConstants.FTP_LOG;
         ftplog.IP = ip;
         ftplog.Request = request;
         ftplog.Bytes = Double.parseDouble(bytes);

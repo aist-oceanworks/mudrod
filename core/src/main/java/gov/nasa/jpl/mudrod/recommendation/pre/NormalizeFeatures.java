@@ -3,6 +3,7 @@ package gov.nasa.jpl.mudrod.recommendation.pre;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.recommendation.structure.MetadataFeature;
 import gov.nasa.jpl.mudrod.recommendation.structure.PODAACMetadataFeature;
 
@@ -40,8 +41,8 @@ public class NormalizeFeatures extends DiscoveryStepAbstract {
    */
   public NormalizeFeatures(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    indexName = props.getProperty("indexName");
-    metadataType = props.getProperty("recom_metadataType");
+    indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
+    metadataType = MudrodConstants.RECOM_METADATA_TYPE;
   }
 
   @Override

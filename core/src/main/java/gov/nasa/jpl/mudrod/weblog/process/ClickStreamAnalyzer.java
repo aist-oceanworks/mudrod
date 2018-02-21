@@ -16,6 +16,7 @@ package gov.nasa.jpl.mudrod.weblog.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.semantics.SVDAnalyzer;
 import gov.nasa.jpl.mudrod.ssearch.ClickstreamImporter;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
@@ -50,13 +51,15 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
     LOG.info("Starting ClickStreamAnalyzer...");
     startTime = System.currentTimeMillis();
     try {
-      String clickstream_matrixFile = props.getProperty("clickstreamMatrix");
+      String clickstream_matrixFile = props.getProperty(MudrodConstants.CLICKSTREAM_PATH);
       File f = new File(clickstream_matrixFile);
       if (f.exists()) {
         SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-        svd.getSVDMatrix(props.getProperty("clickstreamMatrix"), Integer.parseInt(props.getProperty("clickstreamSVDDimension")), props.getProperty("clickstreamSVDMatrix_tmp"));
+        svd.getSVDMatrix(clickstream_matrixFile, 
+            Integer.parseInt(props.getProperty(MudrodConstants.CLICKSTREAM_SVD_DIM)), 
+            props.getProperty("clickstreamSVDMatrix_tmp"));
         List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
-        svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("clickStreamLinkageType"));
+        svd.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.CLICK_STREAM_LINKAGE_TYPE);
       
         // Store click stream in ES for the ranking use
         ClickstreamImporter cs = new ClickstreamImporter(props, es, spark);

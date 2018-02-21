@@ -16,6 +16,7 @@ package gov.nasa.jpl.mudrod.metadata.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.semantics.SVDAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
@@ -67,14 +68,14 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
       startTime = System.currentTimeMillis();
 
       SVDAnalyzer analyzer = new SVDAnalyzer(props, es, spark);
-      int svdDimension = Integer.parseInt(props.getProperty("metadataSVDDimension"));
+      int svdDimension = Integer.parseInt(props.getProperty(MudrodConstants.METADATA_SVD_DIM));
       String metadataMatrixFile = props.getProperty("metadataMatrix");
       String svdMatrixFileName = props.getProperty("metadataSVDMatrix_tmp");
 
       analyzer.getSVDMatrix(metadataMatrixFile, svdDimension, svdMatrixFileName);
       List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(svdMatrixFileName);
 
-      analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataLinkageType"));
+      analyzer.saveToES(triples, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.METADATA_LINKAGE_TYPE);
 
     } catch (Exception e) {
       e.printStackTrace();

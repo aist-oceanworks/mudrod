@@ -177,6 +177,12 @@ public class ESDriver implements Serializable {
   }
 
   public void deleteAllByQuery(String index, String type, QueryBuilder query) {
+    ImmutableOpenMap<String, MappingMetaData> mappings = getClient().admin().cluster().prepareState().execute().actionGet()
+        .getState().metaData().index(index).getMappings();
+    
+    //check if the type exists
+    if (!mappings.containsKey(type)) return;
+    
     createBulkProcessor();
     SearchResponse scrollResp = getClient().prepareSearch(index).setSearchType(SearchType.QUERY_AND_FETCH).setTypes(type).setScroll(new TimeValue(60000)).setQuery(query).setSize(10000).execute()
         .actionGet();

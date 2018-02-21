@@ -96,7 +96,7 @@ public class CrawlerDetection extends LogAbstract {
    * @return 1 if the log is initiated by crawler, 0 otherwise
    */
   public boolean checkKnownCrawler(String agent) {
-    String[] crawlers = (props.get("blacklist_agent") +"").split(",");
+    String[] crawlers = props.getProperty(MudrodConstants.BLACK_LIST_AGENT).split(",");
     for (int i = 0; i < crawlers.length; i++) {
       if (agent.toLowerCase().contains(crawlers[i].trim())) return true;
     }  
@@ -122,7 +122,7 @@ public class CrawlerDetection extends LogAbstract {
   public void checkByRateInSequential() throws InterruptedException, IOException {
     es.createBulkProcessor();
 
-    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    int rate = Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_RATE));
 
     Terms users = this.getUserTerms(this.httpType);
     LOG.info("Original User count: {}", Integer.toString(users.getBuckets().size()));
@@ -162,7 +162,7 @@ public class CrawlerDetection extends LogAbstract {
 
   private int checkByRate(ESDriver es, String user) {
 
-    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    int rate = Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_RATE));
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
 
@@ -186,13 +186,13 @@ public class CrawlerDetection extends LogAbstract {
         for (SearchHit hit : scrollResp.getHits().getHits()) {
           Map<String, Object> result = hit.getSource();
           String logtype = (String) result.get("LogType");
-          if (logtype.equals(props.get("LogType_HTTP"))) {
+          if (logtype.equals(MudrodConstants.HTTP_LOG)) {
             String request = (String) result.get("Request");
             matcher = pattern.matcher(request.trim().toLowerCase());
             boolean find = false;
             while (matcher.find()) {
               request = matcher.group(1);
-              result.put("RequestUrl", props.get("basicUrl") + request);
+              result.put("RequestUrl", props.getProperty(MudrodConstants.BASE_URL) + request);
               find = true;
             }
             if (!find) {

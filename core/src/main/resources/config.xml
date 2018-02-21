@@ -12,87 +12,67 @@
   express or implied. See the License for the specific language 
   governing permissions and limitations under the License. 
 -->
-<Config>   
+<Config>
     <!-- Database configuration -->
-    <para name="clusterName">MudrodES</para>
-    <para name="ES_Transport_TCP_Port">9300</para>
-    <para name="ES_unicast_hosts">127.0.0.1</para>
-    <para name="ES_HTTP_port">9200</para>
-    <para name="indexName">mudrod</para>
+    <para name="mudrod.cluster.name">MudrodES</para>
+    <para name="mudrod.es.transport.tcp.port">9300</para>
+    <para name="mudrod.es.unicast.hosts">127.0.0.1</para>
+    <para name="mudrod.es.http.port">9200</para>
+    <para name="mudrod.es.index">mudrod</para>
     
     <!-- Spark related -->
-    <para name="spark.app.name">MudrodSparkApp</para> <!-- The name of your application. This will appear in the UI and in log data.-->
-    <para name="spark.master">local[4]</para>
-    <para name="processingType">parallel</para> <!-- Log processing type. Possible values include 'sequential' or 'parallel'.-->
-    <para name="parallelOptimization">repartition</para> <!-- Log processing parallel optimization type. Possible values: default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION -->
+    <para name="mudrod.processing.type">parallel</para> <!-- Log processing type. Possible values include 'sequential' or 'parallel'.-->
+    <para name="mudrod.spark.app.name">MudrodSparkApp</para> <!-- The name of your application. This will appear in the UI and in log data.-->
+    <para name="mudrod.spark.master">local[4]</para>
+    <para name="mudrod.spark.optimize">repartition</para> <!-- Log processing parallel optimization type. Possible values: default - MudrodConstants.PARALLEL_OPTIMIZATION_DEFAULT repartition - MudrodConstants.PARALLEL_OPTIMIZATION_REPARTITION -->
     
     <!-- Web log processing configuration -->
-    <para name="ftpPrefix">FTP.</para>   
-    <para name="FTP_type_prefix">rawftp</para>
-    <para name="HTTP_type_prefix">rawhttp</para>
-    <para name="httpPrefix">WWW.</para>
-    <para name="logIndexName">podaaclog</para>
-	<para name="basicUrl">http://podaac.jpl.nasa.gov</para>
-	<para name="blacklist_request">.js, .css, .jpg, .png, .ico, image_captcha, autocomplete, .gif, /alldata/, /api/, get / http/1.1, .jpeg, /ws/</para>
-    <para name="blacklist_agent">crawler, googlebot, bingbot, slurp, yacybot, rogerbot, yandexbot, -, apache-httpclient, java, curl</para>	
-	<para name="LogType_FTP">ftp</para>
-	<para name="LogType_HTTP">PO.DAAC</para> 
-	<para name="Cleanup_type_prefix">cleanupLog</para>
-	<para name="searchf">100</para>
-    <para name="sendingrate">30</para>
-    <para name="SessionPort">8080</para>
-    <para name="SessionStats_prefix">sessionstats</para>
-    <para name="SessionUrl">/mudrod-service/session.html</para>
-    <para name="commentType">comment</para> 
-    <para name="timegap">600</para>
-    <para name="viewf">200</para>    
-	<para name="URL_view">/dataset/</para> 
-	<para name="URL_search">/datasetlist?</para>
+    <para name="mudrod.log.index">log</para> <!-- index name has to be all lowercase -->
+    <para name="mudrod.ftp.prefix">FTP.</para>
+    <para name="mudrod.http.prefix">WWW.</para>   
+	<para name="mudrod.base.url">http://podaac.jpl.nasa.gov</para>
+	<para name="mudrod.black.request.list">.js, .css, .jpg, .png, .ico, image_captcha, autocomplete, .gif, /alldata/, /api/, get / http/1.1, .jpeg, /ws/</para>
+    <para name="mudrod.black.agent.list">crawler, googlebot, bingbot, slurp, yacybot, rogerbot, yandexbot, -, apache-httpclient, java, curl</para>	
+	<para name="mudrod.search.freq">100</para>
+	<para name="mudrod.view.freq">200</para>
+    <para name="mudrod.download.freq">100</para> 
+    <para name="mudrod.request.rate">30</para>
+    <para name="mudrod.session.port">8080</para>
+    <para name="mudrod.session.url">/mudrod-service/session.html</para>
+    <para name="mudrod.request.time.gap">600</para>   
+	<para name="mudrod.view.url.marker">/dataset/</para> 
+	<para name="mudrod.search.url.marker">/datasetlist?</para>
 	<!-- IMPORTANT NOTE: In order to better parse a URL (getting searching keyword, etc.), please consider custimize 
 	gov.nasa.jpl.mudrod.weblog.structure.RequestUrl: GetSearchInfo, getFilterInfo -->
 	
 	<!-- User search history --> 
-	<para name="mini_userHistory">0</para>
-	<para name="userHistoryLinkageType">UserHistoryLinkage</para>  
-    <para name="userHistory_w">2</para>
+	<para name="mudrod.query.min">0</para>
+    <para name="mudrod.user.history.weight">2</para>
 	
 	<!-- clickstream --> 
-	<para name="downloadf">100</para>
-    <para name="downloadWeight">3</para>
-	<para name="clickStreamLinkageType">ClickStreamLinkage</para>
-    <para name="clickStreamMatrixType">clickstreamMatrix</para>
-    <para name="clickstreamSVDDimension">50</para>
-    <para name="clickStream_w">2</para>
+    <para name="mudrod.download.weight">3</para>
+    <para name="mudrod.clickstream.svd.d">50</para>
+    <para name="mudrod.clickstream.weight">2</para>
 			 	
 	<!-- Metadata configuration -->
-	<para name="metadataAPI">https://podaac.jpl.nasa.gov/api/dataset?startIndex=$startIndex&amp;entries=10&amp;sortField=Dataset-AllTimePopularity&amp;sortOrder=asc&amp;id=&amp;value=&amp;search=</para>
-	<para name="metadataLinkageType">MetadataLinkage</para>
-    <para name="metadataSVDDimension">50</para>
-    <para name="metadataurl">null</para>
-    <para name="metadata_w">1</para>
-    <para name="raw_metadataType">RawMetadata</para>
+	<para name="mudrod.metadata.download">0</para>
+	<para name="mudrod.metadata.download.url">https://podaac.jpl.nasa.gov/api/dataset?startIndex=$startIndex&amp;entries=10&amp;sortField=Dataset-AllTimePopularity&amp;sortOrder=asc&amp;id=&amp;value=&amp;search=</para>
+    <para name="mudrod.metadata.svd.d">50</para>
+    <para name="mudrod.metadata.url">null</para>
+    <para name="mudrod.metadata.weight">1</para>
+    <para name="mudrod.metadata.type">RawMetadata</para>
        	
 	<!-- Ranking configuration -->
     <para name="svmSgdModel">${svmSgdModel.value}.zip</para> <!-- ${svmSgdModel.value} is resolved at build time. See the property in core/pom.xml for the value -->
        	
 	<!-- Recommendation configuration -->
-	<!-- FOLLOWING NEEDS TO BE ADDED TO MudrodConstants.java -->
-    <para name="recom_metadataType">RecomMetadata</para>
-    <!-- recommendation -->
-    <para name="metadataName">Dataset-ShortName</para> 
-    <para name="metadataSemanticSourece">DatasetParameter-Term,DatasetParameter-Variable,Dataset-ExtractTerm</para> 
-    <!-- <para name="metadataTermTFIDFSimType">MetadataTermTFIDFSim</para>
-    <para name="metadataWordTFIDFSimType">MetadataWordTFIDFSim</para>
-    <para name="metadataCodeSimType">MetadataCodeSim</para>
-    <para name="metadataSessionBasedSimType">MetadataSBSim</para>
-    <para name="metadataTopicSimType">MetadataTBSim</para> -->
-    
+    <para name="mudrod.metadata.id">Dataset-ShortName</para> 
+    <para name="mudrod.metadata.semantic.fields">DatasetParameter-Term,DatasetParameter-Variable,Dataset-ExtractTerm</para> 
     
     <!--The ontology service implementation. Possible values include
      EsipPortal - EsipPortalOntology
      EsipCOR - EsipCOROntology
      Local - gov.nasa.jpl.mudrod.ontology.process.Local-->
     <para name="mudrod.ontology.implementation">Local</para>
-    <para name="ontologyLinkageType">SWEETLinkage</para>
-    <para name="ontology_w">2</para>
+    <para name="mudrod.ontology.weight">2</para>
 </Config>

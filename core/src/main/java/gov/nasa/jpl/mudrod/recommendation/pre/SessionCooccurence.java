@@ -128,7 +128,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   private Map<String, String> getOnServiceMetadata(ESDriver es) {
 
     String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    String metadataType = props.getProperty("recom_metadataType");
+    String metadataType = MudrodConstants.RECOM_METADATA_TYPE;
 
     Map<String, String> shortnameMap = new HashMap<>();
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
@@ -137,7 +137,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
         //String shortName = (String) metadata.get("Dataset-ShortName");
-        String shortName = (String) metadata.get(props.getProperty("metadataName"));
+        String shortName = (String) metadata.get(props.getProperty(MudrodConstants.METADATA_ID));
         shortnameMap.put(shortName.toLowerCase(), shortName);
       }
 

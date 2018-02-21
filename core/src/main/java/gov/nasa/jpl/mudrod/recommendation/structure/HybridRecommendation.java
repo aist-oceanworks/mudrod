@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.main.MudrodEngine;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -44,7 +45,7 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   // format decimal
   DecimalFormat df = new DecimalFormat("#.00");
   // index name
-  protected static final String INDEX_NAME = "indexName";
+  protected static final String INDEX_NAME = MudrodConstants.ES_INDEX_NAME;
   private static final String WEIGHT = "weight";
 
   /**

@@ -11,6 +11,7 @@ package gov.nasa.jpl.mudrod.recommendation.pre;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.recommendation.structure.MetadataTokenizer;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
@@ -68,7 +69,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    String metadataName = props.getProperty("metadataName");
+    String metadataName = props.getProperty(MudrodConstants.METADATA_ID);
     JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, metadataName);
 
     JavaPairRDD<String, List<String>> metadataWords = opt.tokenizeData(metadataContents, " ");
@@ -84,7 +85,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    String source = props.getProperty("metadataSemanticSourece");
+    String source = props.getProperty(MudrodConstants.SEMANTIC_FIELDS);
     List<String> variables = new ArrayList<String>(Arrays.asList(source.split(",")));
     
     /*List<String> variables = new ArrayList<>();
@@ -92,7 +93,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
     variables.add("DatasetParameter-Variable");
     variables.add("Dataset-ExtractTerm");*/
 
-    String metadataName = props.getProperty("metadataName");
+    String metadataName = props.getProperty(MudrodConstants.METADATA_ID);
     JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables, metadataName);
 
     JavaPairRDD<String, List<String>> metadataTokens = opt.tokenizeData(metadataContents, ",");

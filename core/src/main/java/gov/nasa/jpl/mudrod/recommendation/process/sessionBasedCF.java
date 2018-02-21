@@ -11,6 +11,7 @@ package gov.nasa.jpl.mudrod.recommendation.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.semantics.SemanticAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import gov.nasa.jpl.mudrod.utils.SimilarityUtil;
@@ -53,7 +54,7 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
       if (f.exists()) {
         SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
         List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
-        analyzer.saveToES(triples, props.getProperty("indexName"), props.getProperty("metadataSessionBasedSimType"), true, false);
+        analyzer.saveToES(triples, props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("metadataSessionBasedSimType"), true, false);
       }
 
     } catch (Exception e) {

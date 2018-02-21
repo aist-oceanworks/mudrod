@@ -269,6 +269,7 @@ public class MudrodEngine {
   /**
    * Only preprocess various {@link DiscoveryEngineAbstract} implementations for
    * weblog, ontology and metadata, linkage discovery and integration.
+   * This command dose not perform log preprocessing
    */
   public void startProcessing() {
     DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
@@ -419,7 +420,7 @@ public class MudrodEngine {
     me.props.put("ontologyInputDir", dataDir + "SWEET_ocean/");
     me.props.put("oceanTriples", dataDir + "Ocean_triples.csv");
     me.props.put("userHistoryMatrix", dataDir + "UserHistoryMatrix.csv");
-    me.props.put("clickstreamMatrix", dataDir + "ClickstreamMatrix.csv");
+    me.props.put(MudrodConstants.CLICKSTREAM_PATH, dataDir + "ClickstreamMatrix.csv");
     me.props.put("metadataMatrix", dataDir + "MetadataMatrix.csv");
     me.props.put("clickstreamSVDMatrix_tmp", dataDir + "clickstreamSVDMatrix_tmp.csv");
     me.props.put("metadataSVDMatrix_tmp", dataDir + "metadataSVDMatrix_tmp.csv");
