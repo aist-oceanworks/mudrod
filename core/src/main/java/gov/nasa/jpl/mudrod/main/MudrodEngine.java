@@ -180,8 +180,13 @@ public class MudrodEngine {
     } catch (JDOMException | IOException e) {
       LOG.error("Exception whilst retrieving or processing XML contained within 'config.xml'!", e);
     }
+    
+    //for recommendation
+    props.put("metadataTermTFIDFSimType", "MetadataTermTFIDFSim");
+    props.put("metadataWordTFIDFSimType", "MetadataWordTFIDFSim");
+    props.put("metadataFeatureSimType", "MetadataFeatureSim");
+    props.put("metadataSessionBasedSimType", "MetadataSessionSim");
     return getConfig();
-
   }
 
   private String decompressSVMWithSGDModel(String archiveName) throws IOException {
@@ -252,16 +257,16 @@ public class MudrodEngine {
   }
 
   public void startFullIngest() {
-    DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
+    /*DiscoveryEngineAbstract wd = new WeblogDiscoveryEngine(props, es, spark);
     wd.preprocess();
     wd.process();
 
     DiscoveryEngineAbstract md = new MetadataDiscoveryEngine(props, es, spark);
     md.preprocess();
-    md.process();
+    md.process();*/
 
     DiscoveryEngineAbstract recom = new RecommendEngine(props, es, spark);
-    recom.preprocess();
+    //recom.preprocess();
     recom.process();
     LOG.info("Full ingest has finished successfully.");
   }
@@ -430,12 +435,6 @@ public class MudrodEngine {
     me.props.put("metadata_term_tfidf_matrix", dataDir + "metadata_term_tfidf.csv");
     me.props.put("metadata_word_tfidf_matrix", dataDir + "metadata_word_tfidf.csv");
     me.props.put("session_metadata_Matrix", dataDir + "metadata_session_coocurrence_matrix.csv");
-
-    //for recommendation
-    me.props.put("metadataTermTFIDFSimType", dataDir + "MetadataTermTFIDFSim");
-    me.props.put("metadataWordTFIDFSimType", dataDir + "MetadataWordTFIDFSim");
-    me.props.put("metadataFeatureSimType", dataDir + "MetadataFeatureSim");
-    me.props.put("metadataSessionBasedSimType", dataDir + "MetadataSessionSim");
   }
 
   /**
