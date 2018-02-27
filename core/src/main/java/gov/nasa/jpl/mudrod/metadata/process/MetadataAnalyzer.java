@@ -69,8 +69,8 @@ public class MetadataAnalyzer extends DiscoveryStepAbstract implements Serializa
 
       SVDAnalyzer analyzer = new SVDAnalyzer(props, es, spark);
       int svdDimension = Integer.parseInt(props.getProperty(MudrodConstants.METADATA_SVD_DIM));
-      String metadataMatrixFile = props.getProperty("metadataMatrix");
-      String svdMatrixFileName = props.getProperty("metadataSVDMatrix_tmp");
+      String metadataMatrixFile = props.getProperty(MudrodConstants.METADATA_MATRIX_PATH);
+      String svdMatrixFileName = props.getProperty(MudrodConstants.METADATA_SVD_PATH);
 
       analyzer.getSVDMatrix(metadataMatrixFile, svdDimension, svdMatrixFileName);
       List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(svdMatrixFileName);

@@ -58,7 +58,7 @@ public class FeatureBasedSimilarity extends DiscoveryStepAbstract implements Ser
 
     indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
     metadataType = MudrodConstants.RECOM_METADATA_TYPE;
-    variableSimType = props.getProperty("metadataFeatureSimType");
+    variableSimType = MudrodConstants.METADATA_FEATURE_SIM_TYPE;
  
     // !!! important, please change to other class when using other metadata
     metadata = new PODAACMetadataFeature();

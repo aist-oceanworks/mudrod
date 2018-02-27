@@ -16,6 +16,8 @@ package gov.nasa.jpl.mudrod.ontology.pre;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+
 import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -51,7 +53,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
    */
   @Override
   public Object execute() {
-    File file = new File(this.props.getProperty("oceanTriples"));
+    File file = new File(this.props.getProperty(MudrodConstants.ONTOLOGY_PATH));
     if (file.exists()) {
       file.delete();
     }
@@ -69,7 +71,7 @@ public class AggregateTriples extends DiscoveryStepAbstract {
       e.printStackTrace();
     }
 
-    File[] files = new File(this.props.getProperty("ontologyInputDir")).listFiles();
+    File[] files = new File(this.props.getProperty(MudrodConstants.ONTOLOGY_INPUT_PATH)).listFiles();
     for (File file_in : files) {
       String ext = FilenameUtils.getExtension(file_in.getAbsolutePath());
       if ("owl".equals(ext)) {

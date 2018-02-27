@@ -87,13 +87,13 @@ public class HybridRecommendation extends DiscoveryStepAbstract {
   public JsonObject getRecomDataInJson(String input, int num) {
     JsonObject resultJson = new JsonObject();
 
-    String type = props.getProperty("metadataFeatureSimType");
+    String type = MudrodConstants.METADATA_FEATURE_SIM_TYPE;
     Map<String, Double> sortedVariableSimMap = getRelatedData(type, input, num + 10);
 
-    type = props.getProperty("metadataWordTFIDFSimType");
+    type = MudrodConstants.METADATA_WORD_SIM_TYPE;
     Map<String, Double> sortedAbstractSimMap = getRelatedData(type, input, num + 10);
 
-    type = props.getProperty("metadataSessionBasedSimType");
+    type = MudrodConstants.METADATA_SESSION_SIM_TYPE;
     Map<String, Double> sortedSessionSimMap = getRelatedData(type, input, num + 10);
 
     JsonElement variableSimJson = mapToJson(sortedVariableSimMap, num);

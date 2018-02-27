@@ -60,7 +60,7 @@ public class HistoryGenerator extends LogAbstract {
    */
   public void generateBinaryMatrix() {
     try {
-      File file = new File(props.getProperty("userHistoryMatrix"));
+      File file = new File(props.getProperty(MudrodConstants.USER_HISTORY_PATH));
       if (file.exists()) {
         file.delete();
       }

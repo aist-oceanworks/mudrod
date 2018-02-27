@@ -61,7 +61,7 @@ public class MatrixGenerator extends DiscoveryStepAbstract {
     LOG.info("Metadata matrix started");
     startTime = System.currentTimeMillis();
 
-    String metadataMatrixFile = props.getProperty("metadataMatrix");
+    String metadataMatrixFile = props.getProperty(MudrodConstants.METADATA_MATRIX_PATH);
     try {
       MetadataExtractor extractor = new MetadataExtractor();
       JavaPairRDD<String, List<String>> metadataTermsRDD = extractor.loadMetadata(this.es, this.spark.sc, props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE));

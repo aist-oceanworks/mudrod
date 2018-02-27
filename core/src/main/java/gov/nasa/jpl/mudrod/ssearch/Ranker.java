@@ -42,7 +42,7 @@ public class Ranker extends MudrodAbstract implements Serializable {
   public Ranker(Properties props, ESDriver es, SparkDriver spark, String learnerType) {
     super(props, es, spark);
     this.learnerType = learnerType;
-    le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.SVM_SGD_MODEL));
+    le = new Learner(learnerType, spark, props.getProperty(MudrodConstants.RANKING_MODEL));
   }
 
   /**

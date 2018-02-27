@@ -49,12 +49,12 @@ public class sessionBasedCF extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     try {
-      String session_metadatFile = props.getProperty("session_metadata_Matrix");
+      String session_metadatFile = props.getProperty(MudrodConstants.METADATA_SESSION_MATRIX_PATH);
       File f = new File(session_metadatFile);
       if (f.exists()) {
         SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
         List<LinkageTriple> triples = analyzer.calTermSimfromMatrix(session_metadatFile, SimilarityUtil.SIM_PEARSON, 1);
-        analyzer.saveToES(triples, props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("metadataSessionBasedSimType"), true, false);
+        analyzer.saveToES(triples, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.METADATA_SESSION_SIM_TYPE, true, false);
       }
 
     } catch (Exception e) {

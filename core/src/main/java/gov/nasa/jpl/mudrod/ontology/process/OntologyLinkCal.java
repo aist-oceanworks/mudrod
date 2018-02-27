@@ -72,7 +72,7 @@ public class OntologyLinkCal extends DiscoveryStepAbstract {
     double weight = 0;
 
     try {
-      br = new BufferedReader(new FileReader(props.getProperty("oceanTriples")));
+      br = new BufferedReader(new FileReader(props.getProperty(MudrodConstants.ONTOLOGY_PATH)));
       while ((line = br.readLine()) != null) {
         String[] strList = line.toLowerCase().split(",");
         if (strList[1].equals("subclassof")) {

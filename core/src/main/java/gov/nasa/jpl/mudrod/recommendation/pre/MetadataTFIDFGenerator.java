@@ -76,7 +76,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     LabeledRowMatrix wordtfidfMatrix = opt.tFIDFTokens(metadataWords, spark);
 
-    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty("metadata_word_tfidf_matrix"));
+    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
 
     return wordtfidfMatrix;
   }
@@ -87,11 +87,6 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     String source = props.getProperty(MudrodConstants.SEMANTIC_FIELDS);
     List<String> variables = new ArrayList<String>(Arrays.asList(source.split(",")));
-    
-    /*List<String> variables = new ArrayList<>();
-    variables.add("DatasetParameter-Term");
-    variables.add("DatasetParameter-Variable");
-    variables.add("Dataset-ExtractTerm");*/
 
     String metadataName = props.getProperty(MudrodConstants.METADATA_ID);
     JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables, metadataName);
@@ -100,7 +95,7 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
     LabeledRowMatrix tokentfidfMatrix = opt.tFIDFTokens(metadataTokens, spark);
 
-    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty("metadata_term_tfidf_matrix"));
+    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty(MudrodConstants.METADATA_TERM_MATRIX_PATH));
 
     return tokentfidfMatrix;
   }

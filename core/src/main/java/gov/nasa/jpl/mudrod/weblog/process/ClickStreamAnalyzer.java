@@ -57,8 +57,8 @@ public class ClickStreamAnalyzer extends DiscoveryStepAbstract {
         SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
         svd.getSVDMatrix(clickstream_matrixFile, 
             Integer.parseInt(props.getProperty(MudrodConstants.CLICKSTREAM_SVD_DIM)), 
-            props.getProperty("clickstreamSVDMatrix_tmp"));
-        List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("clickstreamSVDMatrix_tmp"));
+            props.getProperty(MudrodConstants.CLICKSTREAM_SVD_PATH));
+        List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty(MudrodConstants.CLICKSTREAM_SVD_PATH));
         svd.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.CLICK_STREAM_LINKAGE_TYPE);
       
         // Store click stream in ES for the ranking use

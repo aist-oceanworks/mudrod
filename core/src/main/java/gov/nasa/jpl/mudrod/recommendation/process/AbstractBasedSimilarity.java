@@ -47,9 +47,9 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
     try {
       // for comparison
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-      svd.getSVDMatrix(props.getProperty("metadata_word_tfidf_matrix"), 150, props.getProperty("metadata_word_tfidf_matrix"));
-      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("metadata_word_tfidf_matrix"));
-      svd.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty("metadataWordTFIDFSimType"), true, true);
+      svd.getSVDMatrix(props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH), 150, props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
+      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
+      svd.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.METADATA_WORD_SIM_TYPE, true, true);
 
     } catch (Exception e) {
       e.printStackTrace();
