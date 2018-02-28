@@ -53,7 +53,7 @@ import static gov.nasa.jpl.mudrod.main.MudrodConstants.DATA_DIR;
  * Main entry point for Running the Mudrod system. Invocation of this class is
  * tightly linked to the primary Mudrod configuration which can be located at
  * <a href=
- * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.xml">config.xml</a>.
+ * "https://github.com/mudrod/mudrod/blob/master/core/src/main/resources/config.properties">config.properties</a>.
  */
 public class MudrodEngine {
 
@@ -141,7 +141,7 @@ public class MudrodEngine {
     InputStream configStream = MudrodEngine.class.getClassLoader().getResourceAsStream("config.properties");
 
     if (configStream != null) {
-      LOG.info("Loaded config file from {}", MudrodEngine.class.getClassLoader().getResource("config.xml").getPath());
+      LOG.info("Loaded config file from {}", MudrodEngine.class.getClassLoader().getResource("config.properties").getPath());
     }
 
     return configStream;
