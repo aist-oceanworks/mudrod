@@ -3,6 +3,9 @@ package gov.nasa.jpl.mudrod.ssearch.ranking;
 import java.io.*;
 import java.text.DecimalFormat;
 
+/*
+ * Formats regular training data into spark SVM formats
+ */
 public class SparkFormatter {
   DecimalFormat NDForm = new DecimalFormat("#.###");
 

@@ -4,10 +4,10 @@ import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
 import gov.nasa.jpl.mudrod.recommendation.pre.ImportMetadata;
 import gov.nasa.jpl.mudrod.recommendation.pre.MetadataTFIDFGenerator;
-import gov.nasa.jpl.mudrod.recommendation.pre.NormalizeVariables;
+import gov.nasa.jpl.mudrod.recommendation.pre.NormalizeFeatures;
 import gov.nasa.jpl.mudrod.recommendation.pre.SessionCooccurence;
 import gov.nasa.jpl.mudrod.recommendation.process.AbstractBasedSimilarity;
-import gov.nasa.jpl.mudrod.recommendation.process.VariableBasedSimilarity;
+import gov.nasa.jpl.mudrod.recommendation.process.FeatureBasedSimilarity;
 import gov.nasa.jpl.mudrod.recommendation.process.sessionBasedCF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
     DiscoveryStepAbstract sessionMatrixGen = new SessionCooccurence(this.props, this.es, this.spark);
     sessionMatrixGen.execute();
 
-    DiscoveryStepAbstract transformer = new NormalizeVariables(this.props, this.es, this.spark);
+    DiscoveryStepAbstract transformer = new NormalizeFeatures(this.props, this.es, this.spark);
     transformer.execute();
 
     endTime = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class RecommendEngine extends DiscoveryEngineAbstract {
     DiscoveryStepAbstract tfCF = new AbstractBasedSimilarity(this.props, this.es, this.spark);
     tfCF.execute();
 
-    DiscoveryStepAbstract cbCF = new VariableBasedSimilarity(this.props, this.es, this.spark);
+    DiscoveryStepAbstract cbCF = new FeatureBasedSimilarity(this.props, this.es, this.spark);
     cbCF.execute();
 
     DiscoveryStepAbstract sbCF = new sessionBasedCF(this.props, this.es, this.spark);

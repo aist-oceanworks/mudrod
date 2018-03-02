@@ -14,6 +14,8 @@
 package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
+
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.weblog.pre.ImportLogFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 /**
  * This class represents an FTP access log line.
@@ -28,8 +31,12 @@ import java.util.Date;
 public class FtpLog extends WebLog implements Serializable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImportLogFile.class);
+  
+  public FtpLog() {
+	  super();
+  }
 
-  public static String parseFromLogLine(String log) {
+  public static String parseFromLogLine(String log, Properties props) {
 
     try {
       String ip = log.split(" +")[6];
@@ -46,7 +53,7 @@ public class FtpLog extends WebLog implements Serializable {
 
       if (!request.contains("/misc/") && !request.contains("readme")) {
         FtpLog ftplog = new FtpLog();
-        ftplog.LogType = "ftp";
+        ftplog.LogType = MudrodConstants.FTP_LOG;
         ftplog.IP = ip;
         ftplog.Request = request;
         ftplog.Bytes = Double.parseDouble(bytes);

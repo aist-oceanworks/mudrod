@@ -54,7 +54,7 @@ public class MetadataExtractor implements Serializable {
    * list extracted from metadata variables.
    */
   public JavaPairRDD<String, List<String>> loadMetadata(ESDriver es, JavaSparkContext sc, String index, String type) {
-    List<PODAACMetadata> metadatas = this.loadMetadataFromES(es, index, type);
+    List<Metadata> metadatas = this.loadMetadataFromES(es, index, type);
     JavaPairRDD<String, List<String>> metadataTermsRDD = this.buildMetadataRDD(es, sc, index, metadatas);
     return metadataTermsRDD;
   }
@@ -67,15 +67,15 @@ public class MetadataExtractor implements Serializable {
    * @param type  metadata type name
    * @return metadata list
    */
-  protected List<PODAACMetadata> loadMetadataFromES(ESDriver es, String index, String type) {
+  protected List<Metadata> loadMetadataFromES(ESDriver es, String index, String type) {
 
-    List<PODAACMetadata> metadatas = new ArrayList<PODAACMetadata>();
+    List<Metadata> metadatas = new ArrayList<Metadata>();
     SearchResponse scrollResp = es.getClient().prepareSearch(index).setTypes(type).setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000)).setSize(100).execute().actionGet();
 
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> result = hit.getSource();
-        String shortname = (String) result.get("Dataset-ShortName");
+        /*String shortname = (String) result.get("Dataset-ShortName");
         List<String> topic = (List<String>) result.get("DatasetParameter-Topic");
         List<String> term = (List<String>) result.get("DatasetParameter-Term");
         List<String> keyword = (List<String>) result.get("Dataset-Metadata");
@@ -91,7 +91,10 @@ public class MetadataExtractor implements Serializable {
         } catch (InterruptedException | ExecutionException e) {
           e.printStackTrace();
 
-        }
+        }*/
+        
+        // change PODAACMetadata class for other kind of metadata !!! important
+        Metadata metadata = new PODAACMetadata(result, es, index);
         metadatas.add(metadata);
       }
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
@@ -113,16 +116,16 @@ public class MetadataExtractor implements Serializable {
    * @return PairRDD, in each pair key is metadata short name and value is term
    * list extracted from metadata variables.
    */
-  protected JavaPairRDD<String, List<String>> buildMetadataRDD(ESDriver es, JavaSparkContext sc, String index, List<PODAACMetadata> metadatas) {
-    JavaRDD<PODAACMetadata> metadataRDD = sc.parallelize(metadatas);
-    JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD.mapToPair(new PairFunction<PODAACMetadata, String, List<String>>() {
+  protected JavaPairRDD<String, List<String>> buildMetadataRDD(ESDriver es, JavaSparkContext sc, String index, List<Metadata> metadatas) {
+    JavaRDD<Metadata> metadataRDD = sc.parallelize(metadatas);
+    JavaPairRDD<String, List<String>> metadataTermsRDD = metadataRDD.mapToPair(new PairFunction<Metadata, String, List<String>>() {
       /**
        *
        */
       private static final long serialVersionUID = 1L;
 
       @Override
-      public Tuple2<String, List<String>> call(PODAACMetadata metadata) throws Exception {
+      public Tuple2<String, List<String>> call(Metadata metadata) throws Exception {
         return new Tuple2<String, List<String>>(metadata.getShortName(), metadata.getAllTermList());
       }
     }).reduceByKey(new Function2<List<String>, List<String>, List<String>>() {

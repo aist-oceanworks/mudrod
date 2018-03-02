@@ -11,6 +11,7 @@ package gov.nasa.jpl.mudrod.recommendation.process;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.semantics.SVDAnalyzer;
 import gov.nasa.jpl.mudrod.utils.LinkageTriple;
 import org.slf4j.Logger;
@@ -44,18 +45,11 @@ public class AbstractBasedSimilarity extends DiscoveryStepAbstract {
     startTime = System.currentTimeMillis();
 
     try {
-      /*String topicMatrixFile = props.getProperty("metadata_term_tfidf_matrix");
-      SemanticAnalyzer analyzer = new SemanticAnalyzer(props, es, spark);
-      List<LinkageTriple> triples = analyzer
-          .calTermSimfromMatrix(topicMatrixFile);
-      analyzer.saveToES(triples, props.getProperty("indexName"),
-          props.getProperty("metadataTermTFIDFSimType"), true, true);*/
-
       // for comparison
       SVDAnalyzer svd = new SVDAnalyzer(props, es, spark);
-      svd.getSVDMatrix(props.getProperty("metadata_word_tfidf_matrix"), 150, props.getProperty("metadata_word_tfidf_matrix"));
-      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty("metadata_word_tfidf_matrix"));
-      svd.saveToES(tripleList, props.getProperty("indexName"), props.getProperty("metadataWordTFIDFSimType"), true, true);
+      svd.getSVDMatrix(props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH), 150, props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
+      List<LinkageTriple> tripleList = svd.calTermSimfromMatrix(props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
+      svd.saveToES(tripleList, props.getProperty(MudrodConstants.ES_INDEX_NAME), MudrodConstants.METADATA_WORD_SIM_TYPE, true, true);
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -56,20 +56,6 @@ public class CrawlerDetection extends LogAbstract {
   private static final long serialVersionUID = 1L;
   private static final Logger LOG = LoggerFactory.getLogger(CrawlerDetection.class);
 
-  public static final String CRAWLER = "crawler";
-  public static final String GOOGLE_BOT = "googlebot";
-  public static final String BING_BOT = "bingbot";
-  public static final String YAHOO_BOT = "slurp";
-  public static final String YACY_BOT = "yacybot";
-  public static final String ROGER_BOT = "rogerbot";
-  public static final String YANDEX_BOT = "yandexbot";
-
-  public static final String NO_AGENT_BOT = "-";
-  public static final String PERL_BOT = "libwww-perl/";
-  public static final String APACHE_HHTP = "apache-httpclient/";
-  public static final String JAVA_CLIENT = "java/";
-  public static final String CURL = "curl/";
-
   /**
    * Paramterized constructor to instantiate a configured instance of
    * {@link CrawlerDetection}
@@ -84,8 +70,8 @@ public class CrawlerDetection extends LogAbstract {
     super(props, es, spark);
   }
 
-  public CrawlerDetection() {
-    super(null, null, null);
+  public CrawlerDetection(Properties props) {
+    super(props, null, null);
   }
 
   @Override
@@ -110,13 +96,11 @@ public class CrawlerDetection extends LogAbstract {
    * @return 1 if the log is initiated by crawler, 0 otherwise
    */
   public boolean checkKnownCrawler(String agent) {
-    agent = agent.toLowerCase();
-    if (agent.contains(CRAWLER) || agent.contains(GOOGLE_BOT) || agent.contains(BING_BOT) || agent.contains(APACHE_HHTP) || agent.contains(PERL_BOT) || agent.contains(YAHOO_BOT) || agent
-        .contains(YANDEX_BOT) || agent.contains(NO_AGENT_BOT) || agent.contains(PERL_BOT) || agent.contains(APACHE_HHTP) || agent.contains(JAVA_CLIENT) || agent.contains(CURL)) {
-      return true;
-    } else {
-      return false;
-    }
+    String[] crawlers = props.getProperty(MudrodConstants.BLACK_LIST_AGENT).split(",");
+    for (int i = 0; i < crawlers.length; i++) {
+      if (agent.toLowerCase().contains(crawlers[i].trim())) return true;
+    }  
+    return false;
   }
 
   public void checkByRate() throws InterruptedException, IOException {
@@ -138,7 +122,7 @@ public class CrawlerDetection extends LogAbstract {
   public void checkByRateInSequential() throws InterruptedException, IOException {
     es.createBulkProcessor();
 
-    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    int rate = Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_RATE));
 
     Terms users = this.getUserTerms(this.httpType);
     LOG.info("Original User count: {}", Integer.toString(users.getBuckets().size()));
@@ -178,7 +162,7 @@ public class CrawlerDetection extends LogAbstract {
 
   private int checkByRate(ESDriver es, String user) {
 
-    int rate = Integer.parseInt(props.getProperty("sendingrate"));
+    int rate = Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_RATE));
     Pattern pattern = Pattern.compile("get (.*?) http/*");
     Matcher matcher;
 
@@ -202,13 +186,13 @@ public class CrawlerDetection extends LogAbstract {
         for (SearchHit hit : scrollResp.getHits().getHits()) {
           Map<String, Object> result = hit.getSource();
           String logtype = (String) result.get("LogType");
-          if (logtype.equals("PO.DAAC")) {
+          if (logtype.equals(MudrodConstants.HTTP_LOG)) {
             String request = (String) result.get("Request");
             matcher = pattern.matcher(request.trim().toLowerCase());
             boolean find = false;
             while (matcher.find()) {
               request = matcher.group(1);
-              result.put("RequestUrl", "http://podaac.jpl.nasa.gov" + request);
+              result.put("RequestUrl", props.getProperty(MudrodConstants.BASE_URL) + request);
               find = true;
             }
             if (!find) {

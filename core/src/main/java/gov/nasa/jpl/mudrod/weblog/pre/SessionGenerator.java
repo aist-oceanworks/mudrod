@@ -75,11 +75,11 @@ public class SessionGenerator extends LogAbstract {
   public void generateSession() {
     try {
       es.createBulkProcessor();
-      genSessionByReferer(Integer.parseInt(props.getProperty("timegap")));
+      genSessionByReferer(Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_TIME_GAP)));
       es.destroyBulkProcessor();
 
       es.createBulkProcessor();
-      combineShortSessions(Integer.parseInt(props.getProperty("timegap")));
+      combineShortSessions(Integer.parseInt(props.getProperty(MudrodConstants.REQUEST_TIME_GAP)));
       es.destroyBulkProcessor();
     } catch (ElasticsearchException e) {
       LOG.error("Error whilst executing bulk processor.", e);
@@ -241,7 +241,7 @@ public class SessionGenerator extends LogAbstract {
     String logType = "";
     String id = "";
     String ip = user;
-    String indexUrl = "http://podaac.jpl.nasa.gov/";
+    String indexUrl = props.getProperty(MudrodConstants.BASE_URL) + "/";
     DateTime time = null;
     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 
@@ -254,7 +254,7 @@ public class SessionGenerator extends LogAbstract {
         time = fmt.parseDateTime((String) result.get("Time"));
         id = hit.getId();
 
-        if ("PO.DAAC".equals(logType)) {
+        if (MudrodConstants.HTTP_LOG.equals(logType)) {
           if ("-".equals(referer) || referer.equals(indexUrl) || !referer.contains(indexUrl)) {
             sessionCountIn++;
             sessionReqs.put(ip + "@" + sessionCountIn, new HashMap<String, DateTime>());
@@ -313,7 +313,7 @@ public class SessionGenerator extends LogAbstract {
               }
             }
           }
-        } else if ("ftp".equals(logType)) {
+        } else if (MudrodConstants.FTP_LOG.equals(logType)) {
 
           // may affect computation efficiency
           Map<String, DateTime> requests = sessionReqs.get(ip + "@" + sessionCountIn);

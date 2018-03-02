@@ -63,11 +63,11 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
     JavaPairRDD<String, List<String>> sessionDatasetRDD = extractor.bulidSessionDatasetRDD(props, es, spark);
 
     // remove retired datasets
-    JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = removeRetiredDataset(es, sessionDatasetRDD);
-    LabeledRowMatrix datasetSessionMatrix = MatrixUtil.createWordDocMatrix(sessionFiltedDatasetsRDD);
+    // JavaPairRDD<String, List<String>> sessionFiltedDatasetsRDD = removeRetiredDataset(es, sessionDatasetRDD);
+    LabeledRowMatrix datasetSessionMatrix = MatrixUtil.createWordDocMatrix(sessionDatasetRDD);
 
     // export
-    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix, datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys, props.getProperty("session_metadata_Matrix"));
+    MatrixUtil.exportToCSV(datasetSessionMatrix.rowMatrix, datasetSessionMatrix.rowkeys, datasetSessionMatrix.colkeys, props.getProperty(MudrodConstants.METADATA_SESSION_MATRIX_PATH));
 
     endTime = System.currentTimeMillis();
 
@@ -128,7 +128,7 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
   private Map<String, String> getOnServiceMetadata(ESDriver es) {
 
     String indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    String metadataType = props.getProperty("recom_metadataType");
+    String metadataType = MudrodConstants.RECOM_METADATA_TYPE;
 
     Map<String, String> shortnameMap = new HashMap<>();
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
@@ -136,7 +136,8 @@ public class SessionCooccurence extends DiscoveryStepAbstract {
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> metadata = hit.getSource();
-        String shortName = (String) metadata.get("Dataset-ShortName");
+        //String shortName = (String) metadata.get("Dataset-ShortName");
+        String shortName = (String) metadata.get(props.getProperty(MudrodConstants.METADATA_ID));
         shortnameMap.put(shortName.toLowerCase(), shortName);
       }
 

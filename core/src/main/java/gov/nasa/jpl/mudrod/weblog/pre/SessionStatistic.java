@@ -111,7 +111,7 @@ public class SessionStatistic extends LogAbstract {
    * @return dataset ID
    */
   public String findDataset(String request) {
-    String pattern1 = "/dataset/";
+    String pattern1 = props.getProperty(MudrodConstants.VIEW_MARKER);
     String pattern2;
     if (request.contains("?")) {
       pattern2 = "?";
@@ -215,14 +215,14 @@ public class SessionStatistic extends LogAbstract {
           request = matcher.group(1);
         }
 
-        String datasetlist = "/datasetlist?";
-        String dataset = "/dataset/";
+        String datasetlist = props.getProperty(MudrodConstants.SEARCH_MARKER);
+        String dataset = props.getProperty(MudrodConstants.VIEW_MARKER);
         if (request.contains(datasetlist)) {
           searchDataListRequest_count++;
 
           RequestUrl requestURL = new RequestUrl();
           String infoStr = requestURL.getSearchInfo(request) + ",";
-          String info = es.customAnalyzing(props.getProperty("indexName"), infoStr);
+          String info = es.customAnalyzing(props.getProperty(MudrodConstants.ES_INDEX_NAME), infoStr);
 
           if (!info.equals(",")) {
             if (keywords.equals("")) {
@@ -241,21 +241,16 @@ public class SessionStatistic extends LogAbstract {
         }
         if (request.startsWith(dataset)) {
           searchDataRequest_count++;
-          if (findDataset(request) != null) {
+          if (findDataset(request) != null) 
+          {
             String view = findDataset(request);
-
-            if ("".equals(views)) {
+            if (views.equals("")) 
               views = view;
-            } else {
-              if (views.contains(view)) {
-
-              } else {
-                views = views + "," + view;
-              }
-            }
-          }
+             else if (!views.contains(view)) 
+                views = views + "," + view;          
+           }          
         }
-        if ("ftp".equals(logType)) {
+        if (MudrodConstants.FTP_LOG.equals(logType)) {
           ftpRequest_count++;
           String download = "";
           String requestLowercase = request.toLowerCase();
@@ -287,9 +282,13 @@ public class SessionStatistic extends LogAbstract {
       keywords_num = keywords.split(",").length;
     }
 
-    if (searchDataListRequest_count != 0 && searchDataListRequest_count <= Integer.parseInt(props.getProperty("searchf")) && searchDataRequest_count != 0 && searchDataRequest_count <= Integer
-        .parseInt(props.getProperty("viewf")) && ftpRequest_count <= Integer.parseInt(props.getProperty("downloadf"))) {
-      String sessionURL = props.getProperty("SessionPort") + props.getProperty("SessionUrl") + "?sessionid=" + sessionId + "&sessionType=" + outputType + "&requestType=" + inputType;
+    if (searchDataListRequest_count != 0 && 
+        searchDataListRequest_count <= Integer.parseInt(props.getProperty(MudrodConstants.SEARCH_F)) && 
+        searchDataRequest_count != 0 && 
+        searchDataRequest_count <= Integer.parseInt(props.getProperty(MudrodConstants.VIEW_F)) && 
+        ftpRequest_count <= Integer.parseInt(props.getProperty(MudrodConstants.DOWNLOAD_F))) 
+    {
+      String sessionURL = props.getProperty(MudrodConstants.SESSION_PORT) + props.getProperty(MudrodConstants.SESSION_URL) + "?sessionid=" + sessionId + "&sessionType=" + outputType + "&requestType=" + inputType;
       session_count = 1;
 
       IndexRequest ir = new IndexRequest(logIndex, outputType).source(

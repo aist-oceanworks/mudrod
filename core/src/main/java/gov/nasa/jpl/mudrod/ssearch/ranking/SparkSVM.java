@@ -21,6 +21,9 @@ import org.apache.spark.mllib.classification.SVMWithSGD;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.util.MLUtils;
 
+/*
+ * Creates SVM ranking model using Spark
+ */
 public class SparkSVM {
 
   private SparkSVM() {

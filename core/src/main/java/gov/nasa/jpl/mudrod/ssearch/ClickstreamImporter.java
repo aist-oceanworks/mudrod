@@ -79,7 +79,7 @@ public class ClickstreamImporter extends MudrodAbstract {
     String cvsSplitBy = ",";
 
     try {
-      br = new BufferedReader(new FileReader(props.getProperty("clickstreamMatrix")));
+      br = new BufferedReader(new FileReader(props.getProperty(MudrodConstants.CLICKSTREAM_PATH)));
       String line = br.readLine();
       // first item needs to be skipped
       String[] dataList = line.split(cvsSplitBy);

@@ -56,7 +56,8 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     //remove old metadata from ES
     es.deleteType(props.getProperty(MudrodConstants.ES_INDEX_NAME), props.getProperty(MudrodConstants.RAW_METADATA_TYPE));
     //harvest new metadata using PO.DAAC web services
-    harvestMetadatafromWeb();
+    if(props.getProperty(MudrodConstants.METADATA_DOWNLOAD).equals("1")) 
+      harvestMetadatafromWeb();
     es.createBulkProcessor();
     addMetadataMapping();
     importToES();
@@ -124,7 +125,9 @@ public class ApiHarvester extends DiscoveryStepAbstract {
     int doc_length = 0;
     JsonParser parser = new JsonParser();
     do {
-      String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      //String searchAPI = "https://podaac.jpl.nasa.gov/api/dataset?startIndex=" + Integer.toString(startIndex) + "&entries=10&sortField=Dataset-AllTimePopularity&sortOrder=asc&id=&value=&search=";
+      String searchAPI = props.getProperty(MudrodConstants.METADATA_DOWNLOAD_URL);
+      searchAPI = searchAPI.replace("$startIndex", Integer.toString(startIndex));
       HttpRequest http = new HttpRequest();
       String response = http.getRequest(searchAPI);
 

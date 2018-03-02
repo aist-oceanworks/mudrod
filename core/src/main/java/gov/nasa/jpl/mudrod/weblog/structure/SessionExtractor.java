@@ -250,17 +250,17 @@ public class SessionExtractor implements Serializable {
    */
   protected List<String> getSessions(Properties props, ESDriver es, String logIndex) {
 
-    String cleanupPrefix = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX);
-    String sessionStatPrefix = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX);
+    String cleanupType = MudrodConstants.CLEANUP_TYPE;
+    String sessionStatType = MudrodConstants.SESSION_STATS_TYPE;
 
     List<String> sessions = new ArrayList<>();
-    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(sessionStatPrefix).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
+    SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(sessionStatType).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery()).setSize(100).execute()
             .actionGet();
     while (true) {
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> session = hit.getSource();
         String sessionID = (String) session.get("SessionID");
-        sessions.add(sessionID + "," + logIndex + "," + cleanupPrefix);
+        sessions.add(sessionID + "," + logIndex + "," + cleanupType);
       }
 
       scrollResp = es.getClient().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
@@ -385,7 +385,7 @@ public class SessionExtractor implements Serializable {
     List<String> logIndexList = es.getIndexListWithPrefix(props.getProperty(MudrodConstants.LOG_INDEX));
     for (int n = 0; n < logIndexList.size(); n++) {
       String logIndex = logIndexList.get(n);
-      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(props.getProperty(MudrodConstants.SESSION_STATS_PREFIX)).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
+      SearchResponse scrollResp = es.getClient().prepareSearch(logIndex).setTypes(MudrodConstants.SESSION_STATS_TYPE).setScroll(new TimeValue(60000)).setQuery(QueryBuilders.matchAllQuery())
               .setSize(100).execute().actionGet();
       while (true) {
         for (SearchHit hit : scrollResp.getHits().getHits()) {

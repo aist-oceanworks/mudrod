@@ -54,7 +54,7 @@ public class TrainingImporter extends MudrodAbstract {
           .startObject("dataID").field("type", "string").field("index", "not_analyzed").endObject().startObject("label").field("type", "string").field("index", "not_analyzed").endObject().endObject()
           .endObject().endObject();
 
-      es.getClient().admin().indices().preparePutMapping(props.getProperty("indexName")).setType("trainingranking").setSource(Mapping).execute().actionGet();
+      es.getClient().admin().indices().preparePutMapping(props.getProperty(MudrodConstants.ES_INDEX_NAME)).setType("trainingranking").setSource(Mapping).execute().actionGet();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -78,7 +78,7 @@ public class TrainingImporter extends MudrodAbstract {
         String[] list = line.split(",");
         String query = file.getName().replace(".csv", "");
         if (list.length > 0) {
-          IndexRequest ir = new IndexRequest(props.getProperty("indexName"), "trainingranking")
+          IndexRequest ir = new IndexRequest(props.getProperty(MudrodConstants.ES_INDEX_NAME), "trainingranking")
               .source(jsonBuilder().startObject().field("query", query).field("dataID", list[0]).field("label", list[list.length - 1]).endObject());
           es.getBulkProcessor().add(ir);
         }

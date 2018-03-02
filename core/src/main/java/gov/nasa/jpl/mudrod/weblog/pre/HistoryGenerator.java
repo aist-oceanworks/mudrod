@@ -60,9 +60,7 @@ public class HistoryGenerator extends LogAbstract {
    */
   public void generateBinaryMatrix() {
     try {
-
-      System.out.println(props.getProperty("userHistoryMatrix"));
-      File file = new File(props.getProperty("userHistoryMatrix"));
+      File file = new File(props.getProperty(MudrodConstants.USER_HISTORY_PATH));
       if (file.exists()) {
         file.delete();
       }
@@ -79,13 +77,21 @@ public class HistoryGenerator extends LogAbstract {
       String[] logIndices = logIndexList.toArray(new String[0]);
       String[] statictypeArray = new String[] { this.sessionStats };
       int docCount = es.getDocCount(logIndices, statictypeArray);
+      
+      LOG.info(this.sessionStats + ":" + docCount);      
+      if (docCount==0) 
+      { 
+        bw.close(); 
+        file.delete();
+        return;
+      }
 
       SearchResponse sr = es.getClient().prepareSearch(logIndices).setTypes(statictypeArray).setQuery(QueryBuilders.matchAllQuery()).setSize(0)
           .addAggregation(AggregationBuilders.terms("IPs").field("IP").size(docCount)).execute().actionGet();
       Terms ips = sr.getAggregations().get("IPs");
       List<String> ipList = new ArrayList<>();
       for (Terms.Bucket entry : ips.getBuckets()) {
-        if (entry.getDocCount() > Integer.parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) { // filter
+        if (entry.getDocCount() >= Integer.parseInt(props.getProperty(MudrodConstants.QUERY_MIN))) { // filter
           // out
           // less
           // active users/ips
@@ -107,7 +113,7 @@ public class HistoryGenerator extends LogAbstract {
         Terms ipAgg = keyword.getAggregations().get("IPAgg");
 
         int distinctUser = ipAgg.getBuckets().size();
-        if (distinctUser > Integer.parseInt(props.getProperty(MudrodConstants.MINI_USER_HISTORY))) {
+        if (distinctUser >= Integer.parseInt(props.getProperty(MudrodConstants.QUERY_MIN))) {
           bw.write(keyword.getKey() + ",");
           for (Terms.Bucket IP : ipAgg.getBuckets()) {
 

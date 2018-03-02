@@ -18,7 +18,7 @@ import scala.Tuple2;
 import java.io.Serializable;
 import java.util.*;
 
-public class MetadataOpt implements Serializable {
+public class MetadataTokenizer implements Serializable {
 
   /**
    * 
@@ -31,24 +31,21 @@ public class MetadataOpt implements Serializable {
   public static final String SPLIT_BLANK = " ";
   public static final String SPLIT_COMMA = ",";
 
-  public MetadataOpt(Properties props) {
+  public MetadataTokenizer(Properties props) {
     indexName = props.getProperty(MudrodConstants.ES_INDEX_NAME);
-    metadataType = props.getProperty("recom_metadataType");
-
-    variables = new ArrayList<>();
-    variables.add("DatasetParameter-Term");
-    variables.add("DatasetParameter-Variable");
-    variables.add("Dataset-Description");
-    variables.add("Dataset-LongName");
+    metadataType = MudrodConstants.RECOM_METADATA_TYPE;
+    
+    String source = props.getProperty(MudrodConstants.SEMANTIC_FIELDS);
+    variables = new ArrayList<String>(Arrays.asList(source.split(",")));
   }
 
-  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark) throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables);
+  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark, String metadataName) throws Exception {
+    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables, metadataName);
     return this.parallizeData(spark, datasetsTokens);
   }
 
-  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark, List<String> variables) throws Exception {
-    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables);
+  public JavaPairRDD<String, String> loadAll(ESDriver es, SparkDriver spark, List<String> variables, String metadataName) throws Exception {
+    List<Tuple2<String, String>> datasetsTokens = this.loadMetadataFromES(es, variables, metadataName);
     return this.parallizeData(spark, datasetsTokens);
   }
 
@@ -99,7 +96,7 @@ public class MetadataOpt implements Serializable {
     return java.util.Arrays.asList(tokens);
   }
 
-  public List<Tuple2<String, String>> loadMetadataFromES(ESDriver es, List<String> variables) throws Exception {
+  public List<Tuple2<String, String>> loadMetadataFromES(ESDriver es, List<String> variables, String metadataName) throws Exception {
 
     SearchResponse scrollResp = es.getClient().prepareSearch(indexName).setTypes(metadataType).setQuery(QueryBuilders.matchAllQuery()).setScroll(new TimeValue(60000)).setSize(100).execute()
         .actionGet();
@@ -109,7 +106,7 @@ public class MetadataOpt implements Serializable {
 
       for (SearchHit hit : scrollResp.getHits().getHits()) {
         Map<String, Object> result = hit.getSource();
-        String shortName = (String) result.get("Dataset-ShortName");
+        String shortName = (String) result.get(metadataName);
 
         String filedStr = "";
         int size = variables.size();

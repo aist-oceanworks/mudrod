@@ -14,6 +14,8 @@
 package gov.nasa.jpl.mudrod.weblog.structure;
 
 import com.google.gson.Gson;
+
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
 import gov.nasa.jpl.mudrod.weblog.pre.CrawlerDetection;
 
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,10 +56,10 @@ public class ApacheAccessLog extends WebLog implements Serializable {
   }
 
   public ApacheAccessLog() {
-
+	  super();
   }
 
-  public static String parseFromLogLine(String log) throws IOException, ParseException {
+  public static String parseFromLogLine(String log, Properties props) throws IOException, ParseException {
 
     String logEntryPattern = "^([\\d.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"(.+?)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\" \"([^\"]+)\"";
     final int NUM_FIELDS = 9;
@@ -82,15 +85,16 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
     String request = matcher.group(5).toLowerCase();
     String agent = matcher.group(9);
-    CrawlerDetection crawlerDe = new CrawlerDetection();
+    CrawlerDetection crawlerDe = new CrawlerDetection(props);
     if (crawlerDe.checkKnownCrawler(agent)) {
       return lineJson;
     } else {
 
       boolean tag = false;
-      String[] mimeTypes = { ".js", ".css", ".jpg", ".png", ".ico", "image_captcha", "autocomplete", ".gif", "/alldata/", "/api/", "get / http/1.1", ".jpeg", "/ws/" };
+      
+      String[] mimeTypes = props.getProperty(MudrodConstants.BLACK_LIST_REQUEST).split(",");
       for (int i = 0; i < mimeTypes.length; i++) {
-        if (request.contains(mimeTypes[i])) {
+        if (request.contains(mimeTypes[i].trim())) {
           tag = true;
           return lineJson;
         }
@@ -98,7 +102,7 @@ public class ApacheAccessLog extends WebLog implements Serializable {
 
       if (tag == false) {
         ApacheAccessLog accesslog = new ApacheAccessLog();
-        accesslog.LogType = "PO.DAAC";
+        accesslog.LogType = MudrodConstants.HTTP_LOG;
         accesslog.IP = matcher.group(1);
         accesslog.Request = matcher.group(5);
         accesslog.Response = matcher.group(6);

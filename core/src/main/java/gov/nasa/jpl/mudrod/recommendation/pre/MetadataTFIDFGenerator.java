@@ -11,7 +11,8 @@ package gov.nasa.jpl.mudrod.recommendation.pre;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
-import gov.nasa.jpl.mudrod.recommendation.structure.MetadataOpt;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+import gov.nasa.jpl.mudrod.recommendation.structure.MetadataTokenizer;
 import gov.nasa.jpl.mudrod.utils.LabeledRowMatrix;
 import gov.nasa.jpl.mudrod.utils.MatrixUtil;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -65,35 +67,35 @@ public class MetadataTFIDFGenerator extends DiscoveryStepAbstract {
 
   public LabeledRowMatrix generateWordBasedTFIDF() throws Exception {
 
-    MetadataOpt opt = new MetadataOpt(props);
+    MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark);
+    String metadataName = props.getProperty(MudrodConstants.METADATA_ID);
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, metadataName);
 
     JavaPairRDD<String, List<String>> metadataWords = opt.tokenizeData(metadataContents, " ");
 
     LabeledRowMatrix wordtfidfMatrix = opt.tFIDFTokens(metadataWords, spark);
 
-    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty("metadata_word_tfidf_matrix"));
+    MatrixUtil.exportToCSV(wordtfidfMatrix.rowMatrix, wordtfidfMatrix.rowkeys, wordtfidfMatrix.colkeys, props.getProperty(MudrodConstants.METADATA_WORD_MATRIX_PATH));
 
     return wordtfidfMatrix;
   }
 
   public LabeledRowMatrix generateTermBasedTFIDF() throws Exception {
 
-    MetadataOpt opt = new MetadataOpt(props);
+    MetadataTokenizer opt = new MetadataTokenizer(props);
 
-    List<String> variables = new ArrayList<>();
-    variables.add("DatasetParameter-Term");
-    variables.add("DatasetParameter-Variable");
-    variables.add("Dataset-ExtractTerm");
+    String source = props.getProperty(MudrodConstants.SEMANTIC_FIELDS);
+    List<String> variables = new ArrayList<String>(Arrays.asList(source.split(",")));
 
-    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables);
+    String metadataName = props.getProperty(MudrodConstants.METADATA_ID);
+    JavaPairRDD<String, String> metadataContents = opt.loadAll(es, spark, variables, metadataName);
 
     JavaPairRDD<String, List<String>> metadataTokens = opt.tokenizeData(metadataContents, ",");
 
     LabeledRowMatrix tokentfidfMatrix = opt.tFIDFTokens(metadataTokens, spark);
 
-    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty("metadata_term_tfidf_matrix"));
+    MatrixUtil.exportToCSV(tokentfidfMatrix.rowMatrix, tokentfidfMatrix.rowkeys, tokentfidfMatrix.colkeys, props.getProperty(MudrodConstants.METADATA_TERM_MATRIX_PATH));
 
     return tokentfidfMatrix;
   }

@@ -47,17 +47,17 @@ public class LogAbstract extends DiscoveryStepAbstract {
 
   public LogAbstract(Properties props, ESDriver es, SparkDriver spark) {
     super(props, es, spark);
-    if (props != null) {
+    if (props != null && es != null) {
       initLogIndex();
     }
   }
 
   protected void initLogIndex() {
     logIndex = props.getProperty(MudrodConstants.LOG_INDEX) + props.getProperty(MudrodConstants.TIME_SUFFIX);
-    httpType = props.getProperty(MudrodConstants.HTTP_TYPE_PREFIX);
-    ftpType = props.getProperty(MudrodConstants.FTP_TYPE_PREFIX);
-    cleanupType = props.getProperty(MudrodConstants.CLEANUP_TYPE_PREFIX);
-    sessionStats = props.getProperty(MudrodConstants.SESSION_STATS_PREFIX);
+    httpType = MudrodConstants.HTTP_TYPE;
+    ftpType = MudrodConstants.FTP_TYPE;
+    cleanupType = MudrodConstants.CLEANUP_TYPE;
+    sessionStats = MudrodConstants.SESSION_STATS_TYPE;
 
     InputStream settingsStream = getClass().getClassLoader().getResourceAsStream(ES_SETTINGS);
     InputStream mappingsStream = getClass().getClassLoader().getResourceAsStream(ES_MAPPINGS);

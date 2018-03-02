@@ -19,6 +19,8 @@ import com.google.gson.JsonObject;
 import gov.nasa.jpl.mudrod.discoveryengine.DiscoveryStepAbstract;
 import gov.nasa.jpl.mudrod.driver.ESDriver;
 import gov.nasa.jpl.mudrod.driver.SparkDriver;
+import gov.nasa.jpl.mudrod.main.MudrodConstants;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -41,7 +43,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
   private static final long serialVersionUID = 1L;
   transient List<LinkedTerm> termList = new ArrayList<>();
   DecimalFormat df = new DecimalFormat("#.00");
-  private static final String INDEX_NAME = "indexName";
+  private static final String INDEX_NAME = MudrodConstants.ES_INDEX_NAME;
   private static final String WEIGHT = "weight";
 
   public LinkageIntegration(Properties props, ESDriver es, SparkDriver spark) {
@@ -53,7 +55,7 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    */
   class LinkedTerm {
     String term = null;
-    double weight = 0;
+    double weight = 0.0;
     String model = null;
 
     public LinkedTerm(String str, double w, String m) {
@@ -107,13 +109,10 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
       }
 
       double finalWeight = tmp + ((sumModelWeight - 2) * 0.05);
-      if (finalWeight < 0) {
-        finalWeight = 0;
-      }
-
-      if (finalWeight > 1) {
-        finalWeight = 1;
-      }
+      
+      if (finalWeight < 0) finalWeight = 0;
+      if (finalWeight > 1) finalWeight = 1;
+      
       termsMap.put(entry.getKey(), Double.parseDouble(df.format(finalWeight)));
     }
 
@@ -172,32 +171,32 @@ public class LinkageIntegration extends DiscoveryStepAbstract {
    * the similarities from different sources
    */
   public Map<String, List<LinkedTerm>> aggregateRelatedTermsFromAllmodel(String input) {
-    aggregateRelatedTerms(input, props.getProperty("userHistoryLinkageType"));
-    aggregateRelatedTerms(input, props.getProperty("clickStreamLinkageType"));
-    aggregateRelatedTerms(input, props.getProperty("metadataLinkageType"));
-    aggregateRelatedTermsSWEET(input, props.getProperty("ontologyLinkageType"));
+    aggregateRelatedTerms(input, MudrodConstants.USE_HISTORY_LINKAGE_TYPE);
+    aggregateRelatedTerms(input, MudrodConstants.CLICK_STREAM_LINKAGE_TYPE);
+    aggregateRelatedTerms(input, MudrodConstants.METADATA_LINKAGE_TYPE);
+    aggregateRelatedTermsSWEET(input, MudrodConstants.ONTOLOGY_LINKAGE_TYPE);
 
     return termList.stream().collect(Collectors.groupingBy(w -> w.term));
   }
 
   public int getModelweight(String model) {
-    if (model.equals(props.getProperty("userHistoryLinkageType"))) {
-      return Integer.parseInt(props.getProperty("userHistory_w"));
+    if (model.equals(MudrodConstants.USE_HISTORY_LINKAGE_TYPE)) {
+      return Integer.parseInt(props.getProperty(MudrodConstants.USER_HISTORY_W));
     }
 
-    if (model.equals(props.getProperty("clickStreamLinkageType"))) {
-      return Integer.parseInt(props.getProperty("clickStream_w"));
+    if (model.equals(MudrodConstants.CLICK_STREAM_LINKAGE_TYPE)) {
+      return Integer.parseInt(props.getProperty(MudrodConstants.CLICKSTREAM_W));
     }
 
-    if (model.equals(props.getProperty("metadataLinkageType"))) {
-      return Integer.parseInt(props.getProperty("metadata_w"));
+    if (model.equals(MudrodConstants.METADATA_LINKAGE_TYPE)) {
+      return Integer.parseInt(props.getProperty(MudrodConstants.METADATA_W));
     }
 
-    if (model.equals(props.getProperty("ontologyLinkageType"))) {
-      return Integer.parseInt(props.getProperty("ontology_w"));
+    if (model.equals(MudrodConstants.ONTOLOGY_LINKAGE_TYPE)) {
+      return Integer.parseInt(props.getProperty(MudrodConstants.ONTOLOGY_W));
     }
 
-    return 999999;
+    return Integer.MAX_VALUE;
   }
 
   /**

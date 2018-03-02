@@ -63,11 +63,11 @@ public class MudrodContextListener implements ServletContextListener {
     ServletContext ctx = arg0.getServletContext();
     Searcher searcher = new Searcher(props, me.getESDriver(), null);
     Ranker ranker = new Ranker(props, me.getESDriver(), me.getSparkDriver(), "SparkSVM");
-    Ontology ontImpl = new OntologyFactory(props).getOntology();
+    // Ontology ontImpl = new OntologyFactory(props).getOntology();
     ctx.setAttribute("MudrodInstance", me);
     ctx.setAttribute("MudrodSearcher", searcher);
     ctx.setAttribute("MudrodRanker", ranker);
-    ctx.setAttribute("Ontology", ontImpl);
+    // ctx.setAttribute("Ontology", ontImpl);
   }
 
 }
