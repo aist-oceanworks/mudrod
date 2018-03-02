@@ -157,6 +157,9 @@ public class MudrodEngine {
     InputStream configStream = locateConfig();
     try {
       props.load(configStream);
+      for(String key : props.stringPropertyNames()) {
+        props.put(key, props.getProperty(key).trim());
+      }
       String rankingModelPath = props.getProperty(MudrodConstants.RANKING_MODEL);
       props.put(MudrodConstants.RANKING_MODEL, decompressSVMWithSGDModel(rankingModelPath));
     } catch (IOException e) {
